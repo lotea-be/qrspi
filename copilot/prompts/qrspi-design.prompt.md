@@ -1,0 +1,105 @@
+---
+description: QRSPI stage D. Delegates to the qrspi-designer subagent to produce design.md (~200 lines). HUMAN REVIEW IS REQUIRED before stage S.
+argument-hint: <change-id>
+agent: qrspi-designer
+---
+
+You are running QRSPI stage **D (Design)** for the current project.
+
+Arguments: ${input}
+
+This is the highest-leverage stage. The output of this command must be
+reviewed (and possibly rewritten) by a human before any code is planned.
+
+Inputs:
+
+1. The change id (first token of `${input}`).
+2. The change description (the rest of `${input}`) — now visible
+   again, after being hidden during Research.
+3. Implicit: `openspec/changes/<id>/questions.md` and `research.md`.
+
+Verify both files exist. If not, refuse and tell the user which previous
+stage they need to run first.
+
+Then continue as the designer.
+
+Repository signals you may use (to list in-flight changes, use the **Glob**
+tool with pattern `openspec/changes/*` — do not shell out; Glob has no
+permission requirements and works on every platform):
+#file:requirements.md
+#file:tech-stack.md
+After the designer returns, append this banner to the chat:
+
+```
+⚠ HUMAN REVIEW REQUIRED.
+Read openspec/changes/<id>/design.md, edit it freely, and only then run:
+  /qrspi-structure <id>
+```
+
+**Interactive review (mandatory):** After writing `design.md`:
+
+1. **Open questions first:** If the "Open questions for the human" section
+   contains items, use the #tool:vscode/askQuestions to ask EACH question directly
+   (one at a time, with sensible multiple-choice options when possible).
+   Record answers back into `design.md` by ticking the checkboxes,
+   appending the answer, AND updating any numbered decision whose body
+   the OQ answer changes (auth matrices, table values, timestamps,
+   heading levels, etc.). The decisions presented in step 2 must already
+   be consistent with the OQ answers — do not walk the human through
+   approve/change on text that contradicts an OQ they just answered.
+
+2. **Decision-by-decision review:** For each design decision (D1, D2, …),
+   present the decision to the human using the #tool:vscode/askQuestions:
+   - Summarize the decision in 1–2 sentences (what was chosen and why).
+   - Offer choices: `["Approve", "Change (I'll explain)"]`.
+   - If the human selects "Change", ask a follow-up freeform question to
+     capture their preferred alternative, then update `design.md`
+     accordingly.
+
+   You may batch up to 4 decisions per vscode/askQuestions call (the tool's hard
+   cap). For designs with many decisions, walk them in successive
+   batched calls (e.g. D1–D4, D5–D8, …) rather than one round trip per
+   decision — the human still sees one prompt per decision inside each
+   batch.
+
+   If a numbered decision is also listed in "Open questions for the
+   human", it is resolved during the open-questions pass — do NOT
+   re-present it here. Note it to the human as "settled via OQ<n>" and
+   move on.
+
+   **Partial settlement (decisions↔OQs are many-to-many).** A single
+   decision may be *partly* settled by one or more OQs and *partly* still
+   open; equally, one OQ may touch several decisions. Do not treat "this
+   decision is mentioned in an OQ" as "skip the whole decision." Present
+   only the still-open part of the decision for approval, and note which
+   OQ(s) settled the rest — e.g. "D4: routing/`Location` header still
+   open; GET-endpoint settled via OQ1, `VoteCount` via OQ4, PUT-guard via
+   OQ5." If a decision is *entirely* settled by OQs, skip it with the
+   "settled via OQ<n>" note.
+
+3. **Final confirmation:** After all decisions are reviewed, ask the human
+   one final question: "All design decisions reviewed. Ready to proceed to
+   Structure?" with choices `["Yes — proceed to /qrspi-structure",
+   "I want to edit design.md manually first"]`.
+
+4. **Capture deferred work:** Read the `## Goals / Non-Goals` section's
+   Non-Goals (which name follow-up changes) plus anything the human moved
+   out of scope during the decision review. For each candidate *separable
+   future change*, offer it to the human one at a time (vscode/askQuestions:
+   *Add as idea / Skip*) and add each accepted one as an `idea` row with a
+   one-line *Why* in `openspec/backlog.md`. Follow the "Capturing deferred
+   work" rules in skill `qrspi-workflow` (offer-never-auto-append, dedup
+   against existing rows, minimal row); do not promote in-change
+   follow-ups. Skip silently if there are no Non-Goals worth promoting.
+
+5. **Commit step (mandatory):** After the human confirms, use the #tool:vscode/askQuestions:
+   question: "Commit design.md to the feature branch?"
+   choices: ["Yes — commit and push", "No — I'll commit later"]
+   If yes, run (add `openspec/backlog.md` only if you captured any idea rows in step 4):
+   ```
+   git add openspec/changes/<id>/design.md
+   git commit -m "docs(<id>): add design.md (QRSPI stage D)"
+   git push
+   ```
+
+6. Only after the human confirms, print the `Next stage` message.

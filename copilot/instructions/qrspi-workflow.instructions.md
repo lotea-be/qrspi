@@ -1,0 +1,133 @@
+---
+description: The eight-stage QRSPI workflow (Questions, Research, Design, Structure, Plan, Worktree, Implement, PR) used on top of OpenSpec. Load this when you need to know what stage you are in, what the next stage is, or why a stage exists.
+---
+
+## What QRSPI is
+
+QRSPI is the successor to Dex Horthy's RPI (Research → Plan → Implement). It
+fixes three failure modes RPI exhibited at scale:
+
+1. **Instruction budget overflow.** Mega-prompts silently drop deep
+   instructions. QRSPI restructures into smaller stages so each stage has a
+   shorter prompt.
+2. **Magic-word dependency.** Workflows that only work when the user types
+   exactly the right phrase are broken. Each QRSPI stage produces the right
+   behavior by default.
+3. **The plan-reading illusion.** Plans read well but build poorly. QRSPI
+   front-loads alignment (Q + R + D) before any code planning happens.
+
+## Before Q — the backlog
+
+QRSPI starts at Q, but candidate changes are tracked beforehand in
+`openspec/backlog.md`. It is a flat list of `idea` / `proposed` /
+`in-progress` / `merged` rows with a one-line *Why*. Consult it when
+deciding what to propose next, and update the matching row whenever a
+change is proposed, merged, or archived (remove archived rows — the
+`openspec/changes/archive/` folder is the source of truth for completed
+work). The backlog is not a stage and produces no QRSPI artifact; it just
+feeds Q.
+
+**Always commit the backlog edit in the same commit as the state change
+it reflects** — never as a separate follow-up. If you're proposing a
+change folder, archiving one, or merging a PR, the matching `backlog.md`
+edit goes in that same commit. This keeps the backlog atomic with the
+truth it describes.
+
+### Capturing deferred work
+
+As the alignment stages run, they surface work that is deliberately *not*
+part of the current change — a Non-Goal, an "out of scope" item, a scope
+answer that pushes something to "later". There are two kinds, handled
+differently:
+
+- **In-change follow-ups** (a gap *this* PR will leave: a reviewer open
+  issue, "mocked now, real impl in a later slice") belong in the change's
+  `followups.md`, **not** the backlog. See "After PR — the fix loop".
+- **Separable future changes** (genuinely a *different* change: "rate-limit
+  the new endpoint", "migrate the old callers") become a new `idea` row in
+  `openspec/backlog.md`.
+
+Stages **Q, D, and S** capture the second kind, under these rules:
+
+1. **Offer, never auto-append.** Present each candidate to the human one at
+   a time (vscode/askQuestions: *Add as idea / Skip*). The human decides per
+   item; a skipped item is dropped, not re-asked.
+2. **Dedup first.** Skip any candidate already covered by an existing
+   backlog row — match on intent, not exact wording.
+3. **Minimal row.** An accepted item is one `idea` row with a one-line
+   *Why*. Do not pre-fill a *Likely shape* the human hasn't scoped.
+4. **Same commit.** Added rows land in the same commit as the stage's
+   artifact, per the atomic-commit rule above.
+
+R and W do not capture: R is ticket-blind (it cannot judge what is in or
+out of scope), and W's cut slices are almost always the same change
+deferred to a later slice — an in-change concern, not a new backlog item.
+
+## The eight stages
+
+### Alignment phases (5)
+
+**Q — Questions.** Identify what the agent does not know. Generate targeted
+technical questions that force the model to touch the relevant parts of the
+codebase. Artifact: `openspec/changes/<id>/questions.md`.
+
+**R — Research.** Gather objective facts about the current codebase. **The
+ticket is hidden from this stage.** The agent traces logic, lists endpoints,
+maps the data model, and produces a factual record — no recommendations, no
+opinions about the change. Artifact: `openspec/changes/<id>/research.md`.
+
+**D — Design.** The agent brain-dumps its understanding into ~200 lines of
+markdown: current state, desired end state, design decisions. **The human
+reviews this and may rewrite it.** This is "brain surgery" — the place to
+correct architectural assumptions before any code is planned. Artifact:
+`openspec/changes/<id>/design.md`. **Never proceed to S without human review.**
+
+**S — Structure.** The "C header file" of the change. Signatures, new types,
+high-level phases, and the vertical slices that will be built. Artifact:
+`openspec/changes/<id>/proposal.md` plus `openspec/changes/<id>/specs/`.
+
+**P — Plan.** Tactical task list. Because D and S are already aligned, this
+should only be spot-checked, not deeply reviewed. Artifact:
+`openspec/changes/<id>/tasks.md`.
+
+### Execution phases (3)
+
+**W — Worktree.** Organize tasks into a hierarchy of vertical slices. Each
+branch maps to a testable unit of work. Artifact:
+`openspec/changes/<id>/worktree.md`.
+
+**I — Implement.** Write code. Tick tasks in `tasks.md` as you go.
+
+**PR — Pull Request.** Human reviews the code. No exceptions. Because Design
+and Structure were already aligned, this review is fast and contains few
+surprises. `/qrspi-pr` records the PR link in `openspec/changes/<id>/pr.md`
+and seeds `followups.md` with any open issues the reviewer found.
+
+## After PR — the fix loop
+
+QRSPI ends at PR, but small follow-ups always surface afterwards: the
+reviewer's "Open issues" list and code-level retrospective flags. These are
+tracked as checkboxes in `openspec/changes/<id>/followups.md` and resolved
+with `/qrspi-followup <id>` — a loop that hangs off the PR stage, not a ninth
+stage. Each fix keeps code, tests, and the change's **delta** spec in sync,
+ticks the follow-up, and commits `fix(<id>): ...` on the PR branch. See
+skill `qrspi-postpr-fix`. The change is ready to archive only when
+`followups.md` has no un-ticked boxes.
+
+## Rules of the road
+
+- One change at a time. Never run two QRSPI flows in the same session.
+- Each stage runs as a subagent (Task tool) so the orchestrator's context
+  stays clean. See skill `context-hygiene`.
+- Hide the ticket during Research. This is the most important rule.
+- Vertical slices in Structure, not horizontal layers. See skill
+  `vertical-slice`.
+- "Looks plausible" is the failure mode. Plans that read well do not
+  necessarily build well. Verification must go deeper than reading.
+
+## When you can skip stages
+
+Trivial changes (typo, lint fix, dependency bump under a patch version)
+can skip directly to `/qrspi-implement` with an inline one-paragraph plan.
+Anything that touches the data model, an API surface, or auth must go
+through the full flow.
