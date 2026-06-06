@@ -1,0 +1,10 @@
+# OS / editor cruft
+Thumbs.db
+.DS_Store
+*.swp
+.idea/
+.vscode/
+
+# Claude Code machine-local settings only — the repo's own project-scope tooling
+# (.claude/commands, .claude/skills) is kit-dev tooling and IS tracked.
+.claude/settings.local.json
