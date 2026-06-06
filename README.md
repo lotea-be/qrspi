@@ -58,7 +58,8 @@ qrspi/
     instructions/            #   *.instructions.md (referenced on demand)
   openspec-templates/        # the 5 canonical artifact templates (tool-independent, shared)
   sync-copilot.ps1           # deterministic claude/ -> copilot/ generator
-  install.ps1                # copies the chosen kit into ~/.claude and/or ~/.copilot
+  install.ps1 / install.sh   # copies the chosen kit into ~/.claude and/or ~/.copilot
+  uninstall.ps1 / uninstall.sh  # removes only the files this kit ships
   .claude/                   # kit-DEV tooling, project scope, NOT shipped to users:
                              #   /qrspi-sync-copilot command + skill (only useful in THIS repo)
   README.md
@@ -93,7 +94,7 @@ straight copy**. Never hand-edit `copilot/` — edit `claude/` and run
 
 ## Install
 
-From this repo:
+From this repo — **PowerShell** (Windows/macOS/Linux):
 
 ```powershell
 ./install.ps1                       # interactive: choose Claude / Copilot / Both
@@ -103,7 +104,18 @@ From this repo:
 ./install.ps1 -Target copilot -SkipSettings   # don't touch VS Code settings.json
 ```
 
-It merges — overwrites same-named files, leaves your other user-scope files untouched.
+…or the **Bash** equivalent (Linux/macOS, no PowerShell needed):
+
+```bash
+./install.sh                        # interactive: choose Claude / Copilot / Both
+./install.sh --target claude
+./install.sh --target copilot
+./install.sh --target both
+./install.sh --target copilot --skip-settings   # don't touch VS Code settings.json
+```
+
+Both scripts behave identically. They merge — overwrite same-named files, leave your
+other user-scope files untouched.
 
 - **Claude:** copies `claude/{agents,commands,skills}` + `openspec-templates/` into
   `~/.claude/`. **Restart Claude Code** afterwards.
@@ -120,6 +132,27 @@ It merges — overwrites same-named files, leaves your other user-scope files un
 - **Claude:** run `/qrspi` in any repo — it should print the stage map.
 - **Copilot:** in Copilot Chat, type `/` and confirm the `qrspi-*` prompts appear; the
   `qrspi-*` agents appear in the agents dropdown.
+
+### Uninstall
+
+The inverse of install — removes **only the files this kit ships** (it walks the repo's
+source trees and deletes the matching file at the install target), leaving any other file
+you keep in those shared folders alone. Empty folders are pruned.
+
+```powershell
+./uninstall.ps1                     # interactive: choose Claude / Copilot / Both
+./uninstall.ps1 -Target both -DryRun   # list what would be removed, delete nothing
+./uninstall.ps1 -Target both -Yes      # skip the confirmation prompt
+```
+
+```bash
+./uninstall.sh                      # interactive: choose Claude / Copilot / Both
+./uninstall.sh --target both --dry-run   # list what would be removed, delete nothing
+./uninstall.sh --target both --yes       # skip the confirmation prompt
+```
+
+It does **not** touch your VS Code `settings.json` — if you let install patch in the
+`chat.*FilesLocations` keys, remove them by hand.
 
 ---
 
