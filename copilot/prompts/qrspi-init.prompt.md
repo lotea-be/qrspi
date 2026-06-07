@@ -39,10 +39,17 @@ a. Confirm npx is available by running `npx --version` as a normal tool call
    (https://nodejs.org) and retry."
 
 b. Run `npx @fission-ai/openspec@1.4.1 init --tools none`. This creates
-   `openspec/config.yaml`, `openspec/changes/`, `openspec/specs/`, and the rest
-   of the directory skeleton. If the command exits non-zero (network error,
-   registry unavailable, etc.), stop, show the command output to the user, and
-   do NOT proceed to later steps.
+   `openspec/changes/`, `openspec/specs/`, and the rest of the directory
+   skeleton. If the command exits non-zero (network error, registry
+   unavailable, etc.), stop, show the command output to the user, and do NOT
+   proceed to later steps.
+
+   **It does NOT create `openspec/config.yaml`.** As of CLI v1.4.1, `--tools
+   none` forces non-interactive mode, and in non-interactive mode the CLI
+   prints `Config: skipped` and writes no config file (`--profile` does not
+   change this). OpenSpec itself treats a missing config as valid, but QRSPI
+   uses `openspec/config.yaml` as its "is-initialized" sentinel, so step b-bis
+   writes a minimal one.
 
    `--tools none` is a best-effort request to suppress tooling, **not a
    guarantee**: without it the OpenSpec CLI writes its own native
@@ -54,9 +61,33 @@ b. Run `npx @fission-ai/openspec@1.4.1 init --tools none`. This creates
    (`openspec/`) in the repo, never its Copilot tooling. Because older CLI
    versions ignore the flag, step 3 sweeps unconditionally regardless.
 
+b-bis. **Write the QRSPI sentinel config.** Because the CLI skips it (step b),
+   create `openspec/config.yaml` yourself with the repo-default schema and a
+   record of the CLI version that initialized the repo. The `schema` field is
+   the only one OpenSpec reads (`spec-driven` is the repo default);
+   `openspec_version` is informational — OpenSpec ignores unknown top-level
+   keys. Use the Write tool with this content:
+
+   ```yaml
+   # OpenSpec project configuration.
+   # `schema` selects the workflow schema; `spec-driven` is the repo default.
+   # Written by /qrspi-init because the OpenSpec CLI skips config in
+   # non-interactive (`--tools none`) mode, yet QRSPI uses this file as its
+   # "is-initialized" sentinel.
+   #
+   # `openspec_version` is informational only — OpenSpec reads just
+   # `schema`/`context`/`rules` and ignores any other top-level key.
+   schema: spec-driven
+   openspec_version: 1.4.1
+   ```
+
+   Keep `openspec_version` in sync with the pinned version run in step b. If a
+   future repo is re-initialized with a newer pinned CLI, update this value.
+
 c. Verify the result with Glob: `openspec/config.yaml`, `openspec/changes/`,
-   and `openspec/specs/` must all exist. If any are missing, report the missing
-   paths and stop.
+   and `openspec/specs/` must all exist. (`config.yaml` exists because step
+   b-bis wrote it; `changes/` and `specs/` come from the CLI.) If any are
+   missing, report the missing paths and stop.
 
 d. **Seed the QRSPI canonical templates.** `openspec init` does not ship these
    — copy them from the user-scope stash so the QRSPI agents' "authoritative
