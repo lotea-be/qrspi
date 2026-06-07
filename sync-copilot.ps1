@@ -5,9 +5,13 @@
 #  copilot/ is a GENERATED artifact. claude/ is the source of truth. This script
 #  DROPS and RECREATES copilot/ every run, so the trees never drift.
 #
-#  Run it:        ./sync-copilot.ps1
-#  Dry-run/diff:  ./sync-copilot.ps1 -Check     (regenerates to a temp dir and
-#                                                 diffs; does not touch copilot/)
+#  Run it:        ./sync-copilot.ps1          (PowerShell, any platform)
+#                 ./sync-copilot.sh           (bash wrapper -> same script via pwsh)
+#  Dry-run/diff:  ./sync-copilot.ps1 -Check   (regenerates to a temp dir and
+#                 ./sync-copilot.sh --check    diffs; does not touch copilot/)
+#
+#  Requires PowerShell 7+ (`pwsh`). The bash wrapper just forwards to pwsh, so the
+#  logic lives here in ONE place -- never port it to a second language.
 #
 #  HOW TO IMPROVE FIDELITY: never hand-edit copilot/ (it's overwritten next run)
 #  and never hand-edit individual generated files. Instead, improve THIS SCRIPT
@@ -21,7 +25,7 @@ param([switch]$Check)
 $ErrorActionPreference = 'Stop'
 $root = $PSScriptRoot
 $src  = Join-Path $root 'claude'
-$dst  = if ($Check) { Join-Path $env:TEMP ("copilot-check-" + [guid]::NewGuid().ToString('N').Substring(0,8)) } else { Join-Path $root 'copilot' }
+$dst  = if ($Check) { Join-Path ([System.IO.Path]::GetTempPath()) ("copilot-check-" + [guid]::NewGuid().ToString('N').Substring(0,8)) } else { Join-Path $root 'copilot' }
 
 # ---- config: prompt agent + argument-hint tables ---------------------------
 $agentFor = @{

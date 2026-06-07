@@ -19,6 +19,13 @@ needs to reach the Copilot artifacts:
    ./sync-copilot.ps1 -Check     # verify zero drift (CI-style check)
    ```
 
+   From bash, use the wrapper (it forwards to the same script via `pwsh`):
+
+   ```bash
+   ./sync-copilot.sh             # regenerate copilot/ from claude/
+   ./sync-copilot.sh --check     # verify zero drift (CI-style check)
+   ```
+
    For a reviewed pass, `/qrspi-sync-copilot` runs the script and improves the
    script when it finds a gap.
 

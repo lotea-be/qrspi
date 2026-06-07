@@ -1,0 +1,5 @@
+# Keep the sync scripts LF on every checkout so their shebangs work in bash
+# (a CRLF shebang resolves to `pwsh\r`, which env can't find). PowerShell 7
+# reads LF fine on Windows too, so LF is safe cross-platform.
+*.sh   text eol=lf
+*.ps1  text eol=lf
