@@ -1,0 +1,5 @@
+# OpenSpec project configuration.
+# `schema` selects the workflow schema; `spec-driven` is the repo default.
+# Written by /qrspi-init because openspec 1.4.1 skips config in non-interactive
+# (`--tools none`) mode, yet QRSPI uses this file as its "is-initialized" sentinel.
+schema: spec-driven
