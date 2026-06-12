@@ -1,44 +1,36 @@
 #!/usr/bin/env bash
-# Removes the QRSPI kit from Claude Code (~/.claude) and/or GitHub Copilot
-# (~/.copilot) user scope. The inverse of install.sh.
+# Removes the QRSPI GitHub Copilot kit from user scope (~/.copilot). The inverse
+# of install.sh.
 #
 # It deletes ONLY the files this repo ships: it walks the repo's source trees
-# (claude/, copilot/, openspec-templates/) and removes the matching file at the
-# install target. Any other file you keep in those shared folders is left alone.
-# Empty folders left behind by the removal are pruned.
+# (copilot/, openspec-templates/) and removes the matching file at ~/.copilot.
+# Any other file you keep in those shared folders is left alone. Empty folders
+# left behind by the removal are pruned.
 #
 # Linux/macOS counterpart of uninstall.ps1.
 #
+# Claude Code is delivered as a PLUGIN — remove it with `/plugin uninstall qrspi`,
+# not with this script. This script only removes the GitHub Copilot artifacts.
+#
 # Usage:
-#   ./uninstall.sh                      # interactive: choose Claude / Copilot / Both
-#   ./uninstall.sh --target claude
-#   ./uninstall.sh --target copilot
-#   ./uninstall.sh --target both
-#   ./uninstall.sh --target both --dry-run   # list what would be removed, delete nothing
-#   ./uninstall.sh --target both --yes       # skip the confirmation prompt
+#   ./uninstall.sh                  # remove the Copilot kit
+#   ./uninstall.sh --dry-run        # list what would be removed, delete nothing
+#   ./uninstall.sh --yes            # skip the confirmation prompt
 
 set -euo pipefail
 
 src="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-target=""
 dry_run=0
 assume_yes=0
 
 while [ $# -gt 0 ]; do
     case "$1" in
-        --target) target="${2:-}"; shift 2 ;;
-        --target=*) target="${1#*=}"; shift ;;
         --dry-run) dry_run=1; shift ;;
         --yes|-y) assume_yes=1; shift ;;
         -h|--help) grep '^#' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'; exit 0 ;;
         *) echo "Unknown argument: $1" >&2; exit 2 ;;
     esac
 done
-
-case "$target" in
-    claude|copilot|both|"") ;;
-    *) echo "Invalid --target '$target' (use claude, copilot, or both)" >&2; exit 2 ;;
-esac
 
 # Colors (suppressed when stdout is not a terminal).
 if [ -t 1 ]; then
@@ -48,20 +40,6 @@ else
     C_CYAN=""; C_GREEN=""; C_YELLOW=""; C_GRAY=""; C_DKCYAN=""; C_RESET=""
 fi
 say() { printf '%s%s%s\n' "${2:-}" "$1" "$C_RESET"; }
-
-if [ -z "$target" ]; then
-    say "Uninstall QRSPI from which tool?" "$C_CYAN"
-    echo "  [1] Claude Code  (~/.claude)"
-    echo "  [2] GitHub Copilot  (~/.copilot)"
-    echo "  [3] Both"
-    read -r -p "Choose 1/2/3: " choice
-    case "$choice" in
-        1) target="claude" ;;
-        2) target="copilot" ;;
-        3) target="both" ;;
-        *) target="claude" ;;
-    esac
-fi
 
 # Remove every empty directory under $root (bottom-up), then $root itself if empty.
 remove_empty_dirs() {
@@ -98,21 +76,13 @@ remove_mirrored() {
     echo "$n"
 }
 
-# Targets to process.
-if [ "$target" = "both" ]; then
-    tools=(claude copilot)
-else
-    tools=("$target")
-fi
-
-# Destination root for a tool.
-dst_for() { [ "$1" = "claude" ] && echo "$HOME/.claude" || echo "$HOME/.copilot"; }
+dst="$HOME/.copilot"
 
 # Confirm (destructive) unless --yes or --dry-run.
 if [ "$assume_yes" -eq 0 ] && [ "$dry_run" -eq 0 ]; then
     say "" ""
     say "This will remove QRSPI files from:" "$C_YELLOW"
-    for t in "${tools[@]}"; do say "  $(dst_for "$t")" "$C_YELLOW"; done
+    say "  $dst" "$C_YELLOW"
     say "Only files this repo ships are removed; your own files are left in place." "$C_GRAY"
     read -r -p "Proceed? (y/N) " ans
     case "$ans" in
@@ -121,35 +91,23 @@ if [ "$assume_yes" -eq 0 ] && [ "$dry_run" -eq 0 ]; then
     esac
 fi
 
+say "" ""
+say "Removing QRSPI (Copilot) from -> $dst" "$C_CYAN"
 total=0
-for t in "${tools[@]}"; do
-    dst="$(dst_for "$t")"
-    say "" ""
-    say "Removing QRSPI ($t) from -> $dst" "$C_CYAN"
-    if [ "$t" = "claude" ]; then
-        labels=(agents commands skills openspec-templates)
-        froms=("$src/claude/agents" "$src/claude/commands" "$src/claude/skills" "$src/openspec-templates")
-    else
-        labels=(agents instructions prompts openspec-templates)
-        froms=("$src/copilot/agents" "$src/copilot/instructions" "$src/copilot/prompts" "$src/openspec-templates")
-    fi
-    for i in "${!labels[@]}"; do
-        n="$(remove_mirrored "${froms[$i]}" "$dst/${labels[$i]}" "${labels[$i]}")"
-        total=$((total + n))
-    done
+labels=(agents instructions prompts openspec-templates)
+froms=("$src/copilot/agents" "$src/copilot/instructions" "$src/copilot/prompts" "$src/openspec-templates")
+for i in "${!labels[@]}"; do
+    n="$(remove_mirrored "${froms[$i]}" "$dst/${labels[$i]}" "${labels[$i]}")"
+    total=$((total + n))
 done
 
-# Note the VS Code settings keys install.sh may have added.
-for t in "${tools[@]}"; do
-    if [ "$t" = "copilot" ] && [ "$dry_run" -eq 0 ]; then
-        say "" ""
-        say "Note: install.sh may have added these keys to your VS Code settings.json." "$C_DKCYAN"
-        say "Remove them by hand if you no longer want Copilot reading ~/.copilot:" "$C_DKCYAN"
-        say '  "chat.promptFilesLocations" / "chat.agentFilesLocations" / "chat.instructionsFilesLocations"' "$C_YELLOW"
-        break
-    fi
-done
+if [ "$dry_run" -eq 0 ]; then
+    say "" ""
+    say "Note: install.sh may have added these keys to your VS Code settings.json." "$C_DKCYAN"
+    say "Remove them by hand if you no longer want Copilot reading ~/.copilot:" "$C_DKCYAN"
+    say '  "chat.promptFilesLocations" / "chat.agentFilesLocations" / "chat.instructionsFilesLocations"' "$C_YELLOW"
+fi
 
 verb=$([ "$dry_run" -eq 1 ] && echo "would be removed" || echo "removed")
 say "" ""
-say "Done ($target). $total file(s) $verb." "$C_CYAN"
+say "Done. $total file(s) $verb." "$C_CYAN"

@@ -44,9 +44,8 @@ Steps:
    `sync-copilot.ps1`** (the script is the durable record of the transform; the
    tree ships to Copilot-only users who never run the sync).
 
-Note: `install.ps1 -Target copilot` copies the generated tree into `~/.copilot/`;
-it does not regenerate. This command (and `sync-copilot.ps1`) only rebuilds the
-repo tree.
+Note: `install.ps1` copies the generated tree into `~/.copilot/`; it does not
+regenerate. This command (and `sync-copilot.ps1`) only rebuilds the repo tree.
 
 To peek at the current generated tree, use the **Glob** tool with pattern
 `copilot/{agents,prompts,instructions}/*` (it returns nothing if `copilot/`
