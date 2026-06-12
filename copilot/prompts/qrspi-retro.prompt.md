@@ -1,7 +1,7 @@
 ---
 description: Post-stage retrospective. Captures friction from a just-completed QRSPI stage and turns it into concrete edits to the prompts/skills/templates that govern that stage.
 argument-hint: <change-id> <stage>
-tools: ['search/codebase', 'search', 'edit/editFiles', 'execute/runInTerminal', 'execute/getTerminalOutput', 'fetch', 'vscode/askQuestions']
+tools: ['search/codebase', 'search', 'edit/editFiles', 'execute/runInTerminal', 'execute/getTerminalOutput', 'web/fetch', 'vscode/askQuestions']
 agent: agent
 ---
 

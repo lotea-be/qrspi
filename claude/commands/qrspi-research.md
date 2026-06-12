@@ -46,3 +46,11 @@ git add openspec/changes/<id>/research.md
 git commit -m "docs(<id>): add research.md (QRSPI stage R)"
 git push
 ```
+
+**Next-stage handoff (mandatory):** After the commit step, use the
+**AskUserQuestion** tool to ask whether to keep going:
+  question: "Stage R (Research) is complete. Continue to stage D (Design) now, or stop here?"
+  choices: ["Continue to /qrspi-design <id>", "Stop here — I'll resume later"]
+If they choose **Continue**, invoke `/qrspi-design <id>` now — run it as its own
+stage. If they choose **Stop**, print `Next stage: /qrspi-design <id>` and end
+your turn.

@@ -1,7 +1,7 @@
 ---
 description: QRSPI stage D. Delegates to the qrspi-designer subagent to produce design.md (~200 lines). HUMAN REVIEW IS REQUIRED before stage S.
 argument-hint: <change-id>
-agent: qrspi-designer
+agent: copilot-qrspi-designer
 ---
 
 You are running QRSPI stage **D (Design)** for the current project.
@@ -102,4 +102,9 @@ Read openspec/changes/<id>/design.md, edit it freely, and only then run:
    git push
    ```
 
-6. Only after the human confirms, print the `Next stage` message.
+6. **Next-stage handoff:** Act on the step 3 final-confirmation choice. If the
+   human chose **"Yes — proceed to /qrspi-structure"**, invoke
+   `/qrspi-structure <id>` now — run it as its own stage. If they chose **"I
+   want to edit design.md manually first"** (or stopped), print the banner above
+   (`Next stage: /qrspi-structure <id>`) and end your turn so they can review
+   and edit `design.md` before continuing.

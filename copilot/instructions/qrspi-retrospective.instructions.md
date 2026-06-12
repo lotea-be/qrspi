@@ -7,7 +7,7 @@ description: How to run a post-stage retrospective on a just-completed QRSPI sta
 Each QRSPI stage is governed by a triplet of files:
 
 - A **command** in `.github/prompts/qrspi-<stage>.prompt.md` (entrypoint)
-- An **agent** in `.github/agents/qrspi-<role>.agent.md` (the stage's worker)
+- An **agent** in `.github/agents/copilot-qrspi-<role>.agent.md` (the stage's worker)
 - One or more **skills** in `.github/instructions/<name>/` (shared methodology)
 
 Plus shared assets under `openspec/templates/`, `openspec/backlog.md`,
@@ -48,7 +48,7 @@ For stage `Q`:
 | Role | Claude path | GitHub path |
 |------|-------------|-------------|
 | Command | `.github/prompts/qrspi-questions.prompt.md` | `.github/prompts/qrspi-questions.prompt.md` |
-| Agent | `.github/agents/qrspi-questioner.agent.md` | `.github/agents/qrspi-questioner.agent.md` |
+| Agent | `.github/agents/copilot-qrspi-questioner.agent.md` | `.github/agents/copilot-qrspi-questioner.agent.md` |
 | Skill (workflow) | `.github/instructions/qrspi-workflow.instructions.md` | `.github/instructions/qrspi-workflow.instructions.md` |
 | Skill (openspec) | `.github/instructions/openspec-workflow.instructions.md` | `.github/instructions/openspec-workflow.instructions.md` |
 | Template | `openspec/templates/questions.template.md` | — |
@@ -116,7 +116,7 @@ structure:
 
 | # | File | Edit |
 |---|------|------|
-| 1 | `.github/agents/qrspi-questioner.agent.md` | Add step X: ... |
+| 1 | `.github/agents/copilot-qrspi-questioner.agent.md` | Add step X: ... |
 | 2 | `openspec/templates/questions.template.md` | Add section "..." |
 | 3 | the project's contributor-guidance file | Fix stale fact "..." |
 

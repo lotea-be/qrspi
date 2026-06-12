@@ -1,7 +1,7 @@
 ---
 description: Bootstrap (or refresh) this repo's stack-cheatsheet skill — the project-scope skill every QRSPI stage loads for tech-stack and convention context. Detects the stack from the repo's manifests, then interviews to fill gaps. Re-runnable.
 argument-hint: (optional) stack hint
-tools: ['search/codebase', 'search', 'edit/editFiles', 'execute/runInTerminal', 'execute/getTerminalOutput', 'fetch', 'vscode/askQuestions']
+tools: ['search/codebase', 'search', 'edit/editFiles', 'execute/runInTerminal', 'execute/getTerminalOutput', 'web/fetch', 'vscode/askQuestions']
 agent: agent
 ---
 

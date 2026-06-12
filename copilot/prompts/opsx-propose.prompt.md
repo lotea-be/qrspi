@@ -1,7 +1,7 @@
 ---
 description: Propose a new change - create it and generate all artifacts in one step
 argument-hint: <change-name or description>
-tools: ['search/codebase', 'search', 'edit/editFiles', 'execute/runInTerminal', 'execute/getTerminalOutput', 'fetch', 'vscode/askQuestions']
+tools: ['search/codebase', 'search', 'edit/editFiles', 'execute/runInTerminal', 'execute/getTerminalOutput', 'web/fetch', 'vscode/askQuestions']
 agent: agent
 ---
 

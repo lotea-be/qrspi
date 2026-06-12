@@ -1,7 +1,7 @@
 ---
 description: QRSPI stage S. Delegates to the qrspi-architect subagent to write proposal.md and specs/. Requires that the human has approved design.md.
 argument-hint: <change-id>
-agent: qrspi-architect
+agent: copilot-qrspi-architect
 ---
 
 You are running QRSPI stage **S (Structure)** for the current project.
@@ -61,3 +61,11 @@ git add openspec/changes/<id>/proposal.md openspec/changes/<id>/specs/ openspec/
 git commit -m "docs(<id>): add proposal.md and specs (QRSPI stage S)"
 git push
 ```
+
+**Next-stage handoff (mandatory):** After the commit step, use the
+#tool:vscode/askQuestions to ask whether to keep going:
+  question: "Stage S (Structure) is complete. Continue to stage W (Worktree) now, or stop here?"
+  choices: ["Continue to /qrspi-worktree <id>", "Stop here — I'll resume later"]
+If they choose **Continue**, invoke `/qrspi-worktree <id>` now — run it as its
+own stage. If they choose **Stop**, print `Next stage: /qrspi-worktree <id>` and
+end your turn.

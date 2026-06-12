@@ -1,7 +1,7 @@
 ---
 description: QRSPI stage P. Delegates to the qrspi-planner subagent (read-only on code) to turn worktree.md into a checkbox tasks.md.
 argument-hint: <change-id>
-agent: qrspi-planner
+agent: copilot-qrspi-planner
 ---
 
 You are running QRSPI stage **P (Plan)** for the current project.
@@ -36,3 +36,11 @@ git add openspec/changes/<id>/tasks.md openspec/backlog.md
 git commit -m "docs(<id>): add tasks.md (QRSPI stage P)"
 git push
 ```
+
+**Next-stage handoff (mandatory):** After the commit step, use the
+#tool:vscode/askQuestions to ask whether to keep going:
+  question: "Stage P (Plan) is complete. Continue to stage I (Implement) now, or stop here?"
+  choices: ["Continue to /qrspi-implement <id>", "Stop here — I'll resume later"]
+If they choose **Continue**, invoke `/qrspi-implement <id>` now — run it as its
+own stage. If they choose **Stop**, print `Next stage: /qrspi-implement <id>`
+and end your turn.

@@ -61,3 +61,11 @@ git add openspec/changes/<id>/proposal.md openspec/changes/<id>/specs/ openspec/
 git commit -m "docs(<id>): add proposal.md and specs (QRSPI stage S)"
 git push
 ```
+
+**Next-stage handoff (mandatory):** After the commit step, use the
+**AskUserQuestion** tool to ask whether to keep going:
+  question: "Stage S (Structure) is complete. Continue to stage W (Worktree) now, or stop here?"
+  choices: ["Continue to /qrspi-worktree <id>", "Stop here — I'll resume later"]
+If they choose **Continue**, invoke `/qrspi-worktree <id>` now — run it as its
+own stage. If they choose **Stop**, print `Next stage: /qrspi-worktree <id>` and
+end your turn.
