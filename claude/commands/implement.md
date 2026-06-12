@@ -14,7 +14,7 @@ Verify it exists with the **Glob** tool (pattern
 `openspec/changes/<id>/tasks.md`) — do not shell out.
 
 If missing AND the change is non-trivial, refuse and tell the user to
-run `/qrspi-plan` first. Trivial exception: if the user explicitly says
+run `/qrspi:plan` first. Trivial exception: if the user explicitly says
 this is a typo / lint / single-line fix, allow it and require the user
 to state the inline plan in one paragraph before any edits.
 
@@ -52,10 +52,10 @@ before asking to continue), use the **AskUserQuestion** tool to ask:
 If yes, first update `openspec/backlog.md`:
 - On the **final** slice, change the change's row `Status:` line to
   `in-progress (Q, R, D, S, W, P, I complete)` and the
-  `Next QRSPI command:` line to `/qrspi-pr <id>`.
+  `Next QRSPI command:` line to `/qrspi:pr <id>`.
 - On **intermediate** slices, leave `Status:` alone and update the
   `Next QRSPI command:` line to reflect that slice N+1 is in flight
-  (e.g. `/qrspi-implement <id>` is still the correct next call).
+  (e.g. `/qrspi:implement <id>` is still the correct next call).
 
 The house rule (in the project's contributor-guidance file, if it defines
 one) is that backlog edits commit atomically with the state change they
@@ -73,13 +73,13 @@ use `git add -A` — it can sweep up secrets, scratch files, or
 unrelated working-tree changes. This matches every other per-stage
 QRSPI commit (S, W, P).
 
-Re-running `/qrspi-implement <id>` resumes at the next un-ticked slice.
+Re-running `/qrspi:implement <id>` resumes at the next un-ticked slice.
 
 ## Adding scope after stage I has started
 
 If, mid-implementation, the human asks for functionality that is **not in
 `tasks.md`** (e.g. something the change's spec lists under *Out of Scope*),
-that is a **scope amendment** — not a `/qrspi-followup` (which is post-PR only and
+that is a **scope amendment** — not a `/qrspi:followup` (which is post-PR only and
 only resolves work already in scope), and not silent improvisation that skips
 the design artifacts. Handle it like this:
 
@@ -95,7 +95,7 @@ the design artifacts. Handle it like this:
    library and iconography over alternatives).
 3. **Commit** as `docs(<id>): amend scope — add Slice N ...`, carrying the
    matching `openspec/backlog.md` edit (status / next-command) atomically.
-4. **Then run `/qrspi-implement <id>`** to implement the new slice through the
+4. **Then run `/qrspi:implement <id>`** to implement the new slice through the
    normal slice / checkpoint / commit machinery.
 
 Return only what the implementer's "Final message format" specifies.

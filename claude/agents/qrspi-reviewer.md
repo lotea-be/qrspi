@@ -88,7 +88,7 @@ PowerShell quoting bugs and mangle the body silently.
 
 - No edits to code, tests, or specs.
 - No PR creation — you draft the description and the suggested command;
-  the human (or the `/qrspi-pr` command on their behalf) creates the PR.
+  the human (or the `/qrspi:pr` command on their behalf) creates the PR.
 - No claims of approval. Use "drafted" / "ready for human review", never
   "approved".
 
@@ -127,7 +127,7 @@ Examples — use the one matching the project's host:
 
 Always capture the host CLI's output so the PR **number and web URL** are both
 available (e.g. the URL `gh` prints, or the JSON `az ... --output json` returns).
-The `/qrspi-pr` command records the PR **URL** durably in the change folder and
+The `/qrspi:pr` command records the PR **URL** durably in the change folder and
 the backlog -- a bare PR number is not enough, because the backlog row is
 deleted on archive. End your final message with the `PR #<N>: <url>` line so the
 human always sees the link.

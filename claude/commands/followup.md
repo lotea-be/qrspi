@@ -12,14 +12,14 @@ the id is given, work the next un-ticked item in `followups.md`.
 
 This is **not** stage I. It is the loop that hangs off the **PR** stage:
 small, contained fixes that surfaced *after* the PR was opened. The
-slice/checkpoint machinery of `/qrspi-implement` does **not** apply here.
+slice/checkpoint machinery of `/qrspi:implement` does **not** apply here.
 
 Preconditions (verify with the **Glob** tool — no shell preamble):
 
 1. `openspec/changes/<id>/` exists. If Glob returns nothing, refuse and
-   tell the user to start from `/qrspi-questions`.
+   tell the user to start from `/qrspi:questions`.
 2. `openspec/changes/<id>/pr.md` exists (the PR is open). If it does not,
-   this isn't a post-PR fix — point the user at `/qrspi-implement <id>`
+   this isn't a post-PR fix — point the user at `/qrspi:implement <id>`
    for pre-PR slice work, then stop.
 3. `openspec/changes/<id>/followups.md` — if present, it holds the queue.
    If absent and the user named a specific fix, the implementer creates it
@@ -57,6 +57,6 @@ Push only if the user approved pushing.
 is already open). The only exception: if this fix empties `followups.md`,
 say so — the change is then clean for merge/archive.
 
-One follow-up per invocation. Re-running `/qrspi-followup <id>` picks up the
+One follow-up per invocation. Re-running `/qrspi:followup <id>` picks up the
 next un-ticked item. Return only what the skill's "Final message format
 (per fix)" specifies.

@@ -9,7 +9,7 @@ architect, implementer, reviewer) load whenever they need to know the project's
 languages, frameworks, libraries, and coding conventions. Without it the agents
 fall back to generic assumptions; with it, every stage is stack-aware.
 
-This is **per-repo onboarding**, a sibling to `/qrspi-init`. Run it once per
+This is **per-repo onboarding**, a sibling to `/qrspi:init`. Run it once per
 repo (re-run any time the stack changes). The skill lives in **project scope**
 (`.claude/skills/<repo>-stack/`), not user scope — it is specific to this repo
 and is committed so the whole team shares it.

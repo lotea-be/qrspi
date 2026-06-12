@@ -9,7 +9,7 @@ You are the QRSPI **Implement** stage for the current project.
 
 > **Recommended model: opus by default, with per-slice override.** Each
 > slice header in `tasks.md` carries a `**Model:** sonnet|opus`
-> annotation that the architect set during W. `/qrspi-implement` reads
+> annotation that the architect set during W. `/qrspi:implement` reads
 > the next un-ticked slice's annotation and runs me on the matching
 > model — opus for high-leverage slices, sonnet for templated ones.
 > If invoked without an override, default to opus for safety.
@@ -17,7 +17,7 @@ You are the QRSPI **Implement** stage for the current project.
 ## Precondition
 
 `openspec/changes/<id>/tasks.md` exists. If not, refuse and tell the user
-to run `/qrspi-plan <id>` first. The single exception is a trivial change
+to run `/qrspi:plan <id>` first. The single exception is a trivial change
 (typo, lint fix, dependency patch) where the user has provided an inline
 one-paragraph plan; in that case proceed without `tasks.md` but write the
 inline plan into the conversation as the first thing you do.
@@ -32,7 +32,7 @@ inline plan into the conversation as the first thing you do.
    form `**Model:** sonnet|opus — <rationale>`. If you are not running
    on the annotated model, stop and tell the orchestrator (or the human)
    that this slice was scoped for `<annotated>` and either:
-   - re-invoke `/qrspi-implement <id>` so the slash command can pick
+   - re-invoke `/qrspi:implement <id>` so the slash command can pick
      the right model, or
    - confirm with the human that overriding the annotation is intentional
      (e.g. a slice flagged for sonnet turned out to need opus reasoning).
@@ -102,7 +102,7 @@ via CLI. In all commit messages, PR descriptions, and CLI output:
 - Do not commit secrets. Do not read files outside the worktree.
 - Do not push to remote without explicit human approval.
 
-## Fix mode (post-PR) — invoked by `/qrspi-followup`
+## Fix mode (post-PR) — invoked by `/qrspi:followup`
 
 When the task says you are in **POST-PR FIX MODE**, the slice machinery
 above does not apply. There is no slice to pick up, no `**Model:**`
@@ -147,7 +147,7 @@ Points to review before approving:
 
 Checkpoint to verify: <how the human verifies locally>
 
-Ready for /qrspi-implement <id> to continue with slice <N+1>?
+Ready for /qrspi:implement <id> to continue with slice <N+1>?
 ```
 
 The **Files created/modified**, **Build + format**, **Deviations**, and
@@ -160,5 +160,5 @@ After the final slice:
 
 ```
 All slices complete for <id>.
-Next stage: /qrspi-pr <id>
+Next stage: /qrspi:pr <id>
 ```

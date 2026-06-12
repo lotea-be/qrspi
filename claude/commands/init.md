@@ -55,7 +55,7 @@ b. Run `npx @fission-ai/openspec@1.4.1 init --tools none`. This creates
    guarantee**: without it the OpenSpec CLI writes its own native
    slash-commands (`.claude/commands/opsx/*`) and skills
    (`.claude/skills/openspec-*`) into the repo at **project scope**. QRSPI does
-   not use OpenSpec's native `opsx` workflow — it ships its own `/qrspi-*` and
+   not use OpenSpec's native `opsx` workflow — it ships its own `/qrspi:*` and
    `/openspec-*` tooling in **user scope** (`~/.claude/`) — so those per-repo
    copies are redundant duplicates. We want only OpenSpec's *data* directory
    (`openspec/`) in the repo, never its Claude tooling. Because older CLI
@@ -71,7 +71,7 @@ b-bis. **Write the QRSPI sentinel config.** Because the CLI skips it (step b),
    ```yaml
    # OpenSpec project configuration.
    # `schema` selects the workflow schema; `spec-driven` is the repo default.
-   # Written by /qrspi-init because the OpenSpec CLI skips config in
+   # Written by /qrspi:init because the OpenSpec CLI skips config in
    # non-interactive (`--tools none`) mode, yet QRSPI uses this file as its
    # "is-initialized" sentinel.
    #
@@ -144,7 +144,7 @@ committed, and that they should commit `openspec/` manually.
 OpenSpec initialized.
 
 Next: open your first change.
-  /qrspi-questions <change-id>   (kebab-case, verb-first)
+  /qrspi:questions <change-id>   (kebab-case, verb-first)
 
 Or read the workflow:
   /qrspi

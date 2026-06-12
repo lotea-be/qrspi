@@ -104,7 +104,7 @@ branch maps to a testable unit of work. Artifact:
 
 **PR — Pull Request.** Human reviews the code. No exceptions. Because Design
 and Structure were already aligned, this review is fast and contains few
-surprises. `/qrspi-pr` records the PR link in `openspec/changes/<id>/pr.md`
+surprises. `/qrspi:pr` records the PR link in `openspec/changes/<id>/pr.md`
 and seeds `followups.md` with any open issues the reviewer found.
 
 ## After PR — the fix loop
@@ -112,7 +112,7 @@ and seeds `followups.md` with any open issues the reviewer found.
 QRSPI ends at PR, but small follow-ups always surface afterwards: the
 reviewer's "Open issues" list and code-level retrospective flags. These are
 tracked as checkboxes in `openspec/changes/<id>/followups.md` and resolved
-with `/qrspi-followup <id>` — a loop that hangs off the PR stage, not a ninth
+with `/qrspi:followup <id>` — a loop that hangs off the PR stage, not a ninth
 stage. Each fix keeps code, tests, and the change's **delta** spec in sync,
 ticks the follow-up, and commits `fix(<id>): ...` on the PR branch. See
 skill `qrspi-postpr-fix`. The change is ready to archive only when
@@ -132,6 +132,6 @@ skill `qrspi-postpr-fix`. The change is ready to archive only when
 ## When you can skip stages
 
 Trivial changes (typo, lint fix, dependency bump under a patch version)
-can skip directly to `/qrspi-implement` with an inline one-paragraph plan.
+can skip directly to `/qrspi:implement` with an inline one-paragraph plan.
 Anything that touches the data model, an API surface, or auth must go
 through the full flow.

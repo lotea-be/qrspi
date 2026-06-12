@@ -18,21 +18,21 @@ them to review and stop.
 Verify the file exists with the **Glob** tool (pattern
 `openspec/changes/<id>/design.md`) — do not shell out.
 
-If it is missing, refuse and tell the user to run `/qrspi-design` first.
+If it is missing, refuse and tell the user to run `/qrspi:design` first.
 
 Otherwise invoke the architect subagent to produce:
 - `openspec/changes/<id>/proposal.md`
 - `openspec/changes/<id>/specs/<capability>/spec.md` per touched capability
 
 After this command completes, the natural next step is
-`/qrspi-worktree <id>` (still in the architect subagent), then
-`/qrspi-plan <id>`.
+`/qrspi:worktree <id>` (still in the architect subagent), then
+`/qrspi:plan <id>`.
 
 Return only what the architect's "Final message format" specifies.
 
 **Backlog update (mandatory before the commit):** Add or update the
 change's row in `openspec/backlog.md` so its `Next QRSPI command:` line
-points at `/qrspi-worktree <id>`. Earlier stages do not seed this line,
+points at `/qrspi:worktree <id>`. Earlier stages do not seed this line,
 so on the first S run you are *adding* it, not editing an existing one —
 don't assume you mis-read the row if it's absent. The house rule (in the
 project's contributor-guidance file, if it defines one) is that backlog
@@ -65,7 +65,7 @@ git push
 **Next-stage handoff (mandatory):** After the commit step, use the
 **AskUserQuestion** tool to ask whether to keep going:
   question: "Stage S (Structure) is complete. Continue to stage W (Worktree) now, or stop here?"
-  choices: ["Continue to /qrspi-worktree <id>", "Stop here — I'll resume later"]
-If they choose **Continue**, invoke `/qrspi-worktree <id>` now — run it as its
-own stage. If they choose **Stop**, print `Next stage: /qrspi-worktree <id>` and
+  choices: ["Continue to /qrspi:worktree <id>", "Stop here — I'll resume later"]
+If they choose **Continue**, invoke `/qrspi:worktree <id>` now — run it as its
+own stage. If they choose **Stop**, print `Next stage: /qrspi:worktree <id>` and
 end your turn.
