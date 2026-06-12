@@ -68,12 +68,12 @@ $script:askTool = 'vscode/askQuestions'
 # Superset toolset stamped onto generic-`agent: agent` prompts (opsx-*, qrspi-stack,
 # qrspi-retro) that use the question tool but inherit no agent toolset. A superset
 # is safe — it never strips a tool the prompt already had.
-$script:promptToolset = "'search/codebase', 'search', 'edit/editFiles', 'execute/runInTerminal', 'execute/getTerminalOutput', 'fetch', '$script:askTool'"
+$script:promptToolset = "'search/codebase', 'search', 'edit/editFiles', 'execute/runInTerminal', 'execute/getTerminalOutput', 'web/fetch', '$script:askTool'"
 function Map-Tools([string]$toolLine) {
   $t = @('search/codebase', 'search', $script:askTool)
   if ($toolLine -match 'Write|Edit') { $t += 'edit/editFiles' }
   if ($toolLine -match 'Bash|PowerShell') { $t += @('execute/runInTerminal', 'execute/getTerminalOutput') }
-  if ($toolLine -match 'WebFetch|WebSearch') { $t += 'fetch' }
+  if ($toolLine -match 'WebFetch|WebSearch') { $t += 'web/fetch' }
   return (($t | Select-Object -Unique) -join ', ')
 }
 
@@ -96,6 +96,10 @@ function Rewrite-All([string]$b) {
   $b = $b -replace '\.claude/agents', '.github/agents'
   $b = $b -replace '\.claude/', '.github/'
   $b = $b -replace '\.claude\b', '.github'
+  # Generated Copilot agents are namespaced `copilot-<role>` so that prompts and
+  # instructions point at the generated agent, never the Claude one. The negative
+  # lookahead keeps the rule idempotent (no `copilot-copilot-` on re-match).
+  $b = $b -replace '\.github/agents/(?!copilot-)([A-Za-z0-9<>_-]+)\.agent\.md', '.github/agents/copilot-$1.agent.md'
   # --- skills -> instruction references ---
   $b = [regex]::Replace($b, 'Load skill\s+`([^`]+)`', { param($m) "Consult the **$($m.Groups[1].Value)** instructions (``$($m.Groups[1].Value).instructions.md``)" })
   $b = [regex]::Replace($b, 'load the\s+`([^`]+)`\s+skill', { param($m) "consult the **$($m.Groups[1].Value)** instructions" })
@@ -183,7 +187,7 @@ Get-ChildItem (Join-Path $src 'agents') -Filter *.md | ForEach-Object {
   $tools = Map-Tools (Get-Field $p.front 'tools')
   $note = if ((Get-Field $p.front 'model') -eq 'opus') { "`n> Recommended model: a strong reasoning model (this stage runs on Opus under Claude Code).`n" } else { '' }
   $out = "---`ndescription: $desc`ntools: [$tools]`n---`n$note`n$($p.body)"
-  Write-Out "agents/$($_.BaseName).agent.md" (Rewrite-All $out)
+  Write-Out "agents/copilot-$($_.BaseName).agent.md" (Rewrite-All $out)
   $na++
 }
 
@@ -194,7 +198,10 @@ function Emit-Prompt($file, $stem) {
   $desc = Get-Field $p.front 'description'
   $fm = "---`ndescription: $desc`n"
   if ($script:hintFor.ContainsKey($stem)) { $fm += "argument-hint: $($script:hintFor[$stem])`n" }
-  $ag = if ($script:agentFor.ContainsKey($stem)) { $script:agentFor[$stem] } else { 'agent' }
+  # Map onto the generated `copilot-<role>` agent so the prompt points at a
+  # Copilot file, not the Claude agent. `agent` (Copilot's built-in generic
+  # agent) is left unprefixed.
+  $ag = if ($script:agentFor.ContainsKey($stem)) { 'copilot-' + $script:agentFor[$stem] } else { 'agent' }
   # A prompt delegating to a QRSPI agent inherits that agent's tools (which already
   # include the question tool). A generic-`agent: agent` prompt inherits none, so if
   # it uses the question tool, stamp an explicit superset toolset on it.

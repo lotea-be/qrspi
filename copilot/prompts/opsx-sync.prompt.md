@@ -1,7 +1,7 @@
 ---
 description: Sync delta specs from a change to main specs
 argument-hint: <change-name>
-tools: ['search/codebase', 'search', 'edit/editFiles', 'execute/runInTerminal', 'execute/getTerminalOutput', 'fetch', 'vscode/askQuestions']
+tools: ['search/codebase', 'search', 'edit/editFiles', 'execute/runInTerminal', 'execute/getTerminalOutput', 'web/fetch', 'vscode/askQuestions']
 agent: agent
 ---
 

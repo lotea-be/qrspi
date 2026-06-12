@@ -82,3 +82,12 @@ git add openspec/changes/<id>/questions.md openspec/backlog.md
 git commit -m "docs(<id>): add questions.md (QRSPI stage Q)"
 git push
 ```
+
+**Next-stage handoff (mandatory):** After the commit step, use the
+**AskUserQuestion** tool to ask whether to keep going:
+  question: "Stage Q (Questions) is complete. Continue to stage R (Research) now, or stop here?"
+  choices: ["Continue to /qrspi-research <id>", "Stop here — I'll resume later"]
+If they choose **Continue**, invoke `/qrspi-research <id>` now — run it as its
+own stage (a fresh subtask, so Research stays blind to the ticket per its
+design). If they choose **Stop**, print `Next stage: /qrspi-research <id>` and
+end your turn.

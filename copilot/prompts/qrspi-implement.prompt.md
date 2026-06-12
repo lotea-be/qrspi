@@ -1,7 +1,7 @@
 ---
 description: QRSPI stage I. Delegates to the qrspi-implementer subagent to write code one vertical slice at a time, ticking tasks.md as it goes. Stops at each slice checkpoint for human verification.
 argument-hint: <change-id>
-agent: qrspi-implementer
+agent: copilot-qrspi-implementer
 ---
 
 You are running QRSPI stage **I (Implement)** for the current project.

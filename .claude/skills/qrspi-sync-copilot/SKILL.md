@@ -32,7 +32,7 @@ finds a systematic gap, add a `Rewrite-All` rule (broad) or an `Apply-Fixups`
 
 | Claude source | Copilot output | Notes |
 |---|---|---|
-| `claude/agents/<x>.md` | `copilot/agents/<x>.agent.md` | custom agent |
+| `claude/agents/<x>.md` | `copilot/agents/copilot-<x>.agent.md` | custom agent — namespaced `copilot-` (see below) |
 | `claude/commands/<x>.md` | `copilot/prompts/<x>.prompt.md` | slash prompt |
 | `claude/commands/opsx/<x>.md` | `copilot/prompts/opsx-<x>.prompt.md` | flattened (Copilot prompts are flat; preserve the group as a name prefix) |
 | `claude/skills/<x>/SKILL.md` | `copilot/instructions/<x>.instructions.md` | reference doc |
@@ -50,6 +50,11 @@ tools: [<mapped tools — see table>]
 ---
 ```
 - Drop `name` (filename is the identity) unless a display name helps; then keep `name`.
+- **Namespace the filename `copilot-<x>.agent.md`.** Generated agents are
+  prefixed `copilot-` so prompts/instructions reference the *generated* agent,
+  never the Claude one. Body references to `.github/agents/<x>.agent.md` are
+  likewise rewritten to `.github/agents/copilot-<x>.agent.md` (idempotent via a
+  negative lookahead — no `copilot-copilot-`).
 - **Omit `model`.** Copilot runs the user's selected model. If the Claude agent
   was `model: opus`, add one body line near the top: `> Recommended model: a
   strong reasoning model (this stage runs on Opus under Claude Code).`
@@ -63,17 +68,19 @@ agent: <see rule below>
 ---
 ```
 - **`agent:` is the bridge for delegation.** If the Claude command delegates to a
-  subagent, set `agent:` to that agent's name so the prompt runs inside it:
+  subagent, set `agent:` to the **namespaced** `copilot-<role>` agent so the
+  prompt runs inside the generated agent (the unprefixed built-in `agent` stays
+  unprefixed):
 
   | Command | `agent:` |
   |---|---|
-  | qrspi-questions | qrspi-questioner |
-  | qrspi-research | qrspi-researcher |
-  | qrspi-design | qrspi-designer |
-  | qrspi-structure / qrspi-worktree | qrspi-architect |
-  | qrspi-plan | qrspi-planner |
-  | qrspi-implement / qrspi-followup | qrspi-implementer |
-  | qrspi-pr | qrspi-reviewer |
+  | qrspi-questions | copilot-qrspi-questioner |
+  | qrspi-research | copilot-qrspi-researcher |
+  | qrspi-design | copilot-qrspi-designer |
+  | qrspi-structure / qrspi-worktree | copilot-qrspi-architect |
+  | qrspi-plan | copilot-qrspi-planner |
+  | qrspi-implement / qrspi-followup | copilot-qrspi-implementer |
+  | qrspi-pr | copilot-qrspi-reviewer |
   | qrspi, qrspi-stack, qrspi-init, qrspi-archive, qrspi-retro, opsx-* | `agent` (no specific subagent — runs inline) |
 
 - Drop the Claude `agent: build` line (Claude-specific).
@@ -98,7 +105,7 @@ warnings, so the script maps to the **current namespaced ids**:
 | Read, Glob, Grep | `search`, `search/codebase` |
 | Edit, Write, NotebookEdit | `edit/editFiles` |
 | Bash, PowerShell | `execute/runInTerminal`, `execute/getTerminalOutput` (was the old `runCommands` toolset) |
-| WebFetch, WebSearch | `fetch` |
+| WebFetch, WebSearch | `web/fetch` |
 | AskUserQuestion | `vscode/askQuestions` (Copilot's structured-question tool) |
 | TodoWrite | *(drop — Copilot tracks todos itself)* |
 | Skill | *(drop — replaced by `#file:` / instruction references)* |
@@ -107,7 +114,7 @@ warnings, so the script maps to the **current namespaced ids**:
 De-duplicate the resulting list. `vscode/askQuestions` is in the **base** set
 (every QRSPI stage has an interactive step), so it lands on every agent. A
 read-only agent (e.g. researcher, reviewer) therefore gets
-`[search/codebase, search, vscode/askQuestions, fetch]` — no `edit/editFiles`
+`[search/codebase, search, vscode/askQuestions, web/fetch]` — no `edit/editFiles`
 or `execute/*` terminal tools.
 
 ## Body-mechanic rewrites
@@ -136,7 +143,7 @@ or `execute/*` terminal tools.
 
 - `~/.claude/` → `~/.copilot/`
 - `.claude/commands/<x>.md` → `.github/prompts/<x>.prompt.md`
-- `.claude/agents/<x>.md` → `.github/agents/<x>.agent.md`
+- `.claude/agents/<x>.md` → `.github/agents/copilot-<x>.agent.md` (namespaced)
 - `.claude/skills/<x>/SKILL.md` → `.github/instructions/<x>.instructions.md`
 - "restart Claude Code" → "reload the VS Code window"
 
@@ -151,6 +158,11 @@ or `execute/*` terminal tools.
 3. **Skill auto-loading.** Claude loads skills on demand via the Skill tool.
    Copilot instruction files (user scope, no `applyTo`) are soft references.
 4. **Shell injection & file includes** in commands degrade to written steps.
+5. **Next-stage handoffs.** A QRSPI command ends by offering to "invoke
+   `/qrspi-<next> <id>` now". Claude Code chains the next stage automatically;
+   Copilot cannot invoke one prompt from another, so the handoff degrades to the
+   model asking (via `vscode/askQuestions`) and the human running the next
+   `/qrspi-<next>` prompt themselves. The text stays; only the auto-run is lost.
 
 ## After generating
 

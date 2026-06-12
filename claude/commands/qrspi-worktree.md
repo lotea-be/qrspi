@@ -38,3 +38,11 @@ git add openspec/changes/<id>/worktree.md openspec/backlog.md
 git commit -m "docs(<id>): add worktree.md (QRSPI stage W)"
 git push
 ```
+
+**Next-stage handoff (mandatory):** After the commit step, use the
+**AskUserQuestion** tool to ask whether to keep going:
+  question: "Stage W (Worktree) is complete. Continue to stage P (Plan) now, or stop here?"
+  choices: ["Continue to /qrspi-plan <id>", "Stop here — I'll resume later"]
+If they choose **Continue**, invoke `/qrspi-plan <id>` now — run it as its own
+stage. If they choose **Stop**, print `Next stage: /qrspi-plan <id>` and end
+your turn.
