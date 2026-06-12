@@ -138,7 +138,26 @@ If the commit fails because there is no git repository or git is unavailable,
 tell the user the OpenSpec files were created successfully but could not be
 committed, and that they should commit `openspec/` manually.
 
-## Step 5 — print next steps (always)
+## Step 5 — offer the stack step, then print next steps (always)
+
+`/qrspi:init` is the first of the two per-repo onboarding steps; the second is
+`/qrspi:stack`, which bootstraps the project-scope stack-cheatsheet skill every
+QRSPI stage loads for tech-stack and convention context. Check (Glob
+`.claude/skills/*-stack/SKILL.md`) whether this repo already has one — do not
+shell out.
+
+**No stack-cheatsheet skill yet (mandatory ask):** use the **AskUserQuestion**
+tool to ask whether to bootstrap it now:
+  question: "OpenSpec is initialized. This repo has no stack cheatsheet yet — it
+  lets every QRSPI stage run stack-aware. Set it up now?"
+  choices: ["Yes — run /qrspi:stack now", "No — I'll do it later"]
+If they choose **Yes**, invoke `/qrspi:stack` now — run it as its own stage.
+If they choose **No**, print the next-steps block below.
+
+**Stack-cheatsheet skill already present:** skip the question and print the
+next-steps block directly.
+
+Next-steps block:
 
 ```
 OpenSpec initialized.
