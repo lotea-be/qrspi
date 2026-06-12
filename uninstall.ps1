@@ -3,7 +3,7 @@
 # of install.ps1.
 #
 # It deletes ONLY the files this repo ships: it walks the repo's source trees
-# (copilot/, openspec-templates/) and removes the matching file at ~/.copilot.
+# (copilot/) and removes the matching file at ~/.copilot.
 # Any other file you keep in those shared folders is left alone. Empty folders
 # left behind by the removal are pruned.
 #
@@ -59,7 +59,6 @@ $kind = [ordered]@{
     'agents'             = Join-Path $src 'copilot/agents'
     'instructions'       = Join-Path $src 'copilot/instructions'
     'prompts'            = Join-Path $src 'copilot/prompts'
-    'openspec-templates' = Join-Path $src 'openspec-templates'
 }
 
 # Confirm (destructive) unless -Yes or -DryRun.

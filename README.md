@@ -25,20 +25,20 @@ workflow drives a .NET/Blazor app, a TypeScript service, or anything else.
 
 | # | Stage | Command | Artifact | Notes |
 |---|-------|---------|----------|-------|
-| 1 | Questions | `/qrspi-questions <id>` | `questions.md` | Turns a vague request into concrete technical questions. |
-| 2 | Research | `/qrspi-research <id>` | `research.md` | Read-only map of the current codebase. The ticket is hidden by design. |
-| 3 | Design | `/qrspi-design <id>` | `design.md` | The "brain surgery" stage. **⛔ HUMAN APPROVAL REQUIRED before stage 4.** |
-| 4 | Structure | `/qrspi-structure <id>` | `proposal.md` + `specs/` | Canonical proposal + OpenSpec spec deltas. |
-| 5 | Worktree | `/qrspi-worktree <id>` | `worktree.md` | Vertical slices, not horizontal layers. |
-| 6 | Plan | `/qrspi-plan <id>` | `tasks.md` | Canonical numbered task list. |
-| 7 | Implement | `/qrspi-implement <id>` | code + tests | One slice at a time; stops at each checkpoint. |
-| 8 | PR | `/qrspi-pr <id>` | PR description | Read-only review + final checklist. |
+| 1 | Questions | `/qrspi:questions <id>` | `questions.md` | Turns a vague request into concrete technical questions. |
+| 2 | Research | `/qrspi:research <id>` | `research.md` | Read-only map of the current codebase. The ticket is hidden by design. |
+| 3 | Design | `/qrspi:design <id>` | `design.md` | The "brain surgery" stage. **⛔ HUMAN APPROVAL REQUIRED before stage 4.** |
+| 4 | Structure | `/qrspi:structure <id>` | `proposal.md` + `specs/` | Canonical proposal + OpenSpec spec deltas. |
+| 5 | Worktree | `/qrspi:worktree <id>` | `worktree.md` | Vertical slices, not horizontal layers. |
+| 6 | Plan | `/qrspi:plan <id>` | `tasks.md` | Canonical numbered task list. |
+| 7 | Implement | `/qrspi:implement <id>` | code + tests | One slice at a time; stops at each checkpoint. |
+| 8 | PR | `/qrspi:pr <id>` | PR description | Read-only review + final checklist. |
 
-Helpers: `/qrspi` (print the stage map), `/qrspi-init` (bootstrap `openspec/` +
-templates — per-repo onboarding), `/qrspi-stack` (bootstrap this repo's
-stack-cheatsheet skill — per-repo onboarding), `/qrspi-followup <id>` (post-PR fix loop),
-`/qrspi-archive <id>` (archive a change after its PR merges),
-`/qrspi-retro <id> <stage>` (retrospective that improves the prompts themselves).
+Helpers: `/qrspi` (print the stage map), `/qrspi:init` (bootstrap `openspec/` +
+templates — per-repo onboarding), `/qrspi:stack` (bootstrap this repo's
+stack-cheatsheet skill — per-repo onboarding), `/qrspi:followup <id>` (post-PR fix loop),
+`/qrspi:archive <id>` (archive a change after its PR merges),
+`/qrspi:retro <id> <stage>` (retrospective that improves the prompts themselves).
 
 Each artifact follows a **canonical OpenSpec shape** — see
 [`openspec-templates/`](openspec-templates/).
@@ -126,8 +126,8 @@ with a script — **PowerShell** (Windows/macOS/Linux):
 ```
 
 The script merges — overwrites same-named files, leaves your other user-scope files
-untouched. It copies `copilot/{agents,instructions,prompts}` + `openspec-templates/`
-into `~/.copilot/`, then **offers to patch your VS Code user `settings.json`** so
+untouched. It copies `copilot/{agents,instructions,prompts}` into `~/.copilot/`, then
+**offers to patch your VS Code user `settings.json`** so
 `chat.{prompt,agent,instructions}FilesLocations` point at `~/.copilot/...` (VS Code
 won't discover the prompts otherwise). It asks before writing, backs the file up first,
 edits as text so your comments survive, and skips any key you've already set. Decline
@@ -173,10 +173,10 @@ the single source of truth**; `copilot/` is generated from it.
 | Claude Code (`claude/…`) | GitHub Copilot (`copilot/…`) | Installs to |
 |---|---|---|
 | `agents/<x>.md` (subagents) | `agents/<x>.agent.md` (custom agents) | `~/.copilot/agents/` |
-| `commands/<x>.md` (`/qrspi-*`) | `prompts/<x>.prompt.md` (slash prompts) | `~/.copilot/prompts/` |
+| `commands/<x>.md` (`/qrspi:*`) | `prompts/<x>.prompt.md` (slash prompts) | `~/.copilot/prompts/` |
 | `skills/<x>/SKILL.md` (model-invoked) | `instructions/<x>.instructions.md` (referenced on demand) | `~/.copilot/instructions/` |
 
-A Copilot prompt carries an `agent:` field, so `/qrspi-questions` runs inside the
+A Copilot prompt carries an `agent:` field, so `/qrspi:questions` runs inside the
 `qrspi-questioner` agent — mirroring how the Claude command delegates to its subagent.
 
 ### Sync workflow
@@ -217,31 +217,32 @@ Copilot's model is less expressive than Claude Code's, so the port is faithful b
 
 QRSPI lives in user scope, so it's already available everywhere once installed. To use
 it on a project (paths below are Claude's `.claude/`; Copilot users substitute the
-`.github/` equivalents — e.g. `/qrspi-stack` writes
+`.github/` equivalents — e.g. `/qrspi:stack` writes
 `.github/instructions/<repo>-stack.instructions.md`):
 
 1. **Bootstrap OpenSpec (once per repo):**
 
    ```
-   /qrspi-init
+   /qrspi:init
    ```
 
-   This runs `npx @fission-ai/openspec@1.4.1 init --tools none` **and** seeds the repo's
-   `openspec/templates/` from `~/.claude/openspec-templates/`, so the agents'
-   `openspec/templates/*.template.md` pointers resolve in-repo.
+   This runs `npx @fission-ai/openspec@1.4.1 init --tools none` to scaffold `openspec/`.
+   Templates are **not** copied into the repo — the kit ships the artifact shapes (the
+   stage agents carry them inline; the canonical files travel with the plugin), so there
+   is nothing per-repo to seed.
 
 2. **Run the stages** for a change (kebab-case, verb-first id):
 
    ```
-   /qrspi-questions add-user-export
-   /qrspi-research  add-user-export
-   /qrspi-design    add-user-export      # ← review & approve design.md here
-   /qrspi-structure add-user-export
-   /qrspi-worktree  add-user-export
-   /qrspi-plan      add-user-export
-   /qrspi-implement add-user-export
-   /qrspi-pr        add-user-export
-   /qrspi-archive   add-user-export      # ← after the PR merges
+   /qrspi:questions add-user-export
+   /qrspi:research  add-user-export
+   /qrspi:design    add-user-export      # ← review & approve design.md here
+   /qrspi:structure add-user-export
+   /qrspi:worktree  add-user-export
+   /qrspi:plan      add-user-export
+   /qrspi:implement add-user-export
+   /qrspi:pr        add-user-export
+   /qrspi:archive   add-user-export      # ← after the PR merges
    ```
 
 3. **(Recommended) give the repo its stack-cheatsheet.** The agents look for — but do
@@ -249,7 +250,7 @@ it on a project (paths below are Claude's `.claude/`; Copilot users substitute t
    languages, libraries, and conventions. Bootstrap it once:
 
    ```
-   /qrspi-stack
+   /qrspi:stack
    ```
 
    This detects the stack from the repo's manifests, interviews you to fill gaps, and
@@ -281,23 +282,23 @@ The intended loop:
 
 ### Keeping the templates in sync
 
-The canonical templates exist in `openspec-templates/` (here), in user scope
-(`~/.claude/openspec-templates/` and `~/.copilot/openspec-templates/`, installed from
-here), and in each consuming repo (`openspec/templates/`, seeded by `/qrspi-init`).
-**This repo is canonical** — edit here, re-install, and re-seed downstream repos as
-needed.
+The canonical templates live in `openspec-templates/` (here) and travel bundled with the
+plugin. They are **not** copied into consuming repos (shared shape — the agents carry the
+artifact shapes inline). **This repo is canonical** — edit the templates and the matching
+inline skeletons in the agents here, then republish the plugin; downstream repos pick the
+shapes up automatically.
 
 ### Updating the pinned OpenSpec version
 
 The OpenSpec CLI version is **pinned** (currently `1.4.1`) in two coupled places:
 
 1. The `npx @fission-ai/openspec@<version>` invocations in
-   [`claude/commands/qrspi-init.md`](claude/commands/qrspi-init.md) and this README.
+   [`claude/commands/qrspi:init.md`](claude/commands/qrspi:init.md) and this README.
 2. The OpenSpec-generated tooling shipped in user scope: `claude/commands/opsx/*.md` and
    `claude/skills/openspec-*/SKILL.md`. These are **generated artifacts**, not hand-edited —
    they're the `--tools claude` output of the pinned CLI.
 
-`/qrspi-init` itself never writes this tooling into a consuming repo (it runs
+`/qrspi:init` itself never writes this tooling into a consuming repo (it runs
 `init --tools none` and sweeps any strays); the `opsx`/`openspec-*` tooling lives in
 **user scope only**, installed from this kit. To bump the pin, regenerate everything:
 
@@ -312,7 +313,7 @@ Copy-Item "$scratch/.claude/commands/opsx/*"  "$PSScriptRoot/claude/commands/ops
 Copy-Item "$scratch/.claude/skills/openspec-*" "$PSScriptRoot/claude/skills/" -Recurse -Force
 ```
 
-Then update the `@<version>` pins in `claude/commands/qrspi-init.md` and this README
+Then update the `@<version>` pins in `claude/commands/qrspi:init.md` and this README
 to match, run `./sync-copilot.ps1` to propagate the change into `copilot/`, review the
 diff (the CLI may add/rename commands — e.g. `sync` arrived this way), re-run
 `./install.ps1`, and restart Claude Code / reload VS Code.

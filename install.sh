@@ -143,7 +143,6 @@ say "Installing GitHub Copilot kit -> $dst" "$C_CYAN"
 copy_tree "$src/copilot/agents"       "$dst/agents"             "agents"
 copy_tree "$src/copilot/instructions" "$dst/instructions"       "instructions"
 copy_tree "$src/copilot/prompts"      "$dst/prompts"            "prompts"
-copy_tree "$src/openspec-templates"   "$dst/openspec-templates" "openspec-templates"
 say "Copilot: VS Code only reads these once its chat.*FilesLocations point at ~/.copilot." "$C_DKCYAN"
 if [ "$skip_settings" -eq 1 ]; then
     say "  (--skip-settings) add by hand to your user settings.json:" "$C_DKCYAN"
