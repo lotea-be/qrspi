@@ -92,7 +92,6 @@ Write-Host "`nInstalling GitHub Copilot kit -> $dst" -ForegroundColor Cyan
 Copy-Tree (Join-Path $src 'copilot/agents')       (Join-Path $dst 'agents')       'agents'
 Copy-Tree (Join-Path $src 'copilot/instructions') (Join-Path $dst 'instructions') 'instructions'
 Copy-Tree (Join-Path $src 'copilot/prompts')      (Join-Path $dst 'prompts')      'prompts'
-Copy-Tree (Join-Path $src 'openspec-templates')   (Join-Path $dst 'openspec-templates') 'openspec-templates'
 Write-Host "Copilot: VS Code only reads these once its chat.*FilesLocations point at ~/.copilot." -ForegroundColor DarkCyan
 if ($SkipSettings) {
     Write-Host "  (-SkipSettings) add by hand to your user settings.json:" -ForegroundColor DarkCyan

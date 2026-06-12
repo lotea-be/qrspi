@@ -3,7 +3,7 @@
 # of install.sh.
 #
 # It deletes ONLY the files this repo ships: it walks the repo's source trees
-# (copilot/, openspec-templates/) and removes the matching file at ~/.copilot.
+# (copilot/) and removes the matching file at ~/.copilot.
 # Any other file you keep in those shared folders is left alone. Empty folders
 # left behind by the removal are pruned.
 #
@@ -94,8 +94,8 @@ fi
 say "" ""
 say "Removing QRSPI (Copilot) from -> $dst" "$C_CYAN"
 total=0
-labels=(agents instructions prompts openspec-templates)
-froms=("$src/copilot/agents" "$src/copilot/instructions" "$src/copilot/prompts" "$src/openspec-templates")
+labels=(agents instructions prompts)
+froms=("$src/copilot/agents" "$src/copilot/instructions" "$src/copilot/prompts")
 for i in "${!labels[@]}"; do
     n="$(remove_mirrored "${froms[$i]}" "$dst/${labels[$i]}" "${labels[$i]}")"
     total=$((total + n))
