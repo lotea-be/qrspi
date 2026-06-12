@@ -75,7 +75,8 @@ visible, not to be right.
 > **The four canonical headers are required; the detail sections are
 > flexible.** Always keep `## Context`, `## Goals / Non-Goals`,
 > `## Decisions`, and `## Risks / Trade-offs` — the canonical OpenSpec design
-> shape (authoritative copy: `openspec/templates/design.template.md`). Within
+> shape (canonical copy ships with the QRSPI kit as
+> `openspec-templates/design.template.md`; the sections below mirror it). Within
 > that frame you may fold the data-model / API / UI / authorization content
 > directly into the relevant numbered decision instead of using the dedicated
 > sections below, when that produces a tighter document and a clean

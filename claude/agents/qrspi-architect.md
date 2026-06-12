@@ -43,10 +43,10 @@ final message. Do NOT write `worktree.md` during S, and do NOT touch
    requirements cite real existing precedents in the codebase — existing
    endpoints, configurations, and conventions).
 3. Write `openspec/changes/<id>/proposal.md` using the canonical OpenSpec
-   shape (authoritative copy: `openspec/templates/proposal.template.md`). If
-   that template file does not exist at runtime, fall back to the skeleton
-   embedded below and note the missing template under "Open questions
-   surfaced" in the final message. If `proposal.md` already exists, read it
+   shape. Generate from the skeleton embedded below — it is the runtime source
+   of truth and mirrors the QRSPI kit's canonical
+   `openspec-templates/proposal.template.md` (the kit ships the shape; there is
+   no per-repo template to read). If `proposal.md` already exists, read it
    first, then overwrite it entirely with the regenerated version and list it
    as `Overwrote:` (not `Wrote:`) in the final message:
 
@@ -84,11 +84,10 @@ slices preview) may follow `## Impact`, never replace a canonical section.
    `openspec/changes/<id>/specs/<capability>/spec.md`. These files MUST use
    the **canonical OpenSpec delta format** so that `openspec validate <id>`
    passes and `openspec-sync-specs` can fold them into the base specs
-   automatically at archive time. The authoritative copy of this format lives
-   at `openspec/templates/spec-delta.template.md`; the skeletons below mirror
-   it — if they ever disagree, the template wins. If that template file does
-   not exist at runtime, fall back to the skeletons embedded below and note
-   the missing template under "Open questions surfaced" in the final message.
+   automatically at archive time. The skeletons below are the runtime source of
+   truth and mirror the QRSPI kit's canonical
+   `openspec-templates/spec-delta.template.md` (the kit ships the shape; there
+   is no per-repo template to read).
 
 **New capability** — no base spec at `openspec/specs/<capability>/spec.md`
 exists yet. Write a full spec; every requirement goes under

@@ -1,6 +1,6 @@
 ---
 name: qrspi-retrospective
-description: How to run a post-stage retrospective on a just-completed QRSPI stage. Captures friction the agent encountered that the prompts/skills did not anticipate, and turns it into concrete edits to the agent/command/skill files (and to openspec/templates/, openspec/backlog.md, and the project's contributor-guidance file). Load this when running `/qrspi-retro <change-id> <stage>` or whenever the human asks "what could we improve about this stage?".
+description: How to run a post-stage retrospective on a just-completed QRSPI stage. Captures friction the agent encountered that the prompts/skills did not anticipate, and turns it into concrete edits to the agent/command/skill files (and to the kit's openspec-templates/, openspec/backlog.md, and the project's contributor-guidance file). Load this when running `/qrspi-retro <change-id> <stage>` or whenever the human asks "what could we improve about this stage?".
 ---
 
 ## Why this exists
@@ -11,8 +11,9 @@ Each QRSPI stage is governed by a triplet of files:
 - An **agent** in `.claude/agents/qrspi-<role>.md` (the stage's worker)
 - One or more **skills** in `.claude/skills/<name>/` (shared methodology)
 
-Plus shared assets under `openspec/templates/`, `openspec/backlog.md`,
-and the project's contributor-guidance file (if it defines one).
+Plus shared assets: the kit's `openspec-templates/` (shared shape — edits here
+change all repos), `openspec/backlog.md`, and the project's contributor-guidance
+file (if it defines one).
 
 These files describe how the stage *should* run. Every session reveals
 small gaps between that description and reality: a convention the agent
@@ -52,7 +53,7 @@ For stage `Q`:
 | Agent | `.claude/agents/qrspi-questioner.md` | `.github/agents/qrspi-questioner.agent.md` |
 | Skill (workflow) | `.claude/skills/qrspi-workflow/SKILL.md` | `.github/instructions/qrspi-workflow.instructions.md` |
 | Skill (openspec) | `.claude/skills/openspec-workflow/SKILL.md` | `.github/instructions/openspec-workflow.instructions.md` |
-| Template | `openspec/templates/questions.template.md` | — |
+| Template (kit) | `openspec-templates/questions.template.md` | — |
 | Artifact written this stage | `openspec/changes/<id>/questions.md` | — |
 
 The same table applies stage by stage — substitute the role name
@@ -118,7 +119,7 @@ structure:
 | # | File | Edit |
 |---|------|------|
 | 1 | `.claude/agents/qrspi-questioner.md` | Add step X: ... |
-| 2 | `openspec/templates/questions.template.md` | Add section "..." |
+| 2 | `openspec-templates/questions.template.md` (kit) | Add section "..." |
 | 3 | the project's contributor-guidance file | Fix stale fact "..." |
 
 Each row is a concrete edit — not a vague suggestion. The implementer

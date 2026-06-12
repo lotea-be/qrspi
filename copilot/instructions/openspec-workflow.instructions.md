@@ -64,29 +64,29 @@ them with our own `/qrspi-*` commands so the names line up with our stages.
 
 ## Canonical artifact shapes
 
-Each artifact follows a canonical OpenSpec shape; the authoritative copy lives
-in `openspec/templates/`.
+Each artifact follows a canonical OpenSpec shape; the canonical template ships
+with the QRSPI kit (bundled with the plugin as `openspec-templates/`).
 
 | Artifact | Canonical headers | Template |
 |----------|-------------------|----------|
-| `proposal.md` | `## Why` · `## What Changes` · `## Capabilities` (New/Modified) · `## Impact` | `templates/proposal.template.md` |
-| `design.md` | `## Context` · `## Goals / Non-Goals` · `## Decisions` · `## Risks / Trade-offs` (QRSPI detail sections nested) | `templates/design.template.md` |
-| `tasks.md` | numbered groups `## N. <slice>` + `- [ ] N.M` items | `templates/tasks.template.md` |
-| `specs/<cap>/spec.md` | `## ADDED/MODIFIED/REMOVED Requirements` → `### Requirement:` → `#### Scenario:` | `templates/spec-delta.template.md` |
-| `questions.md` | QRSPI-only (no OpenSpec equivalent) | `templates/questions.template.md` |
+| `proposal.md` | `## Why` · `## What Changes` · `## Capabilities` (New/Modified) · `## Impact` | `openspec-templates/proposal.template.md` |
+| `design.md` | `## Context` · `## Goals / Non-Goals` · `## Decisions` · `## Risks / Trade-offs` (QRSPI detail sections nested) | `openspec-templates/design.template.md` |
+| `tasks.md` | numbered groups `## N. <slice>` + `- [ ] N.M` items | `openspec-templates/tasks.template.md` |
+| `specs/<cap>/spec.md` | `## ADDED/MODIFIED/REMOVED Requirements` → `### Requirement:` → `#### Scenario:` | `openspec-templates/spec-delta.template.md` |
+| `questions.md` | QRSPI-only (no OpenSpec equivalent) | `openspec-templates/questions.template.md` |
 | `worktree.md` | QRSPI-only (`## Slice N — …`); maps onto `tasks.md` numbered groups | — |
 
 `openspec validate <id>` enforces the spec-delta shape strictly; the proposal /
 design / tasks shapes follow OpenSpec's own canonical templates so artifacts
 round-trip through OpenSpec tooling.
 
-The authoritative templates live in this repo's `openspec/templates/`. A
-canonical copy is also kept in the **user-scope stash** `~/.copilot/openspec-templates/`
-so the templates travel across repos; `/qrspi-init` seeds a fresh repo's
-`openspec/templates/` from that stash. If a repo is missing `openspec/templates/`,
-copy the stash in (or re-run `/qrspi-init`) — the agents carry the same shapes
-inline, so generation still works, but the in-repo template is the human-editable
-source of truth.
+The canonical templates ship with the QRSPI kit — they travel bundled with the
+plugin (and live in the kit's own `openspec-templates/`). They are **not** copied
+into consuming repos: `/qrspi-init` no longer seeds a per-repo `openspec/templates/`,
+and the stage agents carry the same shapes inline, so generation works with nothing
+to read. The shapes are **shared across all repos** (no per-repo customization); to
+evolve a shape, edit the kit's `openspec-templates/` and the matching inline
+skeletons in the agents, then republish the plugin.
 
 ## After a change merges
 

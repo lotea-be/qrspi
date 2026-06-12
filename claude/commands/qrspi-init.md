@@ -89,25 +89,13 @@ c. Verify the result with Glob: `openspec/config.yaml`, `openspec/changes/`,
    b-bis wrote it; `changes/` and `specs/` come from the CLI.) If any are
    missing, report the missing paths and stop.
 
-d. **Seed the QRSPI canonical templates.** `openspec init` does not ship these
-   — copy them from the user-scope stash so the QRSPI agents' "authoritative
-   copy" pointers (`openspec/templates/*.template.md`) resolve in this repo:
-
-   ```powershell
-   New-Item -ItemType Directory -Force openspec/templates | Out-Null
-   Copy-Item "$HOME/.claude/openspec-templates/*.template.md" openspec/templates/
-   ```
-
-   POSIX equivalent (non-Windows shells):
-
-   ```bash
-   mkdir -p openspec/templates && cp ~/.claude/openspec-templates/*.template.md openspec/templates/
-   ```
-
-   This installs the `proposal`, `design`, `tasks`, `spec-delta`, and
-   `questions` templates. If the source directory
-   `~/.claude/openspec-templates/` does not exist, inform the user it should
-   live there, skip the copy command entirely, and proceed to step 3.
+d. **No per-repo template seeding (shared shape).** Earlier versions copied the
+   canonical templates into this repo's `openspec/templates/`. They are no longer
+   copied: the QRSPI kit ships the templates. The stage agents carry the artifact
+   shapes inline, and the canonical `*.template.md` files travel with the kit
+   (bundled in the plugin; also in the kit's own `openspec-templates/`). A
+   consuming repo needs no per-repo template copy — there is nothing to seed here.
+   Proceed to step 3.
 
 ## Step 3 — strip any project-scope OpenSpec Claude tooling (always)
 
