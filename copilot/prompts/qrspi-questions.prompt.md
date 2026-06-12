@@ -55,12 +55,11 @@ Repository signals you may use (to list in-flight and archived changes, use the
 #file:requirements.md
 #file:tech-stack.md
 #file:openspec/backlog.md
-#file:openspec/templates/questions.template.md
-`openspec/templates/questions.template.md` is the canonical source for
-section structure and the `PQ<N> — <topic>:` product-question
-convention. The most recent `openspec/changes/archive/<date>-<id>/questions.md`
-is a fully-worked example. The questioner agent is expected to read
-both before writing.
+The questioner agent carries the canonical section structure and the
+`PQ<N> — <topic>:` product-question convention inline (the shape ships with the
+QRSPI kit — there is no per-repo template to read). The most recent
+`openspec/changes/archive/<date>-<id>/questions.md` is a fully-worked example
+the agent is expected to read before writing.
 
 Return the agent's "Final message format" followed by: `Next stage: /qrspi-research <id>`
 

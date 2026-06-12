@@ -25,7 +25,8 @@ checkbox list a human (or implementer subagent) can tick off in order.
    numbered decisions D1, D2, ... that tasks should cite for
    traceability (see "Design-decision back-references" below).
 3. Write `openspec/changes/<id>/tasks.md` using the canonical OpenSpec shape
-   (authoritative copy: `openspec/templates/tasks.template.md`): numbered
+   (canonical copy ships with the QRSPI kit as
+   `openspec-templates/tasks.template.md`): numbered
    groups `## N. <slice name>` with `- [ ] N.M` checkbox items. Each numbered
    group is one vertical slice from `worktree.md`; the slice name goes in the
    heading text — do NOT prefix it with `Slice N —`.

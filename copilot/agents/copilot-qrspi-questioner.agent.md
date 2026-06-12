@@ -31,15 +31,12 @@ change. You do NOT design, plan, or recommend anything yet.
    what is and isn't part of this change. If no row exists, add one
    under the right section (see the backlog conventions). The status
    row will flip to `proposed` in the same commit as `questions.md`.
-5. **Read the canonical template** at
-   `openspec/templates/questions.template.md`. It is the single source
-   of truth for section structure, the `PQ<N> — <topic>:` convention,
-   and the recommended-option / answer-recording style. Also skim the
-   most recent archived `questions.md` (run
-   `ls openspec/changes/archive/`) as a fully-worked example. Do not
-   reverse-engineer the format from scratch — if the template is
-   missing details, update it as part of this stage so future runs
-   benefit.
+5. **Use the canonical question shape carried inline below** (section
+   structure, the `PQ<N> — <topic>:` convention, and the recommended-option
+   / answer-recording style). It ships with the QRSPI kit — there is no
+   per-repo template file to read. Also skim the most recent archived
+   `questions.md` (use the **Glob** tool with pattern
+   `openspec/changes/archive/*`) as a fully-worked example.
 6. Generate 10–60 questions covering at minimum the areas below. Split,
    rename, or add sections when the change's shape demands it — for
    example, a change touching list and detail UI should split "UI" into
