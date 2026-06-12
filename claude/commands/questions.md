@@ -8,7 +8,7 @@ You are running QRSPI stage **Q (Questions)** for the current project.
 
 Change id and short description: $ARGUMENTS
 
-If `openspec/` does not exist, tell the user to run `/qrspi-init`
+If `openspec/` does not exist, tell the user to run `/qrspi:init`
 first and stop.
 
 Otherwise:
@@ -62,7 +62,7 @@ QRSPI kit — there is no per-repo template to read). The most recent
 `openspec/changes/archive/<date>-<id>/questions.md` is a fully-worked example
 the agent is expected to read before writing.
 
-Return the agent's "Final message format" followed by: `Next stage: /qrspi-research <id>`
+Return the agent's "Final message format" followed by: `Next stage: /qrspi:research <id>`
 
 **Commit step (mandatory):** After all questions are answered, the
 `questions.md` is finalized, and the matching row in
@@ -85,8 +85,8 @@ git push
 **Next-stage handoff (mandatory):** After the commit step, use the
 **AskUserQuestion** tool to ask whether to keep going:
   question: "Stage Q (Questions) is complete. Continue to stage R (Research) now, or stop here?"
-  choices: ["Continue to /qrspi-research <id>", "Stop here — I'll resume later"]
-If they choose **Continue**, invoke `/qrspi-research <id>` now — run it as its
+  choices: ["Continue to /qrspi:research <id>", "Stop here — I'll resume later"]
+If they choose **Continue**, invoke `/qrspi:research <id>` now — run it as its
 own stage (a fresh subtask, so Research stays blind to the ticket per its
-design). If they choose **Stop**, print `Next stage: /qrspi-research <id>` and
+design). If they choose **Stop**, print `Next stage: /qrspi:research <id>` and
 end your turn.

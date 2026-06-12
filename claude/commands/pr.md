@@ -18,7 +18,7 @@ Verify both preconditions with the appropriate tools (no shell preamble
 
 1. Use the **Glob** tool with pattern `openspec/changes/$ARGUMENTS/tasks.md`
    to confirm the file exists. If Glob returns nothing, refuse and tell
-   the user to start from `/qrspi-questions`.
+   the user to start from `/qrspi:questions`.
 2. Use the **Bash** tool to run `git status --short` and confirm the
    working tree is clean (or that any remaining changes are inside the
    change folder).
@@ -70,12 +70,12 @@ the link in **two** places:
 **Seed the follow-up queue (when the reviewer found open issues).** If the
 reviewer's "Open issues found" count is greater than zero, write those
 issues into `openspec/changes/<id>/followups.md` so they are tracked and
-resolvable with `/qrspi-followup <id>` (otherwise the list is printed once and
+resolvable with `/qrspi:followup <id>` (otherwise the list is printed once and
 lost). Use the format defined in skill `qrspi-postpr-fix`:
 ```markdown
 # Follow-ups -- <id>
 
-> Post-PR fix queue. Resolve with `/qrspi-followup <id>`. Archived with the
+> Post-PR fix queue. Resolve with `/qrspi:followup <id>`. Archived with the
 > change; every box should be ticked before archival.
 
 - [ ] **<reviewer issue title>.** <explanation; file:line; suggested fix.> (source: PR review)
@@ -97,5 +97,5 @@ description first" (no PR exists yet, so there is no PR number or URL to
 record).
 
 Return only what the reviewer's "Final message format" specifies, then
-note how many follow-ups were queued (and that `/qrspi-followup <id>` resolves
+note how many follow-ups were queued (and that `/qrspi:followup <id>` resolves
 them).

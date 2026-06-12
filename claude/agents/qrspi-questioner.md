@@ -157,7 +157,7 @@ answers, return exactly:
 Wrote: openspec/changes/<id>/questions.md
 Question count: <N>
 Product questions answered: <N answered> / <N total>
-Next stage: /qrspi-research <id>
+Next stage: /qrspi:research <id>
 ```
 
 Nothing else.

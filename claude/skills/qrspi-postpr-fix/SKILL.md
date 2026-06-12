@@ -1,6 +1,6 @@
 ---
 name: qrspi-postpr-fix
-description: How to make a transient, qrspi-aware code fix AFTER the PR has been opened — the small follow-ups that surface from the reviewer's "Open issues" list or a retrospective code flag. Keeps code, tests, and the change's DELTA spec in sync, ticks the follow-up, and commits atomically on the PR branch. Load this when running `/qrspi-followup <id>` or whenever the human asks for a post-PR cleanup on an in-flight change.
+description: How to make a transient, qrspi-aware code fix AFTER the PR has been opened — the small follow-ups that surface from the reviewer's "Open issues" list or a retrospective code flag. Keeps code, tests, and the change's DELTA spec in sync, ticks the follow-up, and commits atomically on the PR branch. Load this when running `/qrspi:followup <id>` or whenever the human asks for a post-PR cleanup on an in-flight change.
 metadata:
   audience: implementer, orchestrator
 ---
@@ -23,7 +23,7 @@ code, the tests, and the spec move together, and the fix is tracked.
 
 ## What counts as a fix (and what doesn't)
 
-A `/qrspi-followup` resolves something **already in scope** that does not work as
+A `/qrspi:followup` resolves something **already in scope** that does not work as
 specified — a wrong status code, a missing validation, a stale delta, a
 broken edge case. **Net-new or previously-out-of-scope functionality is not a
 fix**, even after the PR is open: it needs a **scope amendment** (a new
@@ -39,9 +39,9 @@ Two sources, both landing in `openspec/changes/<id>/followups.md` (a
 checkbox list, created by the PR stage when the reviewer finds open issues,
 and appended to by retrospectives that surface code flags):
 
-- **Reviewer open issues** — `/qrspi-pr` writes the reviewer's
+- **Reviewer open issues** — `/qrspi:pr` writes the reviewer's
   "Open issues found" list into `followups.md`.
-- **Retro code flags** — `/qrspi-retro` routes *code-level* findings (not
+- **Retro code flags** — `/qrspi:retro` routes *code-level* findings (not
   prompt/skill edits) into `followups.md` too.
 
 A fix can also be requested ad hoc ("fix X on `<id>`"); in that case add it
@@ -113,7 +113,7 @@ Small and contained is the whole point. If it isn't, it's not a follow-up.
 
 > Post-PR fix queue. Each box is a code-level issue raised after the PR was
 > opened (reviewer "Open issues" or a retrospective code flag). Resolve with
-> `/qrspi-followup <id>`. This file is archived with the change; every box should
+> `/qrspi:followup <id>`. This file is archived with the change; every box should
 > be ticked before archival.
 
 - [ ] **<short title>.** <what's wrong; `file:line`; suggested fix.> (source: PR review | retro <stage>)

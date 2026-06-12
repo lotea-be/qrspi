@@ -78,7 +78,7 @@ Slice 3 — Read path: question detail
 Each slice in `worktree.md` MUST carry a one-line
 `**Model:** sonnet|opus` annotation under its header, plus a short
 rationale. The architect (W stage) writes it. The planner (P stage)
-carries it forward into `tasks.md` unchanged. The `/qrspi-implement`
+carries it forward into `tasks.md` unchanged. The `/qrspi:implement`
 command reads the next un-ticked slice's annotation and runs the
 implementer subagent on that model.
 
@@ -107,7 +107,7 @@ Choose `opus` when deep reasoning materially changes the output:
   management, keyboard navigation in custom widgets, dynamic state).
 
 When in doubt, prefer `sonnet`. The implementer can escalate to opus
-mid-slice by re-invoking `/qrspi-implement <id>` with an override; the
+mid-slice by re-invoking `/qrspi:implement <id>` with an override; the
 reverse direction (recovering from a flubbed opus run) costs the same
 plus the wasted call.
 

@@ -98,5 +98,5 @@ Wrote: openspec/changes/<id>/research.md
 Files surveyed: <N>
 Tables surveyed: <N>
 Open gaps: <N>
-Next stage: /qrspi-design <id>
+Next stage: /qrspi:design <id>
 ```

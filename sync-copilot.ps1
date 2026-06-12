@@ -121,6 +121,12 @@ function Rewrite-All([string]$b) {
   $b = $b -replace '\bAskUserQuestion\b', $script:askTool
   # --- the prompt already runs inside agent: <role>; soften delegation verbs ---
   $b = $b -replace 'invoke the (\w+) subagent', 'continue as the $1'
+  # --- command-invocation namespace: Claude plugin uses `/qrspi:<cmd>`; Copilot
+  # prompts are NOT plugin-namespaced, so the qrspi commands keep the `qrspi-`
+  # filename prefix and are invoked as `/qrspi-<cmd>`. Rewrite the colon form back
+  # to the dash form for the generated prompts. (`*` handles the `/qrspi:*` family
+  # references; `/opsx:*` is untouched.)
+  $b = $b -replace '/qrspi:([a-z*][a-z-]*)', '/qrspi-$1'
   return $b.TrimEnd() + "`n"
 }
 
@@ -210,7 +216,14 @@ function Emit-Prompt($file, $stem) {
   Write-Out "prompts/$stem.prompt.md" (Rewrite-All ($fm + $p.body))
   $script:np++
 }
-Get-ChildItem (Join-Path $src 'commands') -Filter *.md | Where-Object { $_.BaseName -ne 'qrspi-sync-copilot' } | ForEach-Object { Emit-Prompt $_.FullName $_.BaseName }
+Get-ChildItem (Join-Path $src 'commands') -Filter *.md | Where-Object { $_.BaseName -ne 'qrspi-sync-copilot' } | ForEach-Object {
+  # The command files dropped their `qrspi-` prefix (plugin namespaces them as
+  # `/qrspi:<stem>`). Copilot prompts are flat/un-namespaced, so re-add the
+  # prefix to the output filename to keep them `/qrspi-<stem>`. The status
+  # command `qrspi.md` is left as-is.
+  $outStem = if ($_.BaseName -eq 'qrspi') { 'qrspi' } else { "qrspi-$($_.BaseName)" }
+  Emit-Prompt $_.FullName $outStem
+}
 Get-ChildItem (Join-Path $src 'commands/opsx') -Filter *.md | ForEach-Object { Emit-Prompt $_.FullName ("opsx-" + $_.BaseName) }
 
 # skills -> instructions

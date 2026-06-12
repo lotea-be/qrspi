@@ -1,13 +1,13 @@
 ---
 name: qrspi-retrospective
-description: How to run a post-stage retrospective on a just-completed QRSPI stage. Captures friction the agent encountered that the prompts/skills did not anticipate, and turns it into concrete edits to the agent/command/skill files (and to the kit's openspec-templates/, openspec/backlog.md, and the project's contributor-guidance file). Load this when running `/qrspi-retro <change-id> <stage>` or whenever the human asks "what could we improve about this stage?".
+description: How to run a post-stage retrospective on a just-completed QRSPI stage. Captures friction the agent encountered that the prompts/skills did not anticipate, and turns it into concrete edits to the agent/command/skill files (and to the kit's openspec-templates/, openspec/backlog.md, and the project's contributor-guidance file). Load this when running `/qrspi:retro <change-id> <stage>` or whenever the human asks "what could we improve about this stage?".
 ---
 
 ## Why this exists
 
 Each QRSPI stage is governed by a triplet of files:
 
-- A **command** in `.claude/commands/qrspi-<stage>.md` (entrypoint)
+- A **command** in `.claude/commands/<stage>.md` (entrypoint)
 - An **agent** in `.claude/agents/qrspi-<role>.md` (the stage's worker)
 - One or more **skills** in `.claude/skills/<name>/` (shared methodology)
 
@@ -49,7 +49,7 @@ For stage `Q`:
 
 | Role | Claude path | GitHub path |
 |------|-------------|-------------|
-| Command | `.claude/commands/qrspi-questions.md` | `.github/prompts/qrspi-questions.prompt.md` |
+| Command | `.claude/commands/questions.md` | `.github/prompts/qrspi-questions.prompt.md` |
 | Agent | `.claude/agents/qrspi-questioner.md` | `.github/agents/qrspi-questioner.agent.md` |
 | Skill (workflow) | `.claude/skills/qrspi-workflow/SKILL.md` | `.github/instructions/qrspi-workflow.instructions.md` |
 | Skill (openspec) | `.claude/skills/openspec-workflow/SKILL.md` | `.github/instructions/openspec-workflow.instructions.md` |
@@ -146,7 +146,7 @@ places:
   `pr.md` exists), append each as a checkbox to
   `openspec/changes/<id>/followups.md` (format and resolution in skill
   `qrspi-postpr-fix`), tagged `(source: retro <stage>)`. They are resolved
-  later with `/qrspi-followup <id>`, not in the retrospective. If the PR is not
+  later with `/qrspi:followup <id>`, not in the retrospective. If the PR is not
   open yet, fold the fix into the still-running stage instead.
 
 Do not put code fixes in the "Proposed edits" table — that table is only

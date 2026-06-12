@@ -34,7 +34,7 @@ After the designer returns, append this banner to the chat:
 ```
 ⚠ HUMAN REVIEW REQUIRED.
 Read openspec/changes/<id>/design.md, edit it freely, and only then run:
-  /qrspi-structure <id>
+  /qrspi:structure <id>
 ```
 
 **Interactive review (mandatory):** After writing `design.md`:
@@ -80,7 +80,7 @@ Read openspec/changes/<id>/design.md, edit it freely, and only then run:
 
 3. **Final confirmation:** After all decisions are reviewed, ask the human
    one final question: "All design decisions reviewed. Ready to proceed to
-   Structure?" with choices `["Yes — proceed to /qrspi-structure",
+   Structure?" with choices `["Yes — proceed to /qrspi:structure",
    "I want to edit design.md manually first"]`.
 
 4. **Capture deferred work:** Read the `## Goals / Non-Goals` section's
@@ -104,8 +104,8 @@ Read openspec/changes/<id>/design.md, edit it freely, and only then run:
    ```
 
 6. **Next-stage handoff:** Act on the step 3 final-confirmation choice. If the
-   human chose **"Yes — proceed to /qrspi-structure"**, invoke
-   `/qrspi-structure <id>` now — run it as its own stage. If they chose **"I
+   human chose **"Yes — proceed to /qrspi:structure"**, invoke
+   `/qrspi:structure <id>` now — run it as its own stage. If they chose **"I
    want to edit design.md manually first"** (or stopped), print the banner above
-   (`Next stage: /qrspi-structure <id>`) and end your turn so they can review
+   (`Next stage: /qrspi:structure <id>`) and end your turn so they can review
    and edit `design.md` before continuing.

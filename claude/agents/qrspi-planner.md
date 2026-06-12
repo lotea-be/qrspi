@@ -100,5 +100,5 @@ decisions don't enumerate).
 Wrote: openspec/changes/<id>/tasks.md
 Slices: <N>
 Tasks: <total>
-Next stage: /qrspi-implement <id>
+Next stage: /qrspi:implement <id>
 ```

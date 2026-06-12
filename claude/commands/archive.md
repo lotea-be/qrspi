@@ -18,12 +18,12 @@ skill will list active changes and prompt you to pick one.
 Steps:
 
 1. If `openspec/` does not exist, this repo was never bootstrapped — tell the
-   user to run `/qrspi-init` first and stop.
+   user to run `/qrspi:init` first and stop.
 
 2. **Sanity-check readiness before archiving.** Archival is meant for changes
    whose PR has merged. If `openspec/changes/<id>/` has a `followups.md` with
    un-ticked `- [ ]` boxes, surface that — those post-PR follow-ups should be
-   resolved (`/qrspi-followup <id>`) before archiving. Inform, don't hard-block;
+   resolved (`/qrspi:followup <id>`) before archiving. Inform, don't hard-block;
    the user may have a reason to proceed.
 
 3. **Delegate to the archive skill.** Load and run the `openspec-archive-change`

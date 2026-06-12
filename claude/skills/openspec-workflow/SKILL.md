@@ -50,7 +50,7 @@ npx @fission-ai/openspec@latest update     # refresh agent guidance after upgrad
 ```
 
 The AI-facing entry points live under `/opsx:*`. From Claude Code we wrap
-them with our own `/qrspi-*` commands so the names line up with our stages.
+them with our own `/qrspi:*` commands so the names line up with our stages.
 
 ## How QRSPI stages map to OpenSpec artifacts
 
@@ -85,7 +85,7 @@ round-trip through OpenSpec tooling.
 
 The canonical templates ship with the QRSPI kit — they travel bundled with the
 plugin (and live in the kit's own `openspec-templates/`). They are **not** copied
-into consuming repos: `/qrspi-init` no longer seeds a per-repo `openspec/templates/`,
+into consuming repos: `/qrspi:init` no longer seeds a per-repo `openspec/templates/`,
 and the stage agents carry the same shapes inline, so generation works with nothing
 to read. The shapes are **shared across all repos** (no per-repo customization); to
 evolve a shape, edit the kit's `openspec-templates/` and the matching inline
@@ -100,5 +100,5 @@ unsure, ask the human.
 
 ## When OpenSpec is not yet installed
 
-If `openspec/` does not exist in the repo, run `/qrspi-init` first. Do
+If `openspec/` does not exist in the repo, run `/qrspi:init` first. Do
 not try to author artifacts under a folder that does not exist.

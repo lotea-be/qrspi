@@ -26,9 +26,9 @@ anything.
 
 ## Stage routing
 
-When invoked via `/qrspi-structure`, stop after writing `proposal.md`
+When invoked via `/qrspi:structure`, stop after writing `proposal.md`
 and `specs/` and use the **S-only** final message. When invoked via
-`/qrspi-worktree`, write only `worktree.md` and use the **W-only**
+`/qrspi:worktree`, write only `worktree.md` and use the **W-only**
 final message. Do NOT write `worktree.md` during S, and do NOT touch
 `proposal.md` or `specs/` during W.
 
@@ -188,7 +188,7 @@ not contain.
 them. Before doing anything, confirm `openspec/changes/<id>/proposal.md` and
 at least one `openspec/changes/<id>/specs/<capability>/spec.md` exist (use
 Glob). If either is missing, **stop and tell the human to run
-`/qrspi-structure <id>` first** — do NOT create the proposal or specs yourself
+`/qrspi:structure <id>` first** — do NOT create the proposal or specs yourself
 (that is the S stage's job, forbidden to W by Stage routing), and do NOT write
 a `worktree.md` against absent specs. Only once both exist do you proceed.
 
@@ -239,7 +239,7 @@ using the "Per-slice model selection" heuristic in skill
 is unavailable or defines no such heuristic, default to `sonnet` for every
 slice and note that in the Overview block. The annotation
 propagates into `tasks.md` (P stage) and is consumed by
-`/qrspi-implement` to choose the implementer subagent's model.
+`/qrspi:implement` to choose the implementer subagent's model.
 
 ## What you must NOT do
 
@@ -263,14 +263,14 @@ propagates into `tasks.md` (P stage) and is consumed by
 Choose ONE of the two formats below based on the stage you were
 invoked for. Never emit both.
 
-### S-only (when invoked via `/qrspi-structure`)
+### S-only (when invoked via `/qrspi:structure`)
 
 ```
 Wrote: openspec/changes/<id>/proposal.md
 Wrote: openspec/changes/<id>/specs/<capability>/spec.md (xN)
 Capabilities touched: <cap1>, <cap2>, ...
 Open questions surfaced: <bullet, or "none">
-Next stage: /qrspi-worktree <id>
+Next stage: /qrspi:worktree <id>
 ```
 
 Use `Overwrote:` instead of `Wrote:` for any file that already existed.
@@ -279,10 +279,10 @@ by `design.md`, `questions.md`, or `research.md` and that could affect
 implementation correctness (plus any missing template file noted above).
 Write "none" only if every decision was fully grounded in those documents.
 
-### W-only (when invoked via `/qrspi-worktree`)
+### W-only (when invoked via `/qrspi:worktree`)
 
 ```
 Wrote: openspec/changes/<id>/worktree.md
 Slices: <N>
-Next stage: /qrspi-plan <id>
+Next stage: /qrspi:plan <id>
 ```

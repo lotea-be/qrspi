@@ -151,5 +151,5 @@ Wrote: openspec/changes/<id>/design.md
 Design decisions called out: <N>
 Open questions for the human: <N>
 
-⚠ HUMAN REVIEW REQUIRED before /qrspi-structure.
+⚠ HUMAN REVIEW REQUIRED before /qrspi:structure.
 ```

@@ -6,7 +6,7 @@ description: How to run a post-stage retrospective on a just-completed QRSPI sta
 
 Each QRSPI stage is governed by a triplet of files:
 
-- A **command** in `.github/prompts/qrspi-<stage>.prompt.md` (entrypoint)
+- A **command** in `.github/prompts/<stage>.prompt.md` (entrypoint)
 - An **agent** in `.github/agents/copilot-qrspi-<role>.agent.md` (the stage's worker)
 - One or more **skills** in `.github/instructions/<name>/` (shared methodology)
 
@@ -48,7 +48,7 @@ For stage `Q`:
 
 | Role | Claude path | GitHub path |
 |------|-------------|-------------|
-| Command | `.github/prompts/qrspi-questions.prompt.md` | `.github/prompts/qrspi-questions.prompt.md` |
+| Command | `.github/prompts/questions.prompt.md` | `.github/prompts/qrspi-questions.prompt.md` |
 | Agent | `.github/agents/copilot-qrspi-questioner.agent.md` | `.github/agents/copilot-qrspi-questioner.agent.md` |
 | Skill (workflow) | `.github/instructions/qrspi-workflow.instructions.md` | `.github/instructions/qrspi-workflow.instructions.md` |
 | Skill (openspec) | `.github/instructions/openspec-workflow.instructions.md` | `.github/instructions/openspec-workflow.instructions.md` |
