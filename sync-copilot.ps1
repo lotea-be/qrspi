@@ -41,7 +41,7 @@ $hintFor = @{
   'qrspi-worktree' = '<change-id>'; 'qrspi-plan' = '<change-id>'
   'qrspi-implement' = '<change-id>'; 'qrspi-followup' = '<change-id>'
   'qrspi-pr' = '<change-id>'; 'qrspi-stack' = '(optional) stack hint'
-  'qrspi-retro' = '<change-id> <stage>'; 'qrspi' = '(optional) <change-id>'
+  'qrspi-retro' = '<change-id> <stage>'; 'qrspi-status' = '(optional) <change-id>'
   'opsx-propose' = '<change-name or description>'; 'opsx-explore' = '<topic>'
   'opsx-apply' = '<change-name>'; 'opsx-archive' = '<change-name>'; 'opsx-sync' = '<change-name>'
 }
@@ -219,10 +219,8 @@ function Emit-Prompt($file, $stem) {
 Get-ChildItem (Join-Path $src 'commands') -Filter *.md | Where-Object { $_.BaseName -ne 'qrspi-sync-copilot' } | ForEach-Object {
   # The command files dropped their `qrspi-` prefix (plugin namespaces them as
   # `/qrspi:<stem>`). Copilot prompts are flat/un-namespaced, so re-add the
-  # prefix to the output filename to keep them `/qrspi-<stem>`. The status
-  # command `qrspi.md` is left as-is.
-  $outStem = if ($_.BaseName -eq 'qrspi') { 'qrspi' } else { "qrspi-$($_.BaseName)" }
-  Emit-Prompt $_.FullName $outStem
+  # prefix to the output filename to keep them `/qrspi-<stem>`.
+  Emit-Prompt $_.FullName "qrspi-$($_.BaseName)"
 }
 Get-ChildItem (Join-Path $src 'commands/opsx') -Filter *.md | ForEach-Object { Emit-Prompt $_.FullName ("opsx-" + $_.BaseName) }
 

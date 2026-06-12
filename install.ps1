@@ -1,35 +1,27 @@
 #!/usr/bin/env pwsh
-# Installs the QRSPI kit into Claude Code (~/.claude) and/or GitHub Copilot (~/.copilot)
-# user scope. Merges: overwrites same-named files, leaves your other files alone.
-# Re-run any time you change something in this repo.
+# Installs the QRSPI GitHub Copilot kit into user scope (~/.copilot). Merges:
+# overwrites same-named files, leaves your other files alone. Re-run any time
+# you change something in this repo.
+#
+# Claude Code is delivered as a PLUGIN, not by this script — add the marketplace
+# (lotea-be/ai-agent-marketplace) and run `/plugin install qrspi@lotea-agents`.
+# This script installs only the GitHub Copilot artifacts (Copilot cannot consume
+# a Claude Code plugin).
 #
 # Usage:
-#   ./install.ps1                 # interactive: choose Claude / Copilot / Both
-#   ./install.ps1 -Target claude
-#   ./install.ps1 -Target copilot
-#   ./install.ps1 -Target both
+#   ./install.ps1                 # install Copilot kit + offer VS Code settings
+#   ./install.ps1 -SkipSettings   # don't touch VS Code settings.json
 #
 # claude/ is the source of truth. copilot/ is generated from it by
 # /qrspi-sync-copilot (run that after editing claude/, then commit copilot/).
 
 param(
-    [ValidateSet('claude', 'copilot', 'both')]
-    [string]$Target,
     # Skip the VS Code settings.json patch prompt (for non-interactive / CI runs).
     [switch]$SkipSettings
 )
 
 $ErrorActionPreference = 'Stop'
 $src = $PSScriptRoot
-
-if (-not $Target) {
-    Write-Host "Install QRSPI for which tool?" -ForegroundColor Cyan
-    Write-Host "  [1] Claude Code  (~/.claude)"
-    Write-Host "  [2] GitHub Copilot  (~/.copilot)"
-    Write-Host "  [3] Both"
-    $choice = Read-Host "Choose 1/2/3"
-    $Target = switch ($choice) { '1' { 'claude' } '2' { 'copilot' } '3' { 'both' } default { 'claude' } }
-}
 
 function Copy-Tree($from, $to, $label) {
     if (-not (Test-Path $from)) { Write-Warning "missing source: $from"; return }
@@ -95,41 +87,29 @@ function Add-CopilotSettings($settingsPath) {
     Write-Host "  Patched. Reload the VS Code window (Developer: Reload Window)." -ForegroundColor Green
 }
 
-if ($Target -in 'claude', 'both') {
-    $dst = Join-Path $HOME '.claude'
-    Write-Host "`nInstalling Claude Code kit -> $dst" -ForegroundColor Cyan
-    Copy-Tree (Join-Path $src 'claude/agents')   (Join-Path $dst 'agents')   'agents'
-    Copy-Tree (Join-Path $src 'claude/commands') (Join-Path $dst 'commands') 'commands'
-    Copy-Tree (Join-Path $src 'claude/skills')   (Join-Path $dst 'skills')   'skills'
-    Copy-Tree (Join-Path $src 'openspec-templates') (Join-Path $dst 'openspec-templates') 'openspec-templates'
-    Write-Host "Claude: restart Claude Code, then run /qrspi in any repo to verify." -ForegroundColor DarkCyan
+$dst = Join-Path $HOME '.copilot'
+Write-Host "`nInstalling GitHub Copilot kit -> $dst" -ForegroundColor Cyan
+Copy-Tree (Join-Path $src 'copilot/agents')       (Join-Path $dst 'agents')       'agents'
+Copy-Tree (Join-Path $src 'copilot/instructions') (Join-Path $dst 'instructions') 'instructions'
+Copy-Tree (Join-Path $src 'copilot/prompts')      (Join-Path $dst 'prompts')      'prompts'
+Copy-Tree (Join-Path $src 'openspec-templates')   (Join-Path $dst 'openspec-templates') 'openspec-templates'
+Write-Host "Copilot: VS Code only reads these once its chat.*FilesLocations point at ~/.copilot." -ForegroundColor DarkCyan
+if ($SkipSettings) {
+    Write-Host "  (-SkipSettings) add by hand to your user settings.json:" -ForegroundColor DarkCyan
+    Write-Host '           "chat.promptFilesLocations":       { "~/.copilot/prompts": true },' -ForegroundColor Yellow
+    Write-Host '           "chat.agentFilesLocations":        { "~/.copilot/agents": true },' -ForegroundColor Yellow
+    Write-Host '           "chat.instructionsFilesLocations": { "~/.copilot/instructions": true }' -ForegroundColor Yellow
 }
-
-if ($Target -in 'copilot', 'both') {
-    $dst = Join-Path $HOME '.copilot'
-    Write-Host "`nInstalling GitHub Copilot kit -> $dst" -ForegroundColor Cyan
-    Copy-Tree (Join-Path $src 'copilot/agents')       (Join-Path $dst 'agents')       'agents'
-    Copy-Tree (Join-Path $src 'copilot/instructions') (Join-Path $dst 'instructions') 'instructions'
-    Copy-Tree (Join-Path $src 'copilot/prompts')      (Join-Path $dst 'prompts')      'prompts'
-    Copy-Tree (Join-Path $src 'openspec-templates')   (Join-Path $dst 'openspec-templates') 'openspec-templates'
-    Write-Host "Copilot: VS Code only reads these once its chat.*FilesLocations point at ~/.copilot." -ForegroundColor DarkCyan
-    if ($SkipSettings) {
-        Write-Host "  (-SkipSettings) add by hand to your user settings.json:" -ForegroundColor DarkCyan
-        Write-Host '           "chat.promptFilesLocations":       { "~/.copilot/prompts": true },' -ForegroundColor Yellow
-        Write-Host '           "chat.agentFilesLocations":        { "~/.copilot/agents": true },' -ForegroundColor Yellow
-        Write-Host '           "chat.instructionsFilesLocations": { "~/.copilot/instructions": true }' -ForegroundColor Yellow
+else {
+    $settings = @(Get-VSCodeSettingsPaths | Where-Object { Test-Path (Split-Path $_) })
+    if (-not $settings) {
+        Write-Host "  No VS Code install detected. Add the chat.*FilesLocations keys by hand," -ForegroundColor DarkCyan
+        Write-Host "  or re-run with the editor installed." -ForegroundColor DarkCyan
     }
     else {
-        $settings = @(Get-VSCodeSettingsPaths | Where-Object { Test-Path (Split-Path $_) })
-        if (-not $settings) {
-            Write-Host "  No VS Code install detected. Add the chat.*FilesLocations keys by hand," -ForegroundColor DarkCyan
-            Write-Host "  or re-run with the editor installed." -ForegroundColor DarkCyan
-        }
-        else {
-            foreach ($s in $settings) { Add-CopilotSettings $s }
-        }
+        foreach ($s in $settings) { Add-CopilotSettings $s }
     }
-    Write-Host "Then reload the VS Code window and type / in Copilot Chat to see the qrspi prompts." -ForegroundColor DarkCyan
 }
+Write-Host "Then reload the VS Code window and type / in Copilot Chat to see the qrspi prompts." -ForegroundColor DarkCyan
 
-Write-Host "`nDone ($Target)." -ForegroundColor Cyan
+Write-Host "`nDone." -ForegroundColor Cyan

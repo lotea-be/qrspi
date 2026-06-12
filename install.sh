@@ -1,16 +1,18 @@
 #!/usr/bin/env bash
-# Installs the QRSPI kit into Claude Code (~/.claude) and/or GitHub Copilot
-# (~/.copilot) user scope. Merges: overwrites same-named files, leaves your
-# other files alone. Re-run any time you change something in this repo.
+# Installs the QRSPI GitHub Copilot kit into user scope (~/.copilot). Merges:
+# overwrites same-named files, leaves your other files alone. Re-run any time
+# you change something in this repo.
 #
 # Linux/macOS counterpart of install.ps1.
 #
+# Claude Code is delivered as a PLUGIN, not by this script — add the marketplace
+# (lotea-be/ai-agent-marketplace) and run `/plugin install qrspi@lotea-agents`.
+# This script installs only the GitHub Copilot artifacts (Copilot cannot consume
+# a Claude Code plugin).
+#
 # Usage:
-#   ./install.sh                      # interactive: choose Claude / Copilot / Both
-#   ./install.sh --target claude
-#   ./install.sh --target copilot
-#   ./install.sh --target both
-#   ./install.sh --target copilot --skip-settings   # don't touch VS Code settings.json
+#   ./install.sh                    # install Copilot kit + offer VS Code settings
+#   ./install.sh --skip-settings    # don't touch VS Code settings.json
 #
 # claude/ is the source of truth. copilot/ is generated from it by
 # /qrspi-sync-copilot (run that after editing claude/, then commit copilot/).
@@ -18,23 +20,15 @@
 set -euo pipefail
 
 src="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-target=""
 skip_settings=0
 
 while [ $# -gt 0 ]; do
     case "$1" in
-        --target) target="${2:-}"; shift 2 ;;
-        --target=*) target="${1#*=}"; shift ;;
         --skip-settings) skip_settings=1; shift ;;
         -h|--help) grep '^#' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'; exit 0 ;;
         *) echo "Unknown argument: $1" >&2; exit 2 ;;
     esac
 done
-
-case "$target" in
-    claude|copilot|both|"") ;;
-    *) echo "Invalid --target '$target' (use claude, copilot, or both)" >&2; exit 2 ;;
-esac
 
 # Colors (suppressed when stdout is not a terminal).
 if [ -t 1 ]; then
@@ -44,20 +38,6 @@ else
     C_CYAN=""; C_GREEN=""; C_YELLOW=""; C_GRAY=""; C_DKCYAN=""; C_RESET=""
 fi
 say() { printf '%s%s%s\n' "${2:-}" "$1" "$C_RESET"; }
-
-if [ -z "$target" ]; then
-    say "Install QRSPI for which tool?" "$C_CYAN"
-    echo "  [1] Claude Code  (~/.claude)"
-    echo "  [2] GitHub Copilot  (~/.copilot)"
-    echo "  [3] Both"
-    read -r -p "Choose 1/2/3: " choice
-    case "$choice" in
-        1) target="claude" ;;
-        2) target="copilot" ;;
-        3) target="both" ;;
-        *) target="claude" ;;
-    esac
-fi
 
 # Copy every file under $from into $to, overwriting same-named files.
 copy_tree() {
@@ -157,45 +137,32 @@ add_copilot_settings() {
     say "  Patched. Reload the VS Code window (Developer: Reload Window)." "$C_GREEN"
 }
 
-if [ "$target" = "claude" ] || [ "$target" = "both" ]; then
-    dst="$HOME/.claude"
-    say "" ""
-    say "Installing Claude Code kit -> $dst" "$C_CYAN"
-    copy_tree "$src/claude/agents"        "$dst/agents"             "agents"
-    copy_tree "$src/claude/commands"      "$dst/commands"           "commands"
-    copy_tree "$src/claude/skills"        "$dst/skills"             "skills"
-    copy_tree "$src/openspec-templates"   "$dst/openspec-templates" "openspec-templates"
-    say "Claude: restart Claude Code, then run /qrspi in any repo to verify." "$C_DKCYAN"
-fi
-
-if [ "$target" = "copilot" ] || [ "$target" = "both" ]; then
-    dst="$HOME/.copilot"
-    say "" ""
-    say "Installing GitHub Copilot kit -> $dst" "$C_CYAN"
-    copy_tree "$src/copilot/agents"       "$dst/agents"             "agents"
-    copy_tree "$src/copilot/instructions" "$dst/instructions"       "instructions"
-    copy_tree "$src/copilot/prompts"      "$dst/prompts"            "prompts"
-    copy_tree "$src/openspec-templates"   "$dst/openspec-templates" "openspec-templates"
-    say "Copilot: VS Code only reads these once its chat.*FilesLocations point at ~/.copilot." "$C_DKCYAN"
-    if [ "$skip_settings" -eq 1 ]; then
-        say "  (--skip-settings) add by hand to your user settings.json:" "$C_DKCYAN"
-        say '           "chat.promptFilesLocations":       { "~/.copilot/prompts": true },' "$C_YELLOW"
-        say '           "chat.agentFilesLocations":        { "~/.copilot/agents": true },' "$C_YELLOW"
-        say '           "chat.instructionsFilesLocations": { "~/.copilot/instructions": true }' "$C_YELLOW"
+dst="$HOME/.copilot"
+say "" ""
+say "Installing GitHub Copilot kit -> $dst" "$C_CYAN"
+copy_tree "$src/copilot/agents"       "$dst/agents"             "agents"
+copy_tree "$src/copilot/instructions" "$dst/instructions"       "instructions"
+copy_tree "$src/copilot/prompts"      "$dst/prompts"            "prompts"
+copy_tree "$src/openspec-templates"   "$dst/openspec-templates" "openspec-templates"
+say "Copilot: VS Code only reads these once its chat.*FilesLocations point at ~/.copilot." "$C_DKCYAN"
+if [ "$skip_settings" -eq 1 ]; then
+    say "  (--skip-settings) add by hand to your user settings.json:" "$C_DKCYAN"
+    say '           "chat.promptFilesLocations":       { "~/.copilot/prompts": true },' "$C_YELLOW"
+    say '           "chat.agentFilesLocations":        { "~/.copilot/agents": true },' "$C_YELLOW"
+    say '           "chat.instructionsFilesLocations": { "~/.copilot/instructions": true }' "$C_YELLOW"
+else
+    found=()
+    while IFS= read -r s; do
+        [ -d "$(dirname -- "$s")" ] && found+=("$s")
+    done < <(vscode_settings_paths)
+    if [ ${#found[@]} -eq 0 ]; then
+        say "  No VS Code install detected. Add the chat.*FilesLocations keys by hand," "$C_DKCYAN"
+        say "  or re-run with the editor installed." "$C_DKCYAN"
     else
-        found=()
-        while IFS= read -r s; do
-            [ -d "$(dirname -- "$s")" ] && found+=("$s")
-        done < <(vscode_settings_paths)
-        if [ ${#found[@]} -eq 0 ]; then
-            say "  No VS Code install detected. Add the chat.*FilesLocations keys by hand," "$C_DKCYAN"
-            say "  or re-run with the editor installed." "$C_DKCYAN"
-        else
-            for s in "${found[@]}"; do add_copilot_settings "$s"; done
-        fi
+        for s in "${found[@]}"; do add_copilot_settings "$s"; done
     fi
-    say "Then reload the VS Code window and type / in Copilot Chat to see the qrspi prompts." "$C_DKCYAN"
 fi
+say "Then reload the VS Code window and type / in Copilot Chat to see the qrspi prompts." "$C_DKCYAN"
 
 say "" ""
-say "Done ($target)." "$C_CYAN"
+say "Done." "$C_CYAN"

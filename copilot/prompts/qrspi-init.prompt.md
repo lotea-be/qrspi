@@ -147,7 +147,7 @@ Next: open your first change.
   /qrspi-questions <change-id>   (kebab-case, verb-first)
 
 Or read the workflow:
-  /qrspi
+  /qrspi-status
 ```
 
 User argument (optional, ignored for init): ${input}
