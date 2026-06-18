@@ -22,16 +22,16 @@
 
 **Model:** sonnet — mechanical file deletions and targeted search-and-remove in generator tables, install scripts, and prose; no novel logic
 
-- [ ] 2.1 Delete `claude/commands/opsx/propose.md`, `explore.md`, `apply.md`, `archive.md`, and `sync.md` (D9)
-- [ ] 2.2 Delete `claude/skills/openspec-propose/`, `claude/skills/openspec-explore/`, and `claude/skills/openspec-apply-change/` directories (D9)
-- [ ] 2.3 Remove all opsx entries from `sync-copilot.mjs` command-mapping and hint tables (the Node equivalents of `$agentFor`/`$hintFor`) (D9)
-- [ ] 2.4 Regenerate `copilot/` by running `node sync-copilot.mjs`; confirm no `opsx-*.prompt.md` or `openspec-{propose,explore,apply-change}.instructions.md` files appear in the output
-- [ ] 2.5 Add self-heal sweep to `install.ps1`: explicitly delete all 8 stale Copilot files (`opsx-{propose,explore,apply,archive,sync}.prompt.md` + `openspec-{propose,explore,apply-change}.instructions.md`) from `~/.copilot/` before copying new artifacts (D9)
-- [ ] 2.6 Add self-heal sweep to `install.sh`: same 8-file deletion sweep as 2.5 (D9)
-- [ ] 2.7 Update `plugin.json`: bump `version` to `0.2.0` and update description to drop the "opsx-* OpenSpec helpers" claim (D7, D9)
-- [ ] 2.8 Update `README.md`: remove all opsx command references (D9)
-- [ ] 2.9 Update `claude/commands/init.md`: remove any opsx command references (D9)
-- [ ] 2.10 Checkpoint: (1) `node sync-copilot.mjs` produces no `copilot/prompts/opsx-*.prompt.md` files; (2) `node sync-copilot.mjs` produces no `copilot/instructions/openspec-propose.instructions.md`, `openspec-explore.instructions.md`, or `openspec-apply-change.instructions.md`; (3) `node sync-copilot.mjs --check` exits 0 on the newly regenerated tree; (4) the self-heal section is visible in both `install.ps1` and `install.sh`; (5) `plugin.json` shows `"version": "0.2.0"`
+- [x] 2.1 Delete `claude/commands/opsx/propose.md`, `explore.md`, `apply.md`, `archive.md`, and `sync.md` (D9)
+- [x] 2.2 Delete `claude/skills/openspec-propose/`, `claude/skills/openspec-explore/`, and `claude/skills/openspec-apply-change/` directories (D9)
+- [x] 2.3 Remove all opsx entries from `sync-copilot.mjs` command-mapping and hint tables (the Node equivalents of `$agentFor`/`$hintFor`) (D9)
+- [x] 2.4 Regenerate `copilot/` by running `node sync-copilot.mjs`; confirm no `opsx-*.prompt.md` or `openspec-{propose,explore,apply-change}.instructions.md` files appear in the output
+- [x] 2.5 Add self-heal sweep to `install.ps1`: explicitly delete all 8 stale Copilot files (`opsx-{propose,explore,apply,archive,sync}.prompt.md` + `openspec-{propose,explore,apply-change}.instructions.md`) from `~/.copilot/` before copying new artifacts (D9)
+- [x] 2.6 Add self-heal sweep to `install.sh`: same 8-file deletion sweep as 2.5 (D9)
+- [x] 2.7 Update `plugin.json`: bump `version` to `0.2.0` and update description to drop the "opsx-* OpenSpec helpers" claim (D7, D9)
+- [x] 2.8 Update `README.md`: remove all opsx command references (D9)
+- [x] 2.9 Update `claude/commands/init.md`: remove any opsx command references (D9)
+- [x] 2.10 Checkpoint: (1) `node sync-copilot.mjs` produces no `copilot/prompts/opsx-*.prompt.md` files; (2) `node sync-copilot.mjs` produces no `copilot/instructions/openspec-propose.instructions.md`, `openspec-explore.instructions.md`, or `openspec-apply-change.instructions.md`; (3) `node sync-copilot.mjs --check` exits 0 on the newly regenerated tree; (4) the self-heal section is visible in both `install.ps1` and `install.sh`; (5) `plugin.json` shows `"version": "0.2.0"`
 
 ---
 
