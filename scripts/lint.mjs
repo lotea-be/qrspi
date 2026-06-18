@@ -502,6 +502,64 @@ async function checkHeadingAlignment(errors) {
   return violations;
 }
 
+// ---- Check 4: README COMMAND COVERAGE --------------------------------------
+//
+// Keeps the README's command surface honest against claude/commands/. This is
+// the *mechanical* half of README freshness: it asserts the shipped slash
+// commands and the README agree in both directions. It deliberately does NOT
+// police prose, agent names, the install flow, or the layout tree -- that
+// judgment-level drift is governed by the CLAUDE.md "keep the README current"
+// rule and the /qrspi-readme-audit reviewed pass.
+//
+//   forward  -- every claude/commands/<stem>.md is mentioned as `/qrspi:<stem>`
+//               in README.md (a new/renamed command must be documented)
+//   reverse  -- every `/qrspi:<token>` in README.md resolves to an existing
+//               claude/commands/<token>.md (a removed/renamed command must not
+//               leave a dangling reference)
+//
+// Bare `/qrspi` (no colon -- the stage-map command) is ignored: the regex only
+// matches the colon form, and there is no claude/commands/qrspi.md.
+
+async function checkReadmeCoverage(errors) {
+  const readmePath = path.join(root, 'README.md');
+  const readme = await readFileOr(readmePath, null);
+  if (readme === null) {
+    errors.push('[readme] README.md not found at repo root');
+    return 1;
+  }
+
+  const commandFiles = await listFiles(path.join(root, 'claude', 'commands'), '.md');
+  const commandStems = commandFiles.map((f) => path.basename(f, '.md'));
+
+  let violations = 0;
+
+  // forward: every shipped command is documented
+  for (const stem of commandStems) {
+    if (!readme.includes(`/qrspi:${stem}`)) {
+      errors.push(`[readme] command /qrspi:${stem} (claude/commands/${stem}.md) is not documented in README.md`);
+      violations++;
+    }
+  }
+
+  // reverse: every documented command resolves to a real command file
+  const known = new Set(commandStems);
+  const referenced = new Set();
+  const re = /\/qrspi:([a-z][a-z-]*)/g;
+  let m;
+  while ((m = re.exec(readme)) !== null) referenced.add(m[1]);
+  for (const token of referenced) {
+    if (!known.has(token)) {
+      errors.push(`[readme] README.md references /qrspi:${token} but claude/commands/${token}.md does not exist`);
+      violations++;
+    }
+  }
+
+  if (violations === 0) {
+    process.stdout.write(`  OK: ${commandStems.length} command(s) documented; all README /qrspi:* references resolve\n`);
+  }
+  return violations;
+}
+
 // ---- main ------------------------------------------------------------------
 
 async function main() {
@@ -517,6 +575,9 @@ async function main() {
 
   process.stdout.write('\nCheck 3: Heading alignment\n');
   await checkHeadingAlignment(errors);
+
+  process.stdout.write('\nCheck 4: README command coverage\n');
+  await checkReadmeCoverage(errors);
 
   process.stdout.write('\n');
   if (errors.length === 0) {
