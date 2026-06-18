@@ -53,3 +53,31 @@ When you need to *describe* that syntax, never put `!` directly against a
 backtick. Split it — keep the `!` in its own code span or spell it out in words
 (e.g. "an exclamation-prefixed shell-injection line"), the way this very file and
 [`SKILL.md`](.claude/skills/qrspi-sync-copilot/SKILL.md) do.
+
+## Keep the README current
+
+[`README.md`](README.md) is the kit's user-facing surface (install/update flow,
+the eight stages + command list, repo layout, requirements incl. the pinned
+OpenSpec version, the two-tool mapping, and contributor conventions). It drifts
+silently when the source changes and the doc doesn't.
+
+**In the same change that touches any of the following, update the matching
+README section** — do not leave it for "later":
+
+- **Commands** — adding, removing, or renaming a `claude/commands/*.md` (the
+  stage table and the helpers line). The CI lint (`node scripts/lint.mjs`,
+  Check 4) enforces this mechanically: every shipped `/qrspi:*` command must be
+  documented and every `/qrspi:*` the README mentions must resolve. A rename
+  that misses the README will fail CI.
+- **Agents / skills** — renaming or re-scoping them (e.g. the agent-name
+  references and the two-tool table). Not lint-covered — this one is on you.
+- **Install / update flow** — changes to `install.*`, the plugin/marketplace
+  steps, or how users pull updates.
+- **The OpenSpec pin** — see "Updating the pinned OpenSpec version" in the
+  README; the pin lint (Check 1) asserts the README agrees.
+- **Repo layout** — adding/removing a top-level dir shown in the layout tree.
+
+The lint is the mechanical floor (commands + pin); for prose-level drift the
+lint can't judge, run `/qrspi-readme-audit` — it diffs the README against the
+current source surface and reports stale spots. When unsure whether an edit is
+"README-worthy," it is: a stale README is worse than a redundant note.
