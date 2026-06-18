@@ -115,10 +115,17 @@ README's false "two coupled places" claim and its stale `claude/commands/qrspi:i
 path (now `init.md`) are also corrected in this slice, since fixing them is the
 immediate payoff of having the pin lint in place.
 
+This slice also absorbs a scope amendment surfaced during Slice A: the
+dev-tooling files that drive the sync (`.claude/commands/qrspi-sync-copilot.md`
+and `.claude/skills/qrspi-sync-copilot/SKILL.md`) still invoke the deleted
+`./sync-copilot.ps1`/`.sh` and are updated to `node sync-copilot.mjs` here,
+alongside the README prose fixes (same "stale references to the old script" theme).
+
 Files touched:
 - `.github/workflows/ci.yml` — replace stubbed lint job with the real implementation (or reference a reusable script)
 - `scripts/lint.mjs` (or similar) — new Node.js lint script implementing the three checks, invoked by CI
 - `README.md` — correct "two coupled places" claim, fix stale `claude/commands/qrspi:init.md` path, rewrite pin-bump procedure to use `node sync-copilot.mjs`
+- `.claude/commands/qrspi-sync-copilot.md`, `.claude/skills/qrspi-sync-copilot/SKILL.md` — update sync invocation to `node sync-copilot.mjs` (scope amendment from Slice A)
 
 - M: no mock layer
 - F: n/a
