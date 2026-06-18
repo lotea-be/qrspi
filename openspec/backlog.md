@@ -13,9 +13,9 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 the `main` branch requires them; a `CODEOWNERS` file would also route reviews.
 Deferred from `kit-quality-hardening` as a separate governance concern (its Q7).
 
-### kit-quality-hardening — `in-progress (Q, R, D, S, W, P, I complete)`
+### kit-quality-hardening — `in-progress (Q, R, D, S, W, P, I complete; PR #1 open — https://github.com/lotea-be/qrspi/pull/1)`
 
-**Next QRSPI command:** `/qrspi:pr kit-quality-hardening`
+**Next QRSPI command:** `archive after merge`
 
 
 **Why:** The kit's core invariant — "`copilot/` is generated, never hand-edited,
