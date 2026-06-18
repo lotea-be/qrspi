@@ -92,19 +92,19 @@ Read openspec/changes/<id>/design.md, edit it freely, and only then run:
    against existing rows, minimal row); do not promote in-change
    follow-ups. Skip silently if there are no Non-Goals worth promoting.
 
-5. **Commit step (mandatory):** After the human confirms, use the #tool:vscode/askQuestions:
-   question: "Commit design.md to the feature branch?"
-   choices: ["Yes — commit and push", "No — I'll commit later"]
-   If yes, run (add `openspec/backlog.md` only if you captured any idea rows in step 4):
-   ```
-   git add openspec/changes/<id>/design.md
-   git commit -m "docs(<id>): add design.md (QRSPI stage D)"
-   git push
-   ```
+5. **Commit step (mandatory):** After the human confirms, follow the
+   canonical *commit step* in skill `qrspi-workflow` ("Stage choreography"),
+   with these stage variables:
+   - Artifact: `openspec/changes/<id>/design.md`.
+   - Commit message: `docs(<id>): add design.md (QRSPI stage D)`
+   - Git add line: `git add openspec/changes/<id>/design.md` — add
+     `openspec/backlog.md` to the same commit **only if** you captured any
+     idea rows in step 4 (backlog atomicity).
 
-6. **Next-stage handoff:** Act on the step 3 final-confirmation choice. If the
-   human chose **"Yes — proceed to /qrspi-structure"**, invoke
-   `/qrspi-structure <id>` now — run it as its own stage. If they chose **"I
-   want to edit design.md manually first"** (or stopped), print the banner above
+6. **Next-stage handoff:** This stage's handoff acts on the step 3
+   final-confirmation choice rather than asking again. If the human chose
+   **"Yes — proceed to /qrspi-structure"**, invoke `/qrspi-structure <id>`
+   now — run it as its own stage. If they chose **"I want to edit design.md
+   manually first"** (or stopped), print the banner above
    (`Next stage: /qrspi-structure <id>`) and end your turn so they can review
    and edit `design.md` before continuing.

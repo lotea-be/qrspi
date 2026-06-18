@@ -71,8 +71,9 @@ OQ1–OQ6 all approved).
 
 - `qrspi-command-surface`: The kit's command/agent/skill surface. Modifications:
   canonical choreography DRY'd into `qrspi-workflow` skill (D4); skill-load
-  preamble lint-enforced (D5); `Edit` removed from researcher/questioner/planner
-  frontmatter (D10); 5 opsx commands + 3 orphaned skills deleted (D9); generator
+  preamble lint-enforced (D5); `Edit` removed from researcher/planner
+  frontmatter, retained on the questioner which edits the backlog row in place
+  (D10); 5 opsx commands + 3 orphaned skills deleted (D9); generator
   opsx tables cleaned; install-script self-heal sweep added (D9) — needs a
   delta spec under `specs/qrspi-command-surface/spec.md`.
 
