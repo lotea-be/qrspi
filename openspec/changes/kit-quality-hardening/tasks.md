@@ -74,17 +74,17 @@
 
 **Model:** sonnet — authoring a reference example is mechanical turn-the-crank work (fill in realistic fictional content following the exact same canonical formats the W stage just used); `CONTRIBUTING.md` and `CHANGELOG.md` are documentation with a clear structure dictated by the spec; no novel judgment
 
-- [ ] 5.1 Create `openspec/changes/archive/2026-06-18-add-greeting/questions.md`: realistic fictional questions for a minimal "add greeting" capability (D6)
-- [ ] 5.2 Create `openspec/changes/archive/2026-06-18-add-greeting/research.md`: fictional research findings (D6)
-- [ ] 5.3 Create `openspec/changes/archive/2026-06-18-add-greeting/design.md`: fictional design decisions (D6)
-- [ ] 5.4 Create `openspec/changes/archive/2026-06-18-add-greeting/proposal.md`: valid OpenSpec proposal shape with `## Why`, `## What Changes`, `## Capabilities`, `## Impact` sections (D6)
-- [ ] 5.5 Create `openspec/changes/archive/2026-06-18-add-greeting/specs/greeting/spec.md`: valid spec-delta format so `openspec validate 2026-06-18-add-greeting` passes (D6)
-- [ ] 5.6 Create `openspec/changes/archive/2026-06-18-add-greeting/tasks.md`: fictional task list in canonical `## N.` group format (D6)
-- [ ] 5.7 Create `openspec/changes/archive/2026-06-18-add-greeting/worktree.md`: fictional worktree with at least one slice (D6)
-- [ ] 5.8 Replace the stubbed `validate` job in `.github/workflows/ci.yml` with the real invocation: `npx @fission-ai/openspec@1.4.1 validate 2026-06-18-add-greeting` (D2, D6)
-- [ ] 5.9 Create `CONTRIBUTING.md` at the repo root: include the semver discipline table, the sync workflow, the version-bump checklist (including the pin-coupling rule), and a note on convention-only stub drift (D7)
-- [ ] 5.10 Create `CHANGELOG.md` at the repo root: Keep-a-Changelog format with `## [Unreleased]`, `## [0.2.0]` (this change — including the opsx removal migration note and the self-heal instruction), and `## [0.1.0]` (D7)
-- [ ] 5.11 Checkpoint: (1) `npx @fission-ai/openspec@1.4.1 validate 2026-06-18-add-greeting` exits 0 (run from repo root); (2) `CONTRIBUTING.md` exists at the repo root and contains the sync workflow, semver table, version-bump checklist, and pin-coupling rule; (3) `CHANGELOG.md` exists and contains `## [0.2.0]` with the opsx-removal migration note; (4) CI validate job passes on the branch; (5) all three CI jobs (drift, lint, validate) are green on the PR
+- [x] 5.1 Create `openspec/changes/example-greeting/questions.md`: realistic fictional questions for a minimal "add greeting" capability (D6)
+- [x] 5.2 Create `openspec/changes/example-greeting/research.md`: fictional research findings (D6)
+- [x] 5.3 Create `openspec/changes/example-greeting/design.md`: fictional design decisions (D6)
+- [x] 5.4 Create `openspec/changes/example-greeting/proposal.md`: valid OpenSpec proposal shape with `## Why`, `## What Changes`, `## Capabilities`, `## Impact` sections (D6)
+- [x] 5.5 Create `openspec/changes/example-greeting/specs/greeting/spec.md`: valid spec-delta format so `openspec validate example-greeting` passes (D6)
+- [x] 5.6 Create `openspec/changes/example-greeting/tasks.md`: fictional task list in canonical `## N.` group format (D6)
+- [x] 5.7 Create `openspec/changes/example-greeting/worktree.md`: fictional worktree with at least one slice (D6)
+- [x] 5.8 Replace the stubbed `validate` job in `.github/workflows/ci.yml` with the real invocation: `npx @fission-ai/openspec@1.4.1 validate example-greeting` (D2, D6)
+- [x] 5.9 Create `CONTRIBUTING.md` at the repo root: include the semver discipline table, the sync workflow, the version-bump checklist (including the pin-coupling rule), and a note on convention-only stub drift (D7)
+- [x] 5.10 Create `CHANGELOG.md` at the repo root: Keep-a-Changelog format with `## [Unreleased]`, `## [0.2.0]` (this change — including the opsx removal migration note and the self-heal instruction), and `## [0.1.0]` (D7)
+- [x] 5.11 Checkpoint: (1) `npx @fission-ai/openspec@1.4.1 validate example-greeting` exits 0 (run from repo root); (2) `CONTRIBUTING.md` exists at the repo root and contains the sync workflow, semver table, version-bump checklist, and pin-coupling rule; (3) `CHANGELOG.md` exists and contains `## [0.2.0]` with the opsx-removal migration note; (4) CI validate job passes on the branch; (5) all three CI jobs (drift, lint, validate) are green on the PR
 
 ---
 
@@ -94,7 +94,7 @@
 
 - [ ] 6.1 Run `node sync-copilot.mjs --check` from the repo root and confirm exit 0 (no uncommitted copilot drift across all five slices combined)
 - [ ] 6.2 Run `node scripts/lint.mjs` from the repo root and confirm exit 0 (pin agreement, frontmatter validity, heading-level skeleton alignment)
-- [ ] 6.3 Run `npx @fission-ai/openspec@1.4.1 validate 2026-06-18-add-greeting` from the repo root and confirm exit 0
+- [ ] 6.3 Run `npx @fission-ai/openspec@1.4.1 validate example-greeting` from the repo root and confirm exit 0
 - [ ] 6.4 Confirm `copilot/` contains no `opsx-*.prompt.md` or `openspec-{propose,explore,apply-change}.instructions.md` files
 - [ ] 6.5 Confirm all three CI jobs (drift, lint, validate) in `.github/workflows/ci.yml` are non-stub implementations (no `echo "TODO"` remaining)
 - [ ] 6.6 Confirm `plugin.json` version is `0.2.0`, `sync-copilot.ps1` and `sync-copilot.sh` are absent from the repo root, and `sync-copilot.mjs` is present and executable

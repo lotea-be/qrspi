@@ -63,9 +63,11 @@ OQ1–OQ6 all approved).
   authority (0.x convention, this change → 0.2.0) — creates
   `specs/kit-governance/spec.md`.
 
-- `reference-example`: A hand-authored minimal fictional change archived under
-  `openspec/changes/archive/YYYY-MM-DD-add-greeting/` with the full artifact
-  set, valid for `openspec validate` — creates `specs/reference-example/spec.md`.
+- `reference-example`: A hand-authored minimal fictional change provided as an
+  active fixture under `openspec/changes/example-greeting/` with the full artifact
+  set, valid for `openspec validate example-greeting` — creates
+  `specs/reference-example/spec.md`. (Active, not archived: `openspec validate`
+  only resolves active changes.)
 
 ### Modified Capabilities
 

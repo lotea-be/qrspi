@@ -107,14 +107,19 @@ it to the **frontmatter/name lint** (D2) so every referenced skill name must res
 mechanism for the researcher's "do NOT open questions.md" rule (Q15) and the per-agent skill variation.
 The duplication here is shallow and self-documenting; the lint converts the convention into a check.
 
-### D6 — Reference example: hand-authored full-artifact change under `archive/` (PQ7; finding #9)
-Chosen: a fictional minimal change (e.g. `add-greeting`) hand-authored under
-`openspec/changes/archive/YYYY-MM-DD-add-greeting/` with the **full** artifact set
+### D6 — Reference example: hand-authored full-artifact change as an active fixture (PQ7; finding #9)
+Chosen: a fictional minimal change `example-greeting` hand-authored under
+`openspec/changes/example-greeting/` with the **full** artifact set
 (questions/research/design/proposal/specs/tasks/worktree) so it serves as end-to-end documentation,
-and a valid `proposal.md` + `specs/<cap>/spec.md` so `openspec validate` exercises it as a CI fixture.
-Placing it under `archive/` (not a separate `example-` folder) keeps it looking like a real historical
-change and avoids a new top-level concept. OQ3 flags whether `openspec validate` actually runs in CI
-(needs the OpenSpec CLI in the runner) vs. local-only.
+and a valid `proposal.md` + `specs/<cap>/spec.md` so `openspec validate example-greeting` exercises it as a CI fixture.
+**Amended during implementation (slice 5):** the original plan placed it under
+`openspec/changes/archive/YYYY-MM-DD-add-greeting/`, but `openspec validate <id>` (CLI v1.4.1)
+only resolves *active* changes — archived changes are not addressable by id and `--all` skips them,
+so an archived example could never be the validate fixture OQ3 intends. The example therefore lives
+in the active `openspec/changes/` set under a clearly non-dated, fixture-named folder
+(`example-greeting`). Accepted tradeoff: it shows permanently in `openspec list`; documented in
+`CONTRIBUTING.md` as an intentional fixture. OQ3 resolved: validate DOES run in CI, via
+`npx @fission-ai/openspec@<pin> validate example-greeting`.
 
 ### D7 — Governance docs + the version↔pin coupling rule (PQ6, PQ9; finding #6)
 Chosen: add a new `CONTRIBUTING.md` (semver discipline for `plugin.json`, the sync workflow, the
