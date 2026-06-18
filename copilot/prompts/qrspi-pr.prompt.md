@@ -10,18 +10,17 @@ Change id: ${input}
 
 Precondition: all boxes in `openspec/changes/<id>/tasks.md` are ticked,
 and the working tree is clean (no uncommitted changes outside of the
-change folder updates).
-
-Verify both preconditions with the appropriate tools (no shell preamble
-— the harness's obfuscation guard blocks brace+quote shapes, and
-`git status` isn't on the default allow-list):
+change folder updates). **This stage's precondition has two parts** (the
+canonical *precondition check* in skill `qrspi-workflow` covers the
+file gate; the clean-tree gate is unique to PR):
 
 1. Use the **Glob** tool with pattern `openspec/changes/${input}/tasks.md`
    to confirm the file exists. If Glob returns nothing, refuse and tell
    the user to start from `/qrspi-questions`.
 2. Use the **Bash** tool to run `git status --short` and confirm the
    working tree is clean (or that any remaining changes are inside the
-   change folder).
+   change folder). Do not Glob this — `git status` is not on the default
+   allow-list and the harness's obfuscation guard blocks brace+quote shapes.
 
 Otherwise continue as the reviewer. It will:
 
@@ -82,19 +81,18 @@ lost). Use the format defined in skill `qrspi-postpr-fix`:
 ```
 If the reviewer found zero open issues, do not create the file.
 
-Then commit and push:
+Then commit and push (the canonical *commit step* in skill `qrspi-workflow`
+applies — explicit paths only, never `git add -A`; PR open is a state
+change so the backlog edit lands in this same commit, per backlog
+atomicity):
 ```
 git add openspec/changes/<id>/pr.md openspec/backlog.md openspec/changes/<id>/followups.md
 git commit -m "docs(<id>): record PR #<N> link"
 git push
 ```
-(Omit `followups.md` from the `git add` if it was not created.)
-
-The house rule (in the project's contributor-guidance file, if it defines
-one) is that backlog edits commit atomically with the state change they
-reflect — PR open is a state change. Skip this step only if the user chose "Show me the
-description first" (no PR exists yet, so there is no PR number or URL to
-record).
+(Omit `followups.md` from the `git add` if it was not created.) Skip this
+step only if the user chose "Show me the description first" (no PR exists
+yet, so there is no PR number or URL to record).
 
 Return only what the reviewer's "Final message format" specifies, then
 note how many follow-ups were queued (and that `/qrspi-followup <id>` resolves

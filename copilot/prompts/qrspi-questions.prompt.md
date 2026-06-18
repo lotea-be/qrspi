@@ -63,29 +63,16 @@ the agent is expected to read before writing.
 
 Return the agent's "Final message format" followed by: `Next stage: /qrspi-research <id>`
 
-**Commit step (mandatory):** After all questions are answered, the
-`questions.md` is finalized, and the matching row in
-`openspec/backlog.md` has been flipped from `idea` to `proposed`
-(per the QRSPI rule that backlog edits land in the same commit as the
-state change). The questioner agent performs this flip (its step 9) —
-**verify** the row already reads `proposed` rather than editing it
-yourself; only flip it if the agent did not. (Re-editing it after the
-agent will fail with a "file modified since read" error.) Then use
-the #tool:vscode/askQuestions to ask:
-  question: "Commit questions.md and the backlog status flip to the feature branch?"
-  choices: ["Yes — commit and push", "No — I'll commit later"]
-If yes, run:
-```
-git add openspec/changes/<id>/questions.md openspec/backlog.md
-git commit -m "docs(<id>): add questions.md (QRSPI stage Q)"
-git push
-```
-
-**Next-stage handoff (mandatory):** After the commit step, use the
-#tool:vscode/askQuestions to ask whether to keep going:
-  question: "Stage Q (Questions) is complete. Continue to stage R (Research) now, or stop here?"
-  choices: ["Continue to /qrspi-research <id>", "Stop here — I'll resume later"]
-If they choose **Continue**, invoke `/qrspi-research <id>` now — run it as its
-own stage (a fresh subtask, so Research stays blind to the ticket per its
-design). If they choose **Stop**, print `Next stage: /qrspi-research <id>` and
-end your turn.
+**Choreography (see skill `qrspi-workflow`, "Stage choreography").** Follow
+the canonical *commit step* and *next-stage handoff* there, with these
+stage variables:
+- Artifact: `openspec/changes/<id>/questions.md` (plus `openspec/backlog.md`).
+- Commit message: `docs(<id>): add questions.md (QRSPI stage Q)`
+- Backlog atomicity: the matching row must read `proposed` (flipped from
+  `idea`) in this same commit. The questioner agent performs this flip (its
+  step 9) — **verify** the row already reads `proposed` rather than editing
+  it yourself; only flip it if the agent did not (re-editing it after the
+  agent will fail with a "file modified since read" error).
+- Git add line: `git add openspec/changes/<id>/questions.md openspec/backlog.md`
+- Next-stage command: `/qrspi-research <id>` — invoke it as its own stage (a
+  fresh subtask, so Research stays blind to the ticket per its design).

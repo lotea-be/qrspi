@@ -8,15 +8,14 @@ You are running QRSPI stage **I (Implement)** for the current project.
 
 Change id: ${input}
 
-Precondition: `openspec/changes/<id>/tasks.md` exists.
-
-Verify it exists with the **Glob** tool (pattern
-`openspec/changes/<id>/tasks.md`) — do not shell out.
-
-If missing AND the change is non-trivial, refuse and tell the user to
-run `/qrspi-plan` first. Trivial exception: if the user explicitly says
-this is a typo / lint / single-line fix, allow it and require the user
-to state the inline plan in one paragraph before any edits.
+Precondition (canonical *precondition check* in skill `qrspi-workflow`,
+"Stage choreography"): the input artifact is
+`openspec/changes/<id>/tasks.md`; on failure point the user at
+`/qrspi-plan`. **This stage has a trivial exception to the precondition:**
+if the change is non-trivial and `tasks.md` is missing, refuse as usual;
+but if the user explicitly says this is a typo / lint / single-line fix,
+allow it and require the user to state the inline plan in one paragraph
+before any edits.
 
 **Check the next un-ticked slice's recommended model.** Read
 `openspec/changes/${input}/tasks.md` and locate the first slice header
@@ -60,9 +59,8 @@ If yes, first update `openspec/backlog.md`:
   `Next QRSPI command:` line to reflect that slice N+1 is in flight
   (e.g. `/qrspi-implement <id>` is still the correct next call).
 
-The house rule (in the project's contributor-guidance file, if it defines
-one) is that backlog edits commit atomically with the state change they
-reflect — every QRSPI per-stage commit carries its matching backlog edit.
+The backlog edit lands in the same commit as the slice (backlog
+atomicity, see skill `qrspi-workflow`).
 
 Then run:
 ```
@@ -70,11 +68,10 @@ git add openspec/changes/<id>/tasks.md openspec/backlog.md <files-modified-in-th
 git commit -m "feat(<id>): implement slice N — <slice title>"
 git push
 ```
-Stage the implementer-modified files explicitly (the implementer's
-final message lists them under "Files created/modified"). Do **not**
-use `git add -A` — it can sweep up secrets, scratch files, or
-unrelated working-tree changes. This matches every other per-stage
-QRSPI commit (S, W, P).
+Stage the implementer-modified files explicitly — the implementer's
+final message lists them under "Files created/modified". As the canonical
+*commit step* in skill `qrspi-workflow` requires, never use `git add -A`;
+it can sweep up secrets, scratch files, or unrelated working-tree changes.
 
 Re-running `/qrspi-implement <id>` resumes at the next un-ticked slice.
 

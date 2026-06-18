@@ -4,26 +4,20 @@
 
 `copilot/` is **generated**, not authored. The source of truth is `claude/`
 (plus `openspec-templates/`). The entire `copilot/` tree is wiped and rebuilt
-by [`sync-copilot.ps1`](sync-copilot.ps1), so any manual edit there is lost on
+by [`sync-copilot.mjs`](sync-copilot.mjs), so any manual edit there is lost on
 the next sync.
 
 **Do not edit, create, or delete files under `copilot/` directly.** If a change
 needs to reach the Copilot artifacts:
 
 1. Make the change in the corresponding `claude/` source file (or, for a
-   systematic mapping gap, in `sync-copilot.ps1` itself — never in the output).
-2. Propose running the sync script and let the user run/approve it:
-
-   ```powershell
-   ./sync-copilot.ps1            # regenerate copilot/ from claude/
-   ./sync-copilot.ps1 -Check     # verify zero drift (CI-style check)
-   ```
-
-   From bash, use the wrapper (it forwards to the same script via `pwsh`):
+   systematic mapping gap, in `sync-copilot.mjs` itself — never in the output).
+2. Propose running the sync script and let the user run/approve it (it is a
+   plain Node script — needs only `node`, no `pwsh`):
 
    ```bash
-   ./sync-copilot.sh             # regenerate copilot/ from claude/
-   ./sync-copilot.sh --check     # verify zero drift (CI-style check)
+   node sync-copilot.mjs             # regenerate copilot/ from claude/
+   node sync-copilot.mjs --check     # verify zero drift (CI-style check)
    ```
 
    For a reviewed pass, `/qrspi-sync-copilot` runs the script and improves the

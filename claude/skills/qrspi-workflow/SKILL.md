@@ -135,3 +135,75 @@ Trivial changes (typo, lint fix, dependency bump under a patch version)
 can skip directly to `/qrspi:implement` with an inline one-paragraph plan.
 Anything that touches the data model, an API surface, or auth must go
 through the full flow.
+
+## Stage choreography (canonical procedures)
+
+Every QRSPI stage command shares the same four invariant procedures. The
+authoritative wording lives here; a stage command keeps only the
+stage-specific *variables* (its artifact filename(s), its exact
+commit-message string, the precondition artifact + the prior stage to point
+at, the agent it invokes, and the next-stage command) and references this
+section for the procedure itself. When you read "follow the canonical
+*commit step* / *next-stage handoff* / *precondition check* in
+`qrspi-workflow`", this is what is meant.
+
+### Precondition check (Glob-based)
+
+Before invoking a stage's subagent, confirm the stage's input artifact(s)
+exist. **Use the Glob tool**, not a shell command — Glob has no permission
+requirements and works on every platform (a shelled `ls` is rejected by the
+permission checker on Windows/PowerShell). Glob the precondition path(s) the
+stage names. If Glob returns nothing, refuse and tell the user to run the
+named prior stage first (e.g. "run `/qrspi:plan` first"). Only proceed when
+every required artifact is present.
+
+A stage that has an *approval* gate in addition to a file gate (e.g.
+Structure requires a human-approved `design.md`) runs that gate here too,
+via AskUserQuestion, before invoking the subagent — the file existing is not
+the same as the human having approved it.
+
+### Commit step (mandatory)
+
+After the stage's artifact is written (and any backlog edit is staged, see
+below), ask the human before committing:
+
+- Use the **AskUserQuestion** tool:
+  - question: "Commit <the stage's artifact(s) and any backlog edit> to the feature branch?"
+  - choices: ["Yes -- commit and push", "No -- I'll commit later"]
+- If yes, stage the **explicit paths** the stage names, commit with the
+  stage's exact commit-message string, and push:
+  ```
+  git add <explicit artifact path(s)> [openspec/backlog.md]
+  git commit -m "<the stage's commit message>"
+  git push
+  ```
+- **Never use `git add -A`.** It can sweep up secrets, scratch files, or
+  unrelated working-tree changes. Stage only the paths the stage produced
+  (the subagent's final message lists the files it created/modified).
+- If the human chose "No", skip the commit and continue to the handoff.
+
+### Next-stage handoff (mandatory)
+
+After the commit step, ask the human whether to keep going:
+
+- Use the **AskUserQuestion** tool:
+  - question: "Stage <X> is complete. Continue to stage <Y> now, or stop here?"
+  - choices: ["Continue to /qrspi:<next> <id>", "Stop here -- I'll resume later"]
+- If they choose **Continue**, invoke the next-stage command now, as its own
+  stage (a fresh subtask, so each stage keeps a clean context window -- and
+  so Research in particular stays blind to the ticket per its design).
+- If they choose **Stop**, print `Next stage: /qrspi:<next> <id>` and end
+  your turn.
+
+### Backlog atomicity
+
+When a stage's state change has a matching `openspec/backlog.md` edit (a
+status transition, or the `Next QRSPI command:` line moving to the next
+stage), that backlog edit lands in the **same commit** as the stage's
+artifact -- never as a separate follow-up commit. Stage `openspec/backlog.md`
+alongside the artifact in the commit step above. This is the same
+atomic-commit rule stated under "Before Q -- the backlog"; it applies to
+every stage that touches the backlog row. A stage whose subagent already
+performed the backlog edit (e.g. the questioner's status flip) verifies the
+row rather than re-editing it -- re-editing a file the subagent just wrote
+fails with a "file modified since read" error.
