@@ -8,12 +8,10 @@ You are running QRSPI stage **P (Plan)** for the current project.
 
 Change id: ${input}
 
-Precondition: `openspec/changes/<id>/worktree.md` exists.
-
-Verify it exists with the **Glob** tool (pattern
-`openspec/changes/<id>/worktree.md`) — do not shell out.
-
-If missing, refuse and tell the user to run `/qrspi-worktree` first.
+Precondition (canonical *precondition check* in skill `qrspi-workflow`,
+"Stage choreography"): the input artifact is
+`openspec/changes/<id>/worktree.md`; on failure point the user at
+`/qrspi-worktree`.
 
 Otherwise continue as the planner to write
 `openspec/changes/<id>/tasks.md`. Because design and structure are
@@ -22,25 +20,14 @@ already aligned, this stage should be quick and mechanical.
 Return only what the planner's "Final message format" specifies.
 
 **Before committing, update `openspec/backlog.md`:** change the change's
-row `Next QRSPI command:` line to `/qrspi-implement <id>`. The house rule
-(in the project's contributor-guidance file, if it defines one) is that
-backlog edits commit atomically with the state change they reflect.
+row `Next QRSPI command:` line to `/qrspi-implement <id>`. This edit lands
+in the same commit as the artifact (backlog atomicity, see skill
+`qrspi-workflow`).
 
-**Commit step (mandatory):** After `tasks.md` is written, use the #tool:vscode/askQuestions
-to ask:
-  question: "Commit tasks.md to the feature branch?"
-  choices: ["Yes — commit and push", "No — I'll commit later"]
-If yes, run:
-```
-git add openspec/changes/<id>/tasks.md openspec/backlog.md
-git commit -m "docs(<id>): add tasks.md (QRSPI stage P)"
-git push
-```
-
-**Next-stage handoff (mandatory):** After the commit step, use the
-#tool:vscode/askQuestions to ask whether to keep going:
-  question: "Stage P (Plan) is complete. Continue to stage I (Implement) now, or stop here?"
-  choices: ["Continue to /qrspi-implement <id>", "Stop here — I'll resume later"]
-If they choose **Continue**, invoke `/qrspi-implement <id>` now — run it as its
-own stage. If they choose **Stop**, print `Next stage: /qrspi-implement <id>`
-and end your turn.
+**Choreography (see skill `qrspi-workflow`, "Stage choreography").** Follow
+the canonical *commit step* and *next-stage handoff* there, with these
+stage variables:
+- Artifact: `openspec/changes/<id>/tasks.md` + `openspec/backlog.md`.
+- Commit message: `docs(<id>): add tasks.md (QRSPI stage P)`
+- Git add line: `git add openspec/changes/<id>/tasks.md openspec/backlog.md`
+- Next-stage command: `/qrspi-implement <id>` — invoke it as its own stage.

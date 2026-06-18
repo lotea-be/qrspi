@@ -49,8 +49,10 @@ npx @fission-ai/openspec@latest init       # bootstraps openspec/ in this repo
 npx @fission-ai/openspec@latest update     # refresh agent guidance after upgrading
 ```
 
-The AI-facing entry points live under `/opsx:*`. From Claude Code we wrap
-them with our own `/qrspi:*` commands so the names line up with our stages.
+The OpenSpec CLI offers its own native `/opsx:*` entry points, but QRSPI does
+**not** use them — it ships its own `/qrspi:*` commands that map onto the eight
+stages and drive the CLI directly (and the kit's `init` flow sweeps any
+project-scope `opsx` tooling the CLI generates).
 
 ## How QRSPI stages map to OpenSpec artifacts
 
