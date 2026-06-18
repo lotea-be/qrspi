@@ -35,7 +35,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      # TODO: replace with the openspec validate invocation on the reference
-      # example in slice 5.
-      - name: Validate
-        run: echo "TODO"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Validate reference example
+        run: npx --yes @fission-ai/openspec@1.4.1 validate example-greeting

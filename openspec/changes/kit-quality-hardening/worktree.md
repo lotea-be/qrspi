@@ -171,13 +171,13 @@ Files touched:
 
 ### Slice E — reference example + validate gate + governance docs
 
-The hand-authored reference example change (`add-greeting`, or a similar minimal
-fictional capability) is placed under `openspec/changes/archive/2026-06-18-add-greeting/`
+The hand-authored reference example change (`example-greeting`, a minimal
+fictional capability) is placed under `openspec/changes/example-greeting/`
 with the full artifact set: `questions.md`, `research.md`, `design.md`,
 `proposal.md`, `specs/greeting/spec.md`, `tasks.md`, and `worktree.md`. Content
 is realistic but fictional and written so a new contributor can trace a complete
 QRSPI flow. The spec files conform to the canonical spec-delta format so that
-`openspec validate add-greeting` (or the chosen id) passes. The CI `validate` job
+`openspec validate example-greeting` passes. The CI `validate` job
 (stubbed in Slice A) is replaced with the real invocation: `npx
 @fission-ai/openspec@1.4.1 validate <example-id>`. `CONTRIBUTING.md` and
 `CHANGELOG.md` are added to the repo root: `CONTRIBUTING.md` contains the semver
@@ -188,13 +188,13 @@ change — including the opsx removal migration note and the self-heal instructi
 and `## [0.1.0]`.
 
 Files touched:
-- `openspec/changes/archive/2026-06-18-add-greeting/questions.md` — new
-- `openspec/changes/archive/2026-06-18-add-greeting/research.md` — new
-- `openspec/changes/archive/2026-06-18-add-greeting/design.md` — new
-- `openspec/changes/archive/2026-06-18-add-greeting/proposal.md` — new
-- `openspec/changes/archive/2026-06-18-add-greeting/specs/greeting/spec.md` — new
-- `openspec/changes/archive/2026-06-18-add-greeting/tasks.md` — new
-- `openspec/changes/archive/2026-06-18-add-greeting/worktree.md` — new
+- `openspec/changes/example-greeting/questions.md` — new
+- `openspec/changes/example-greeting/research.md` — new
+- `openspec/changes/example-greeting/design.md` — new
+- `openspec/changes/example-greeting/proposal.md` — new
+- `openspec/changes/example-greeting/specs/greeting/spec.md` — new
+- `openspec/changes/example-greeting/tasks.md` — new
+- `openspec/changes/example-greeting/worktree.md` — new
 - `.github/workflows/ci.yml` — replace stubbed validate job with `npx @fission-ai/openspec@1.4.1 validate`
 - `CONTRIBUTING.md` — new
 - `CHANGELOG.md` — new
@@ -202,6 +202,6 @@ Files touched:
 - M: no mock layer
 - F: n/a
 - D: n/a
-- T: checkpoint: `npx @fission-ai/openspec@1.4.1 validate 2026-06-18-add-greeting` exits 0 locally; CI validate job passes on the branch
+- T: checkpoint: `npx @fission-ai/openspec@1.4.1 validate example-greeting` exits 0 locally; CI validate job passes on the branch
 - **Model:** sonnet — authoring a reference example is mechanical turn-the-crank work (fill in realistic fictional content following the exact same canonical formats the W stage just used); `CONTRIBUTING.md` and `CHANGELOG.md` are documentation with a clear structure dictated by the spec; no novel judgment
-- Checkpoint: (1) `npx @fission-ai/openspec@1.4.1 validate 2026-06-18-add-greeting` (run from the repo root) exits 0; (2) `CONTRIBUTING.md` exists at the repo root and contains the sync workflow, semver table, version-bump checklist, and pin-coupling rule; (3) `CHANGELOG.md` exists and contains `## [0.2.0]` with the opsx-removal migration note; (4) CI validate job passes on the branch; (5) all three CI jobs (drift, lint, validate) are green on the PR
+- Checkpoint: (1) `npx @fission-ai/openspec@1.4.1 validate example-greeting` (run from the repo root) exits 0; (2) `CONTRIBUTING.md` exists at the repo root and contains the sync workflow, semver table, version-bump checklist, and pin-coupling rule; (3) `CHANGELOG.md` exists and contains `## [0.2.0]` with the opsx-removal migration note; (4) CI validate job passes on the branch; (5) all three CI jobs (drift, lint, validate) are green on the PR
