@@ -92,9 +92,9 @@
 
 **Model:** sonnet — mechanical verification of all CI jobs and cross-slice invariants
 
-- [ ] 6.1 Run `node sync-copilot.mjs --check` from the repo root and confirm exit 0 (no uncommitted copilot drift across all five slices combined)
-- [ ] 6.2 Run `node scripts/lint.mjs` from the repo root and confirm exit 0 (pin agreement, frontmatter validity, heading-level skeleton alignment)
-- [ ] 6.3 Run `npx @fission-ai/openspec@1.4.1 validate example-greeting` from the repo root and confirm exit 0
-- [ ] 6.4 Confirm `copilot/` contains no `opsx-*.prompt.md` or `openspec-{propose,explore,apply-change}.instructions.md` files
-- [ ] 6.5 Confirm all three CI jobs (drift, lint, validate) in `.github/workflows/ci.yml` are non-stub implementations (no `echo "TODO"` remaining)
-- [ ] 6.6 Confirm `plugin.json` version is `0.2.0`, `sync-copilot.ps1` and `sync-copilot.sh` are absent from the repo root, and `sync-copilot.mjs` is present and executable
+- [x] 6.1 Run `node sync-copilot.mjs --check` from the repo root and confirm exit 0 (no uncommitted copilot drift across all five slices combined)
+- [x] 6.2 Run `node scripts/lint.mjs` from the repo root and confirm exit 0 (pin agreement, frontmatter validity, heading-level skeleton alignment)
+- [x] 6.3 Run `npx @fission-ai/openspec@1.4.1 validate example-greeting` from the repo root and confirm exit 0
+- [x] 6.4 Confirm `copilot/` contains no `opsx-*.prompt.md` or `openspec-{propose,explore,apply-change}.instructions.md` files
+- [x] 6.5 Confirm all three CI jobs (drift, lint, validate) in `.github/workflows/ci.yml` are non-stub implementations (no `echo "TODO"` remaining)
+- [x] 6.6 Confirm `plugin.json` version is `0.2.0`, `sync-copilot.ps1` and `sync-copilot.sh` are absent from the repo root, and `sync-copilot.mjs` is present and executable
