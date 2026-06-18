@@ -36,21 +36,10 @@ and works on every platform.
 
 Return only what the researcher's "Final message format" specifies.
 
-**Commit step (mandatory):** After `research.md` is written, use
-the **AskUserQuestion** tool to ask:
-  question: "Commit research.md to the feature branch?"
-  choices: ["Yes — commit and push", "No — I'll commit later"]
-If yes, run:
-```
-git add openspec/changes/<id>/research.md
-git commit -m "docs(<id>): add research.md (QRSPI stage R)"
-git push
-```
-
-**Next-stage handoff (mandatory):** After the commit step, use the
-**AskUserQuestion** tool to ask whether to keep going:
-  question: "Stage R (Research) is complete. Continue to stage D (Design) now, or stop here?"
-  choices: ["Continue to /qrspi:design <id>", "Stop here — I'll resume later"]
-If they choose **Continue**, invoke `/qrspi:design <id>` now — run it as its own
-stage. If they choose **Stop**, print `Next stage: /qrspi:design <id>` and end
-your turn.
+**Choreography (see skill `qrspi-workflow`, "Stage choreography").** Follow
+the canonical *commit step* and *next-stage handoff* there, with these
+stage variables:
+- Artifact: `openspec/changes/<id>/research.md` (no backlog edit at this stage).
+- Commit message: `docs(<id>): add research.md (QRSPI stage R)`
+- Git add line: `git add openspec/changes/<id>/research.md`
+- Next-stage command: `/qrspi:design <id>` — invoke it as its own stage.

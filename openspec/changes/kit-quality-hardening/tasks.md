@@ -53,20 +53,20 @@
 
 **Model:** opus — the DRY refactor requires reading 8 command files and the skill together, judging which text is invariant vs. genuinely stage-specific (the stub/skill split is a judgment call), and writing the canonical sections in `qrspi-workflow` in a way that is both authoritative and readable without each command present; the tool-grant review is mechanical but the refactor reasoning is not
 
-- [ ] 4.1 Add canonical commit-step, next-stage handoff, Glob-based precondition, and backlog-atomicity sections to `claude/skills/qrspi-workflow/SKILL.md` (D4)
-- [ ] 4.2 Thin `claude/commands/questions.md` to a stub: keep artifact filename, commit-message template, and next-stage command inline; replace verbatim choreography blocks with a reference to `qrspi-workflow` (D4)
-- [ ] 4.3 Thin `claude/commands/research.md` to a stub (same pattern as 4.2) (D4)
-- [ ] 4.4 Thin `claude/commands/design.md` to a stub (same pattern as 4.2) (D4)
-- [ ] 4.5 Thin `claude/commands/structure.md` to a stub (same pattern as 4.2) (D4)
-- [ ] 4.6 Thin `claude/commands/plan.md` to a stub (same pattern as 4.2) (D4)
-- [ ] 4.7 Thin `claude/commands/worktree.md` to a stub (same pattern as 4.2) (D4)
-- [ ] 4.8 Thin `claude/commands/implement.md` to a stub (same pattern as 4.2) (D4)
-- [ ] 4.9 Thin `claude/commands/pr.md` to a stub (same pattern as 4.2) (D4)
-- [ ] 4.10 Edit `claude/agents/qrspi-researcher.md` frontmatter: remove `Edit` from `tools:` (D10)
-- [ ] 4.11 Edit `claude/agents/qrspi-questioner.md` frontmatter: remove `Edit` from `tools:` (D10)
-- [ ] 4.12 Edit `claude/agents/qrspi-planner.md` frontmatter: remove `Edit` from `tools:` (D10)
-- [ ] 4.13 Regenerate `copilot/` by running `node sync-copilot.mjs` to propagate tool-grant changes into the Copilot `.agent.md` files (D10)
-- [ ] 4.14 Checkpoint: (1) each of the 8 stage command files contains a thin stub (artifact name, commit message, next command) and a `qrspi-workflow` skill reference, not a full verbatim procedure; (2) `claude/skills/qrspi-workflow/SKILL.md` contains the canonical commit-step, handoff, and precondition text; (3) `qrspi-researcher.md`, `qrspi-questioner.md`, and `qrspi-planner.md` frontmatter `tools:` does not include `Edit`; (4) `node sync-copilot.mjs --check` exits 0; (5) CI drift job passes
+- [x] 4.1 Add canonical commit-step, next-stage handoff, Glob-based precondition, and backlog-atomicity sections to `claude/skills/qrspi-workflow/SKILL.md` (D4)
+- [x] 4.2 Thin `claude/commands/questions.md` to a stub: keep artifact filename, commit-message template, and next-stage command inline; replace verbatim choreography blocks with a reference to `qrspi-workflow` (D4)
+- [x] 4.3 Thin `claude/commands/research.md` to a stub (same pattern as 4.2) (D4)
+- [x] 4.4 Thin `claude/commands/design.md` to a stub (same pattern as 4.2) (D4)
+- [x] 4.5 Thin `claude/commands/structure.md` to a stub (same pattern as 4.2) (D4)
+- [x] 4.6 Thin `claude/commands/plan.md` to a stub (same pattern as 4.2) (D4)
+- [x] 4.7 Thin `claude/commands/worktree.md` to a stub (same pattern as 4.2) (D4)
+- [x] 4.8 Thin `claude/commands/implement.md` to a stub (same pattern as 4.2) (D4)
+- [x] 4.9 Thin `claude/commands/pr.md` to a stub (same pattern as 4.2) (D4)
+- [x] 4.10 Edit `claude/agents/qrspi-researcher.md` frontmatter: remove `Edit` from `tools:` (D10)
+- [x] 4.11 Edit `claude/agents/qrspi-questioner.md` frontmatter: remove `Edit` from `tools:` (D10) — DEVIATION: `Edit` RETAINED. The questioner's step 9 flips the `openspec/backlog.md` row in place (genuine in-place edit), so least-privilege keeps `Edit` here; verified against the agent body before deciding.
+- [x] 4.12 Edit `claude/agents/qrspi-planner.md` frontmatter: remove `Edit` from `tools:` (D10)
+- [x] 4.13 Regenerate `copilot/` by running `node sync-copilot.mjs` to propagate tool-grant changes into the Copilot `.agent.md` files (D10)
+- [x] 4.14 Checkpoint: (1) each of the 8 stage command files contains a thin stub (artifact name, commit message, next command) and a `qrspi-workflow` skill reference, not a full verbatim procedure; (2) `claude/skills/qrspi-workflow/SKILL.md` contains the canonical commit-step, handoff, and precondition text; (3) `qrspi-researcher.md` and `qrspi-planner.md` frontmatter `tools:` does not include `Edit` (`qrspi-questioner.md` retains `Edit` per 4.11 deviation); (4) `node sync-copilot.mjs --check` exits 0; (5) CI drift job passes
 
 ---
 

@@ -96,23 +96,29 @@ job so that a dangling skill reference is caught before merge.
   (typo) and the CI lint job runs
 - **THEN** the lint reports the unresolved skill name and the job fails.
 
-### Requirement: Edit removed from researcher, questioner, and planner frontmatter
+### Requirement: Edit removed from researcher and planner frontmatter
 Agents that only write fresh artifacts and never edit existing files MUST NOT
-carry the `Edit` tool grant. Specifically, `qrspi-researcher.md`,
-`qrspi-questioner.md`, and `qrspi-planner.md` MUST have `Edit` removed from
-their `tools:` frontmatter, and the Copilot-generated equivalents SHALL also
-lose the `edit/editFiles` tool grant.
+carry the `Edit` tool grant. Specifically, `qrspi-researcher.md` and
+`qrspi-planner.md` MUST have `Edit` removed from their `tools:` frontmatter.
+`qrspi-questioner.md` MUST RETAIN `Edit`: its mandatory backlog step flips the
+`openspec/backlog.md` row in place (an edit to an existing file), so `Edit` is
+load-bearing there, not vestigial.
 
-#### Scenario: researcher agent frontmatter is checked
-- **WHEN** `qrspi-researcher.md` frontmatter is inspected
-- **THEN** `tools:` contains `Read, Write, Bash, Glob, Grep, Skill` but does
-  NOT contain `Edit`.
+The Copilot-generated equivalents of the researcher and planner are NOT required
+to lose `edit/editFiles`: the generator's `mapTools` collapses both Claude
+`Write` and `Edit` onto the single Copilot `edit/editFiles` grant, and these
+agents legitimately retain `Write` to author their artifact. Copilot offers no
+create-only grant, so stripping `edit/editFiles` would remove their ability to
+write at all. The least-privilege tightening is therefore a Claude-side concern.
 
-#### Scenario: Copilot agent file reflects the tightened grant
-- **WHEN** `node sync-copilot.mjs` is run after removing `Edit` from the
-  researcher agent
-- **THEN** `copilot/agents/copilot-qrspi-researcher.agent.md` does not list
-  `edit/editFiles` in its `tools:` field.
+#### Scenario: researcher and planner frontmatter is checked
+- **WHEN** `qrspi-researcher.md` and `qrspi-planner.md` frontmatter is inspected
+- **THEN** each `tools:` field contains `Read, Write, Bash, Glob, Grep, Skill`
+  but does NOT contain `Edit`.
+
+#### Scenario: questioner retains Edit for the in-place backlog flip
+- **WHEN** `qrspi-questioner.md` frontmatter is inspected
+- **THEN** `tools:` still contains `Edit`.
 
 ### Requirement: Agent tool grants for designer, architect, and implementer retained
 The `Agent` grant MUST be retained in the `tools:` frontmatter of
