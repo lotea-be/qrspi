@@ -1,7 +1,7 @@
 ---
-description: QRSPI stage Q. Delegates to the qrspi-questioner subagent to turn a vague feature request into a list of technical questions. Writes openspec/changes/<id>/questions.md.
+description: QRSPI stage Q. Delegates to the questioner subagent to turn a vague feature request into a list of technical questions. Writes openspec/changes/<id>/questions.md.
 argument-hint: <change-id>
-agent: copilot-qrspi-questioner
+agent: copilot-questioner
 ---
 
 You are running QRSPI stage **Q (Questions)** for the current project.

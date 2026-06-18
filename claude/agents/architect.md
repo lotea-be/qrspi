@@ -1,5 +1,5 @@
 ---
-name: qrspi-architect
+name: architect
 description: QRSPI stages S and W. Turns an approved design into a Structure outline (proposal.md + specs/) and a Worktree plan of vertical slices. Owns openspec/changes/<id>/proposal.md, specs/, and worktree.md.
 tools: Read, Write, Edit, Bash, Glob, Grep, Skill, Agent
 model: sonnet

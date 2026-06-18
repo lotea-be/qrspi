@@ -50,7 +50,7 @@ Each artifact follows a **canonical OpenSpec shape** — see
 ```
 qrspi/
   claude/                    # SOURCE OF TRUTH — Claude Code plugin payload
-    agents/                  #   7 subagent definitions (qrspi-questioner … qrspi-reviewer)
+    agents/                  #   7 subagent definitions (questioner … reviewer)
     commands/                #   /qrspi:* slash commands
     skills/                  #   workflow + convention skills (stack-agnostic)
   copilot/                   # GENERATED from claude/ — GitHub Copilot artifacts (mirror ~/.copilot/)
@@ -175,7 +175,7 @@ the single source of truth**; `copilot/` is generated from it.
 | `skills/<x>/SKILL.md` (model-invoked) | `instructions/<x>.instructions.md` (referenced on demand) | `~/.copilot/instructions/` |
 
 A Copilot prompt carries an `agent:` field, so `/qrspi:questions` runs inside the
-`qrspi-questioner` agent — mirroring how the Claude command delegates to its subagent.
+`questioner` agent — mirroring how the Claude command delegates to its subagent.
 
 ### Sync workflow
 

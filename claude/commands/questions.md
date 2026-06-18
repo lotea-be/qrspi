@@ -1,6 +1,6 @@
 ---
-description: QRSPI stage Q. Delegates to the qrspi-questioner subagent to turn a vague feature request into a list of technical questions. Writes openspec/changes/<id>/questions.md.
-agent: qrspi-questioner
+description: QRSPI stage Q. Delegates to the questioner subagent to turn a vague feature request into a list of technical questions. Writes openspec/changes/<id>/questions.md.
+agent: questioner
 subtask: true
 ---
 

@@ -50,7 +50,7 @@ For stage `Q`:
 | Role | Claude path | GitHub path |
 |------|-------------|-------------|
 | Command | `.claude/commands/questions.md` | `.github/prompts/qrspi-questions.prompt.md` |
-| Agent | `.claude/agents/qrspi-questioner.md` | `.github/agents/qrspi-questioner.agent.md` |
+| Agent | `.claude/agents/questioner.md` | `.github/agents/questioner.agent.md` |
 | Skill (workflow) | `.claude/skills/qrspi-workflow/SKILL.md` | `.github/instructions/qrspi-workflow.instructions.md` |
 | Skill (openspec) | `.claude/skills/openspec-workflow/SKILL.md` | `.github/instructions/openspec-workflow.instructions.md` |
 | Template (kit) | `openspec-templates/questions.template.md` | — |
@@ -118,7 +118,7 @@ structure:
 
 | # | File | Edit |
 |---|------|------|
-| 1 | `.claude/agents/qrspi-questioner.md` | Add step X: ... |
+| 1 | `.claude/agents/questioner.md` | Add step X: ... |
 | 2 | `openspec-templates/questions.template.md` (kit) | Add section "..." |
 | 3 | the project's contributor-guidance file | Fix stale fact "..." |
 

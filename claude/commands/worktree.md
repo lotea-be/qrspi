@@ -1,6 +1,6 @@
 ---
-description: QRSPI stage W. Delegates to the qrspi-architect subagent to write worktree.md (vertical slices, not horizontal layers).
-agent: qrspi-architect
+description: QRSPI stage W. Delegates to the architect subagent to write worktree.md (vertical slices, not horizontal layers).
+agent: architect
 subtask: true
 ---
 

@@ -45,7 +45,7 @@ The generator maps command source files to Copilot prompts. The relevant table
 entry (simplified) is:
 
 ```js
-commandHints.set('greeting', { agent: 'qrspi-implementer', ... });
+commandHints.set('greeting', { agent: 'implementer', ... });
 ```
 
 A new `greeting.md` command will be picked up automatically by the generator

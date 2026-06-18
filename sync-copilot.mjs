@@ -32,11 +32,11 @@ const check = process.argv.slice(2).some((a) => a === '--check' || a === '-check
 
 // ---- config: prompt agent + argument-hint tables ---------------------------
 const agentFor = {
-  'qrspi-questions': 'qrspi-questioner', 'qrspi-research': 'qrspi-researcher',
-  'qrspi-design': 'qrspi-designer', 'qrspi-structure': 'qrspi-architect',
-  'qrspi-worktree': 'qrspi-architect', 'qrspi-plan': 'qrspi-planner',
-  'qrspi-implement': 'qrspi-implementer', 'qrspi-followup': 'qrspi-implementer',
-  'qrspi-pr': 'qrspi-reviewer',
+  'qrspi-questions': 'questioner', 'qrspi-research': 'researcher',
+  'qrspi-design': 'designer', 'qrspi-structure': 'architect',
+  'qrspi-worktree': 'architect', 'qrspi-plan': 'planner',
+  'qrspi-implement': 'implementer', 'qrspi-followup': 'implementer',
+  'qrspi-pr': 'reviewer',
 };
 const hintFor = {
   'qrspi-questions': '<change-id>', 'qrspi-research': '<change-id>',

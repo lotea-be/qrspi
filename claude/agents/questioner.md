@@ -1,5 +1,5 @@
 ---
-name: qrspi-questioner
+name: questioner
 description: QRSPI stage Q. Turns a vague feature request into a concrete list of technical questions the codebase must answer. Writes openspec/changes/<id>/questions.md.
 tools: Read, Write, Edit, Bash, Glob, Grep, Skill
 model: sonnet

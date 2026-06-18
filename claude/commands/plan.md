@@ -1,6 +1,6 @@
 ---
-description: QRSPI stage P. Delegates to the qrspi-planner subagent (read-only on code) to turn worktree.md into a checkbox tasks.md.
-agent: qrspi-planner
+description: QRSPI stage P. Delegates to the planner subagent (read-only on code) to turn worktree.md into a checkbox tasks.md.
+agent: planner
 subtask: true
 ---
 
