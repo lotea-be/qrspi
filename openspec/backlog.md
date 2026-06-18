@@ -15,6 +15,9 @@ Deferred from `kit-quality-hardening` as a separate governance concern (its Q7).
 
 ### kit-quality-hardening — `proposed (change folder created 2026-06-18)`
 
+**Next QRSPI command:** `/qrspi:worktree kit-quality-hardening`
+
+
 **Why:** The kit's core invariant — "`copilot/` is generated, never hand-edited,
 always in sync" — is enforced only by convention, and at v0.1.0 it has no CI, no
 governance docs, and duplicated stage choreography. This change converts
