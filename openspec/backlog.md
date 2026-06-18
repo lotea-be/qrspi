@@ -7,6 +7,12 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## Ideas
 
+### repo-branch-protection — `idea`
+
+**Why:** The CI gates added by `kit-quality-hardening` are only advisory until
+the `main` branch requires them; a `CODEOWNERS` file would also route reviews.
+Deferred from `kit-quality-hardening` as a separate governance concern (its Q7).
+
 ### kit-quality-hardening — `proposed (change folder created 2026-06-18)`
 
 **Why:** The kit's core invariant — "`copilot/` is generated, never hand-edited,
