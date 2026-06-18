@@ -289,11 +289,28 @@ shapes up automatically.
 
 ### Updating the pinned OpenSpec version
 
-The OpenSpec CLI version is **pinned** (currently `1.4.1`) in `claude/commands/init.md`
-and this README. To bump the pin, update every `@fission-ai/openspec@<version>` occurrence
-in those two files, then run `node sync-copilot.mjs` to propagate the change into
-`copilot/`, review the diff, re-run `./install.ps1` or `./install.sh`, and restart Claude
-Code / reload VS Code.
+The OpenSpec CLI version is **pinned** (currently `1.4.1`) in the following
+hand-maintained locations:
+
+- `claude/commands/init.md` -- all `@fission-ai/openspec@<version>` invocations
+  and the inline `openspec_version:` value in the YAML snippet it writes
+- `README.md` (this file) -- prose references to `@fission-ai/openspec@<version>`
+- `openspec/config.yaml` -- the `openspec_version:` sentinel field
+
+`copilot/prompts/qrspi-init.prompt.md` is **generated** from `claude/commands/init.md`
+and must not be edited by hand -- it is updated automatically by `node sync-copilot.mjs`.
+
+To bump the pin, update every `@fission-ai/openspec@<version>` occurrence in the
+hand-maintained files above, then run:
+
+```
+node sync-copilot.mjs
+```
+
+Review the diff (the generated `copilot/` tree will update automatically), commit
+both the source and generated changes, re-run `./install.ps1` or `./install.sh`,
+and reload the VS Code window. A CI lint job (`node scripts/lint.mjs`) asserts that
+all hand-maintained occurrences agree -- the lint will catch any missed location.
 
 ---
 

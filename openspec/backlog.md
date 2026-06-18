@@ -26,7 +26,7 @@ down the duplication. Scope = the top-10 review (below); Q/D/S will split or
 sequence it as needed.
 
 **Scope — review findings (ranked by impact):**
-1. **CI to enforce sync drift + lint** — Action runs `./sync-copilot.sh --check`
+1. **CI to enforce sync drift + lint** — Action runs `node sync-copilot.mjs --check`
    (must report `0 file(s) differ`) on every PR; second job validates
    agent/command/skill frontmatter and that referenced names resolve.
 2. **Single-source the OpenSpec version pin** — `1.4.1` is hardcoded in ~10
@@ -38,9 +38,11 @@ sequence it as needed.
    one referenced skill.
 4. **Factor the repeated "Load skills" preamble** into a single `qrspi-workflow`
    bootstrap step (duplicated across 5+ agents).
-5. **Harden `sync-copilot.ps1`** — validate `claude/` exists before wiping
-   `copilot/`; `try/finally` to clean the `-Check` temp tree; warn (don't
-   silently skip) on a skill dir missing `SKILL.md`; per-line diff in `-Check`.
+5. **Port + harden the generator** — replace the old PowerShell generator with
+   `sync-copilot.mjs` (Node ESM, no deps); validate `claude/` exists before
+   wiping `copilot/`; `try/finally` to clean the `--check` temp tree; warn
+   (don't silently skip) on a skill dir missing `SKILL.md`; per-line diff in
+   `--check`.
 6. **Governance: versioning + CONTRIBUTING + CHANGELOG** — plugin versioning
    already exists (`plugin.json` `version`, marketplace `update`); add the
    process around it: semver discipline, a `CHANGELOG.md`, and a rule tying the
