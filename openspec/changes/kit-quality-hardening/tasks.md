@@ -6,15 +6,15 @@
 
 **Model:** opus — first-of-kind Node.js port requiring faithful replication of the PowerShell transform contract (frontmatter rewriting, tool-name mapping, path normalization, agent/instruction file generation); also implements the union-of-trees deleted-file detection, which is non-obvious concurrency logic in the generator's check mode
 
-- [ ] 1.1 Create `sync-copilot.mjs`: implement the full `claude/ → copilot/` transform contract, carrying over all frontmatter-rewriting, tool-name mapping, and path-normalization rules from `sync-copilot.ps1` (D1)
-- [ ] 1.2 Add source guard to `sync-copilot.mjs`: validate that `claude/agents/`, `claude/commands/`, and `claude/skills/` exist and are non-empty before wiping `copilot/`; abort with a clear message on failure (D1)
-- [ ] 1.3 Add `--check` mode to `sync-copilot.mjs`: generate into a temp dir, run a union-of-trees comparison (committed `copilot/` ∪ freshly generated tree), emit per-line diff output, and call `process.exit(1)` on any drift including deleted files; wrap in try/finally to clean the temp dir (D1)
-- [ ] 1.4 Add missing-`SKILL.md` warning to `sync-copilot.mjs`: warn to stderr and increment a counter that forces a non-zero exit after the full run completes (D1)
-- [ ] 1.5 Regenerate `copilot/` by running `node sync-copilot.mjs`; commit the full result (D1)
-- [ ] 1.6 Delete `sync-copilot.ps1` and `sync-copilot.sh`
-- [ ] 1.7 Update `CLAUDE.md`: replace all `sync-copilot.ps1` / `sync-copilot.sh` references with `sync-copilot.mjs`
-- [ ] 1.8 Create `.github/workflows/ci.yml`: add the `drift` job (`node sync-copilot.mjs --check`); stub `lint` and `validate` jobs as `echo "TODO"` so CI stays green while the workflow file is live (D2)
-- [ ] 1.9 Checkpoint: (1) `node sync-copilot.mjs` runs without errors on a clean clone; (2) `node sync-copilot.mjs --check` exits 0 on the committed `copilot/`; (3) introducing a one-line change to any `copilot/` file and re-running `--check` exits 1 with per-line diff output; (4) removing a `claude/commands/` source file and running `--check` exits 1; (5) CI drift job passes on the branch
+- [x] 1.1 Create `sync-copilot.mjs`: implement the full `claude/ → copilot/` transform contract, carrying over all frontmatter-rewriting, tool-name mapping, and path-normalization rules from `sync-copilot.ps1` (D1)
+- [x] 1.2 Add source guard to `sync-copilot.mjs`: validate that `claude/agents/`, `claude/commands/`, and `claude/skills/` exist and are non-empty before wiping `copilot/`; abort with a clear message on failure (D1)
+- [x] 1.3 Add `--check` mode to `sync-copilot.mjs`: generate into a temp dir, run a union-of-trees comparison (committed `copilot/` ∪ freshly generated tree), emit per-line diff output, and call `process.exit(1)` on any drift including deleted files; wrap in try/finally to clean the temp dir (D1)
+- [x] 1.4 Add missing-`SKILL.md` warning to `sync-copilot.mjs`: warn to stderr and increment a counter that forces a non-zero exit after the full run completes (D1)
+- [x] 1.5 Regenerate `copilot/` by running `node sync-copilot.mjs`; commit the full result (D1)
+- [x] 1.6 Delete `sync-copilot.ps1` and `sync-copilot.sh`
+- [x] 1.7 Update `CLAUDE.md`: replace all `sync-copilot.ps1` / `sync-copilot.sh` references with `sync-copilot.mjs`
+- [x] 1.8 Create `.github/workflows/ci.yml`: add the `drift` job (`node sync-copilot.mjs --check`); stub `lint` and `validate` jobs as `echo "TODO"` so CI stays green while the workflow file is live (D2)
+- [x] 1.9 Checkpoint: (1) `node sync-copilot.mjs` runs without errors on a clean clone; (2) `node sync-copilot.mjs --check` exits 0 on the committed `copilot/`; (3) introducing a one-line change to any `copilot/` file and re-running `--check` exits 1 with per-line diff output; (4) removing a `claude/commands/` source file and running `--check` exits 1; (5) CI drift job passes on the branch
 
 ---
 
