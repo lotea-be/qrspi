@@ -54,13 +54,13 @@ b. Run `npx @fission-ai/openspec@1.4.1 init --tools none`. This creates
 
    `--tools none` is a best-effort request to suppress tooling, **not a
    guarantee**: without it the OpenSpec CLI writes its own native
-   slash-commands (`.github/prompts/opsx-*`) and skills
+   slash-commands (`.github/prompts/opsx/*`) and skills
    (`.github/instructions/openspec-*`) into the repo at **project scope**. QRSPI does
-   not use OpenSpec's native `opsx` workflow — it ships its own `/qrspi-*` and
-   `/openspec-*` tooling in **user scope** (`~/.copilot/`) — so those per-repo
-   copies are redundant duplicates. We want only OpenSpec's *data* directory
-   (`openspec/`) in the repo, never its Copilot tooling. Because older CLI
-   versions ignore the flag, step 3 sweeps unconditionally regardless.
+   not use OpenSpec's native `opsx` workflow — it ships its own `/qrspi-*`
+   commands in **user scope** (`~/.copilot/`) — so those per-repo copies are
+   redundant duplicates. We want only OpenSpec's *data* directory (`openspec/`)
+   in the repo, never its Copilot tooling. Because older CLI versions ignore the
+   flag, step 3 sweeps unconditionally regardless.
 
 b-bis. **Write the QRSPI sentinel config.** Because the CLI skips it (step b),
    create `openspec/config.yaml` yourself with the repo-default schema and a
@@ -104,7 +104,7 @@ This runs on both paths. The `opsx` commands and `openspec-*` skills belong in
 user scope only — never committed per-repo:
 
 ```powershell
-Remove-Item -Recurse -Force .github/prompts -ErrorAction SilentlyContinue
+Remove-Item -Recurse -Force .github/prompts/opsx -ErrorAction SilentlyContinue
 Get-ChildItem .github/instructions -Filter 'openspec-*' -Directory -ErrorAction SilentlyContinue |
   Remove-Item -Recurse -Force
 ```
@@ -112,7 +112,7 @@ Get-ChildItem .github/instructions -Filter 'openspec-*' -Directory -ErrorAction 
 POSIX equivalent (non-Windows shells):
 
 ```bash
-rm -rf .github/prompts
+rm -rf .github/prompts/opsx
 rm -rf .github/instructions/openspec-*
 ```
 
@@ -130,7 +130,7 @@ already present before this command ran:
 git add openspec/
 ```
 
-Then run `git status --short` and confirm that no `.github/prompts*` or
+Then run `git status --short` and confirm that no `.github/prompts/opsx*` or
 `.github/instructions/openspec-*` paths appear in the staged output before
 committing. Commit in a single commit with message
 `chore(openspec): initialize OpenSpec scaffolding + QRSPI templates`.

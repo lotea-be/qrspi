@@ -45,8 +45,6 @@ const hintFor = {
   'qrspi-implement': '<change-id>', 'qrspi-followup': '<change-id>',
   'qrspi-pr': '<change-id>', 'qrspi-stack': '(optional) stack hint',
   'qrspi-retro': '<change-id> <stage>', 'qrspi-status': '(optional) <change-id>',
-  'opsx-propose': '<change-name or description>', 'opsx-explore': '<topic>',
-  'opsx-apply': '<change-name>', 'opsx-archive': '<change-name>', 'opsx-sync': '<change-name>',
 };
 
 // ---- helpers ----------------------------------------------------------------
@@ -93,7 +91,7 @@ function getField(front, name) {
 // Claude Code's AskUserQuestion). Every QRSPI agent has an interactive step in
 // its stage, so it is part of the base set; an agent-delegated prompt inherits it.
 const askTool = 'vscode/askQuestions';
-// Superset toolset stamped onto generic-`agent: agent` prompts (opsx-*, qrspi-stack,
+// Superset toolset stamped onto generic-`agent: agent` prompts (qrspi-stack,
 // qrspi-retro) that use the question tool but inherit no agent toolset. A superset
 // is safe -- it never strips a tool the prompt already had.
 const promptToolset = `'search/codebase', 'search', 'edit/editFiles', 'execute/runInTerminal', 'execute/getTerminalOutput', 'web/fetch', '${askTool}'`;
@@ -122,11 +120,9 @@ function rewriteAll(input) {
   b = b.replace(/restart Claude Code/gi, 'reload the VS Code window');
   // --- project-scope path refs: .claude/<kind> -> .github/<kind> ---
   b = b.replace(/\.claude\/skills\/([A-Za-z0-9<>_*-]+)\/SKILL\.md/gi, '.github/instructions/$1.instructions.md');
-  b = b.replace(/\.claude\/commands\/opsx\/\*/gi, '.github/prompts/opsx-*');
   b = b.replace(/\.claude\/commands\/([A-Za-z0-9<>_-]+)\.md/gi, '.github/prompts/$1.prompt.md');
   b = b.replace(/\.claude\/agents\/([A-Za-z0-9<>_-]+)\.md/gi, '.github/agents/$1.agent.md');
   b = b.replace(/\.claude\/skills/gi, '.github/instructions');
-  b = b.replace(/\.claude\/commands\/opsx/gi, '.github/prompts');
   b = b.replace(/\.claude\/commands/gi, '.github/prompts');
   b = b.replace(/\.claude\/agents/gi, '.github/agents');
   b = b.replace(/\.claude\//gi, '.github/');
@@ -159,8 +155,7 @@ function rewriteAll(input) {
   // --- command-invocation namespace: Claude plugin uses `/qrspi:<cmd>`; Copilot
   // prompts are NOT plugin-namespaced, so the qrspi commands keep the `qrspi-`
   // filename prefix and are invoked as `/qrspi-<cmd>`. Rewrite the colon form back
-  // to the dash form for the generated prompts. (`*` handles the `/qrspi:*` family
-  // references; `/opsx:*` is untouched.)
+  // to the dash form for the generated prompts.
   b = b.replace(/\/qrspi:([a-z*][a-z-]*)/gi, '/qrspi-$1');
   return b.replace(/\s+$/, '') + '\n';
 }
@@ -293,10 +288,6 @@ async function generate(dst) {
     // `/qrspi:<stem>`). Copilot prompts are flat/un-namespaced, so re-add the
     // prefix to the output filename to keep them `/qrspi-<stem>`.
     await emitPrompt(path.join(src, 'commands', name), `qrspi-${base}`);
-  }
-  for (const name of await dirEntries(path.join(src, 'commands', 'opsx'), 'files')) {
-    const base = name.replace(/\.md$/, '');
-    await emitPrompt(path.join(src, 'commands', 'opsx', name), `opsx-${base}`);
   }
 
   // skills -> instructions
