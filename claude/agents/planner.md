@@ -1,5 +1,5 @@
 ---
-name: qrspi-planner
+name: planner
 description: QRSPI stage P. Read-only on code. Turns the Structure + Worktree into a tactical task checklist. Writes openspec/changes/<id>/tasks.md.
 tools: Read, Write, Bash, Glob, Grep, Skill
 model: sonnet

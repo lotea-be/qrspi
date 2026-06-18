@@ -1,7 +1,7 @@
 ---
-description: QRSPI stage PR. Delegates to the qrspi-reviewer subagent (read-only) to draft the pull request description, run a final checklist, and flag anything that looks off.
+description: QRSPI stage PR. Delegates to the reviewer subagent (read-only) to draft the pull request description, run a final checklist, and flag anything that looks off.
 argument-hint: <change-id>
-agent: copilot-qrspi-reviewer
+agent: copilot-reviewer
 ---
 
 You are running QRSPI stage **PR (Pull Request)** for the current project.

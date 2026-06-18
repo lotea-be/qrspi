@@ -1,7 +1,7 @@
 ---
-description: QRSPI stage D. Delegates to the qrspi-designer subagent to produce design.md (~200 lines). HUMAN REVIEW IS REQUIRED before stage S.
+description: QRSPI stage D. Delegates to the designer subagent to produce design.md (~200 lines). HUMAN REVIEW IS REQUIRED before stage S.
 argument-hint: <change-id>
-agent: copilot-qrspi-designer
+agent: copilot-designer
 ---
 
 You are running QRSPI stage **D (Design)** for the current project.

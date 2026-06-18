@@ -1,7 +1,7 @@
 ---
-description: QRSPI stage R. Delegates to the qrspi-researcher subagent (read-only). The change ticket is hidden from this stage by design — only areas of interest are passed in. Writes openspec/changes/<id>/research.md.
+description: QRSPI stage R. Delegates to the researcher subagent (read-only). The change ticket is hidden from this stage by design — only areas of interest are passed in. Writes openspec/changes/<id>/research.md.
 argument-hint: <change-id>
-agent: copilot-qrspi-researcher
+agent: copilot-researcher
 ---
 
 You are running QRSPI stage **R (Research)** for the current project.
