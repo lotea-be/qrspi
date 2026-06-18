@@ -49,7 +49,7 @@ For stage `Q`:
 | Role | Claude path | GitHub path |
 |------|-------------|-------------|
 | Command | `.github/prompts/questions.prompt.md` | `.github/prompts/qrspi-questions.prompt.md` |
-| Agent | `.github/agents/copilot-qrspi-questioner.agent.md` | `.github/agents/copilot-qrspi-questioner.agent.md` |
+| Agent | `.github/agents/copilot-questioner.agent.md` | `.github/agents/copilot-questioner.agent.md` |
 | Skill (workflow) | `.github/instructions/qrspi-workflow.instructions.md` | `.github/instructions/qrspi-workflow.instructions.md` |
 | Skill (openspec) | `.github/instructions/openspec-workflow.instructions.md` | `.github/instructions/openspec-workflow.instructions.md` |
 | Template (kit) | `openspec-templates/questions.template.md` | — |
@@ -117,7 +117,7 @@ structure:
 
 | # | File | Edit |
 |---|------|------|
-| 1 | `.github/agents/copilot-qrspi-questioner.agent.md` | Add step X: ... |
+| 1 | `.github/agents/copilot-questioner.agent.md` | Add step X: ... |
 | 2 | `openspec-templates/questions.template.md` (kit) | Add section "..." |
 | 3 | the project's contributor-guidance file | Fix stale fact "..." |
 

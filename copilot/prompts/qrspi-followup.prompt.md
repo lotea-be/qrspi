@@ -1,7 +1,7 @@
 ---
-description: QRSPI post-PR fix loop. Delegates to the qrspi-implementer subagent in FIX MODE to resolve a single post-PR follow-up (reviewer open issue or retro code flag) while keeping code, tests, and the change's DELTA spec in sync. Ticks followups.md and commits atomically on the PR branch.
+description: QRSPI post-PR fix loop. Delegates to the implementer subagent in FIX MODE to resolve a single post-PR follow-up (reviewer open issue or retro code flag) while keeping code, tests, and the change's DELTA spec in sync. Ticks followups.md and commits atomically on the PR branch.
 argument-hint: <change-id>
-agent: copilot-qrspi-implementer
+agent: copilot-implementer
 ---
 
 You are running the QRSPI **post-PR fix loop** for the current project.

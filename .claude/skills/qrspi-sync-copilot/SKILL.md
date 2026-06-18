@@ -73,13 +73,13 @@ agent: <see rule below>
 
   | Command | `agent:` |
   |---|---|
-  | qrspi-questions | copilot-qrspi-questioner |
-  | qrspi-research | copilot-qrspi-researcher |
-  | qrspi-design | copilot-qrspi-designer |
-  | qrspi-structure / qrspi-worktree | copilot-qrspi-architect |
-  | qrspi-plan | copilot-qrspi-planner |
-  | qrspi-implement / qrspi-followup | copilot-qrspi-implementer |
-  | qrspi-pr | copilot-qrspi-reviewer |
+  | qrspi-questions | copilot-questioner |
+  | qrspi-research | copilot-researcher |
+  | qrspi-design | copilot-designer |
+  | qrspi-structure / qrspi-worktree | copilot-architect |
+  | qrspi-plan | copilot-planner |
+  | qrspi-implement / qrspi-followup | copilot-implementer |
+  | qrspi-pr | copilot-reviewer |
   | qrspi, qrspi-stack, qrspi-init, qrspi-archive, qrspi-retro | `agent` (no specific subagent -- runs inline) |
 
 - Drop the Claude `agent: build` line (Claude-specific).

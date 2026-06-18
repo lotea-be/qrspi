@@ -1,6 +1,6 @@
 ---
-description: QRSPI stage S. Delegates to the qrspi-architect subagent to write proposal.md and specs/. Requires that the human has approved design.md.
-agent: qrspi-architect
+description: QRSPI stage S. Delegates to the architect subagent to write proposal.md and specs/. Requires that the human has approved design.md.
+agent: architect
 subtask: true
 ---
 
