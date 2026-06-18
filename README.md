@@ -104,7 +104,20 @@ QRSPI ships as a Claude Code plugin. Add the marketplace once, then install:
 ```
 
 Commands are namespaced under the plugin — `/qrspi:questions`, `/qrspi:design`, …,
-`/qrspi:status`. Pull later updates with `/plugin marketplace update`.
+`/qrspi:status`.
+
+**Updating to a newer release** is a two step — refreshing the marketplace catalog
+does **not** by itself upgrade an installed plugin:
+
+```
+/plugin marketplace update lotea-agents   # refresh the catalog
+/plugin install qrspi@lotea-agents        # pull the new version
+```
+
+(Or open `/plugin` → **Installed** → `qrspi` and use the update action.) Third-party
+marketplaces don't auto-update by default; enable it per-marketplace under `/plugin`
+→ **Marketplaces** if you'd rather upgrades land automatically. After an update,
+Claude Code may prompt `/reload-plugins` to activate it in the current session.
 
 ### GitHub Copilot — via the install script
 
@@ -268,7 +281,7 @@ it on a project (paths below are Claude's `.claude/`; Copilot users substitute t
 
 The intended loop:
 
-1. Edit the source under `claude/` (+ `openspec-templates/`) **here** in `C:\git\qrspi`.
+1. Edit the source under `claude/` (+ `openspec-templates/`) **here** in your local clone.
 2. If you touched anything Copilot ships, run `node sync-copilot.mjs` to regenerate
    `copilot/` (or `/qrspi-sync-copilot` for a reviewed pass), and review the diff.
 3. Test the **Claude** side with `claude --plugin-dir .` (loads this repo as the plugin,
