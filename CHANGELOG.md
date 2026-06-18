@@ -18,6 +18,24 @@ _No unreleased changes at this time._
 
 ---
 
+## [0.3.0] - 2026-06-18
+
+### Changed
+
+- **Dropped the `qrspi-` prefix from the seven subagent names** (`qrspi-questioner`
+  → `questioner`, etc.). In Claude Code the plugin namespace already prefixes
+  agents, so they were stuttering as `qrspi:qrspi-questioner`; they are now the
+  clean `qrspi:questioner`. This matches the earlier command-prefix drop. The
+  generated Copilot agents are correspondingly renamed `copilot-qrspi-<x>.agent.md`
+  → `copilot-<x>.agent.md`.
+
+  **Migration:** if you reference a QRSPI agent by name (e.g. in your own prompts
+  or tooling), update `qrspi-<role>` → `<role>` (Claude) and
+  `copilot-qrspi-<role>` → `copilot-<role>` (Copilot). Reinstalling the Copilot
+  kit replaces the agent files; the Claude plugin updates via the marketplace.
+
+---
+
 ## [0.2.0] - 2026-06-18
 
 ### Added

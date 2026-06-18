@@ -1,6 +1,6 @@
 ---
-description: QRSPI stage PR. Delegates to the qrspi-reviewer subagent (read-only) to draft the pull request description, run a final checklist, and flag anything that looks off.
-agent: qrspi-reviewer
+description: QRSPI stage PR. Delegates to the reviewer subagent (read-only) to draft the pull request description, run a final checklist, and flag anything that looks off.
+agent: reviewer
 subtask: true
 ---
 

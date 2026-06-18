@@ -1,5 +1,5 @@
 ---
-name: qrspi-implementer
+name: implementer
 description: QRSPI stage I. Writes the code, the tests, and ticks tasks.md as it goes. Works one vertical slice at a time. Stops at each slice checkpoint for human verification.
 tools: Read, Write, Edit, Bash, Glob, Grep, Skill, Agent
 model: opus

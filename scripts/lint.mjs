@@ -401,18 +401,18 @@ function checkSkillRefs(body, rel, knownSkills, errors) {
 // like "### D1 --" or "## 1. <slice name>" that are NOT canonical fixed headings).
 //
 // Template -> Agent mapping (based on which agent writes that artifact):
-//   questions.template.md  -> qrspi-questioner  (writes questions.md)
-//   design.template.md     -> qrspi-designer    (writes design.md)
-//   proposal.template.md   -> qrspi-architect   (writes proposal.md)
-//   tasks.template.md      -> qrspi-planner     (writes tasks.md)
-//   spec-delta.template.md -> qrspi-architect   (writes specs/*.md; same agent)
+//   questions.template.md  -> questioner  (writes questions.md)
+//   design.template.md     -> designer    (writes design.md)
+//   proposal.template.md   -> architect   (writes proposal.md)
+//   tasks.template.md      -> planner     (writes tasks.md)
+//   spec-delta.template.md -> architect   (writes specs/*.md; same agent)
 //
-// Both proposal and spec-delta map to qrspi-architect -- it writes both.
+// Both proposal and spec-delta map to architect -- it writes both.
 
 const TEMPLATE_CANONICAL_HEADINGS = {
   // questions.template.md: the section structure in the skeleton is canonical
   'questions.template.md': {
-    agent: 'qrspi-questioner',
+    agent: 'questioner',
     headings: [
       '## Data model',
       '## Indexing & query performance',
@@ -428,7 +428,7 @@ const TEMPLATE_CANONICAL_HEADINGS = {
   },
   // design.template.md: four canonical OpenSpec headers (stated explicitly in template preamble)
   'design.template.md': {
-    agent: 'qrspi-designer',
+    agent: 'designer',
     headings: [
       '## Context',
       '## Goals / Non-Goals',
@@ -438,7 +438,7 @@ const TEMPLATE_CANONICAL_HEADINGS = {
   },
   // proposal.template.md: four canonical OpenSpec headers (stated explicitly in template preamble)
   'proposal.template.md': {
-    agent: 'qrspi-architect',
+    agent: 'architect',
     headings: [
       '## Why',
       '## What Changes',
@@ -450,12 +450,12 @@ const TEMPLATE_CANONICAL_HEADINGS = {
   // instead check for the required annotation syntax (not a heading check, so empty list here).
   // Mapping is still declared for completeness.
   'tasks.template.md': {
-    agent: 'qrspi-planner',
+    agent: 'planner',
     headings: [], // dynamic heading format -- no fixed canonical headings to check
   },
   // spec-delta.template.md: three operation headers (enforced by openspec validate)
   'spec-delta.template.md': {
-    agent: 'qrspi-architect',
+    agent: 'architect',
     headings: [
       '## ADDED Requirements',
       '## MODIFIED Requirements',

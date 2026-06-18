@@ -1,6 +1,6 @@
 ---
-description: QRSPI stage D. Delegates to the qrspi-designer subagent to produce design.md (~200 lines). HUMAN REVIEW IS REQUIRED before stage S.
-agent: qrspi-designer
+description: QRSPI stage D. Delegates to the designer subagent to produce design.md (~200 lines). HUMAN REVIEW IS REQUIRED before stage S.
+agent: designer
 subtask: true
 ---
 

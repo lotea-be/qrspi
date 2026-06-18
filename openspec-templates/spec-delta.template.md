@@ -1,7 +1,7 @@
 # Spec delta template (canonical OpenSpec format)
 
 This is the single source of truth for how the QRSPI **Structure** stage writes
-`openspec/changes/<id>/specs/<capability>/spec.md`. Both `qrspi-architect`
+`openspec/changes/<id>/specs/<capability>/spec.md`. Both `architect`
 agents point here. The format below is what `openspec validate <id>` enforces
 and what `openspec-sync-specs` parses at archive time — do not invent other
 section shapes.

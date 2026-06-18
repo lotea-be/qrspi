@@ -1,7 +1,7 @@
 ---
-description: QRSPI stage P. Delegates to the qrspi-planner subagent (read-only on code) to turn worktree.md into a checkbox tasks.md.
+description: QRSPI stage P. Delegates to the planner subagent (read-only on code) to turn worktree.md into a checkbox tasks.md.
 argument-hint: <change-id>
-agent: copilot-qrspi-planner
+agent: copilot-planner
 ---
 
 You are running QRSPI stage **P (Plan)** for the current project.

@@ -55,14 +55,14 @@ project-scope `opsx` tooling the CLI generates).
 
 | QRSPI stage | OpenSpec artifact | Who writes it |
 |-------------|-------------------|---------------|
-| Q — Questions | `changes/<id>/questions.md` | `qrspi-questioner` |
-| R — Research | `changes/<id>/research.md` | `qrspi-researcher` (read-only) |
-| D — Design | `changes/<id>/design.md` | `qrspi-designer` → human review |
-| S — Structure | `changes/<id>/proposal.md` + `specs/` | `qrspi-architect` |
-| P — Plan | `changes/<id>/tasks.md` | `qrspi-planner` (read-only on code) |
-| W — Worktree | `changes/<id>/worktree.md` | `qrspi-architect` |
-| I — Implement | code + tests + tick `tasks.md` | `qrspi-implementer` |
-| PR — Review | PR description references the change folder | `qrspi-reviewer` |
+| Q — Questions | `changes/<id>/questions.md` | `questioner` |
+| R — Research | `changes/<id>/research.md` | `researcher` (read-only) |
+| D — Design | `changes/<id>/design.md` | `designer` → human review |
+| S — Structure | `changes/<id>/proposal.md` + `specs/` | `architect` |
+| P — Plan | `changes/<id>/tasks.md` | `planner` (read-only on code) |
+| W — Worktree | `changes/<id>/worktree.md` | `architect` |
+| I — Implement | code + tests + tick `tasks.md` | `implementer` |
+| PR — Review | PR description references the change folder | `reviewer` |
 
 ## Canonical artifact shapes
 
