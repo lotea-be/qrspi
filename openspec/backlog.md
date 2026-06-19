@@ -15,7 +15,7 @@ Deferred from `kit-quality-hardening` as a separate governance concern (its Q7).
 
 ### reconcile-plan-worktree-order — `proposed (change folder created 2026-06-19)`
 
-**Next QRSPI command:** `/qrspi:research reconcile-plan-worktree-order`
+**Next QRSPI command:** `/qrspi:worktree reconcile-plan-worktree-order`
 
 **Why:** The kit runs S -> W -> P (slices defined in a dedicated Worktree stage,
 before Plan), but the cited QRSPI source runs S -> P -> Work Tree with slices
