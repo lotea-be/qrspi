@@ -81,3 +81,23 @@ The lint is the mechanical floor (commands + pin); for prose-level drift the
 lint can't judge, run `/qrspi-readme-audit` — it diffs the README against the
 current source surface and reports stale spots. When unsure whether an edit is
 "README-worthy," it is: a stale README is worse than a redundant note.
+
+## Don't bump the version in feature work
+
+`plugin.json` `version` changes **only when cutting a release**, never in a
+feature PR. Merging to `main` does **not** release anything — `main` is the
+integration line, and consumers install from **tags** (the
+`lotea-be/ai-agent-marketplace` entry pins the qrspi `source` to a release tag),
+so `main` can sit ahead of the latest release without affecting installed users.
+
+In day-to-day work:
+
+- **Leave `plugin.json` `version` alone.** Do not bump it to "claim" a change.
+- **Record the change under `## [Unreleased]`** in [`CHANGELOG.md`](CHANGELOG.md).
+
+A release is a deliberate, tagged event — see **"Releases (tag-based)"** in
+[`CONTRIBUTING.md`](CONTRIBUTING.md). Pushing a `vX.Y.Z` tag triggers
+[`release.yml`](.github/workflows/release.yml), which re-checks lint + drift,
+asserts the tag matches `plugin.json` `version` and a matching `CHANGELOG.md`
+section, and publishes the GitHub Release. So a version bump that isn't part of
+cutting a release will fail the release job if tagged, and is just noise if not.

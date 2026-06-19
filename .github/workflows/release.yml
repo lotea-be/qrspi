@@ -1,0 +1,67 @@
+name: Release
+
+# Releases are tag-driven: pushing a vX.Y.Z tag is the only thing that ships.
+# Merging to main does not release. See CONTRIBUTING "Releases (tag-based)".
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write   # create the GitHub Release
+
+jobs:
+  release:
+    name: tag-driven release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Derive version from tag
+        id: ver
+        run: echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Assert tag matches plugin.json version
+        env:
+          VER: ${{ steps.ver.outputs.version }}
+        run: |
+          PLUGIN_VERSION="$(node -p "require('./.claude-plugin/plugin.json').version")"
+          if [ "$PLUGIN_VERSION" != "$VER" ]; then
+            echo "::error::tag v$VER does not match plugin.json version $PLUGIN_VERSION"
+            exit 1
+          fi
+          echo "tag v$VER matches plugin.json $PLUGIN_VERSION"
+
+      - name: Extract CHANGELOG notes for this version
+        env:
+          VER: ${{ steps.ver.outputs.version }}
+        run: |
+          node -e '
+            const fs = require("fs");
+            const v = process.env.VER;
+            const body = fs.readFileSync("CHANGELOG.md", "utf8");
+            const parts = body.split(/\n## \[/);
+            const sec = parts.find(p => p.startsWith(v + "]"));
+            if (!sec) {
+              console.error(`::error::CHANGELOG.md has no "## [${v}]" section`);
+              process.exit(1);
+            }
+            const notes = sec.slice(sec.indexOf("\n") + 1).trim();
+            fs.writeFileSync("release-notes.md", notes + "\n");
+            console.log(notes);
+          '
+
+      - name: Re-check drift gate
+        run: node sync-copilot.mjs --check
+
+      - name: Re-check lint
+        run: node scripts/lint.mjs
+
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" --title "$GITHUB_REF_NAME" --notes-file release-notes.md
