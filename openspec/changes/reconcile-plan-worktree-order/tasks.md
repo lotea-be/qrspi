@@ -46,9 +46,9 @@
 
 **Model:** sonnet — single-line prepend to two files; the exact wording is specified in D7 and the spec; no judgment required.
 
-- [ ] 3.1 Edit `openspec/changes/example-greeting/worktree.md`: prepend the annotation note immediately after the `# Worktree — example-greeting` title line: `> Produced under the pre-rename Worktree stage; the current kit calls this Slices (\`slices.md\`).` — all original content below stays unchanged (D7)
-- [ ] 3.2 Edit `openspec/changes/kit-quality-hardening/worktree.md`: prepend the same annotation note immediately after the `# Worktree — kit-quality-hardening` title line — all original content below stays unchanged (D7)
-- [ ] 3.3 Checkpoint — run all five gates:
+- [x] 3.1 Edit `openspec/changes/example-greeting/worktree.md`: prepend the annotation note immediately after the `# Worktree — example-greeting` title line: `> Produced under the pre-rename Worktree stage; the current kit calls this Slices (\`slices.md\`).` — all original content below stays unchanged (D7)
+- [x] 3.2 Edit `openspec/changes/kit-quality-hardening/worktree.md`: prepend the same annotation note immediately after the `# Worktree — kit-quality-hardening` title line — all original content below stays unchanged (D7)
+- [x] 3.3 Checkpoint — run all five gates:
   - `head -3 /workspaces/git/qrspi/openspec/changes/example-greeting/worktree.md` shows the title on line 1 and the annotation note on line 2 or 3
   - `head -3 /workspaces/git/qrspi/openspec/changes/kit-quality-hardening/worktree.md` shows the same pattern
   - `git diff HEAD -- openspec/changes/example-greeting/worktree.md openspec/changes/kit-quality-hardening/worktree.md` shows only the annotation line added and no other content changed
