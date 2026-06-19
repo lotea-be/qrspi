@@ -14,6 +14,12 @@ kit version.
 
 ## [Unreleased]
 
+_No unreleased changes at this time._
+
+---
+
+## [0.4.0] - 2026-06-19
+
 ### Added
 
 - **Tag-based release process.** A release is now cut by pushing a `vX.Y.Z` tag,
@@ -51,6 +57,14 @@ kit version.
 ---
 
 ## [0.3.0] - 2026-06-18
+
+### Added
+
+- **README freshness tooling** (recorded retroactively). A CI lint check
+  (`scripts/lint.mjs` Check 4) asserting every shipped `/qrspi:*` command is
+  documented in the README and vice-versa; a CLAUDE.md "Keep the README current"
+  rule; and a `/qrspi-readme-audit` dev command + skill that diffs the README
+  against the source surface.
 
 ### Changed
 
