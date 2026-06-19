@@ -131,14 +131,14 @@ Three CI gates run on every PR:
 |------|---------|---------------|
 | Drift | `node sync-copilot.mjs --check` | `copilot/` matches what the generator would produce from `claude/` |
 | Lint | `node scripts/lint.mjs` | Pin agreement, frontmatter validity, heading alignment |
-| Validate | `npx --yes @fission-ai/openspec@1.4.1 validate example-greeting` | Reference example spec files are well-formed |
+| Validate | `npx --yes @fission-ai/openspec@1.4.1 validate --all` | All `openspec/specs/` and any active change are well-formed |
 
 Run all three locally before pushing:
 
 ```
 node sync-copilot.mjs --check
 node scripts/lint.mjs
-npx --yes @fission-ai/openspec@1.4.1 validate example-greeting
+npx --yes @fission-ai/openspec@1.4.1 validate --all
 ```
 
 ---

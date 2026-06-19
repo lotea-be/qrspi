@@ -12,47 +12,22 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 **Why:** The CI gates added by `kit-quality-hardening` are only advisory until
 the `main` branch requires them; a `CODEOWNERS` file would also route reviews.
 Deferred from `kit-quality-hardening` as a separate governance concern (its Q7).
-
-### reconcile-plan-worktree-order — `in-progress (Q, R, D, S, V, P, I complete; PR #4 open — https://github.com/lotea-be/qrspi/pull/4)`
-
-**Next QRSPI command:** `archive after merge`
-
-**Why:** The kit runs S -> W -> P (slices defined in a dedicated Worktree stage,
-before Plan), but the cited QRSPI source runs S -> P -> Work Tree with slices
-defined at Structure; this file's own header even lists `P -> W`.
-
-**Resolved scope (Q answers, refined at D-review):** Keep **three** stages —
-**rename** Worktree → **Slices** (command `/qrspi:slices`, artifact `slices.md`,
-stage code **V**); reconcile the five disagreeing sources to **S → Slices → P**
-(the existing execution order, an intentional divergence from the blog). Structure
-keeps `S` (acronym letter). Stays **eight stages**. Absorbs `rename-worktree-stage`
-(this change performs the rename) and `clarify-qrspi-acronym` (acronym note in
-skill + README). Migrate `example-greeting` **and** `kit-quality-hardening` by
-**annotation** (keep their `worktree.md` + a "pre-rename" note, not a rewrite).
-See [design.md](changes/reconcile-plan-worktree-order/design.md) D1–D7.
-
-### rename-worktree-stage — `proposed (absorbed by reconcile-plan-worktree-order)`
-
-**Why:** The "Worktree" stage/artifact has nothing to do with git worktrees (a
-real Claude Code feature). **Performed by `reconcile-plan-worktree-order`**
-(refined at D-review): that change renames the stage Worktree → **Slices**
-(`/qrspi:slices`, `slices.md`, stage code **V**). Tracked there; not a separate
-change.
-
-### clarify-qrspi-acronym — `idea (folded into reconcile-plan-worktree-order)`
-
-**Why:** "QRSPI" names only 5 of the stages. **Absorbed by
-`reconcile-plan-worktree-order`** (PQ2/PQ3): after the collapse, Q-R-S-P-I are all
-real stages (only D and PR sit outside), and that change adds the one-line
-"acronym is a lineage nod / Crispy" note. Closed here; tracked in that change.
+**Fresh evidence (2026-06-19):** PR #5 merged while its CI run was still
+`UNSTABLE` — confirming `main` has no required checks today. Pair this with the
+new `release.yml` so a tag can't publish on a red build either.
 
 ### verify-stage-gate-execution — `idea`
 
 **Why:** Commands set `agent: <subagent>` + `subtask: true` yet their bodies run
 the AskUserQuestion commit/handoff and invoke the next stage, while the subagents'
-toolsets exclude AskUserQuestion/Agent. Confirm end-to-end that the human
-commit/handoff gates actually fire, and in whose context, before trusting the
-choreography.
+toolsets exclude AskUserQuestion/Agent. **CONFIRMED (2026-06-19) by the
+`reconcile-plan-worktree-order` dogfood run:** every human gate fired only
+because the *orchestrator* (main loop) ran it — the `questioner`/`researcher`/
+`reviewer` subagents could not have prompted the human under the real
+`agent:`-frontmatter path. So this is no longer "verify whether"; it is "fix the
+architecture": either move the choreography out of the subagent's responsibility
+into the command/orchestrator explicitly, or grant the gate tools. Highest-
+priority correctness item.
 
 ### enforce-research-ticket-hiding — `idea`
 
@@ -72,9 +47,10 @@ sync/maintenance tax.
 
 **Why:** The source only asks to "persist to disk," but the kit pins an external
 OpenSpec CLI (npx, a version pin spread across files, a CI lint to police it) to
-gain `openspec validate` on the single validated artifact (`specs/`). Re-evaluate
-whether the dependency earns its tax vs a vendored folder convention + a small
-validator.
+gain `openspec validate` on the delta specs. (`openspec/specs/` is now populated
+as of the 2026-06-19 archives, so the validated surface is real — re-weigh the
+dependency against a vendored folder convention + a small validator with that in
+mind.)
 
 ### simplify-per-slice-model-selection — `idea`
 
@@ -82,56 +58,3 @@ validator.
 architect writes a markdown `**Model:**` annotation; the implementer self-halts and
 asks to be re-invoked when on the wrong model) is fragile and breaks on Copilot.
 Consider a simpler lever or a single implement-stage model.
-
-### kit-quality-hardening — `in-progress (Q, R, D, S, W, P, I complete; PR #1 open — https://github.com/lotea-be/qrspi/pull/1)`
-
-**Next QRSPI command:** `archive after merge`
-
-
-**Why:** The kit's core invariant — "`copilot/` is generated, never hand-edited,
-always in sync" — is enforced only by convention, and at v0.1.0 it has no CI, no
-governance docs, and duplicated stage choreography. This change converts
-"correctness depends on a human remembering" into mechanical guarantees and pays
-down the duplication. Scope = the top-10 review (below); Q/D/S will split or
-sequence it as needed.
-
-**Scope — review findings (ranked by impact):**
-1. **CI to enforce sync drift + lint** — Action runs `node sync-copilot.mjs --check`
-   (must report `0 file(s) differ`) on every PR; second job validates
-   agent/command/skill frontmatter and that referenced names resolve.
-2. **Single-source the OpenSpec version pin** — `1.4.1` is hardcoded in ~10
-   places; README claims "two coupled places" (false) and its bump steps point
-   at `claude/commands/qrspi:init.md`, which was renamed to
-   `claude/commands/init.md`. Define once; fix README.
-3. **DRY the 8-stage command choreography** — `questions…pr.md` repeat the same
-   branch→precondition→invoke→backlog→commit dance; factor the shared parts into
-   one referenced skill.
-4. **Factor the repeated "Load skills" preamble** into a single `qrspi-workflow`
-   bootstrap step (duplicated across 5+ agents).
-5. **Port + harden the generator** — replace the old PowerShell generator with
-   `sync-copilot.mjs` (Node ESM, no deps); validate `claude/` exists before
-   wiping `copilot/`; `try/finally` to clean the `--check` temp tree; warn
-   (don't silently skip) on a skill dir missing `SKILL.md`; per-line diff in
-   `--check`.
-6. **Governance: versioning + CONTRIBUTING + CHANGELOG** — plugin versioning
-   already exists (`plugin.json` `version`, marketplace `update`); add the
-   process around it: semver discipline, a `CHANGELOG.md`, and a rule tying the
-   plugin version + OpenSpec pin together. Surface CLAUDE.md's contributor rules
-   in `CONTRIBUTING.md`.
-7. **Unify precondition checks + error-recovery messaging** — always `Glob` the
-   required input; shared "missing artifact X → run `/qrspi:<stage>`" table.
-8. **Least-privilege tool audit on agents** — trim unused `Edit`/`Bash` grants;
-   `qrspi-reviewer` is the lean model. (Note: researcher/planner/questioner
-   legitimately keep `Write` to author their artifact.)
-9. **Ship a reference example change** under `openspec/changes/archive/` — doubles
-   as docs and as a CI fixture validating the templates via `openspec validate`.
-10. **Centralize the artifact skeletons** — canonical shapes live in 3 places
-    (agent inline, `openspec-templates/`, per-repo seed); pick one source of
-    truth or add a check that the copies match.
-11. **Trim the redundant OpenSpec native surface** — the 5 `opsx:*` commands run
-    a workflow parallel to QRSPI (`opsx:propose` even bypasses the human design
-    gate). Drop the 5 opsx commands plus the 3 orphaned skills they back
-    (`openspec-propose`, `openspec-explore`, `openspec-apply-change`); keep the
-    3 load-bearing ones (`openspec-workflow`, `openspec-archive-change`,
-    `openspec-sync-specs`). Ensure the removal survives `openspec update`/`init`
-    regeneration (prune in the init flow, not just delete the files).
