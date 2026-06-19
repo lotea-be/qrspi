@@ -23,14 +23,14 @@ Otherwise continue as the architect to produce:
 - `openspec/changes/<id>/specs/<capability>/spec.md` per touched capability
 
 After this command completes, the natural next step is
-`/qrspi-worktree <id>` (still in the architect subagent), then
+`/qrspi-slices <id>` (still in the architect subagent), then
 `/qrspi-plan <id>`.
 
 Return only what the architect's "Final message format" specifies.
 
 **Backlog update (mandatory before the commit):** Add or update the
 change's row in `openspec/backlog.md` so its `Next QRSPI command:` line
-points at `/qrspi-worktree <id>`. Earlier stages do not seed this line,
+points at `/qrspi-slices <id>`. Earlier stages do not seed this line,
 so on the first S run you are *adding* it, not editing an existing one —
 don't assume you mis-read the row if it's absent. This edit lands in the
 same commit as the artifact (backlog atomicity, see skill
@@ -55,4 +55,4 @@ stage variables:
   + `openspec/backlog.md`.
 - Commit message: `docs(<id>): add proposal.md and specs (QRSPI stage S)`
 - Git add line: `git add openspec/changes/<id>/proposal.md openspec/changes/<id>/specs/ openspec/backlog.md`
-- Next-stage command: `/qrspi-worktree <id>` — invoke it as its own stage.
+- Next-stage command: `/qrspi-slices <id>` — invoke it as its own stage.

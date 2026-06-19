@@ -29,10 +29,12 @@ workflow drives a .NET/Blazor app, a TypeScript service, or anything else.
 | 2 | Research | `/qrspi:research <id>` | `research.md` | Read-only map of the current codebase. The ticket is hidden by design. |
 | 3 | Design | `/qrspi:design <id>` | `design.md` | The "brain surgery" stage. **⛔ HUMAN APPROVAL REQUIRED before stage 4.** |
 | 4 | Structure | `/qrspi:structure <id>` | `proposal.md` + `specs/` | Canonical proposal + OpenSpec spec deltas. |
-| 5 | Worktree | `/qrspi:worktree <id>` | `worktree.md` | Vertical slices, not horizontal layers. |
+| 5 | Slices | `/qrspi:slices <id>` | `slices.md` | Vertical slices, not horizontal layers. |
 | 6 | Plan | `/qrspi:plan <id>` | `tasks.md` | Canonical numbered task list. |
 | 7 | Implement | `/qrspi:implement <id>` | code + tests | One slice at a time; stops at each checkpoint. |
 | 8 | PR | `/qrspi:pr <id>` | PR description | Read-only review + final checklist. |
+
+> **Acronym lineage note.** QRSPI / "Crispy" is a lineage label from the RPI ancestry; Design, Slices, and PR sit outside the five acronym letters (Q-R-S-P-I). The kit intentionally orders Slices (V) before Plan (P) -- slices-then-tasks is the natural data flow and an intentional divergence from the RPI blog's Plan-before-Work-Tree ordering.
 
 Helpers: `/qrspi` (print the stage map), `/qrspi:init` (bootstrap `openspec/` +
 templates — per-repo onboarding), `/qrspi:stack` (bootstrap this repo's
@@ -249,7 +251,7 @@ it on a project (paths below are Claude's `.claude/`; Copilot users substitute t
    /qrspi:research  add-user-export
    /qrspi:design    add-user-export      # ← review & approve design.md here
    /qrspi:structure add-user-export
-   /qrspi:worktree  add-user-export
+   /qrspi:slices    add-user-export
    /qrspi:plan      add-user-export
    /qrspi:implement add-user-export
    /qrspi:pr        add-user-export
