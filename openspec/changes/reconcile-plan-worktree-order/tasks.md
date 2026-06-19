@@ -26,16 +26,16 @@
 
 **Model:** sonnet — prose-level text substitution and addition of a documented one-liner note; the content of the acronym note is specified verbatim in D6 and the spec; no novel prose composition required.
 
-- [ ] 2.1 Edit `claude/skills/qrspi-workflow/SKILL.md`: update frontmatter `description:` list order to Q, R, D, S, Slices, P, I, PR; rename `## The eight stages` W bullet → Slices (V); add QRSPI acronym lineage note (D6); add one-line note that the kit orders Slices → Plan (intentional divergence from the RPI blog, D3)
-- [ ] 2.2 Edit `claude/skills/vertical-slice/SKILL.md`: replace "(W stage)" → "(Slices stage)"; replace `worktree.md` → `slices.md` throughout (D4)
-- [ ] 2.3 Edit `claude/skills/openspec-workflow/SKILL.md`: update stage table row `W — Worktree → worktree.md` → `V — Slices → slices.md`; reorder the row so it falls between S and P (D3)
-- [ ] 2.4 Verify `claude/skills/context-hygiene/SKILL.md` line 71: confirm it already lists alignment as `Q, R, D, S, P` with no W reference — no edit needed (D4)
-- [ ] 2.5 Edit `claude/commands/implement.md`: replace "architect at stage W" → "architect at stage V (Slices)"; replace any `worktree.md` prose references → `slices.md` (D4)
-- [ ] 2.6 Edit `README.md`: add acronym lineage note (D6) in the prose section near or after the stage table; confirm "eight stages" count is unchanged (D6)
-- [ ] 2.7 Edit `CLAUDE.md`: replace any remaining `Worktree` / `worktree.md` references not covered by Slice 1 → `Slices` / `slices.md`
-- [ ] 2.8 Edit `CONTRIBUTING.md`: replace `Worktree` / `worktree.md` → `Slices` / `slices.md` throughout
-- [ ] 2.9 Edit `openspec/backlog.md`: update header chain from `(Q → R → D → S → P → W → I → PR)` → `(Q → R → D → S → V → P → I → PR)` (D3)
-- [ ] 2.10 Checkpoint — run all five gates:
+- [x] 2.1 Edit `claude/skills/qrspi-workflow/SKILL.md`: update frontmatter `description:` list order to Q, R, D, S, Slices, P, I, PR; rename `## The eight stages` W bullet → Slices (V); add QRSPI acronym lineage note (D6); add one-line note that the kit orders Slices → Plan (intentional divergence from the RPI blog, D3)
+- [x] 2.2 Edit `claude/skills/vertical-slice/SKILL.md`: replace "(W stage)" → "(Slices stage)"; replace `worktree.md` → `slices.md` throughout (D4)
+- [x] 2.3 Edit `claude/skills/openspec-workflow/SKILL.md`: update stage table row `W — Worktree → worktree.md` → `V — Slices → slices.md`; reorder the row so it falls between S and P (D3)
+- [x] 2.4 Verify `claude/skills/context-hygiene/SKILL.md` line 71: confirm it already lists alignment as `Q, R, D, S, P` with no W reference — no edit needed (D4)
+- [x] 2.5 Edit `claude/commands/implement.md`: replace "architect at stage W" → "architect at stage V (Slices)"; replace any `worktree.md` prose references → `slices.md` (D4)
+- [x] 2.6 Edit `README.md`: add acronym lineage note (D6) in the prose section near or after the stage table; confirm "eight stages" count is unchanged (D6)
+- [x] 2.7 Edit `CLAUDE.md`: replace any remaining `Worktree` / `worktree.md` references not covered by Slice 1 → `Slices` / `slices.md`
+- [x] 2.8 Edit `CONTRIBUTING.md`: replace `Worktree` / `worktree.md` → `Slices` / `slices.md` throughout
+- [x] 2.9 Edit `openspec/backlog.md`: update header chain from `(Q → R → D → S → P → W → I → PR)` → `(Q → R → D → S → V → P → I → PR)` (D3)
+- [x] 2.10 Checkpoint — run all five gates:
   - `grep -ri "stage w\b\|worktree" /workspaces/git/qrspi/claude/ /workspaces/git/qrspi/README.md /workspaces/git/qrspi/CLAUDE.md /workspaces/git/qrspi/CONTRIBUTING.md /workspaces/git/qrspi/openspec/backlog.md` returns no matches (only intentional historical references in migrated change folders)
   - `grep -i "lineage\|Q-R-S-P-I\|crispy" /workspaces/git/qrspi/claude/skills/qrspi-workflow/SKILL.md` returns the acronym note line
   - `grep -i "lineage\|Q-R-S-P-I\|crispy" /workspaces/git/qrspi/README.md` returns the acronym note line

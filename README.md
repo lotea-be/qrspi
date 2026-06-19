@@ -34,6 +34,8 @@ workflow drives a .NET/Blazor app, a TypeScript service, or anything else.
 | 7 | Implement | `/qrspi:implement <id>` | code + tests | One slice at a time; stops at each checkpoint. |
 | 8 | PR | `/qrspi:pr <id>` | PR description | Read-only review + final checklist. |
 
+> **Acronym lineage note.** QRSPI / "Crispy" is a lineage label from the RPI ancestry; Design, Slices, and PR sit outside the five acronym letters (Q-R-S-P-I). The kit intentionally orders Slices (V) before Plan (P) -- slices-then-tasks is the natural data flow and an intentional divergence from the RPI blog's Plan-before-Work-Tree ordering.
+
 Helpers: `/qrspi` (print the stage map), `/qrspi:init` (bootstrap `openspec/` +
 templates — per-repo onboarding), `/qrspi:stack` (bootstrap this repo's
 stack-cheatsheet skill — per-repo onboarding), `/qrspi:followup <id>` (post-PR fix loop),

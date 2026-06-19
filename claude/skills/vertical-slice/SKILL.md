@@ -1,6 +1,6 @@
 ---
 name: vertical-slice
-description: How to decompose a change into vertical slices (mock service → UI → real DB) rather than horizontal layers. Load this during the Structure (S) stage when you are about to write the slice plan.
+description: How to decompose a change into vertical slices (mock service → UI → real DB) rather than horizontal layers. Load this during the Slices (V) stage when you are about to write the slice plan.
 ---
 
 ## Why vertical, not horizontal
@@ -75,9 +75,9 @@ Slice 3 — Read path: question detail
 
 ## Per-slice model selection
 
-Each slice in `worktree.md` MUST carry a one-line
+Each slice in `slices.md` MUST carry a one-line
 `**Model:** sonnet|opus` annotation under its header, plus a short
-rationale. The architect (W stage) writes it. The planner (P stage)
+rationale. The architect (Slices stage) writes it. The planner (P stage)
 carries it forward into `tasks.md` unchanged. The `/qrspi:implement`
 command reads the next un-ticked slice's annotation and runs the
 implementer subagent on that model.

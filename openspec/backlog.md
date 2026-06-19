@@ -1,7 +1,7 @@
 # Backlog
 
 Candidate changes for this repo, tracked before they enter the QRSPI flow
-(Q → R → D → S → P → W → I → PR). Status is one of `idea` / `proposed` /
+(Q → R → D → S → V → P → I → PR). Status is one of `idea` / `proposed` /
 `in-progress` / `merged`. Completed work lives under
 `openspec/changes/archive/`, not here.
 
