@@ -1,6 +1,6 @@
 ---
 name: qrspi-workflow
-description: The eight-stage QRSPI workflow (Questions, Research, Design, Structure, Plan, Worktree, Implement, PR) used on top of OpenSpec. Load this when you need to know what stage you are in, what the next stage is, or why a stage exists.
+description: The eight-stage QRSPI workflow (Questions, Research, Design, Structure, Slices, Plan, Implement, PR) used on top of OpenSpec. Load this when you need to know what stage you are in, what the next stage is, or why a stage exists.
 metadata:
   source: https://alexlavaee.me/blog/from-rpi-to-qrspi/
   audience: all-agents
@@ -19,6 +19,13 @@ fixes three failure modes RPI exhibited at scale:
    behavior by default.
 3. **The plan-reading illusion.** Plans read well but build poorly. QRSPI
    front-loads alignment (Q + R + D) before any code planning happens.
+
+> **Acronym lineage note.** QRSPI / "Crispy" is a lineage label from the RPI
+> ancestry; Design, Slices, and PR sit outside the five acronym letters
+> (Q-R-S-P-I). The kit intentionally orders **Slices (V) before Plan (P)** --
+> slices-then-tasks is the natural data flow (Plan needs the slices as input)
+> and is an intentional divergence from the RPI blog's Plan-before-Work-Tree
+> ordering.
 
 ## Before Q — the backlog
 
@@ -63,8 +70,8 @@ Stages **Q, D, and S** capture the second kind, under these rules:
 4. **Same commit.** Added rows land in the same commit as the stage's
    artifact, per the atomic-commit rule above.
 
-R and W do not capture: R is ticket-blind (it cannot judge what is in or
-out of scope), and W's cut slices are almost always the same change
+R and V do not capture: R is ticket-blind (it cannot judge what is in or
+out of scope), and V's cut slices are almost always the same change
 deferred to a later slice — an in-change concern, not a new backlog item.
 
 ## The eight stages
@@ -96,9 +103,9 @@ should only be spot-checked, not deeply reviewed. Artifact:
 
 ### Execution phases (3)
 
-**W — Worktree.** Organize tasks into a hierarchy of vertical slices. Each
-branch maps to a testable unit of work. Artifact:
-`openspec/changes/<id>/worktree.md`.
+**V — Slices.** Takes the proposal and cuts it into vertical slices. Each
+slice maps to a testable unit of work. Artifact:
+`openspec/changes/<id>/slices.md`.
 
 **I — Implement.** Write code. Tick tasks in `tasks.md` as you go.
 

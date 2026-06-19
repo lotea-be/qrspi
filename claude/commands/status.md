@@ -31,8 +31,8 @@ Steps:
    | `questions.md`           | R — `/qrspi:research <id>` |
    | `research.md`            | D — `/qrspi:design <id>` (then human review) |
    | `design.md`              | S — `/qrspi:structure <id>` (only after human approval of design.md) |
-   | `proposal.md` + `specs/` | W — `/qrspi:worktree <id>` (or do this together with S) |
-   | `worktree.md`            | P — `/qrspi:plan <id>` |
+   | `proposal.md` + `specs/` | V — `/qrspi:slices <id>` (or do this together with S) |
+   | `slices.md`              | P — `/qrspi:plan <id>` |
    | `tasks.md` (incomplete)  | I — `/qrspi:implement <id>` |
    | `tasks.md` (all done)    | PR — `/qrspi:pr <id>`, then archive with `/qrspi:archive <id>` after merge |
    | `pr.md`                  | PR is open — resolve any `followups.md`, then `/qrspi:archive <id>` after merge |

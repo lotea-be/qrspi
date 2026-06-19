@@ -1,5 +1,7 @@
 # Worktree — kit-quality-hardening
 
+> Produced under the pre-rename **Worktree** stage; the current kit calls this **Slices** (`slices.md`).
+
 > Stage W of QRSPI. Generated 2026-06-18.
 > Vertical slices, not horizontal layers.
 
