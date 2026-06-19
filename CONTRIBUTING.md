@@ -28,6 +28,46 @@ The `plugin.json` `version` field is the single source of truth. No separate
 
 ---
 
+## Releases (tag-based)
+
+**Merging a PR to `main` does not release anything.** `main` is the integration
+line; consumers install from **tags**, and the marketplace
+(`lotea-be/ai-agent-marketplace`) pins the qrspi `source` to a release tag — so
+`main` can move ahead of the latest release without affecting installed users,
+and several merged PRs batch into one release.
+
+**In a feature PR:**
+
+- Do **not** bump `plugin.json` `version`.
+- Add your user-facing change under `## [Unreleased]` in `CHANGELOG.md`.
+
+**To cut a release** (deliberate; rolls up everything merged-but-unreleased):
+
+1. Choose the new version per the semver table above.
+2. Bump `plugin.json` `version`.
+3. Move the `## [Unreleased]` items into a new `## [X.Y.Z] - <date>` section,
+   leaving `## [Unreleased]` with its "No unreleased changes" placeholder.
+4. Run `node scripts/lint.mjs` and `node sync-copilot.mjs --check` (both exit 0).
+5. Commit, then tag and push:
+
+   ```
+   git tag vX.Y.Z
+   git push origin main --tags
+   ```
+
+6. Update the qrspi entry's `source` ref to `vX.Y.Z` in
+   `lotea-be/ai-agent-marketplace`, so consumers pick up the release. (This is
+   the only step outside this repo, and the only thing that actually ships to
+   users.)
+
+The `.github/workflows/release.yml` job runs on the `v*` tag push: it re-runs
+lint + drift, asserts the tag matches `plugin.json` `version` and that a
+matching `CHANGELOG.md` section exists, then publishes a GitHub Release with
+those notes. A mismatch fails the release — so the tag, the `version`, and the
+CHANGELOG can never silently disagree.
+
+---
+
 ## Sync workflow
 
 When you edit anything under `claude/agents/`, `claude/commands/`, or
