@@ -29,8 +29,8 @@ openspec/
       proposal.md                    # S stage — what & why
       specs/                         # S stage — requirements & scenarios
         <capability>/spec.md
+      slices.md                      # V stage — slice plan
       tasks.md                       # P stage — checklist
-      worktree.md                    # W stage — slice plan
     archive/
       YYYY-MM-DD-<change-id>/        # archived after merge
   specs/                             # current accepted specs (per capability)
@@ -62,8 +62,8 @@ project-scope `opsx` tooling the CLI generates).
 | R — Research | `changes/<id>/research.md` | `researcher` (read-only) |
 | D — Design | `changes/<id>/design.md` | `designer` → human review |
 | S — Structure | `changes/<id>/proposal.md` + `specs/` | `architect` |
+| V — Slices | `changes/<id>/slices.md` | `architect` |
 | P — Plan | `changes/<id>/tasks.md` | `planner` (read-only on code) |
-| W — Worktree | `changes/<id>/worktree.md` | `architect` |
 | I — Implement | code + tests + tick `tasks.md` | `implementer` |
 | PR — Review | PR description references the change folder | `reviewer` |
 
@@ -79,7 +79,7 @@ with the QRSPI kit (bundled with the plugin as `openspec-templates/`).
 | `tasks.md` | numbered groups `## N. <slice>` + `- [ ] N.M` items | `openspec-templates/tasks.template.md` |
 | `specs/<cap>/spec.md` | `## ADDED/MODIFIED/REMOVED Requirements` → `### Requirement:` → `#### Scenario:` | `openspec-templates/spec-delta.template.md` |
 | `questions.md` | QRSPI-only (no OpenSpec equivalent) | `openspec-templates/questions.template.md` |
-| `worktree.md` | QRSPI-only (`## Slice N — …`); maps onto `tasks.md` numbered groups | — |
+| `slices.md` | QRSPI-only (`## Slice N — …`); maps onto `tasks.md` numbered groups | — |
 
 `openspec validate <id>` enforces the spec-delta shape strictly; the proposal /
 design / tasks shapes follow OpenSpec's own canonical templates so artifacts

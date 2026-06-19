@@ -29,7 +29,7 @@ annotation is the architect's call.
 > proceed with the implementation below.
 
 If a slice is missing the annotation, stop and tell the user the
-worktree/tasks file needs to be fixed (the architect at stage W is
+slices/tasks file needs to be fixed (the architect at stage V (Slices) is
 required to write it). Do not silently default — silent defaults
 hide planning gaps.
 
@@ -53,7 +53,7 @@ before asking to continue), use the #tool:vscode/askQuestions to ask:
 
 If yes, first update `openspec/backlog.md`:
 - On the **final** slice, change the change's row `Status:` line to
-  `in-progress (Q, R, D, S, W, P, I complete)` and the
+  `in-progress (Q, R, D, S, V, P, I complete)` and the
   `Next QRSPI command:` line to `/qrspi-pr <id>`.
 - On **intermediate** slices, leave `Status:` alone and update the
   `Next QRSPI command:` line to reflect that slice N+1 is in flight
@@ -88,7 +88,7 @@ the design artifacts. Handle it like this:
    *Out of Scope* list; add the requirement + scenarios that describe it).
 2. **Consult the **vertical-slice** instructions (`vertical-slice.instructions.md`) plus the project's stack-cheatsheet skill (if any)**, then add a new
    vertical group `## N.` to `tasks.md` **and** a matching slice to
-   `worktree.md`, each carrying a `**Model:**` annotation. Loading the
+   `slices.md`, each carrying a `**Model:**` annotation. Loading the
    convention skills is what the architect (W) and planner (P) normally do
    before writing task specs — do not skip it, or the new slice will
    contradict documented conventions (e.g. the project's chosen component

@@ -34,14 +34,14 @@ const check = process.argv.slice(2).some((a) => a === '--check' || a === '-check
 const agentFor = {
   'qrspi-questions': 'questioner', 'qrspi-research': 'researcher',
   'qrspi-design': 'designer', 'qrspi-structure': 'architect',
-  'qrspi-worktree': 'architect', 'qrspi-plan': 'planner',
+  'qrspi-slices': 'architect', 'qrspi-plan': 'planner',
   'qrspi-implement': 'implementer', 'qrspi-followup': 'implementer',
   'qrspi-pr': 'reviewer',
 };
 const hintFor = {
   'qrspi-questions': '<change-id>', 'qrspi-research': '<change-id>',
   'qrspi-design': '<change-id>', 'qrspi-structure': '<change-id>',
-  'qrspi-worktree': '<change-id>', 'qrspi-plan': '<change-id>',
+  'qrspi-slices': '<change-id>', 'qrspi-plan': '<change-id>',
   'qrspi-implement': '<change-id>', 'qrspi-followup': '<change-id>',
   'qrspi-pr': '<change-id>', 'qrspi-stack': '(optional) stack hint',
   'qrspi-retro': '<change-id> <stage>', 'qrspi-status': '(optional) <change-id>',
