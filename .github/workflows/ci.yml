@@ -38,5 +38,5 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - name: Validate reference example
-        run: npx --yes @fission-ai/openspec@1.4.1 validate example-greeting
+      - name: Validate all specs and active changes
+        run: npx --yes @fission-ai/openspec@1.4.1 validate --all

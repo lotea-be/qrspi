@@ -40,6 +40,14 @@ kit version.
   **Migration:** use `/qrspi:slices <id>` instead of `/qrspi:worktree <id>`. New
   change folders write `slices.md`; existing `worktree.md` files are unaffected.
 
+- **Retired the `example-greeting` CI fixture.** The CI validate job now runs
+  `openspec validate --all` against the real `openspec/specs/` surface (populated
+  by archiving the first merged changes) instead of a permanently-active
+  fictional change. `example-greeting` is archived as a worked reference under
+  `openspec/changes/archive/`, and the `reference-example` spec no longer mandates
+  an active fixture. Removes the long-standing smell of a fake change kept alive
+  only to give CI something to validate.
+
 ---
 
 ## [0.3.0] - 2026-06-18
