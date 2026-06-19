@@ -2,7 +2,7 @@
 
 > Stage PR of QRSPI. Drafted 2026-06-19.
 
-**PR link:** _(to be filled when the PR is opened)_
+**PR link:** https://github.com/lotea-be/qrspi/pull/4
 **Branch:** `features/reconcile-plan-worktree-order` → `main`
 
 ## Verification (all green)

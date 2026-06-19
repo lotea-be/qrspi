@@ -13,9 +13,9 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 the `main` branch requires them; a `CODEOWNERS` file would also route reviews.
 Deferred from `kit-quality-hardening` as a separate governance concern (its Q7).
 
-### reconcile-plan-worktree-order — `proposed (change folder created 2026-06-19)`
+### reconcile-plan-worktree-order — `in-progress (Q, R, D, S, V, P, I complete; PR #4 open — https://github.com/lotea-be/qrspi/pull/4)`
 
-**Next QRSPI command:** `/qrspi:implement reconcile-plan-worktree-order`
+**Next QRSPI command:** `archive after merge`
 
 **Why:** The kit runs S -> W -> P (slices defined in a dedicated Worktree stage,
 before Plan), but the cited QRSPI source runs S -> P -> Work Tree with slices
