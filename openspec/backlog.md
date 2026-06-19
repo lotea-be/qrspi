@@ -13,26 +13,35 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 the `main` branch requires them; a `CODEOWNERS` file would also route reviews.
 Deferred from `kit-quality-hardening` as a separate governance concern (its Q7).
 
-### reconcile-plan-worktree-order — `idea`
+### reconcile-plan-worktree-order — `proposed (change folder created 2026-06-19)`
+
+**Next QRSPI command:** `/qrspi:research reconcile-plan-worktree-order`
 
 **Why:** The kit runs S -> W -> P (slices defined in a dedicated Worktree stage,
 before Plan), but the cited QRSPI source runs S -> P -> Work Tree with slices
-defined at Structure; this file's own header even lists `P -> W`. Decide whether
-the divergence is intentional, document it, and consider folding slice-definition
-back into S (the source proves one stage can carry it) to drop a stage and a gate.
+defined at Structure; this file's own header even lists `P -> W`.
 
-### rename-worktree-stage — `idea`
+**Resolved scope (Q answers):** Collapse to **two** stages — fold the
+vertical-slice plan into S, keep P (read-only planner) for `tasks.md`; remove the
+Worktree stage/agent/artifact and its two gates. Stage set becomes
+**Q R D S P I PR (7)**. Absorbs `rename-worktree-stage` (moot) and
+`clarify-qrspi-acronym` (one-line note). Keep the "Crispy" acronym, update
+"eight stages" prose to seven. Migrate `example-greeting` **and**
+`kit-quality-hardening` to the new set (all PRs merged).
+
+### rename-worktree-stage — `idea (folded into reconcile-plan-worktree-order)`
 
 **Why:** The "Worktree" stage/artifact has nothing to do with git worktrees (a
-real Claude Code feature); the source's two-word "Work Tree" was compressed to the
-single git token. Rename (e.g. "Slices" / "Slice plan") to kill the collision.
+real Claude Code feature). **Mooted by `reconcile-plan-worktree-order`** (PQ2):
+the collapse removes the Worktree stage entirely, so there is nothing left to
+rename. Closed here; tracked in that change.
 
-### clarify-qrspi-acronym — `idea`
+### clarify-qrspi-acronym — `idea (folded into reconcile-plan-worktree-order)`
 
-**Why:** "QRSPI" names only 5 of the 8 stages and omits D (the human approval
-gate), Work Tree, and PR. Inherited from the source, but a one-line note that the
-acronym is a lineage nod -- not the stage list -- would stop readers thinking the
-kit is incomplete or buggy.
+**Why:** "QRSPI" names only 5 of the stages. **Absorbed by
+`reconcile-plan-worktree-order`** (PQ2/PQ3): after the collapse, Q-R-S-P-I are all
+real stages (only D and PR sit outside), and that change adds the one-line
+"acronym is a lineage nod / Crispy" note. Closed here; tracked in that change.
 
 ### verify-stage-gate-execution — `idea`
 
