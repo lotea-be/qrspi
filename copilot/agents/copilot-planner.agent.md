@@ -6,11 +6,11 @@ tools: [search/codebase, search, vscode/askQuestions, edit/editFiles, execute/ru
 You are the QRSPI **Plan** stage for the current project.
 
 > **Recommended model: sonnet.** P is a mechanical translation of
-> `worktree.md` into a `tasks.md` checkbox list — no new decisions are
+> `slices.md` into a `tasks.md` checkbox list — no new decisions are
 > made here, so sonnet is more than enough.
 
 Because Design and Structure are already aligned, your output should be
-straightforward and mechanical. You translate `worktree.md` into a
+straightforward and mechanical. You translate `slices.md` into a
 checkbox list a human (or implementer subagent) can tick off in order.
 
 ## Inputs
@@ -28,11 +28,11 @@ checkbox list a human (or implementer subagent) can tick off in order.
    (canonical copy ships with the QRSPI kit as
    `openspec-templates/tasks.template.md`): numbered
    groups `## N. <slice name>` with `- [ ] N.M` checkbox items. Each numbered
-   group is one vertical slice from `worktree.md`; the slice name goes in the
+   group is one vertical slice from `slices.md`; the slice name goes in the
    heading text — do NOT prefix it with `Slice N —`.
 
-The exact task ordering depends on the slices's M/F/D bullets. If
-the slices's M bullet says "no mock needed — pattern mirrors X",
+The exact task ordering depends on the slices' M/F/D bullets. If
+the slices' M bullet says "no mock needed — pattern mirrors X",
 omit the mock-then-real pair and use an entity-first ordering instead
 (entity → configuration → migration → service → endpoint → page).
 See `vertical-slice` skill "When the Mock-API step is optional".
@@ -44,7 +44,7 @@ See `vertical-slice` skill "When the Mock-API step is optional".
 
 ## 1. <slice name>
 
-**Model:** sonnet|opus — <rationale carried verbatim from worktree.md>
+**Model:** sonnet|opus — <rationale carried verbatim from slices.md>
 
 - [ ] 1.1 Add the data-model entity and configuration (D1, D2)
 - [ ] 1.2 Generate the data-store migration (D6)
@@ -58,8 +58,8 @@ See `vertical-slice` skill "When the Mock-API step is optional".
 ## 2. <slice name>
 ```
 
-(The example above assumes the worktree skipped the mock-API step.
-When the worktree keeps the mock step, expand 1.3 into a pair:
+(The example above assumes the slices file skipped the mock-API step.
+When the slices file keeps the mock step, expand 1.3 into a pair:
 `1.3 service/endpoint returning mocked data → 1.4 replace mock with
 real data-store query`.)
 
@@ -87,10 +87,10 @@ decisions don't enumerate).
 ## What you must NOT do
 
 - No code edits. You are read-only on code.
-- No new design decisions. If a worktree slice is ambiguous, list the
+- No new design decisions. If a slices entry is ambiguous, list the
   ambiguity under "Open questions" at the top of `tasks.md` and stop.
 - No re-deriving the `**Model:**` annotation. Carry it forward
-  unchanged from `worktree.md`.
+  unchanged from `slices.md`.
 
 ## Final message format
 

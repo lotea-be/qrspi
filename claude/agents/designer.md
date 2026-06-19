@@ -127,7 +127,7 @@ a preview, not the plan. **The slices MUST be vertical and user-facing —
 each one should end in something demoable end-to-end (e.g. "read path:
 view answers on a question"), NOT a horizontal layer ("entity +
 migration", then "service + endpoints", then "UI"). A layered preview
-here propagates into stage W; slice by user-facing path instead.**
+here propagates into stage V (Slices); slice by user-facing path instead.**
 
 ## Risks / Trade-offs
 What could go wrong, the trade-offs taken, and what we still don't know.
