@@ -14,7 +14,19 @@ kit version.
 
 ## [Unreleased]
 
-_No unreleased changes at this time._
+### Changed
+
+- **Renamed the Worktree stage to Slices** (stage code `W` -> `V`, command
+  `/qrspi:worktree` -> `/qrspi:slices`, artifact `worktree.md` -> `slices.md`).
+  The old name collided with git worktrees (a real Claude Code feature) and was
+  never part of the QRSPI acronym. All sources now agree on the
+  `S -> Slices -> P` order, and a QRSPI / "Crispy" acronym-lineage note was added
+  to the `qrspi-workflow` skill and the README. The kit stays **eight stages**.
+  Historical change folders keep their `worktree.md` with a pre-rename
+  annotation (not rewritten).
+
+  **Migration:** use `/qrspi:slices <id>` instead of `/qrspi:worktree <id>`. New
+  change folders write `slices.md`; existing `worktree.md` files are unaffected.
 
 ---
 
