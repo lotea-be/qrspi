@@ -1,7 +1,7 @@
 {
   "name": "qrspi",
-  "description": "QRSPI — an eight-stage spec-driven workflow (Questions, Research, Design, Structure, Plan, Worktree, Implement, PR) layered on OpenSpec. Ships the /qrspi:* commands, seven stage subagents, and the supporting skills.",
-  "version": "0.3.0",
+  "description": "QRSPI — an eight-stage spec-driven workflow (Questions, Research, Design, Structure, Slices, Plan, Implement, PR) layered on OpenSpec. Ships the /qrspi:* commands, seven stage subagents, and the supporting skills.",
+  "version": "0.4.0",
   "author": { "name": "lotea-be" },
   "homepage": "https://github.com/lotea-be/qrspi",
   "commands": "./claude/commands",
