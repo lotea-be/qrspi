@@ -13,6 +13,64 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 the `main` branch requires them; a `CODEOWNERS` file would also route reviews.
 Deferred from `kit-quality-hardening` as a separate governance concern (its Q7).
 
+### reconcile-plan-worktree-order — `idea`
+
+**Why:** The kit runs S -> W -> P (slices defined in a dedicated Worktree stage,
+before Plan), but the cited QRSPI source runs S -> P -> Work Tree with slices
+defined at Structure; this file's own header even lists `P -> W`. Decide whether
+the divergence is intentional, document it, and consider folding slice-definition
+back into S (the source proves one stage can carry it) to drop a stage and a gate.
+
+### rename-worktree-stage — `idea`
+
+**Why:** The "Worktree" stage/artifact has nothing to do with git worktrees (a
+real Claude Code feature); the source's two-word "Work Tree" was compressed to the
+single git token. Rename (e.g. "Slices" / "Slice plan") to kill the collision.
+
+### clarify-qrspi-acronym — `idea`
+
+**Why:** "QRSPI" names only 5 of the 8 stages and omits D (the human approval
+gate), Work Tree, and PR. Inherited from the source, but a one-line note that the
+acronym is a lineage nod -- not the stage list -- would stop readers thinking the
+kit is incomplete or buggy.
+
+### verify-stage-gate-execution — `idea`
+
+**Why:** Commands set `agent: <subagent>` + `subtask: true` yet their bodies run
+the AskUserQuestion commit/handoff and invoke the next stage, while the subagents'
+toolsets exclude AskUserQuestion/Agent. Confirm end-to-end that the human
+commit/handoff gates actually fire, and in whose context, before trusting the
+choreography.
+
+### enforce-research-ticket-hiding — `idea`
+
+**Why:** Ticket-hiding (the source's most important rule) is enforced only by
+telling the researcher not to open `questions.md`, though it has Read on the whole
+repo -- the "persona, not mechanism" anti-pattern `context-hygiene` itself warns
+against. Consider a mechanical guard.
+
+### reassess-copilot-port — `idea`
+
+**Why:** The Copilot half drops the core QRSPI mechanisms (subagent orchestration,
+per-slice model, skill auto-load) the source calls the whole point, leaving a
+checklist. Weigh relabeling it a "lite" companion against the ongoing
+sync/maintenance tax.
+
+### reassess-openspec-dependency — `idea`
+
+**Why:** The source only asks to "persist to disk," but the kit pins an external
+OpenSpec CLI (npx, a version pin spread across files, a CI lint to police it) to
+gain `openspec validate` on the single validated artifact (`specs/`). Re-evaluate
+whether the dependency earns its tax vs a vendored folder convention + a small
+validator.
+
+### simplify-per-slice-model-selection — `idea`
+
+**Why:** Per-slice model intent is endorsed by the source, but the mechanism (the
+architect writes a markdown `**Model:**` annotation; the implementer self-halts and
+asks to be re-invoked when on the wrong model) is fragile and breaks on Copilot.
+Consider a simpler lever or a single implement-stage model.
+
 ### kit-quality-hardening — `in-progress (Q, R, D, S, W, P, I complete; PR #1 open — https://github.com/lotea-be/qrspi/pull/1)`
 
 **Next QRSPI command:** `archive after merge`
