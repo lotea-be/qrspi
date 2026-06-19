@@ -21,20 +21,23 @@ Deferred from `kit-quality-hardening` as a separate governance concern (its Q7).
 before Plan), but the cited QRSPI source runs S -> P -> Work Tree with slices
 defined at Structure; this file's own header even lists `P -> W`.
 
-**Resolved scope (Q answers):** Collapse to **two** stages — fold the
-vertical-slice plan into S, keep P (read-only planner) for `tasks.md`; remove the
-Worktree stage/agent/artifact and its two gates. Stage set becomes
-**Q R D S P I PR (7)**. Absorbs `rename-worktree-stage` (moot) and
-`clarify-qrspi-acronym` (one-line note). Keep the "Crispy" acronym, update
-"eight stages" prose to seven. Migrate `example-greeting` **and**
-`kit-quality-hardening` to the new set (all PRs merged).
+**Resolved scope (Q answers, refined at D-review):** Keep **three** stages —
+**rename** Worktree → **Slices** (command `/qrspi:slices`, artifact `slices.md`,
+stage code **V**); reconcile the five disagreeing sources to **S → Slices → P**
+(the existing execution order, an intentional divergence from the blog). Structure
+keeps `S` (acronym letter). Stays **eight stages**. Absorbs `rename-worktree-stage`
+(this change performs the rename) and `clarify-qrspi-acronym` (acronym note in
+skill + README). Migrate `example-greeting` **and** `kit-quality-hardening` by
+**annotation** (keep their `worktree.md` + a "pre-rename" note, not a rewrite).
+See [design.md](changes/reconcile-plan-worktree-order/design.md) D1–D7.
 
-### rename-worktree-stage — `idea (folded into reconcile-plan-worktree-order)`
+### rename-worktree-stage — `proposed (absorbed by reconcile-plan-worktree-order)`
 
 **Why:** The "Worktree" stage/artifact has nothing to do with git worktrees (a
-real Claude Code feature). **Mooted by `reconcile-plan-worktree-order`** (PQ2):
-the collapse removes the Worktree stage entirely, so there is nothing left to
-rename. Closed here; tracked in that change.
+real Claude Code feature). **Performed by `reconcile-plan-worktree-order`**
+(refined at D-review): that change renames the stage Worktree → **Slices**
+(`/qrspi:slices`, `slices.md`, stage code **V**). Tracked there; not a separate
+change.
 
 ### clarify-qrspi-acronym — `idea (folded into reconcile-plan-worktree-order)`
 

@@ -7,6 +7,12 @@
 
 ## Decisions (resolved at Q via PQ answers)
 
+> ⮕ **Superseded at D-review (see [design.md](design.md) D1–D3).** PQ1's
+> *collapse to two stages* was **reversed** during Design: keep **three** stages,
+> **rename** Worktree → **Slices** (stage code **V**), and reconcile all docs to
+> **S → Slices → P**. The acronym/migration/absorption decisions below still hold;
+> only the collapse is overturned. The original Q answers are kept for the record.
+
 > These narrow the scope for stages R/D/S. The "Stage topology" body sections
 > below were written before the decision and are now constrained by it.
 
