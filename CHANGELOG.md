@@ -14,6 +14,18 @@ kit version.
 
 ## [Unreleased]
 
+### Added
+
+- **Tag-based release process.** A release is now cut by pushing a `vX.Y.Z` tag,
+  not by merging a PR. The new [`release.yml`](.github/workflows/release.yml)
+  workflow runs on the tag: it re-checks lint + sync drift, asserts the tag
+  matches `plugin.json` `version` and that a matching `CHANGELOG.md` section
+  exists, then publishes a GitHub Release. Feature PRs no longer bump `version`
+  — they record changes here under `[Unreleased]`, and `main` may sit ahead of
+  the latest release. See CONTRIBUTING "Releases (tag-based)" and the CLAUDE.md
+  "Don't bump the version in feature work" rule. Consumers install from tags;
+  the marketplace pins the qrspi `source` to a release tag.
+
 ### Changed
 
 - **Renamed the Worktree stage to Slices** (stage code `W` -> `V`, command
