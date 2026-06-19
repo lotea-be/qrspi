@@ -27,7 +27,7 @@ on the next change.
 ## When to run it
 
 - Immediately after a stage's artifact is finalized (`questions.md`,
-  `research.md`, `design.md`, `proposal.md`, `tasks.md`, `worktree.md`,
+  `research.md`, `design.md`, `proposal.md`, `tasks.md`, `slices.md`,
   or after the merge commit for stage I/PR).
 - When the human says "what could we improve about this stage?" or
   similar.

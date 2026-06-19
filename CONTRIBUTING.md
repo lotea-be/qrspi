@@ -106,7 +106,7 @@ npx --yes @fission-ai/openspec@1.4.1 validate example-greeting
 ## Convention-only boundary: command stub wording
 
 The eight QRSPI stage commands (`claude/commands/questions.md`,
-`research.md`, `design.md`, `structure.md`, `plan.md`, `worktree.md`,
+`research.md`, `design.md`, `structure.md`, `slices.md`, `plan.md`,
 `implement.md`, `pr.md`) each contain a thin inline stub with the artifact
 filename, commit-message template, and next-stage command reference. The
 **invariant choreography** (commit step, next-stage handoff, Glob-based

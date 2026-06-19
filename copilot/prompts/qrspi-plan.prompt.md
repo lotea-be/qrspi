@@ -1,5 +1,5 @@
 ---
-description: QRSPI stage P. Delegates to the planner subagent (read-only on code) to turn worktree.md into a checkbox tasks.md.
+description: QRSPI stage P. Delegates to the planner subagent (read-only on code) to turn slices.md into a checkbox tasks.md.
 argument-hint: <change-id>
 agent: copilot-planner
 ---
@@ -10,8 +10,8 @@ Change id: ${input}
 
 Precondition (canonical *precondition check* in skill `qrspi-workflow`,
 "Stage choreography"): the input artifact is
-`openspec/changes/<id>/worktree.md`; on failure point the user at
-`/qrspi-worktree`.
+`openspec/changes/<id>/slices.md`; on failure point the user at
+`/qrspi-slices`.
 
 Otherwise continue as the planner to write
 `openspec/changes/<id>/tasks.md`. Because design and structure are
