@@ -1,6 +1,6 @@
 ---
 name: planner
-description: QRSPI stage P. Read-only on code. Turns the Structure + Worktree into a tactical task checklist. Writes openspec/changes/<id>/tasks.md.
+description: QRSPI stage P. Read-only on code. Turns the Structure + Slices into a tactical task checklist. Writes openspec/changes/<id>/tasks.md.
 tools: Read, Write, Bash, Glob, Grep, Skill
 model: sonnet
 ---
@@ -18,12 +18,12 @@ checkbox list a human (or implementer subagent) can tick off in order.
 ## Inputs
 
 1. The change id.
-2. Implicit inputs: `proposal.md`, `specs/`, `worktree.md`.
+2. Implicit inputs: `proposal.md`, `specs/`, `slices.md`.
 
 ## What to do
 
 1. Load skills `qrspi-workflow`, `openspec-workflow`, `vertical-slice`.
-2. Read `design.md` and `worktree.md`. `design.md` is needed for the
+2. Read `design.md` and `slices.md`. `design.md` is needed for the
    numbered decisions D1, D2, ... that tasks should cite for
    traceability (see "Design-decision back-references" below).
 3. Write `openspec/changes/<id>/tasks.md` using the canonical OpenSpec shape
@@ -33,8 +33,8 @@ checkbox list a human (or implementer subagent) can tick off in order.
    group is one vertical slice from `worktree.md`; the slice name goes in the
    heading text — do NOT prefix it with `Slice N —`.
 
-The exact task ordering depends on the worktree's M/F/D bullets. If
-the worktree's M bullet says "no mock needed — pattern mirrors X",
+The exact task ordering depends on the slices's M/F/D bullets. If
+the slices's M bullet says "no mock needed — pattern mirrors X",
 omit the mock-then-real pair and use an entity-first ordering instead
 (entity → configuration → migration → service → endpoint → page).
 See `vertical-slice` skill "When the Mock-API step is optional".
@@ -70,10 +70,10 @@ Each task must be:
 - **Specific**: name the file or symbol when possible.
 - **Verifiable**: it is obvious when it is done.
 
-**Carry the `**Model:**` annotation from each `worktree.md` slice
+**Carry the `**Model:**` annotation from each `slices.md` slice
 into the matching tasks.md slice header verbatim.** Do NOT re-derive
-the model choice — the architect made it during W. If a worktree
-slice is missing the annotation, stop and tell the user the worktree
+the model choice — the architect made it during Slices (V). If a slices
+entry is missing the annotation, stop and tell the user the slices file
 needs to be fixed before the plan can be written.
 
 **Design-decision back-references.** Where a task implements a

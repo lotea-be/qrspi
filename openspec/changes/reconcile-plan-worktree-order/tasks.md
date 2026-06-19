@@ -6,16 +6,16 @@
 
 **Model:** sonnet — mechanical rename and string substitution across known files; no architectural judgment required.
 
-- [ ] 1.1 Rename `claude/commands/worktree.md` → `claude/commands/slices.md`; update stage code `W` → `V`, title, all headings, artifact name `worktree.md` → `slices.md`; keep next-stage pointer `/qrspi:plan` and preconditions `proposal.md` + `specs/` unchanged; update the commit-message string and the `git add` line inside the file (D2, D4)
-- [ ] 1.2 Edit `claude/commands/structure.md`: replace next-stage pointer `/qrspi:worktree` → `/qrspi:slices`; update the "then `/qrspi:plan`" aside to name Slices (D3)
-- [ ] 1.3 Edit `claude/commands/plan.md`: replace precondition artifact `worktree.md` → `slices.md`; replace on-failure pointer `/qrspi:worktree` → `/qrspi:slices` (D4)
-- [ ] 1.4 Edit `claude/commands/status.md`: replace inference table row `worktree.md → P` → `slices.md → P`; replace stage labels `W` → `V` / Slices throughout (D2, D3)
-- [ ] 1.5 Edit `claude/agents/architect.md`: rename W branch to Slices / V throughout — `## Stage routing`, `## What to do — Worktree (W)` → `## What to do — Slices (V)`, W-only final-message format, and all `worktree.md` → `slices.md` occurrences (D4)
-- [ ] 1.6 Edit `claude/agents/planner.md`: replace input filename `worktree.md` → `slices.md` (D4)
-- [ ] 1.7 Edit `sync-copilot.mjs`: rename `'qrspi-worktree'` key → `'qrspi-slices'` in the `agentFor` map (lines ~34-40) and in the `hintFor` map (lines ~41-48) (D2)
-- [ ] 1.8 Run `node sync-copilot.mjs` to wipe and regenerate `copilot/`; confirm `copilot/prompts/qrspi-slices.prompt.md` is created and `copilot/prompts/qrspi-worktree.prompt.md` is gone (D2)
-- [ ] 1.9 Edit `README.md`: update stage table row 5 → Slices / `/qrspi:slices` / `slices.md` (the acronym note is Slice 2) (D2, D3)
-- [ ] 1.10 Checkpoint — run all five gates:
+- [x] 1.1 Rename `claude/commands/worktree.md` → `claude/commands/slices.md`; update stage code `W` → `V`, title, all headings, artifact name `worktree.md` → `slices.md`; keep next-stage pointer `/qrspi:plan` and preconditions `proposal.md` + `specs/` unchanged; update the commit-message string and the `git add` line inside the file (D2, D4)
+- [x] 1.2 Edit `claude/commands/structure.md`: replace next-stage pointer `/qrspi:worktree` → `/qrspi:slices`; update the "then `/qrspi:plan`" aside to name Slices (D3)
+- [x] 1.3 Edit `claude/commands/plan.md`: replace precondition artifact `worktree.md` → `slices.md`; replace on-failure pointer `/qrspi:worktree` → `/qrspi:slices` (D4)
+- [x] 1.4 Edit `claude/commands/status.md`: replace inference table row `worktree.md → P` → `slices.md → P`; replace stage labels `W` → `V` / Slices throughout (D2, D3)
+- [x] 1.5 Edit `claude/agents/architect.md`: rename W branch to Slices / V throughout — `## Stage routing`, `## What to do — Worktree (W)` → `## What to do — Slices (V)`, W-only final-message format, and all `worktree.md` → `slices.md` occurrences (D4)
+- [x] 1.6 Edit `claude/agents/planner.md`: replace input filename `worktree.md` → `slices.md` (D4)
+- [x] 1.7 Edit `sync-copilot.mjs`: rename `'qrspi-worktree'` key → `'qrspi-slices'` in the `agentFor` map (lines ~34-40) and in the `hintFor` map (lines ~41-48) (D2)
+- [x] 1.8 Run `node sync-copilot.mjs` to wipe and regenerate `copilot/`; confirm `copilot/prompts/qrspi-slices.prompt.md` is created and `copilot/prompts/qrspi-worktree.prompt.md` is gone (D2)
+- [x] 1.9 Edit `README.md`: update stage table row 5 → Slices / `/qrspi:slices` / `slices.md` (the acronym note is Slice 2) (D2, D3)
+- [x] 1.10 Checkpoint — run all five gates:
   - `grep -r "qrspi:worktree" /workspaces/git/qrspi/claude/ /workspaces/git/qrspi/copilot/ /workspaces/git/qrspi/README.md` returns no output
   - `ls /workspaces/git/qrspi/claude/commands/slices.md` exists; `ls /workspaces/git/qrspi/claude/commands/worktree.md` returns "No such file"
   - `ls /workspaces/git/qrspi/copilot/prompts/qrspi-slices.prompt.md` exists; `ls /workspaces/git/qrspi/copilot/prompts/qrspi-worktree.prompt.md` returns "No such file"
