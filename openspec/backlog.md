@@ -16,7 +16,7 @@ Deferred from `kit-quality-hardening` as a separate governance concern (its Q7).
 `UNSTABLE` — confirming `main` has no required checks today. Pair this with the
 new `release.yml` so a tag can't publish on a red build either.
 
-### verify-stage-gate-execution — `idea`
+### verify-stage-gate-execution — `proposed (change folder created 2026-06-20)`
 
 **Why:** Commands set `agent: <subagent>` + `subtask: true` yet their bodies run
 the AskUserQuestion commit/handoff and invoke the next stage, while the subagents'
@@ -28,6 +28,13 @@ because the *orchestrator* (main loop) ran it — the `questioner`/`researcher`/
 architecture": either move the choreography out of the subagent's responsibility
 into the command/orchestrator explicitly, or grant the gate tools. Highest-
 priority correctness item.
+**Resolved scope (Q, 2026-06-20):** Adopt **Option A — orchestrator owns the
+gates**: drop `agent:`/`subtask:` from all nine `subtask` stage commands so the
+command body runs in the main loop and delegates only the artifact write to the
+stage subagent via the Agent tool (matches `context-hygiene`'s firewall model).
+Ship a `scripts/lint.mjs` guard so the bug class can't silently return; rewrite
+the now-wrong README `agent:`-delegation line; keep `sync-copilot.mjs --check`
+zero-drift (deeper Copilot-gate question deferred to `reassess-copilot-port`).
 
 ### enforce-research-ticket-hiding — `idea`
 
