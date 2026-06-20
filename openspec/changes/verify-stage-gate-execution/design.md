@@ -163,14 +163,22 @@ after Check 4 in `main()` (new `checkGateExecutor(errors)` + a
 `process.stdout.write('Check 5: ...')` label; push to `errors[]` on violation,
 write an `OK:` line on pass — the existing dependency-free ESM pattern).
 
-**Chosen predicate (body-aware, OQ1):** the script carries a small hardcoded
-main-loop-only tool set (`MAIN_LOOP_ONLY = {'AskUserQuestion'}` — tools a subagent
-can never reach). For each `claude/commands/*.md`: **if the frontmatter declares a
-non-builtin `agent:` AND the body references any tool in `MAIN_LOOP_ONLY`, that is
-a violation** — the gate would be trapped in a subagent that cannot reach it. This
-guards the actual invariant (gate tool vs executor capability), not just the one
-syntactic form that shipped, so it also catches a future command that re-adds
-`agent:` while calling AskUserQuestion *without* `subtask:`.
+**Chosen predicate (body-aware, OQ1; strengthened at stage I):** the script
+carries a small hardcoded main-loop-only tool set (`MAIN_LOOP_ONLY =
+{'AskUserQuestion'}` — tools a subagent can never reach). For each
+`claude/commands/*.md`: **if the frontmatter declares a non-builtin `agent:` AND
+the body *reaches* a tool in `MAIN_LOOP_ONLY`, that is a violation** — the gate
+would be trapped in a subagent that cannot reach it. A body "reaches" the tool
+either **directly** (names it inline) or **transitively** (references the
+`qrspi-workflow` "Stage choreography" commit step / next-stage handoff / approval
+gate, which invoke the tool on the command's behalf). The transitive arm was added
+at stage I: implementation found that `research`/`plan`/`slices` carry the
+gate-trapping `agent:`+`subtask:` pairing yet never name `AskUserQuestion` inline —
+they delegate gates to the skill, so a direct-only scan caught 6 of 9 and would
+miss a future `agent:`-reintroduction on those three. This guards the actual
+invariant (gate tool vs executor capability), not just the one syntactic form that
+shipped, so it also catches a future command that re-adds `agent:` while reaching
+AskUserQuestion *without* `subtask:`.
 
 After D1 the nine stage commands have no `agent:`, so their executor is the main
 loop and they pass. The non-stage helpers pass too: `init`/`stack`/`archive` use

@@ -6,10 +6,10 @@
 
 **Model:** sonnet — mechanical pattern: parse frontmatter key, grep body for tool name, push to errors array. Mirrors the existing `checkFrontmatter` pattern already in `scripts/lint.mjs`.
 
-- [ ] 1.1 Add `MAIN_LOOP_ONLY = new Set(['AskUserQuestion'])` constant and `BUILTIN_AGENTS` exclusion list to `scripts/lint.mjs` (D6)
-- [ ] 1.2 Implement `checkGateExecutor(errors)` async function in `scripts/lint.mjs`: for each `claude/commands/*.md`, parse frontmatter for a non-builtin `agent:` field; if found, scan the body for any tool name in `MAIN_LOOP_ONLY`; push a violation to `errors[]` on match, print an `OK:` line otherwise (D6)
-- [ ] 1.3 Register `checkGateExecutor` after Check 4 in `main()` with a `process.stdout.write('Check 5: ...')` label using the existing dependency-free ESM pattern in `scripts/lint.mjs` (D6)
-- [ ] 1.4 Checkpoint: run `node scripts/lint.mjs`; confirm it exits 1 with exactly 9 Check 5 violations (one for each of `questions`, `research`, `design`, `structure`, `slices`, `plan`, `implement`, `pr`, `followup`). Confirm helper commands (`archive`, `init`, `stack`, `retro`, `status`) produce no Check 5 violation. Confirm all existing Check 1–4 results are unchanged.
+- [x] 1.1 Add `MAIN_LOOP_ONLY = new Set(['AskUserQuestion'])` constant and `BUILTIN_AGENTS` exclusion list to `scripts/lint.mjs` (D6)
+- [x] 1.2 Implement `checkGateExecutor(errors)` async function in `scripts/lint.mjs`: for each `claude/commands/*.md`, parse frontmatter for a non-builtin `agent:` field; if found, flag a violation if the body *reaches* a `MAIN_LOOP_ONLY` tool — either directly (tool name in body) OR transitively (body references the `qrspi-workflow` "Stage choreography" commit step / next-stage handoff, which invoke the tool); push a violation to `errors[]` on match, print an `OK:` line otherwise (D6, strengthened at stage I)
+- [x] 1.3 Register `checkGateExecutor` after Check 4 in `main()` with a `process.stdout.write('Check 5: ...')` label using the existing dependency-free ESM pattern in `scripts/lint.mjs` (D6)
+- [x] 1.4 Checkpoint: run `node scripts/lint.mjs`; confirm it exits 1 with exactly 9 Check 5 violations (one for each of `questions`, `research`, `design`, `structure`, `slices`, `plan`, `implement`, `pr`, `followup`). Confirm helper commands (`archive`, `init`, `stack`, `retro`, `status`) produce no Check 5 violation. Confirm all existing Check 1–4 results are unchanged.
 
 ## 2. Core conversion: six simpler stage commands + skill edits
 

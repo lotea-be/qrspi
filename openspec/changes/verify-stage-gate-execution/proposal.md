@@ -39,9 +39,11 @@ prevents the bug class from recurring.
   terminology to match command bodies.
 - **`scripts/lint.mjs`** — add Check 5 (`checkGateExecutor`): flags any
   `claude/commands/*.md` that declares a non-builtin `agent:` while its body
-  references a tool in the hardcoded `MAIN_LOOP_ONLY = {'AskUserQuestion'}` set.
-  Registered after Check 4 in `main()` using the existing dependency-free ESM
-  pattern.
+  *reaches* a tool in the hardcoded `MAIN_LOOP_ONLY = {'AskUserQuestion'}` set —
+  either by naming it inline OR by referencing the `qrspi-workflow` "Stage
+  choreography" procedures (commit step / next-stage handoff) that invoke it
+  transitively. Registered after Check 4 in `main()` using the existing
+  dependency-free ESM pattern.
 - **`README.md` line 192** — rewrite the delegation claim: *"A Copilot prompt
   carries an `agent:` field so the whole prompt runs in that agent; the Claude
   command instead runs in the main loop and spawns its subagent (via the Agent
@@ -68,8 +70,9 @@ prevents the bug class from recurring.
   `qrspi-workflow` skill choreography section MUST attribute all four gate
   procedures to the orchestrator.
 - `ci-quality-gates`: Add lint Check 5 — a body-aware static assertion that no
-  command declares a non-builtin `agent:` while its body references a main-loop-only
-  gate tool (currently: `AskUserQuestion`).
+  command declares a non-builtin `agent:` while its body reaches a main-loop-only
+  gate tool (currently: `AskUserQuestion`), whether named inline or invoked
+  transitively via the `qrspi-workflow` choreography.
 
 ## Impact
 
