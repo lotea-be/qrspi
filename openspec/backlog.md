@@ -50,6 +50,15 @@ per-slice model, skill auto-load) the source calls the whole point, leaving a
 checklist. Weigh relabeling it a "lite" companion against the ongoing
 sync/maintenance tax.
 
+### agentFor-frontmatter-crosscheck — `idea`
+
+**Why:** `sync-copilot.mjs`'s hardcoded `agentFor` table and the Claude command's
+declared subagent are parallel representations of the same delegation with no
+automated cross-check (research open gap #3). Deferred from
+`verify-stage-gate-execution` (Non-Goal). Note the framing shifts after that
+change lands: it drops `agent:` from the stage commands, so the cross-check becomes
+`agentFor` vs the subagent named in each command **body**, not its frontmatter.
+
 ### reassess-openspec-dependency — `idea`
 
 **Why:** The source only asks to "persist to disk," but the kit pins an external
