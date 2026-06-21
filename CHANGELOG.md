@@ -14,6 +14,12 @@ kit version.
 
 ## [Unreleased]
 
+_No unreleased changes at this time._
+
+---
+
+## [0.4.1] - 2026-06-21
+
 ### Fixed
 
 - **Stage gate execution.** All nine QRSPI stage commands (`questions`,
