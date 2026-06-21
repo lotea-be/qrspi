@@ -1,7 +1,5 @@
 ---
 description: QRSPI stage D. Delegates to the designer subagent to produce design.md (~200 lines). HUMAN REVIEW IS REQUIRED before stage S.
-agent: designer
-subtask: true
 ---
 
 You are running QRSPI stage **D (Design)** for the current project.
@@ -21,7 +19,7 @@ Inputs:
 Verify both files exist. If not, refuse and tell the user which previous
 stage they need to run first.
 
-Then invoke the designer subagent.
+Then spawn the `designer` subagent via the **Agent tool** (`subagent_type: qrspi:designer`) for the bounded artifact write. Pass the change id plus instructions to produce `openspec/changes/<id>/design.md` and return the file path plus a condensed summary of its decisions. The orchestrator (this main-loop context) does not inline the designer's full conversation -- only the returned summary and the written file are used in the steps below.
 
 Repository signals you may use (to list in-flight changes, use the **Glob**
 tool with pattern `openspec/changes/*` — do not shell out; Glob has no

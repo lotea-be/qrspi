@@ -1,7 +1,5 @@
 ---
 description: QRSPI stage I. Delegates to the implementer subagent to write code one vertical slice at a time, ticking tasks.md as it goes. Stops at each slice checkpoint for human verification.
-agent: implementer
-subtask: true
 ---
 
 You are running QRSPI stage **I (Implement)** for the current project.
