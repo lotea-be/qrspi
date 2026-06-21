@@ -1,7 +1,5 @@
 ---
 description: QRSPI stage S. Delegates to the architect subagent to write proposal.md and specs/. Requires that the human has approved design.md.
-agent: architect
-subtask: true
 ---
 
 You are running QRSPI stage **S (Structure)** for the current project.
@@ -18,15 +16,15 @@ not explicitly confirmed approval, use the **AskUserQuestion** tool to ask:
 ["Yes, design is approved", "No — I still need to review it"]. Only proceed
 on explicit approval; if they say no, remind them to review and stop.
 
-Otherwise invoke the architect subagent to produce:
+Otherwise spawn the `architect` subagent via the **Agent tool**
+(`subagent_type: qrspi:architect`) for the bounded artifact write. Tell it
+to produce:
 - `openspec/changes/<id>/proposal.md`
 - `openspec/changes/<id>/specs/<capability>/spec.md` per touched capability
 
-After this command completes, the natural next step is
-`/qrspi:slices <id>` (still in the architect subagent), then
-`/qrspi:plan <id>`.
-
-Return only what the architect's "Final message format" specifies.
+Tell it to return the paths of files it created/modified plus a 5-bullet
+summary. The orchestrator (this main-loop context) does not inline the
+architect's full conversation — only the returned summary is used here.
 
 **Backlog update (mandatory before the commit):** Add or update the
 change's row in `openspec/backlog.md` so its `Next QRSPI command:` line
@@ -55,4 +53,6 @@ stage variables:
   + `openspec/backlog.md`.
 - Commit message: `docs(<id>): add proposal.md and specs (QRSPI stage S)`
 - Git add line: `git add openspec/changes/<id>/proposal.md openspec/changes/<id>/specs/ openspec/backlog.md`
-- Next-stage command: `/qrspi:slices <id>` — invoke it as its own stage.
+- Next-stage command: `/qrspi:slices <id>` — invoke it as its own stage in
+  the main loop (re-enter the slash command so its body runs on the
+  orchestrator; do NOT spawn it as a subagent).
