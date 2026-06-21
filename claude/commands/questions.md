@@ -1,7 +1,5 @@
 ---
 description: QRSPI stage Q. Delegates to the questioner subagent to turn a vague feature request into a list of technical questions. Writes openspec/changes/<id>/questions.md.
-agent: questioner
-subtask: true
 ---
 
 You are running QRSPI stage **Q (Questions)** for the current project.
@@ -28,8 +26,13 @@ Otherwise:
    ```
 3. Create `openspec/changes/<id>/` if it does not already exist.
 4. Load skills `qrspi-workflow` and `openspec-workflow`.
-5. Follow the instructions in your agent prompt to produce
-   `openspec/changes/<id>/questions.md`.
+5. Spawn the `questioner` subagent via the **Agent tool** (`subagent_type:
+   qrspi:questioner`) for the bounded artifact write. Pass the change id
+   and the short description. Tell it to write
+   `openspec/changes/<id>/questions.md` and return the file path plus a
+   5-bullet summary. The orchestrator (this main-loop context) does not
+   inline the questioner's full conversation — only the returned summary
+   is used here.
 6. **Interactive step (mandatory):** After writing `questions.md`, read
    back the "Open product questions (for the human)" section. For EACH
    question listed there, use the **AskUserQuestion** tool to ask the human
@@ -75,5 +78,7 @@ stage variables:
   it yourself; only flip it if the agent did not (re-editing it after the
   agent will fail with a "file modified since read" error).
 - Git add line: `git add openspec/changes/<id>/questions.md openspec/backlog.md`
-- Next-stage command: `/qrspi:research <id>` — invoke it as its own stage (a
-  fresh subtask, so Research stays blind to the ticket per its design).
+- Next-stage command: `/qrspi:research <id>` — invoke it as its own stage in
+  the main loop (re-enter the slash command so its body runs on the
+  orchestrator; do NOT spawn it as a subagent — that would bypass Research's
+  gates and re-trap the ticket-hiding invariant inside a subagent).

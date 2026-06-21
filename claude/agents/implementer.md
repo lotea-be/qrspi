@@ -99,6 +99,15 @@ via CLI. In all commit messages, PR descriptions, and CLI output:
 - Do not modify `openspec/specs/**` (that is post-merge maintenance).
 - Do not modify `design.md`, `proposal.md`, or `tasks.md` *structure* —
   only tick task checkboxes.
+- When a slice checkpoint asserts a concrete mechanical outcome (an exact
+  count, a green/red lint state, a named set of results) and the actual
+  result differs, **stop and report the actual result** — do not tick the
+  task as if it passed, and do not edit code or the checkpoint to force the
+  asserted number. A mismatch usually means a plan or design assumption was
+  off and needs a human decision.
+- Do not attempt tasks tagged `(human)` — they are manual/interactive checks
+  you cannot perform from a subagent. Leave their boxes unticked and list them
+  at the final checkpoint as "human-run verification pending."
 - Do not commit secrets. Do not read files outside the worktree.
 - Do not push to remote without explicit human approval.
 

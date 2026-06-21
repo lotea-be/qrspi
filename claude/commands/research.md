@@ -1,7 +1,5 @@
 ---
 description: QRSPI stage R. Delegates to the researcher subagent (read-only). The change ticket is hidden from this stage by design — only areas of interest are passed in. Writes openspec/changes/<id>/research.md.
-agent: researcher
-subtask: true
 ---
 
 You are running QRSPI stage **R (Research)** for the current project.
@@ -27,8 +25,13 @@ without the ticket on purpose. From `$ARGUMENTS`, extract only:
    name existing precedents but must NOT state what the change
    should do.
 
-Then invoke the researcher with only those two inputs. The researcher
-will produce `openspec/changes/<id>/research.md`.
+Then spawn the `researcher` subagent via the **Agent tool**
+(`subagent_type: qrspi:researcher`) with only those two inputs — the
+change id and the areas of interest. Tell it to produce
+`openspec/changes/<id>/research.md` and return the file path plus a
+5-bullet summary. The orchestrator (this main-loop context) does not
+inline the researcher's full conversation — only the returned summary is
+used here.
 
 To list the in-flight changes, use the **Glob** tool with pattern
 `openspec/changes/*` — do not shell out; Glob has no permission requirements
@@ -42,4 +45,6 @@ stage variables:
 - Artifact: `openspec/changes/<id>/research.md` (no backlog edit at this stage).
 - Commit message: `docs(<id>): add research.md (QRSPI stage R)`
 - Git add line: `git add openspec/changes/<id>/research.md`
-- Next-stage command: `/qrspi:design <id>` — invoke it as its own stage.
+- Next-stage command: `/qrspi:design <id>` — invoke it as its own stage in
+  the main loop (re-enter the slash command so its body runs on the
+  orchestrator; do NOT spawn it as a subagent).

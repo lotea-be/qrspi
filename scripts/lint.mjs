@@ -252,6 +252,15 @@ async function checkPinAgreement(errors) {
 // Built-in agent: values that don't resolve to claude/agents/*.md
 const BUILTIN_AGENTS = new Set(['build', 'agent']);
 
+// ---- Check 5: GATE-TOOL / EXECUTOR AGREEMENT --------------------------------
+//
+// Tools that only the main-loop orchestrator can reach -- a subagent can never
+// call them even if listed in its tools: frontmatter.  Any command whose
+// frontmatter declares a non-builtin agent: while its body references one of
+// these tools is a violation: the gate would be trapped in a subagent context
+// that cannot execute it.
+const MAIN_LOOP_ONLY = new Set(['AskUserQuestion']);
+
 // Valid model aliases
 const MODEL_ALIASES = new Set(['opus', 'sonnet', 'haiku']);
 
@@ -560,6 +569,73 @@ async function checkReadmeCoverage(errors) {
   return violations;
 }
 
+// reachesMainLoopOnlyTool(body, tool) -- returns a { reached: bool, how: string } descriptor.
+//
+// "reached" is true when the body either:
+//   (a) DIRECTLY names the tool (current behaviour), or
+//   (b) TRANSITIVELY reaches it via the qrspi-workflow "Stage choreography"
+//       section -- i.e. the body mentions the `qrspi-workflow` skill AND at
+//       least one of the canonical choreography procedure names that invoke the
+//       gate tool ('Stage choreography', 'commit step', or 'next-stage handoff').
+//       These phrases are unique to the choreography section and give a
+//       low-false-positive signal without requiring a full skill parse.
+//
+// `how` is the human-readable distinction used in the violation message.
+function reachesMainLoopOnlyTool(body, tool) {
+  // (a) direct reference
+  if (body.includes(tool)) {
+    return { reached: true, how: `references '${tool}' inline` };
+  }
+
+  // (b) transitive reference via qrspi-workflow choreography
+  const mentionsWorkflowSkill = body.includes('qrspi-workflow');
+  const CHOREOGRAPHY_MARKERS = ['Stage choreography', 'commit step', 'next-stage handoff'];
+  const mentionsChoreography = CHOREOGRAPHY_MARKERS.some((marker) => body.includes(marker));
+  if (mentionsWorkflowSkill && mentionsChoreography) {
+    return {
+      reached: true,
+      how: `reaches ${tool} transitively via the qrspi-workflow choreography (commit step / next-stage handoff)`,
+    };
+  }
+
+  return { reached: false, how: '' };
+}
+
+async function checkGateExecutor(errors) {
+  const commandsDir = path.join(root, 'claude', 'commands');
+  const commandFiles = await walkMd(commandsDir);
+
+  let violations = 0;
+
+  for (const file of commandFiles) {
+    const text = await readFileOr(file);
+    const { front, body } = splitFront(text);
+    const rel = path.relative(root, file);
+
+    const agentRef = getField(front, 'agent');
+
+    // Skip commands with no agent: or with a builtin agent:
+    if (!agentRef || BUILTIN_AGENTS.has(agentRef)) continue;
+
+    // This command runs entirely inside a non-builtin subagent.
+    // Check if the body reaches any main-loop-only tool (directly or transitively).
+    for (const tool of MAIN_LOOP_ONLY) {
+      const { reached, how } = reachesMainLoopOnlyTool(body, tool);
+      if (reached) {
+        errors.push(
+          `[gate] ${rel}: 'agent: ${agentRef}' routes body to a subagent, but body ${how} -- '${tool}' is main-loop-only and unavailable inside a subagent`
+        );
+        violations++;
+      }
+    }
+  }
+
+  if (violations === 0) {
+    process.stdout.write(`  OK: no gate-tool / executor mismatches found\n`);
+  }
+  return violations;
+}
+
 // ---- main ------------------------------------------------------------------
 
 async function main() {
@@ -578,6 +654,9 @@ async function main() {
 
   process.stdout.write('\nCheck 4: README command coverage\n');
   await checkReadmeCoverage(errors);
+
+  process.stdout.write('\nCheck 5: Gate-tool / executor agreement\n');
+  await checkGateExecutor(errors);
 
   process.stdout.write('\n');
   if (errors.length === 0) {

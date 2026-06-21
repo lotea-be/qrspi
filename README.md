@@ -189,8 +189,10 @@ the single source of truth**; `copilot/` is generated from it.
 | `commands/<x>.md` (`/qrspi:*`) | `prompts/<x>.prompt.md` (slash prompts) | `~/.copilot/prompts/` |
 | `skills/<x>/SKILL.md` (model-invoked) | `instructions/<x>.instructions.md` (referenced on demand) | `~/.copilot/instructions/` |
 
-A Copilot prompt carries an `agent:` field, so `/qrspi:questions` runs inside the
-`questioner` agent — mirroring how the Claude command delegates to its subagent.
+A Copilot prompt carries an `agent:` field so the whole prompt runs in that agent;
+the Claude command instead runs in the main loop and spawns its subagent (via the
+Agent tool) only for the bounded artifact write, keeping the human gates on the
+orchestrator.
 
 ### Sync workflow
 
