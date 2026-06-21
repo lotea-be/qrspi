@@ -47,4 +47,4 @@
 
 - [x] 5.1 Run `node scripts/lint.mjs`; confirm green (Check 1 through Check 5 all pass, 0 violations)
 - [x] 5.2 Run `node sync-copilot.mjs --check`; confirm zero drift (exits 0)
-- [ ] 5.3 Manually invoke a QRSPI stage command (e.g. `/qrspi:plan <id>`) and confirm the AskUserQuestion commit gate fires visibly in the main conversation (not silently swallowed inside a subagent) -- DEFERRED: human-run manual check; cannot be performed by a subagent (AskUserQuestion is unavailable in a subagent context)
+- [x] 5.3 Manually invoke a QRSPI stage command and confirm the AskUserQuestion gate fires visibly in the main conversation -- DONE 2026-06-21: human ran `claude --plugin-dir .` with `/qrspi:questions dogfood-scratch ...` and confirmed the interactive AskUserQuestion prompt fired in the main conversation, verifying the gate runs on the orchestrator under the real plugin path. Scratch change reverted afterward.
