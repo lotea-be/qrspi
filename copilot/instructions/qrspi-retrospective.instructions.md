@@ -46,14 +46,18 @@ on the next change.
 
 For stage `Q`:
 
-| Role | Claude path | GitHub path |
-|------|-------------|-------------|
-| Command | `.github/prompts/questions.prompt.md` | `.github/prompts/qrspi-questions.prompt.md` |
-| Agent | `.github/agents/copilot-questioner.agent.md` | `.github/agents/copilot-questioner.agent.md` |
-| Skill (workflow) | `.github/instructions/qrspi-workflow.instructions.md` | `.github/instructions/qrspi-workflow.instructions.md` |
-| Skill (openspec) | `.github/instructions/openspec-workflow.instructions.md` | `.github/instructions/openspec-workflow.instructions.md` |
+| Role | Claude source (edit here) | Copilot mirror (generated) |
+|------|---------------------------|----------------------------|
+| Command | `claude/commands/questions.md` | `copilot/prompts/qrspi-questions.prompt.md` |
+| Agent | `claude/agents/questioner.md` | `copilot/agents/copilot-questioner.agent.md` |
+| Skill (workflow) | `claude/skills/qrspi-workflow/SKILL.md` | `copilot/instructions/qrspi-workflow.instructions.md` |
+| Skill (openspec) | `claude/skills/openspec-workflow/SKILL.md` | `copilot/instructions/openspec-workflow.instructions.md` |
 | Template (kit) | `openspec-templates/questions.template.md` | — |
 | Artifact written this stage | `openspec/changes/<id>/questions.md` | — |
+
+The Copilot mirror is **generated** from the Claude source by
+`sync-copilot.mjs` — never hand-edit it. Apply your edit to the Claude
+source, then regenerate (see step 5).
 
 The same table applies stage by stage — substitute the role name
 (researcher, designer, architect, planner, implementer, reviewer) and
@@ -154,10 +158,15 @@ for edits to the prompts/skills/templates.
 ### 5. Offer to apply each edit
 
 For each row in "Proposed edits", ask the human (one at a time via
-the #tool:vscode/askQuestions) whether to apply, defer, or skip. Apply the approved edits
-to the corresponding Claude file AND the paired GitHub file. Run
-`./scripts/sync-agent-defs.ps1 -Pair <name>` after each pair-edit so
-the human sees the mirror is clean.
+the #tool:vscode/askQuestions) whether to apply, defer, or skip. Apply the
+approved edits to the corresponding **Claude source** file (under `claude/`,
+`openspec-templates/`, or the project's contributor-guidance file). The
+`copilot/` mirror is generated — do **not** hand-edit it. After applying the
+Claude-side edits, regenerate the mirror with `node sync-copilot.mjs` and
+confirm zero drift with `node sync-copilot.mjs --check` so the human sees the
+mirror is clean. (Template and contributor-guidance edits have no `copilot/`
+mirror; only `claude/agents`, `claude/commands`, and `claude/skills` edits
+propagate.)
 
 ### 6. Commit
 
