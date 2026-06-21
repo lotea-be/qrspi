@@ -16,7 +16,7 @@ Deferred from `kit-quality-hardening` as a separate governance concern (its Q7).
 `UNSTABLE` — confirming `main` has no required checks today. Pair this with the
 new `release.yml` so a tag can't publish on a red build either.
 
-### verify-stage-gate-execution — `in-progress (Q, R, D, S, V, P, I complete)`
+### verify-stage-gate-execution — `in-progress (Q, R, D, S, V, P, I complete; PR #8 open — https://github.com/lotea-be/qrspi/pull/8)`
 
 **Why:** Commands set `agent: <subagent>` + `subtask: true` yet their bodies run
 the AskUserQuestion commit/handoff and invoke the next stage, while the subagents'
@@ -35,7 +35,7 @@ stage subagent via the Agent tool (matches `context-hygiene`'s firewall model).
 Ship a `scripts/lint.mjs` guard so the bug class can't silently return; rewrite
 the now-wrong README `agent:`-delegation line; keep `sync-copilot.mjs --check`
 zero-drift (deeper Copilot-gate question deferred to `reassess-copilot-port`).
-**Next QRSPI command:** `/qrspi:pr verify-stage-gate-execution`
+**Next QRSPI command:** archive after merge
 
 ### enforce-research-ticket-hiding — `idea`
 
