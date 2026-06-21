@@ -25,6 +25,11 @@ kit version.
   command now delegates only the bounded artifact write to its stage subagent
   via the Agent tool, and the next-stage handoff re-enters the next command in
   the main loop (not a subagent spawn).
+- **Retrospective skill mirror references.** `qrspi-retrospective` no longer
+  points contributors at a nonexistent `.github/` mirror and
+  `./scripts/sync-agent-defs.ps1`; it now names the real `copilot/` mirror,
+  regenerated with `node sync-copilot.mjs` (verified by `--check`). Surfaced
+  by the `verify-stage-gate-execution` stage-I retrospective.
 
 ### Added
 
