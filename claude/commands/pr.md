@@ -1,7 +1,5 @@
 ---
 description: QRSPI stage PR. Delegates to the reviewer subagent (read-only) to draft the pull request description, run a final checklist, and flag anything that looks off.
-agent: reviewer
-subtask: true
 ---
 
 You are running QRSPI stage **PR (Pull Request)** for the current project.
@@ -22,7 +20,7 @@ file gate; the clean-tree gate is unique to PR):
    change folder). Do not Glob this — `git status` is not on the default
    allow-list and the harness's obfuscation guard blocks brace+quote shapes.
 
-Otherwise invoke the reviewer subagent. It will:
+Otherwise spawn the `reviewer` subagent via the **Agent tool** (`subagent_type: qrspi:reviewer`) for the bounded read and draft work. It will:
 
 1. Read the full `openspec/changes/<id>/` folder.
 2. Run the project's build + lint/format + test commands to confirm green.

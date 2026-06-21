@@ -1,7 +1,5 @@
 ---
 description: QRSPI post-PR fix loop. Delegates to the implementer subagent in FIX MODE to resolve a single post-PR follow-up (reviewer open issue or retro code flag) while keeping code, tests, and the change's DELTA spec in sync. Ticks followups.md and commits atomically on the PR branch.
-agent: implementer
-subtask: true
 ---
 
 You are running the QRSPI **post-PR fix loop** for the current project.
@@ -29,7 +27,8 @@ Preconditions (verify with the **Glob** tool — no shell preamble):
 typically small and contained. Use **opus** only when the fix touches
 design-level logic or spans several files; say so when you invoke.
 
-Invoke the implementer subagent in FIX MODE. Tell it explicitly:
+Spawn the `implementer` subagent via the **Agent tool** (`subagent_type:
+qrspi:implementer`) in FIX MODE. Tell it explicitly:
 
 > You are in POST-PR FIX MODE, not slice mode. Load skill
 > `qrspi-postpr-fix` and follow its checklist. Ignore the per-slice

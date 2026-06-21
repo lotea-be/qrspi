@@ -14,7 +14,26 @@ kit version.
 
 ## [Unreleased]
 
-_No unreleased changes at this time._
+### Fixed
+
+- **Stage gate execution.** All nine QRSPI stage commands (`questions`,
+  `research`, `design`, `structure`, `slices`, `plan`, `implement`, `pr`,
+  `followup`) now run on the main-loop orchestrator instead of being routed
+  into a subagent by `agent:`/`subtask:` frontmatter. That routing had made the
+  AskUserQuestion commit/handoff/approval gates dead under the real
+  plugin-invocation path, because a subagent cannot reach AskUserQuestion. Each
+  command now delegates only the bounded artifact write to its stage subagent
+  via the Agent tool, and the next-stage handoff re-enters the next command in
+  the main loop (not a subagent spawn).
+
+### Added
+
+- **Lint Check 5 (gate-tool / executor agreement).** A standing
+  [`scripts/lint.mjs`](scripts/lint.mjs) guard flags any command that declares a
+  non-builtin `agent:` while its body reaches a main-loop-only gate tool
+  (`AskUserQuestion`) -- either named inline or invoked transitively via the
+  `qrspi-workflow` choreography -- preventing the gate-trapping bug class from
+  recurring silently.
 
 ---
 

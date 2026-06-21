@@ -51,5 +51,12 @@ goes in the heading text; do **not** prefix it with `Slice N —` (the canonical
 - Append `(D<n>)` (or `(D<n>, D<m>)`) where a task implements a numbered
   `design.md` decision. Skip the citation only for scaffolding/migration tasks
   no decision enumerates.
+- Prefix a task the implementer **cannot perform itself** (an interactive or
+  manual verification, a human-run dogfood, anything needing a UI or session
+  the subagent can't reach) with a leading `(human)` tag after the id:
+  `- [ ] 1.8 (human) Manually verify the AskUserQuestion gate fires`. The
+  implementer leaves `(human)` boxes unticked and surfaces them at the final
+  checkpoint as human-run verification pending — they do not block the
+  agent-executable tasks from being marked done.
 - An optional `## N. Quality gate` / `## N. Final verification` group at the end
   is fine — it is still a numbered group.

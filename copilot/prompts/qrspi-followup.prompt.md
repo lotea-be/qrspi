@@ -29,7 +29,8 @@ Preconditions (verify with the **Glob** tool — no shell preamble):
 typically small and contained. Use **opus** only when the fix touches
 design-level logic or spans several files; say so when you invoke.
 
-continue as the implementer in FIX MODE. Tell it explicitly:
+Spawn the `implementer` subagent via the **Agent tool** (`subagent_type:
+qrspi:implementer`) in FIX MODE. Tell it explicitly:
 
 > You are in POST-PR FIX MODE, not slice mode. Consult the instructions for
 > `qrspi-postpr-fix` and follow its checklist. Ignore the per-slice

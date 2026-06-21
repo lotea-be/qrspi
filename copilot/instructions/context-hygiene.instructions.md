@@ -23,10 +23,16 @@ bounded job and returns a condensed result. The orchestrator never sees
 the subagent's full conversation — only the final message. This is the
 mechanism that makes long QRSPI flows possible without context bloat.
 
+The orchestrator owns all human dialogue (commit gate, next-stage handoff,
+approval gate) and the next-stage invocation; the subagent does only the
+bounded artifact write — because vscode/askQuestions is unavailable inside a
+subagent and must be called by the main-loop orchestrator.
+
 Implications:
 
-- Always invoke each QRSPI stage as a subagent via the Task tool. Do not
-  inline the stage prompt into the orchestrator's conversation.
+- Always invoke each QRSPI stage's bounded artifact write as a subagent via
+  the Agent tool. Do not inline the stage prompt into the orchestrator's
+  conversation.
 - Tell the subagent **exactly** what to return in its final message
   (e.g., "Return the path of the file you wrote and a 5-bullet summary").
   Anything more is wasted tokens.
