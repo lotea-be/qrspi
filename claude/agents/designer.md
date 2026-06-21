@@ -69,6 +69,16 @@ visible, not to be right.
    (Example: add-tags OQ2 — the designer recommended `Cascade` on a `Tag` delete,
    but a tag is a `Category`-like curation entity, so the human overrode to
    `Restrict` + `TagInUseException`.)
+9. **Enumerate inline AND transitive manifestations when a decision introduces
+   a static check / lint / guard over the kit's own files.** Before pinning the
+   predicate, list how the target invariant shows up in *both* the **inline**
+   form (named directly in the file) and the **transitive** form (reached via a
+   shared skill / include / helper the file references). A predicate that matches
+   only the inline form silently under-covers the delegated form. (Example:
+   verify-stage-gate-execution D6 — the body-aware Check 5 predicate first matched
+   only commands naming `AskUserQuestion` inline, missing `research`/`plan`/`slices`,
+   which reach the gate transitively via the `qrspi-workflow` choreography; caught
+   late at stage I, 6 of 9.)
 
 ## Design content (~200 lines)
 
