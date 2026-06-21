@@ -124,8 +124,9 @@ skill `qrspi-postpr-fix`. The change is ready to archive only when
 ## Rules of the road
 
 - One change at a time. Never run two QRSPI flows in the same session.
-- Each stage runs as a subagent (Task tool) so the orchestrator's context
-  stays clean. See skill `context-hygiene`.
+- Each stage's bounded artifact write is delegated to a subagent via the
+  Agent tool, so the orchestrator's context stays clean. See skill
+  `context-hygiene`.
 - Hide the ticket during Research. This is the most important rule.
 - Vertical slices in Structure, not horizontal layers. See skill
   `vertical-slice`.
@@ -142,11 +143,15 @@ through the full flow.
 ## Stage choreography (canonical procedures)
 
 Every QRSPI stage command shares the same four invariant procedures. The
-authoritative wording lives here; a stage command keeps only the
-stage-specific *variables* (its artifact filename(s), its exact
-commit-message string, the precondition artifact + the prior stage to point
-at, the agent it invokes, and the next-stage command) and references this
-section for the procedure itself. When you read "follow the canonical
+**main-loop orchestrator** runs all four procedures (precondition/approval
+check, delegate the write, commit step, next-stage handoff); the stage
+subagent is spawned via the Agent tool only for the bounded artifact write
+and returns a condensed result — the orchestrator never sees the subagent's
+full conversation. The authoritative wording lives here; a stage command
+keeps only the stage-specific *variables* (its artifact filename(s), its
+exact commit-message string, the precondition artifact + the prior stage to
+point at, the agent it invokes, and the next-stage command) and references
+this section for the procedure itself. When you read "follow the canonical
 *commit step* / *next-stage handoff* / *precondition check* in
 `qrspi-workflow`", this is what is meant.
 
@@ -192,9 +197,11 @@ After the commit step, ask the human whether to keep going:
 - Use the #tool:vscode/askQuestions:
   - question: "Stage <X> is complete. Continue to stage <Y> now, or stop here?"
   - choices: ["Continue to /qrspi:<next> <id>", "Stop here -- I'll resume later"]
-- If they choose **Continue**, invoke the next-stage command now, as its own
-  stage (a fresh subtask, so each stage keeps a clean context window -- and
-  so Research in particular stays blind to the ticket per its design).
+- If they choose **Continue**, invoke the next-stage command now so it runs
+  as its own stage in the main loop (re-enter the slash command so its body
+  runs on the orchestrator, keeping each stage's context window clean -- and
+  so Research in particular stays blind to the ticket per its design). Do
+  NOT spawn the next stage as a subagent -- that would bypass its gates.
 - If they choose **Stop**, print `Next stage: /qrspi:<next> <id>` and end
   your turn.
 

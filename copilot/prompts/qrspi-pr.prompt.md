@@ -22,7 +22,7 @@ file gate; the clean-tree gate is unique to PR):
    change folder). Do not Glob this — `git status` is not on the default
    allow-list and the harness's obfuscation guard blocks brace+quote shapes.
 
-Otherwise continue as the reviewer. It will:
+Otherwise spawn the `reviewer` subagent via the **Agent tool** (`subagent_type: qrspi:reviewer`) for the bounded read and draft work. It will:
 
 1. Read the full `openspec/changes/<id>/` folder.
 2. Run the project's build + lint/format + test commands to confirm green.

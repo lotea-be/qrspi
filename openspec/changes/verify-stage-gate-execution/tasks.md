@@ -38,13 +38,13 @@
 
 **Model:** sonnet — the README edit is a single sentence substitution with the exact new wording provided in design.md D8. The Copilot regeneration is a script execution with a zero-drift verification check, not reasoning work.
 
-- [ ] 4.1 Rewrite `README.md` line 192: replace the current delegation claim with: "A Copilot prompt carries an `agent:` field so the whole prompt runs in that agent; the Claude command instead runs in the main loop and spawns its subagent (via the Agent tool) only for the bounded artifact write, keeping the human gates on the orchestrator." (D8)
-- [ ] 4.2 Regenerate the `copilot/` tree by running `node sync-copilot.mjs` — do NOT hand-edit any file under `copilot/` directly (CLAUDE.md rule); body rewrites from D2/D4/D5 propagate automatically through `rewriteAll` in `sync-copilot.mjs` (D7)
-- [ ] 4.3 Verify zero drift: run `node sync-copilot.mjs --check`; confirm it exits 0 with no ADDED/DELETED/DIFF lines (D7)
-- [ ] 4.4 Checkpoint: `node sync-copilot.mjs --check` exits 0. `node scripts/lint.mjs` exits 0 (all checks including Check 5 green). README.md line 192 contains "main loop" and "bounded artifact write" language matching D8's final wording.
+- [x] 4.1 Rewrite `README.md` line 192: replace the current delegation claim with: "A Copilot prompt carries an `agent:` field so the whole prompt runs in that agent; the Claude command instead runs in the main loop and spawns its subagent (via the Agent tool) only for the bounded artifact write, keeping the human gates on the orchestrator." (D8)
+- [x] 4.2 Regenerate the `copilot/` tree by running `node sync-copilot.mjs` — do NOT hand-edit any file under `copilot/` directly (CLAUDE.md rule); body rewrites from D2/D4/D5 propagate automatically through `rewriteAll` in `sync-copilot.mjs` (D7)
+- [x] 4.3 Verify zero drift: run `node sync-copilot.mjs --check`; confirm it exits 0 with no ADDED/DELETED/DIFF lines (D7)
+- [x] 4.4 Checkpoint: `node sync-copilot.mjs --check` exits 0. `node scripts/lint.mjs` exits 0 (all checks including Check 5 green). README.md line 192 contains "main loop" and "bounded artifact write" language matching D8's final wording.
 
 ## 5. Final acceptance
 
-- [ ] 5.1 Run `node scripts/lint.mjs`; confirm green (Check 1 through Check 5 all pass, 0 violations)
-- [ ] 5.2 Run `node sync-copilot.mjs --check`; confirm zero drift (exits 0)
-- [ ] 5.3 Manually invoke a QRSPI stage command (e.g. `/qrspi:plan <id>`) and confirm the AskUserQuestion commit gate fires visibly in the main conversation (not silently swallowed inside a subagent)
+- [x] 5.1 Run `node scripts/lint.mjs`; confirm green (Check 1 through Check 5 all pass, 0 violations)
+- [x] 5.2 Run `node sync-copilot.mjs --check`; confirm zero drift (exits 0)
+- [ ] 5.3 Manually invoke a QRSPI stage command (e.g. `/qrspi:plan <id>`) and confirm the AskUserQuestion commit gate fires visibly in the main conversation (not silently swallowed inside a subagent) -- DEFERRED: human-run manual check; cannot be performed by a subagent (AskUserQuestion is unavailable in a subagent context)
