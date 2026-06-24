@@ -138,9 +138,9 @@ Remaining follow-ups in followups.md: <N>
 
 ## How this skill relates to others
 
-- `qrspi-workflow` — the eight stages; this is the post-PR fix loop that
+- `workflow` — the eight stages; this is the post-PR fix loop that
   hangs off the PR stage.
-- `qrspi-retrospective` — routes *code* flags into `followups.md` (and
+- `retrospective` — routes *code* flags into `followups.md` (and
   *prompt* flags into the governing files).
 - the project's stack-cheatsheet skill — the coding rules a fix must still honor.
 - `context-hygiene` — keep the fix conversation lean; one follow-up at a time.

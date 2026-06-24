@@ -14,7 +14,26 @@ kit version.
 
 ## [Unreleased]
 
-_No unreleased changes at this time._
+### Changed
+
+- **Dropped the `qrspi-` prefix from the three remaining skill names**
+  (`qrspi-workflow` → `workflow`, `qrspi-postpr-fix` → `postpr-fix`,
+  `qrspi-retrospective` → `retrospective`). As with the earlier subagent-prefix
+  drop (v0.3.0), the plugin namespace already prefixes skills, so these were
+  stuttering as `qrspi:qrspi-workflow`; they are now the clean `qrspi:workflow`
+  and match their unprefixed siblings (`context-hygiene`, `vertical-slice`,
+  `openspec-workflow`). Skill directories, frontmatter, every internal reference
+  across the seven agents and the stage commands, the live
+  `qrspi-command-surface` spec, `CONTRIBUTING.md`, and the generated `copilot/`
+  instructions were updated. Lint Check 5's choreography probe now matches the
+  backtick-wrapped `` `workflow` `` skill reference. The `.claude/` dev-tooling
+  commands (`qrspi-sync-copilot`, `qrspi-readme-audit`) keep their prefix — they
+  are not plugin-namespaced, so the prefix is their only scope.
+
+  **Migration:** if you reference these skills by name in your own prompts or
+  tooling, update `qrspi-workflow` → `workflow`, `qrspi-postpr-fix` →
+  `postpr-fix`, `qrspi-retrospective` → `retrospective` (Claude), and the
+  corresponding `copilot/instructions/*.instructions.md` filenames.
 
 ---
 

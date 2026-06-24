@@ -9,7 +9,7 @@ Change id: $ARGUMENTS
 Precondition: all boxes in `openspec/changes/<id>/tasks.md` are ticked,
 and the working tree is clean (no uncommitted changes outside of the
 change folder updates). **This stage's precondition has two parts** (the
-canonical *precondition check* in skill `qrspi-workflow` covers the
+canonical *precondition check* in skill `workflow` covers the
 file gate; the clean-tree gate is unique to PR):
 
 1. Use the **Glob** tool with pattern `openspec/changes/$ARGUMENTS/tasks.md`
@@ -68,7 +68,7 @@ the link in **two** places:
 reviewer's "Open issues found" count is greater than zero, write those
 issues into `openspec/changes/<id>/followups.md` so they are tracked and
 resolvable with `/qrspi:followup <id>` (otherwise the list is printed once and
-lost). Use the format defined in skill `qrspi-postpr-fix`:
+lost). Use the format defined in skill `postpr-fix`:
 ```markdown
 # Follow-ups -- <id>
 
@@ -79,7 +79,7 @@ lost). Use the format defined in skill `qrspi-postpr-fix`:
 ```
 If the reviewer found zero open issues, do not create the file.
 
-Then commit and push (the canonical *commit step* in skill `qrspi-workflow`
+Then commit and push (the canonical *commit step* in skill `workflow`
 applies — explicit paths only, never `git add -A`; PR open is a state
 change so the backlog edit lands in this same commit, per backlog
 atomicity):

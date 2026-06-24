@@ -53,7 +53,7 @@ Steps:
    ready for PR review and archival, not for `/qrspi-implement`.
 
 3. Print the eight stages with a 1-line description each (from skill
-   `qrspi-workflow`).
+   `workflow`).
 
 4. **Mention the retrospective.** After every stage, the human can
    optionally run `/qrspi-retro <id> <stage>` to capture friction

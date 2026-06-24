@@ -6,7 +6,7 @@ You are running QRSPI stage **I (Implement)** for the current project.
 
 Change id: $ARGUMENTS
 
-Precondition (canonical *precondition check* in skill `qrspi-workflow`,
+Precondition (canonical *precondition check* in skill `workflow`,
 "Stage choreography"): the input artifact is
 `openspec/changes/<id>/tasks.md`; on failure point the user at
 `/qrspi:plan`. **This stage has a trivial exception to the precondition:**
@@ -55,7 +55,7 @@ If yes, first update `openspec/backlog.md`:
   (e.g. `/qrspi:implement <id>` is still the correct next call).
 
 The backlog edit lands in the same commit as the slice (backlog
-atomicity, see skill `qrspi-workflow`).
+atomicity, see skill `workflow`).
 
 Then run:
 ```
@@ -65,7 +65,7 @@ git push
 ```
 Stage the implementer-modified files explicitly — the implementer's
 final message lists them under "Files created/modified". As the canonical
-*commit step* in skill `qrspi-workflow` requires, never use `git add -A`;
+*commit step* in skill `workflow` requires, never use `git add -A`;
 it can sweep up secrets, scratch files, or unrelated working-tree changes.
 
 Re-running `/qrspi:implement <id>` resumes at the next un-ticked slice.

@@ -17,7 +17,7 @@ looks off so the human reviewer is not surprised.
 
 ## What to do
 
-1. Load skills `qrspi-workflow`, `openspec-workflow`, plus the project's
+1. Load skills `workflow`, `openspec-workflow`, plus the project's
    stack-cheatsheet skill if it defines one.
 2. Read the full `openspec/changes/<id>/` folder.
 3. Run the verification commands:

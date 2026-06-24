@@ -21,7 +21,7 @@ Preconditions (verify with the **Glob** tool — no shell preamble):
    for pre-PR slice work, then stop.
 3. `openspec/changes/<id>/followups.md` — if present, it holds the queue.
    If absent and the user named a specific fix, the implementer creates it
-   and adds the item before resolving it (per skill `qrspi-postpr-fix`).
+   and adds the item before resolving it (per skill `postpr-fix`).
 
 **Model.** Default the implementer to **sonnet** — post-PR follow-ups are
 typically small and contained. Use **opus** only when the fix touches
@@ -31,7 +31,7 @@ Spawn the `implementer` subagent via the **Agent tool** (`subagent_type:
 qrspi:implementer`) in FIX MODE. Tell it explicitly:
 
 > You are in POST-PR FIX MODE, not slice mode. Load skill
-> `qrspi-postpr-fix` and follow its checklist. Ignore the per-slice
+> `postpr-fix` and follow its checklist. Ignore the per-slice
 > `tasks.md` / checkpoint machinery. Resolve exactly one follow-up:
 > `<description or "next un-ticked item in followups.md">`.
 

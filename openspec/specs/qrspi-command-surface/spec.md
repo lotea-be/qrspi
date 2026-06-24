@@ -63,13 +63,13 @@ files. The 8 targets are: `~/.copilot/prompts/opsx-propose.prompt.md`,
 - **THEN** the sweep attempts to delete the 8 target paths but does not error
   on files that do not exist (silent no-op for absent targets).
 
-### Requirement: Choreography procedure canonical in qrspi-workflow skill
-The `qrspi-workflow` skill body MUST contain the canonical descriptions of the
+### Requirement: Choreography procedure canonical in workflow skill
+The `workflow` skill body MUST contain the canonical descriptions of the
 commit step, next-stage handoff, Glob-based precondition pattern, and approval
 gate. The skill MUST attribute all four procedures to the **main-loop
 orchestrator** as the executor. Each QRSPI stage command MUST keep only a thin
 inline stub naming its own artifact filename, commit message template, and
-next-stage command, and MUST reference the `qrspi-workflow` skill for the
+next-stage command, and MUST reference the `workflow` skill for the
 invariant procedure text. The next-stage handoff description in the skill MUST
 state that the orchestrator invokes the next-stage command so it runs as its own
 stage in the main loop — it MUST NOT use wording that implies a fresh subagent
@@ -79,16 +79,16 @@ fork (such as "fresh subtask" or "invoke the next stage as a subagent").
 - **WHEN** a contributor opens any stage command file (e.g., `research.md`)
 - **THEN** the command contains a thin stub with the stage-specific variable
   parts (artifact name, commit message, next command) and a reference to
-  `qrspi-workflow` for the commit-step and handoff procedure, rather than a
+  `workflow` for the commit-step and handoff procedure, rather than a
   full verbatim copy of the procedure.
 
 #### Scenario: choreography procedure updated in one place
-- **WHEN** the commit-step wording is updated in the `qrspi-workflow` skill
+- **WHEN** the commit-step wording is updated in the `workflow` skill
 - **THEN** all stage commands automatically reflect the updated procedure
   because they reference the skill rather than duplicating its text.
 
 #### Scenario: next-stage handoff wording attributes orchestrator as executor
-- **WHEN** the "Stage choreography" section of `qrspi-workflow` SKILL.md is read
+- **WHEN** the "Stage choreography" section of `workflow` SKILL.md is read
 - **THEN** the next-stage handoff procedure says the orchestrator invokes the
   next-stage command in the main loop, and contains no phrase that implies a
   fork or subagent spawn for the handoff (e.g., no "fresh subtask", no "invoke
@@ -148,8 +148,8 @@ kit SHALL state or imply that Plan (P) precedes the Slices stage (V).
 - **THEN** row 5 is "Slices" and row 6 is "Plan" (Slices before Plan), and
   no row is labeled "Worktree".
 
-#### Scenario: qrspi-workflow skill description reflects correct order
-- **WHEN** the `claude/skills/qrspi-workflow/SKILL.md` frontmatter
+#### Scenario: workflow skill description reflects correct order
+- **WHEN** the `claude/skills/workflow/SKILL.md` frontmatter
   `description:` field is read
 - **THEN** it lists the stages in the order: Questions, Research, Design,
   Structure, Slices, Plan, Implement, PR (Slices before Plan).
@@ -216,15 +216,15 @@ stage, except in the migration annotation on historical `worktree.md` artifacts.
   in README, and no undocumented command file or stale README entry is found.
 
 ### Requirement: QRSPI acronym documented as a lineage label
-The `qrspi-workflow` skill body and the `README.md` MUST each contain a note
+The `workflow` skill body and the `README.md` MUST each contain a note
 clarifying that "QRSPI" / "Crispy" is a lineage label inherited from the RPI
 ancestry, and that the Design, Slices, and PR stages sit outside the five
 acronym letters (Q-R-S-P-I). The Structure stage MUST be identified as the S
 in the acronym. No documentation SHALL introduce "seven stages" wording; the
 stage count remains eight.
 
-#### Scenario: acronym note appears in qrspi-workflow skill
-- **WHEN** the `claude/skills/qrspi-workflow/SKILL.md` body is read
+#### Scenario: acronym note appears in workflow skill
+- **WHEN** the `claude/skills/workflow/SKILL.md` body is read
 - **THEN** it contains a note that QRSPI / Crispy is a lineage label from RPI
   ancestry, and that Design, Slices, and PR sit outside the five acronym
   letters.
