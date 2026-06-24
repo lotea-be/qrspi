@@ -36,7 +36,7 @@ and works on every platform.
 
 Return only what the researcher's "Final message format" specifies.
 
-**Choreography (see skill `qrspi-workflow`, "Stage choreography").** Follow
+**Choreography (see skill `workflow`, "Stage choreography").** Follow
 the canonical *commit step* and *next-stage handoff* there, with these
 stage variables:
 - Artifact: `openspec/changes/<id>/research.md` (no backlog edit at this stage).

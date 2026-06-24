@@ -1,5 +1,5 @@
 ---
-name: qrspi-postpr-fix
+name: postpr-fix
 description: How to make a transient, qrspi-aware code fix AFTER the PR has been opened — the small follow-ups that surface from the reviewer's "Open issues" list or a retrospective code flag. Keeps code, tests, and the change's DELTA spec in sync, ticks the follow-up, and commits atomically on the PR branch. Load this when running `/qrspi:followup <id>` or whenever the human asks for a post-PR cleanup on an in-flight change.
 metadata:
   audience: implementer, orchestrator
@@ -141,9 +141,9 @@ Remaining follow-ups in followups.md: <N>
 
 ## How this skill relates to others
 
-- `qrspi-workflow` — the eight stages; this is the post-PR fix loop that
+- `workflow` — the eight stages; this is the post-PR fix loop that
   hangs off the PR stage.
-- `qrspi-retrospective` — routes *code* flags into `followups.md` (and
+- `retrospective` — routes *code* flags into `followups.md` (and
   *prompt* flags into the governing files).
 - the project's stack-cheatsheet skill — the coding rules a fix must still honor.
 - `context-hygiene` — keep the fix conversation lean; one follow-up at a time.

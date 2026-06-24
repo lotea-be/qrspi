@@ -27,7 +27,7 @@ Otherwise:
    git push -u origin <branch>
    ```
 3. Create `openspec/changes/<id>/` if it does not already exist.
-4. Consult the instructions for `qrspi-workflow` and `openspec-workflow`.
+4. Consult the instructions for `workflow` and `openspec-workflow`.
 5. Follow the instructions in your agent prompt to produce
    `openspec/changes/<id>/questions.md`.
 6. **Interactive step (mandatory):** After writing `questions.md`, read
@@ -63,7 +63,7 @@ the agent is expected to read before writing.
 
 Return the agent's "Final message format" followed by: `Next stage: /qrspi-research <id>`
 
-**Choreography (see skill `qrspi-workflow`, "Stage choreography").** Follow
+**Choreography (see skill `workflow`, "Stage choreography").** Follow
 the canonical *commit step* and *next-stage handoff* there, with these
 stage variables:
 - Artifact: `openspec/changes/<id>/questions.md` (plus `openspec/backlog.md`).

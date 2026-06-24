@@ -8,7 +8,7 @@ You are running QRSPI stage **P (Plan)** for the current project.
 
 Change id: $ARGUMENTS
 
-Precondition (canonical *precondition check* in skill `qrspi-workflow`,
+Precondition (canonical *precondition check* in skill `workflow`,
 "Stage choreography"): the input artifact is
 `openspec/changes/<id>/slices.md`; on failure point the user at
 `/qrspi:slices`.
@@ -22,9 +22,9 @@ Return only what the planner's "Final message format" specifies.
 **Before committing, update `openspec/backlog.md`:** change the change's
 row `Next QRSPI command:` line to `/qrspi:implement <id>`. This edit lands
 in the same commit as the artifact (backlog atomicity, see skill
-`qrspi-workflow`).
+`workflow`).
 
-**Choreography (see skill `qrspi-workflow`, "Stage choreography").** Follow
+**Choreography (see skill `workflow`, "Stage choreography").** Follow
 the canonical *commit step* and *next-stage handoff* there, with these
 stage variables:
 - Artifact: `openspec/changes/<id>/tasks.md` + `openspec/backlog.md`.

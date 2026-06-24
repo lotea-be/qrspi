@@ -34,7 +34,7 @@ final message. Do NOT write `slices.md` during S, and do NOT touch
 
 ## What to do — Structure (S)
 
-1. Load skills `qrspi-workflow`, `openspec-workflow`, `vertical-slice`, plus
+1. Load skills `workflow`, `openspec-workflow`, `vertical-slice`, plus
    the project's stack-cheatsheet skill if it defines one.
 2. Read `openspec/changes/<id>/questions.md`, `research.md`, and
    `design.md` in order. `design.md` is the source of truth for

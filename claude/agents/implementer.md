@@ -24,7 +24,7 @@ inline plan into the conversation as the first thing you do.
 
 ## What to do
 
-1. Load skills `qrspi-workflow`, `vertical-slice`, `context-hygiene`, plus the
+1. Load skills `workflow`, `vertical-slice`, `context-hygiene`, plus the
    project's stack-cheatsheet skill if it defines one.
 2. Read `openspec/changes/<id>/tasks.md`.
 3. **Check the current slice's `**Model:**` annotation.** Locate the next
@@ -109,7 +109,7 @@ above does not apply. There is no slice to pick up, no `**Model:**`
 annotation to honor, no per-slice checkpoint, and the `tasks.md`
 precondition is waived (the PR is already open). Instead:
 
-- Load skill `qrspi-postpr-fix` and follow its checklist exactly.
+- Load skill `postpr-fix` and follow its checklist exactly.
 - Resolve **exactly one** follow-up from
   `openspec/changes/<id>/followups.md` (or the one named in the task).
 - You **may** edit the change's DELTA spec under

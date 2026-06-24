@@ -23,7 +23,7 @@ visible, not to be right.
 
 ## What to do
 
-1. Load skills `qrspi-workflow`, `openspec-workflow`, `context-hygiene`, plus
+1. Load skills `workflow`, `openspec-workflow`, `context-hygiene`, plus
    the project's stack-cheatsheet skill if it defines one.
 2. Read `openspec/changes/<id>/questions.md` and `research.md` end to end.
 3. If a question in `questions.md` is genuinely unanswerable from research

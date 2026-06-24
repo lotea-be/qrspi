@@ -14,7 +14,16 @@ kit version.
 
 ## [Unreleased]
 
-_No unreleased changes at this time._
+### Changed
+
+- **Dropped the redundant `qrspi-` prefix from three skill names.** `qrspi-workflow`,
+  `qrspi-postpr-fix`, and `qrspi-retrospective` are now `workflow`, `postpr-fix`,
+  and `retrospective`. The plugin already namespaces skills, so these installed as
+  the stuttering `qrspi:qrspi-workflow` etc.; they now read `qrspi:workflow` and match
+  their unprefixed siblings (`context-hygiene`, `vertical-slice`). Skill directories,
+  frontmatter, all internal references, and the generated `copilot/` instructions were
+  updated. The `.claude/` dev-tooling commands (`qrspi-sync-copilot`, `qrspi-readme-audit`)
+  keep their prefix — they are not plugin-namespaced, so the prefix is their only scope.
 
 ---
 

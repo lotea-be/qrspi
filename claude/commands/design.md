@@ -89,12 +89,12 @@ Read openspec/changes/<id>/design.md, edit it freely, and only then run:
    future change*, offer it to the human one at a time (AskUserQuestion:
    *Add as idea / Skip*) and add each accepted one as an `idea` row with a
    one-line *Why* in `openspec/backlog.md`. Follow the "Capturing deferred
-   work" rules in skill `qrspi-workflow` (offer-never-auto-append, dedup
+   work" rules in skill `workflow` (offer-never-auto-append, dedup
    against existing rows, minimal row); do not promote in-change
    follow-ups. Skip silently if there are no Non-Goals worth promoting.
 
 5. **Commit step (mandatory):** After the human confirms, follow the
-   canonical *commit step* in skill `qrspi-workflow` ("Stage choreography"),
+   canonical *commit step* in skill `workflow` ("Stage choreography"),
    with these stage variables:
    - Artifact: `openspec/changes/<id>/design.md`.
    - Commit message: `docs(<id>): add design.md (QRSPI stage D)`
