@@ -1,5 +1,5 @@
 ---
-name: qrspi-workflow
+name: workflow
 description: The eight-stage QRSPI workflow (Questions, Research, Design, Structure, Slices, Plan, Implement, PR) used on top of OpenSpec. Load this when you need to know what stage you are in, what the next stage is, or why a stage exists.
 metadata:
   source: https://alexlavaee.me/blog/from-rpi-to-qrspi/
@@ -122,7 +122,7 @@ tracked as checkboxes in `openspec/changes/<id>/followups.md` and resolved
 with `/qrspi:followup <id>` — a loop that hangs off the PR stage, not a ninth
 stage. Each fix keeps code, tests, and the change's **delta** spec in sync,
 ticks the follow-up, and commits `fix(<id>): ...` on the PR branch. See
-skill `qrspi-postpr-fix`. The change is ready to archive only when
+skill `postpr-fix`. The change is ready to archive only when
 `followups.md` has no un-ticked boxes.
 
 ## Rules of the road
@@ -157,7 +157,7 @@ exact commit-message string, the precondition artifact + the prior stage to
 point at, the agent it invokes, and the next-stage command) and references
 this section for the procedure itself. When you read "follow the canonical
 *commit step* / *next-stage handoff* / *precondition check* in
-`qrspi-workflow`", this is what is meant.
+`workflow`", this is what is meant.
 
 ### Precondition check (Glob-based)
 

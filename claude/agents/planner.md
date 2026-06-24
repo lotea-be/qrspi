@@ -22,7 +22,7 @@ checkbox list a human (or implementer subagent) can tick off in order.
 
 ## What to do
 
-1. Load skills `qrspi-workflow`, `openspec-workflow`, `vertical-slice`.
+1. Load skills `workflow`, `openspec-workflow`, `vertical-slice`.
 2. Read `design.md` and `slices.md`. `design.md` is needed for the
    numbered decisions D1, D2, ... that tasks should cite for
    traceability (see "Design-decision back-references" below).

@@ -573,8 +573,8 @@ async function checkReadmeCoverage(errors) {
 //
 // "reached" is true when the body either:
 //   (a) DIRECTLY names the tool (current behaviour), or
-//   (b) TRANSITIVELY reaches it via the qrspi-workflow "Stage choreography"
-//       section -- i.e. the body mentions the `qrspi-workflow` skill AND at
+//   (b) TRANSITIVELY reaches it via the workflow "Stage choreography"
+//       section -- i.e. the body mentions the `workflow` skill AND at
 //       least one of the canonical choreography procedure names that invoke the
 //       gate tool ('Stage choreography', 'commit step', or 'next-stage handoff').
 //       These phrases are unique to the choreography section and give a
@@ -587,14 +587,16 @@ function reachesMainLoopOnlyTool(body, tool) {
     return { reached: true, how: `references '${tool}' inline` };
   }
 
-  // (b) transitive reference via qrspi-workflow choreography
-  const mentionsWorkflowSkill = body.includes('qrspi-workflow');
+  // (b) transitive reference via workflow choreography. Match the
+  // backtick-wrapped `workflow` skill reference so the bare substring does not
+  // collide with `openspec-workflow` or a plain-prose "workflow".
+  const mentionsWorkflowSkill = body.includes('`workflow`');
   const CHOREOGRAPHY_MARKERS = ['Stage choreography', 'commit step', 'next-stage handoff'];
   const mentionsChoreography = CHOREOGRAPHY_MARKERS.some((marker) => body.includes(marker));
   if (mentionsWorkflowSkill && mentionsChoreography) {
     return {
       reached: true,
-      how: `reaches ${tool} transitively via the qrspi-workflow choreography (commit step / next-stage handoff)`,
+      how: `reaches ${tool} transitively via the workflow choreography (commit step / next-stage handoff)`,
     };
   }
 

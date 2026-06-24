@@ -37,7 +37,7 @@ to widen them; do not go hunting in the ticket.
 
 ## What to do
 
-1. Load skills `qrspi-workflow`, `openspec-workflow`, plus the project's
+1. Load skills `workflow`, `openspec-workflow`, plus the project's
    stack-cheatsheet skill if it defines one.
 2. For each area, locate the relevant files using Glob/Grep.
 3. For each file, record:

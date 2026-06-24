@@ -108,7 +108,7 @@ each `claude/commands/*.md`, flags a violation if the command's frontmatter
 declares a non-builtin `agent:` AND the command's body **reaches** a tool in
 `MAIN_LOOP_ONLY`. A body reaches such a tool either **directly** (the tool name
 appears in the body text) or **transitively** (the body references the
-`qrspi-workflow` "Stage choreography" procedures — commit step / next-stage
+`workflow` "Stage choreography" procedures — commit step / next-stage
 handoff / approval gate — which invoke a main-loop-only tool on the command's
 behalf). Builtins (`build`, `agent`) MUST be excluded from the check. Check 5
 MUST be registered in `scripts/lint.mjs` after Check 4 using the same
@@ -124,7 +124,7 @@ dependency-free ESM pattern (async function pushing to `errors[]`,
 #### Scenario: stage command traps gates transitively via the skill
 - **WHEN** a `claude/commands/*.md` file declares `agent: researcher` (a
   non-builtin) AND its body does NOT name `AskUserQuestion` directly but
-  references the `qrspi-workflow` "Stage choreography" commit step / next-stage
+  references the `workflow` "Stage choreography" commit step / next-stage
   handoff (which invoke `AskUserQuestion`), and the lint job runs
 - **THEN** Check 5 reports a violation, because the body transitively reaches a
   main-loop-only tool that would be trapped in the subagent.
