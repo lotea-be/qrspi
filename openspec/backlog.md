@@ -54,3 +54,14 @@ mind.)
 architect writes a markdown `**Model:**` annotation; the implementer self-halts and
 asks to be re-invoked when on the wrong model) is fragile and breaks on Copilot.
 Consider a simpler lever or a single implement-stage model.
+
+### tutorial-mode-narrated-tour — `idea`
+
+**Why:** Some users report not "getting" the eight-stage workflow from the docs
+alone. A read-only, zero-footprint narrated tour (e.g. `/qrspi:tour`) that walks
+through the already-shipped `example-greeting` reference change stage by stage —
+opening each real artifact and explaining what it is and why the stage exists —
+would make the flow experiential without polluting the user's repo or recreating a
+second example. Decided against a hands-on hello-world build: trivial changes are
+exactly the ones the workflow tells you to skip, so they misrepresent why the
+alignment stages matter. Reuses the `reference-example` asset already maintained.
