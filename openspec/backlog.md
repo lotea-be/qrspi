@@ -58,10 +58,25 @@ Consider a simpler lever or a single implement-stage model.
 ### tutorial-mode-narrated-tour — `idea`
 
 **Why:** Some users report not "getting" the eight-stage workflow from the docs
-alone. A read-only, zero-footprint narrated tour (e.g. `/qrspi:tour`) that walks
-through the already-shipped `example-greeting` reference change stage by stage —
-opening each real artifact and explaining what it is and why the stage exists —
-would make the flow experiential without polluting the user's repo or recreating a
-second example. Decided against a hands-on hello-world build: trivial changes are
-exactly the ones the workflow tells you to skip, so they misrepresent why the
-alignment stages matter. Reuses the `reference-example` asset already maintained.
+alone. **Preferred first step** (low cost — the artifacts already exist): a
+read-only, zero-footprint narrated tour `/qrspi:tour` that walks through the
+already-shipped `example-greeting` reference change stage by stage, opening each
+real artifact and explaining it in situ ("here's what Research produced — notice
+it's ticket-blind, here's why"). Teaches both the *mechanics* (which command, what
+artifact, where the gates are) and the *judgment* (why alignment de-risks) without
+polluting the user's repo or recreating a second example. Decided against a
+hands-on hello-world build: trivial changes are exactly the ones the workflow tells
+you to skip, so they misrepresent why the alignment stages matter. Reuses the
+`reference-example` asset already maintained. Pairs with
+`tutorial-mode-coaching-overlay` as the deeper, hands-on follow-up.
+
+### tutorial-mode-coaching-overlay — `idea`
+
+**Why:** Follow-up to `tutorial-mode-narrated-tour` once the tour format proves
+out (higher build cost). A `/qrspi:learn` mode that runs the *real* stages on the
+user's *own* repo, but with extra inline coaching at each stage ("what's happening
+here / what you should check before continuing") and explicit pauses at the human
+gates (design approval, commit, next-stage handoff). The payoff is learning on
+productive work — the training wheels come off naturally as the first real change
+ships. More invasive to build than the tour because it wraps the live command path
+rather than narrating a static artifact set.
