@@ -23,7 +23,7 @@ visible, not to be right.
 
 ## What to do
 
-1. Load skills `qrspi-workflow`, `openspec-workflow`, `context-hygiene`, plus
+1. Load skills `workflow`, `openspec-workflow`, `context-hygiene`, plus
    the project's stack-cheatsheet skill if it defines one.
 2. Read `openspec/changes/<id>/questions.md` and `research.md` end to end.
 3. If a question in `questions.md` is genuinely unanswerable from research
@@ -77,7 +77,7 @@ visible, not to be right.
    only the inline form silently under-covers the delegated form. (Example:
    verify-stage-gate-execution D6 — the body-aware Check 5 predicate first matched
    only commands naming `AskUserQuestion` inline, missing `research`/`plan`/`slices`,
-   which reach the gate transitively via the `qrspi-workflow` choreography; caught
+   which reach the gate transitively via the `workflow` choreography; caught
    late at stage I, 6 of 9.)
 
 ## Design content (~200 lines)

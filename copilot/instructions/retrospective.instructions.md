@@ -50,7 +50,7 @@ For stage `Q`:
 |------|---------------------------|----------------------------|
 | Command | `claude/commands/questions.md` | `copilot/prompts/qrspi-questions.prompt.md` |
 | Agent | `claude/agents/questioner.md` | `copilot/agents/copilot-questioner.agent.md` |
-| Skill (workflow) | `claude/skills/qrspi-workflow/SKILL.md` | `copilot/instructions/qrspi-workflow.instructions.md` |
+| Skill (workflow) | `claude/skills/workflow/SKILL.md` | `copilot/instructions/workflow.instructions.md` |
 | Skill (openspec) | `claude/skills/openspec-workflow/SKILL.md` | `copilot/instructions/openspec-workflow.instructions.md` |
 | Template (kit) | `openspec-templates/questions.template.md` | — |
 | Artifact written this stage | `openspec/changes/<id>/questions.md` | — |
@@ -148,7 +148,7 @@ places:
   these are **not** prompt edits. If the change's PR is already open (a
   `pr.md` exists), append each as a checkbox to
   `openspec/changes/<id>/followups.md` (format and resolution in skill
-  `qrspi-postpr-fix`), tagged `(source: retro <stage>)`. They are resolved
+  `postpr-fix`), tagged `(source: retro <stage>)`. They are resolved
   later with `/qrspi-followup <id>`, not in the retrospective. If the PR is not
   open yet, fold the fix into the still-running stage instead.
 
@@ -198,6 +198,6 @@ record of *why* a prompt changed.
 
 ## How this skill relates to others
 
-- `qrspi-workflow` — the eight-stage flow itself.
+- `workflow` — the eight-stage flow itself.
 - `openspec-workflow` — how QRSPI artifacts persist on disk.
 - `context-hygiene` — keeps the retrospective conversation lean.

@@ -16,12 +16,12 @@ id is unknown and stop.
 
 Otherwise:
 
-1. Load skills `qrspi-retrospective`, `qrspi-workflow`, and
+1. Load skills `retrospective`, `workflow`, and
    `openspec-workflow`.
 2. Read the artifact the stage just wrote (e.g. `questions.md` for
    stage Q, `research.md` for stage R, etc.) plus the
    command/agent/skill files that govern that stage. The table in the
-   `qrspi-retrospective` skill lists which files apply per stage.
+   `retrospective` skill lists which files apply per stage.
 3. **Identify friction in this session.** Use the categories listed in
    the skill (Knowledge gaps, Stale facts, Missing conventions,
    Workflow gaps, Template gaps, Constraints that surprised the human).

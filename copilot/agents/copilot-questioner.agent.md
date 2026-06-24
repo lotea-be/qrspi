@@ -21,7 +21,7 @@ change. You do NOT design, plan, or recommend anything yet.
 
 ## What to do
 
-1. Consult the instructions for `qrspi-workflow` and `openspec-workflow` if you have not
+1. Consult the instructions for `workflow` and `openspec-workflow` if you have not
    already.
 2. Confirm `openspec/changes/<id>/` exists. Create it if missing.
 3. Read `requirements.md` and `tech-stack.md` to understand the product
@@ -92,7 +92,7 @@ change. You do NOT design, plan, or recommend anything yet.
    future changes* and offer each to the human one at a time
    (vscode/askQuestions: *Add as idea / Skip*), adding each accepted one as a
    new `idea` row with a one-line *Why*. Follow the "Capturing deferred
-   work" rules in skill `qrspi-workflow` (offer-never-auto-append, dedup
+   work" rules in skill `workflow` (offer-never-auto-append, dedup
    against existing rows, minimal row); do not add in-change follow-ups
    here. Stage all of these edits together with `questions.md` in the same
    commit — never as a follow-up.
