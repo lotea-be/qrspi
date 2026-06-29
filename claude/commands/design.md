@@ -6,6 +6,9 @@ You are running QRSPI stage **D (Design)** for the current project.
 
 Arguments: $ARGUMENTS
 
+Read or establish the run-mode by following the **Run-mode** procedure in
+skill `workflow` before doing any other work.
+
 This is the highest-leverage stage. The output of this command must be
 reviewed (and possibly rewritten) by a human before any code is planned.
 
