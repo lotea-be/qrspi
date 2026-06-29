@@ -190,20 +190,11 @@ correct behaviour, not a bug (no disk state is ever written).
 **Mode-aware clause.** The four canonical procedures below each carry a
 run-mode branch. The commit step and next-stage handoff auto-branches are
 defined in this section (see "Commit step" and "Next-stage handoff" below).
-The following branches are not yet implemented and fall back to Manual
-behaviour until Slice 3 fills them in:
-
-- **Precondition / S approval gate** (Full/Semi auto-clear after an in-chain
-  D review) -- forward reference, see Slice 3.
-- **I per-slice checkpoints** (auto-advance through all slices) -- forward
-  reference, see Slice 3.
-- **PR-create** (auto-execute `gh pr create`) -- forward reference, see
-  Slice 3.
-
-In every procedure not yet expanded below, if mode is Manual behave exactly
-as today (ask via AskUserQuestion at every gate, as described in each
-procedure); if mode is Full or Semi auto fall back to Manual for the above
-three forward-referenced gates until Slice 3 is implemented.
+The S approval gate, I per-slice checkpoints, and PR-create auto-branches
+are defined in their respective sections ("Precondition check", the I
+per-slice note in "Stage-specific gate notes", and "PR-create auto-advance"
+below). In every procedure, if mode is Manual behave exactly as today (ask
+via AskUserQuestion at every gate, as described in each procedure).
 
 **Never-suppressed gates (all modes).** The following gates are NEVER
 suppressed in Full auto, Semi-auto, or Manual:
@@ -267,8 +258,21 @@ every required artifact is present.
 
 A stage that has an *approval* gate in addition to a file gate (e.g.
 Structure requires a human-approved `design.md`) runs that gate here too,
-via AskUserQuestion, before invoking the subagent — the file existing is not
-the same as the human having approved it.
+before invoking the subagent — the file existing is not the same as the
+human having approved it. The branch taken for Structure's approval gate
+depends on the held run-mode:
+
+**S approval gate (run-mode-aware):**
+
+- **If a run-mode is held and the human approved `design.md` at the D pause
+  earlier in this same chain** (i.e. this is an auto-chained re-entry and
+  the D review happened in this session), treat the approval gate as
+  satisfied — do not ask. The in-chain D approval is the evidence that the
+  human has reviewed and approved the design.
+- **If no in-chain D approval exists** (standalone `/qrspi:structure` call,
+  a fresh session where the mode was just re-asked, or any invocation where
+  D was not run in this session), ask the approval gate as usual via
+  AskUserQuestion before invoking the subagent.
 
 ### Commit step (mandatory)
 
@@ -370,3 +374,23 @@ every stage that touches the backlog row. A stage whose subagent already
 performed the backlog edit (e.g. the questioner's status flip) verifies the
 row rather than re-editing it -- re-editing a file the subagent just wrote
 fails with a "file modified since read" error.
+
+### Stage-specific gate notes
+
+These notes layer on top of the four canonical procedures above. Each note
+applies only to the stage named.
+
+**I per-slice auto-advance (Implement stage, Full/Semi auto).** The Implement
+stage command body carries the per-slice checkpoint and per-slice commit step.
+In Full or Semi auto mode both of those per-slice gates are auto-advanced
+(no AskUserQuestion is issued between slices). The per-slice model annotation
+(`**Model:** sonnet|opus`) is read for every slice and honored -- auto mode
+does NOT bypass per-slice model selection.
+
+**PR-create auto-advance (PR stage, Full/Semi auto).** After the reviewer
+subagent returns the PR description, the "Create the PR now, or show the
+description first?" question is suppressed in Full or Semi auto mode: the
+orchestrator runs `gh pr create` directly without asking. The human code
+review of the PR itself is NEVER automated -- only the create prompt is
+auto-advanced. In Manual mode ask as usual via AskUserQuestion before
+creating the PR.
