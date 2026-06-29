@@ -6,6 +6,9 @@ You are running QRSPI stage **Q (Questions)** for the current project.
 
 Change id and short description: $ARGUMENTS
 
+Read or establish the run-mode by following the **Run-mode** procedure in
+skill `workflow` before doing any other work.
+
 If `openspec/` does not exist, tell the user to run `/qrspi:init`
 first and stop.
 

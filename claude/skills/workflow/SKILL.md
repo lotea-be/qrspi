@@ -159,6 +159,43 @@ this section for the procedure itself. When you read "follow the canonical
 *commit step* / *next-stage handoff* / *precondition check* in
 `workflow`", this is what is meant.
 
+### Run-mode (Full / Semi / Manual)
+
+**Establishing the run-mode.** At the top of a fresh stage invocation,
+before the precondition check, the main-loop orchestrator reads or
+establishes the run-mode for this flow:
+
+- **If you already hold a run-mode established earlier in this orchestrator
+  context** (i.e. this stage was auto-chained from a prior stage in the same
+  session), skip the prompt and reuse it. No disk state is read or written;
+  the mode lives entirely in the orchestrator’s conversational context.
+- **If you hold no run-mode** (fresh invocation — new session, standalone
+  call, or any session without a prior mode set), ask using the
+  **AskUserQuestion** tool:
+  - question: "Run mode for this QRSPI flow?"
+  - choices:
+    - "Full auto — chain Q→PR, pause only at Q, D, backlog offers, hard-stops"
+    - "Semi-auto — auto-advance within-stage gates, pause at each stage boundary"
+    - "Manual — pause at every gate (today’s behaviour)"
+  - Note in the question text: “Press Esc / stop at any time to interrupt a
+    running auto chain.” (There is no `/qrspi:stop` command — Esc/stop is
+    the only abort path.)
+
+Record the chosen mode in context for the remainder of this session. The
+mode is re-asked only when a stage runs in a context with no held mode (a
+brand-new session, after a `/clear`, or when the human resumes a flow
+manually). A mid-chain new session re-asks and the human re-picks — this is
+correct behaviour, not a bug (no disk state is ever written).
+
+**Mode-aware clause (stub — Slices 2 and 3 fill in the Full/Semi
+branches).** The four canonical procedures below each carry a run-mode
+branch. For now, in every procedure:
+
+- **If mode is Manual** — behave exactly as today (ask via AskUserQuestion
+  at every gate, as described in each procedure below).
+- **If mode is Full or Semi auto** — the auto-advance branches are defined
+  in subsequent slices; treat as Manual until those slices are implemented.
+
 ### Precondition check (Glob-based)
 
 Before invoking a stage's subagent, confirm the stage's input artifact(s)

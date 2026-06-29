@@ -6,6 +6,9 @@ You are running QRSPI stage **I (Implement)** for the current project.
 
 Change id: $ARGUMENTS
 
+Read or establish the run-mode by following the **Run-mode** procedure in
+skill `workflow` before doing any other work.
+
 Precondition (canonical *precondition check* in skill `workflow`,
 "Stage choreography"): the input artifact is
 `openspec/changes/<id>/tasks.md`; on failure point the user at

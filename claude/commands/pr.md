@@ -6,6 +6,9 @@ You are running QRSPI stage **PR (Pull Request)** for the current project.
 
 Change id: $ARGUMENTS
 
+Read or establish the run-mode by following the **Run-mode** procedure in
+skill `workflow` before doing any other work.
+
 Precondition: all boxes in `openspec/changes/<id>/tasks.md` are ticked,
 and the working tree is clean (no uncommitted changes outside of the
 change folder updates). **This stage's precondition has two parts** (the
