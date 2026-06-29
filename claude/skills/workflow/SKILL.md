@@ -187,14 +187,73 @@ brand-new session, after a `/clear`, or when the human resumes a flow
 manually). A mid-chain new session re-asks and the human re-picks — this is
 correct behaviour, not a bug (no disk state is ever written).
 
-**Mode-aware clause (stub — Slices 2 and 3 fill in the Full/Semi
-branches).** The four canonical procedures below each carry a run-mode
-branch. For now, in every procedure:
+**Mode-aware clause.** The four canonical procedures below each carry a
+run-mode branch. The commit step and next-stage handoff auto-branches are
+defined in this section (see "Commit step" and "Next-stage handoff" below).
+The following branches are not yet implemented and fall back to Manual
+behaviour until Slice 3 fills them in:
 
-- **If mode is Manual** — behave exactly as today (ask via AskUserQuestion
-  at every gate, as described in each procedure below).
-- **If mode is Full or Semi auto** — the auto-advance branches are defined
-  in subsequent slices; treat as Manual until those slices are implemented.
+- **Precondition / S approval gate** (Full/Semi auto-clear after an in-chain
+  D review) -- forward reference, see Slice 3.
+- **I per-slice checkpoints** (auto-advance through all slices) -- forward
+  reference, see Slice 3.
+- **PR-create** (auto-execute `gh pr create`) -- forward reference, see
+  Slice 3.
+
+In every procedure not yet expanded below, if mode is Manual behave exactly
+as today (ask via AskUserQuestion at every gate, as described in each
+procedure); if mode is Full or Semi auto fall back to Manual for the above
+three forward-referenced gates until Slice 3 is implemented.
+
+**Never-suppressed gates (all modes).** The following gates are NEVER
+suppressed in Full auto, Semi-auto, or Manual:
+
+- **The D review** (open-questions pass + decision-by-decision approval +
+  final "Ready to proceed?" confirmation) is a sanctioned pause. It is NOT
+  suppressed in any mode. Full auto pauses here and the human completes the
+  review before the chain continues.
+- **Backlog-capture offers** in Q, D, and S are NEVER suppressed in any
+  mode. The "offer, never auto-append" rule (AskUserQuestion per item, one at
+  a time) holds regardless of mode. These remain interactive AskUserQuestion
+  calls. "Full auto pauses only at Q and D" is shorthand; the backlog-capture
+  offers in Q, D, and S are the deliberate additional exception.
+
+### Hard-stop procedure
+
+A hard-stop halts the auto chain immediately, regardless of mode. The
+orchestrator MUST surface the condition via a human-readable message and ask
+the human how to proceed using the **AskUserQuestion** tool. It MUST NOT
+auto-advance after a hard-stop, and it MUST NOT silently downgrade the rest
+of the run to Manual (the human decides at the pause whether to resume or
+change mode).
+
+**The four hard-stop conditions (exact enumeration):**
+
+1. **Failing precondition check.** A required input artifact is absent -- the
+   stage has nothing to advance to. The stage refuses and surfaces which
+   artifact is missing and which prior stage to run first.
+2. **`git commit` or `git push` failure.** Any non-zero git exit code during
+   the auto-commit step -- a dirty or conflicted working tree, a rejected
+   remote push, or any other git error. Surface the git error output verbatim.
+3. **Subagent returning error or signalling it is blocked.** The stage
+   subagent's final message indicates failure, an unresolved blocker, or an
+   explicit "blocked" signal. Note: `openspec validate` failure, lint/typecheck
+   failure, test failure, and `gh pr create` failure are NOT standalone
+   hard-stops -- they surface via this condition (the subagent's
+   error/block-signal contract). The implementer in particular MUST return
+   error/blocked and MUST NOT commit when lint, typecheck, or tests fail at a
+   slice boundary (OQ2 binding resolution, D6).
+4. **Execution-stage output materially diverging from the approved
+   `design.md` or spec.** Applies to execution stages S->V->P->I. "Materially
+   diverges" means the subagent's output changes an observable contract, drops
+   a required behavior, or introduces a design element not present in the
+   approved `design.md`. This is a semantic judgement -- the subagent must
+   self-assess and signal it; the orchestrator acts on that signal.
+
+**What to do on a hard-stop:** stop the chain, surface the condition clearly,
+and ask the human via AskUserQuestion. Present the error detail and offer a
+path forward (e.g. "Fix the conflict and resume" or "Abort the chain"). Do
+not commit, do not auto-advance, and do not downgrade the mode.
 
 ### Precondition check (Glob-based)
 
@@ -214,7 +273,33 @@ the same as the human having approved it.
 ### Commit step (mandatory)
 
 After the stage's artifact is written (and any backlog edit is staged, see
-below), ask the human before committing:
+below), commit the result. The branch taken depends on the held run-mode:
+
+**If mode is Full or Semi auto:**
+
+Stage the explicit artifact paths and push without asking the human:
+
+```
+git add <explicit artifact path(s)> [openspec/backlog.md]
+git commit -m "<the stage's exact commit-message string>"
+git push
+```
+
+Rules that apply in Full and Semi auto:
+
+- **Never use `git add -A`.** Stage only the explicit paths the stage
+  produced (the subagent's final message lists the files it
+  created/modified). This is identical to the Manual step.
+- **No `[auto]` suffix or any other decoration** on the commit message. The
+  message is identical to what Manual produces (PQ17).
+- **On any non-zero git exit code** -- dirty or conflicted working tree,
+  rejected push, or any other git error -- this is a **hard-stop** (see
+  "Hard-stop procedure" above): surface the error output verbatim and ask
+  the human how to proceed. Do NOT auto-advance to the next stage.
+
+**If mode is Manual:**
+
+Ask the human before committing:
 
 - Use the **AskUserQuestion** tool:
   - question: "Commit <the stage's artifact(s) and any backlog edit> to the feature branch?"
@@ -233,7 +318,34 @@ below), ask the human before committing:
 
 ### Next-stage handoff (mandatory)
 
-After the commit step, ask the human whether to keep going:
+After the commit step, hand off to the next stage. The branch taken depends
+on the held run-mode:
+
+**If mode is Full auto:**
+
+Do not ask. Re-enter `/qrspi:<next> <id>` immediately as a slash command on
+the main loop. The held run-mode carries automatically because the next stage
+runs in the same orchestrator context and already holds the mode (D2 /
+inheritance rule above). Re-entry is always the slash command -- never spawn
+the next stage as a subagent (that would bypass its gates and break the
+ticket-blind Research invariant, D7).
+
+**If mode is Semi-auto:**
+
+Ask one AskUserQuestion at this stage boundary -- this is the ONLY behavioural
+difference between Full auto and Semi-auto:
+
+- Use the **AskUserQuestion** tool:
+  - question: "Stage <X> complete. Continue to <Y>, or stop here?"
+  - choices: ["Continue to /qrspi:<next> <id>", "Stop here -- I'll resume later"]
+- If they choose **Continue**, re-enter `/qrspi:<next> <id>` as a slash
+  command on the main loop (same rules as Full auto above).
+- If they choose **Stop**, print `Next stage: /qrspi:<next> <id>` and end
+  your turn.
+
+**If mode is Manual:**
+
+Ask the human whether to keep going:
 
 - Use the **AskUserQuestion** tool:
   - question: "Stage <X> is complete. Continue to stage <Y> now, or stop here?"
