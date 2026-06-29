@@ -3,13 +3,26 @@
 > Post-PR fix queue. Resolve with `/qrspi:followup add-auto-mode`. Archived with the
 > change; every box should be ticked before archival.
 
-- [ ] **Live-runtime dogfood gap.** Slice checkpoints 1.4, 2.5, 2.6, and 3.5 were
-  static-verified only (the installed plugin runs the tagged release, not this
-  branch's `claude/` tree). Cut a prerelease tag (e.g. `v0.5.0-rc.1`) or establish
-  a symlink/dev-install path so the feature-branch command bodies can be exercised
-  in a real Claude Code session: Full auto (Q→PR), Semi-auto (boundary pauses),
-  and a forced hard-stop (git-push failure; a failing-lint slice not committed).
-  (source: PR review)
+- [ ] **Live-runtime dogfood (human).** Slice checkpoints 1.4, 2.5, 2.6, and 3.5
+  were static-verified only. The dev-install path already exists and is documented
+  (README → "Developing QRSPI further": `claude --plugin-dir .` loads this repo's
+  `claude/` tree, shadowing the installed release for that session; `/reload-plugins`
+  picks up edits) — so no prerelease tag is required. What remains is actually
+  running the walk. **Runbook** (do it on a throwaway change id in an isolated
+  scratch branch/clone — Full auto auto-commits *and pushes*, so don't aim it at a
+  real branch):
+  1. `claude --plugin-dir /workspaces/git/qrspi`, then `/qrspi:questions <throwaway-id> <desc>`.
+  2. **Full auto:** the ternary "Run mode?" prompt appears first → pick Full auto →
+     confirm Q runs, then NO commit/handoff prompts, the chain auto-advances into R,
+     and it PAUSES at the D review (and at any backlog offer).
+  3. **Hard-stop:** break the remote (`git remote set-url origin https://invalid.example/x`),
+     run Full auto again → the first auto-commit's push fails → chain HALTS with the
+     git error surfaced, does not continue. Restore the remote afterwards.
+  4. **Semi-auto:** pick Semi-auto → confirm auto-commit fires but a "continue to
+     next stage?" prompt appears at each stage boundary.
+  5. **Red-build block (optional):** a slice whose lint fails → implementer returns
+     blocked → chain stops, slice not committed.
+  Then tick this box (or file bugs for any gate that misbehaves). (source: PR review)
 - [ ] **`implement.md` ↔ `backlog.md` status-line convention drift.** `implement.md`
   references `Status:` and `Next QRSPI command:` body lines, but
   questioner-generated backlog rows use a `### <id> — <status-in-backticks>`
