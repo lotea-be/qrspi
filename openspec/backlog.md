@@ -14,6 +14,15 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## Ideas
 
+### lint-auto-mode-gate-coverage — `idea`
+
+**Why:** `add-auto-mode` introduces a convention that every stage command must
+reference the run-mode procedure in the `workflow` skill; a future command that
+silently drops that reference would quietly fail to suppress (or keep) a gate in
+auto mode. A structural `scripts/lint.mjs` check could assert the reference and
+per-gate auto-branch wiring stays consistent — the runtime suppression itself is
+not statically checkable. Surfaced by `add-auto-mode` stage D (offered, not built).
+
 ### repo-branch-protection — `idea`
 
 **Why:** The CI gates added by `kit-quality-hardening` are only advisory until
