@@ -8,6 +8,9 @@ You are running QRSPI stage **V (Slices)** for the current project.
 
 Change id: ${input}
 
+Read or establish the run-mode by following the **Run-mode** procedure in
+skill `workflow` before doing any other work.
+
 Precondition (canonical *precondition check* in skill `workflow`,
 "Stage choreography"): the input artifacts are
 `openspec/changes/<id>/proposal.md` and at least one
