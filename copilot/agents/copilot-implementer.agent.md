@@ -111,6 +111,23 @@ via CLI. In all commit messages, PR descriptions, and CLI output:
 - Do not commit secrets. Do not read files outside the worktree.
 - Do not push to remote without explicit human approval.
 
+## Before completing a slice — divergence self-check (hard-stop condition 4)
+
+Before you emit a slice's final message, self-check the slice's code against
+the divergence rubric in skill `workflow` ("Divergence rubric (hard-stop
+condition 4)" under the Hard-stop procedure). If your implementation
+materially diverges from the approved `design.md`/delta spec — changing or
+dropping a recorded decision or delta requirement, introducing an unapproved
+capability/API/data-model/dependency, contradicting a Non-Goal or a PQ/OQ
+answer, or altering an observable contract (a signature, a gate's behaviour, a
+commit/branch side effect) beyond what the design describes — do NOT proceed
+silently and do NOT commit the slice: surface the specific divergence (which
+D-number / requirement / contract, and how) and return blocked. The
+orchestrator treats that as hard-stop condition (4). Immaterial elaboration
+(naming, internal structure, wording, test mechanics) is normal implementation
+latitude, not a divergence. (This self-check is a slice-mode gate; the post-PR
+fix mode below has its own contract.)
+
 ## Fix mode (post-PR) — invoked by `/qrspi-followup`
 
 When the task says you are in **POST-PR FIX MODE**, the slice machinery

@@ -23,7 +23,12 @@ looks off so the human reviewer is not surprised.
    - `git log <base>..HEAD --oneline` — commits reference the change id?
    - the project's build + lint/format + test commands — green?
 4. Verify each box in `tasks.md` is ticked. Flag any that are not.
-5. Draft the PR description.
+5. Verify the CLAUDE.md "keep current" rules held: a `## [Unreleased]`
+   entry in `CHANGELOG.md` describes this change, and the README was updated
+   if the change touched commands/agents/skills, the install/update flow, the
+   OpenSpec pin, or the repo layout. Flag a missing `[Unreleased]` entry or a
+   stale README as a **blocking** gap — do not quietly draft over it.
+6. Draft the PR description.
 
 ## PR description template
 

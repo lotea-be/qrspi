@@ -14,6 +14,27 @@ kit version.
 
 ## [Unreleased]
 
+### Added
+
+- **Ternary run-mode (Full auto / Semi-auto / Manual).** A run-mode prompt now
+  appears at the top of a fresh QRSPI stage invocation. **Full auto** chains
+  `Q → R → D → S → V → P → I → PR` unattended, auto-advancing the commit step
+  (commit + push), the next-stage handoff, Structure's design-approval gate, the
+  per-slice Implement checkpoints (per-slice model re-invocation preserved), and
+  PR-create — pausing only at the Q product-question pass, the D design review,
+  the Q/D/S backlog-capture offers, and a fixed set of hard-stops (failing
+  precondition, git commit/push failure, a subagent error/block, or
+  implementation diverging from the approved design). **Semi-auto** additionally
+  pauses at every stage boundary; **Manual** is the prior every-gate behaviour.
+  The mode is held in the orchestrator's context for the life of the chain with
+  **no disk persistence** (re-asked on a fresh session); Esc/stop aborts a
+  running chain. Implemented as a "Run-mode" procedure in the `workflow` skill
+  referenced by all eight stage commands, plus per-procedure auto-branches; the
+  implementer's contract now requires returning *blocked* (not committing) on a
+  failing lint/typecheck/test so a red slice cannot be auto-pushed. Claude-only;
+  the `copilot/` tree is regenerated at zero drift. See
+  `openspec/changes/add-auto-mode/`.
+
 ### Changed
 
 - **Dropped the `qrspi-` prefix from the three remaining skill names**

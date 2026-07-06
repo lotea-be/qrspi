@@ -8,6 +8,9 @@ You are running QRSPI stage **R (Research)** for the current project.
 
 Arguments: ${input}
 
+Read or establish the run-mode by following the **Run-mode** procedure in
+skill `workflow` before doing any other work.
+
 **Critical**: do NOT pass the feature description or any opinion about
 what the change should do to the researcher. The researcher works
 without the ticket on purpose. From `${input}`, extract only:
