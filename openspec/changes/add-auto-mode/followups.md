@@ -39,11 +39,17 @@
   history) and dropped the non-existent `Next QRSPI command:` line concept;
   P and V now correctly say no backlog edit happens at those stages, and
   `implement.md`'s intermediate slices no longer touch `backlog.md`.
-- [ ] **"Materially diverges" rubric for execution-stage subagents.** Hard-stop
+- [x] **"Materially diverges" rubric for execution-stage subagents.** Hard-stop
   condition (4) — implementation/structure materially diverging from the approved
   `design.md`/spec — is a semantic self-assessment. Add a concrete divergence
   rubric to the architect, planner, and implementer contracts so the bar is
-  explicit and the signal fires reliably. (source: PR review / design Risks)
+  explicit and the signal fires reliably. (source: PR review / design Risks) —
+  fixed (commit pending): authored a canonical "Divergence rubric (hard-stop
+  condition 4)" in `workflow` `SKILL.md` with checkable criteria (a)-(d) plus an
+  immaterial-elaboration carve-out and the blocked-signal response; added a DRY
+  self-check clause to `architect.md`, `planner.md`, and `implementer.md`
+  pointing at the rubric; added a condition-(4) divergence Scenario to the
+  `qrspi-run-mode` delta spec; regenerated `copilot/`.
 - [ ] **`lint-auto-mode-gate-coverage` — decide priority.** Accepted into the
   backlog as an `idea` at stage D (a structural lint asserting every stage command
   references the run-mode procedure). Confirm priority in the next planning

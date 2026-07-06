@@ -203,6 +203,18 @@ condition and ask the human how to proceed.
   message, and asks the human how to proceed — it does NOT auto-commit that
   slice or continue to the next.
 
+#### Scenario: execution-stage divergence from approved design hard-stops the chain
+- **GIVEN** Full auto mode is active and an execution stage (S, V, P, or I) is
+  running
+- **WHEN** the stage subagent self-checks its output against the divergence
+  rubric and finds it materially diverges from the approved `design.md` or delta
+  spec (e.g. it would introduce a capability, dependency, or observable-contract
+  change not present in the approved design, or drop a recorded decision)
+- **THEN** the subagent surfaces the specific divergence and returns blocked
+  instead of committing, and the orchestrator treats it as hard-stop condition
+  (4) — it stops the chain and asks the human how to proceed, and does NOT
+  auto-advance.
+
 #### Scenario: hard-stop does not permanently downgrade mode
 - **GIVEN** Full auto mode is active and a hard-stop fires at stage P
 - **WHEN** the human resolves the blocking condition and explicitly resumes

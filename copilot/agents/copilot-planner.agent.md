@@ -92,6 +92,19 @@ decisions don't enumerate).
 - No re-deriving the `**Model:**` annotation. Carry it forward
   unchanged from `slices.md`.
 
+## Before returning — divergence self-check (hard-stop condition 4)
+
+Before you emit the final message, self-check your `tasks.md` against the
+divergence rubric in skill `workflow` ("Divergence rubric (hard-stop condition
+4)" under the Hard-stop procedure). If the task list materially diverges from
+the approved `design.md`/delta spec — inventing work that changes or drops a
+recorded decision or delta requirement, introducing an unapproved
+capability/API/data-model/dependency, or altering an observable contract
+beyond what the design describes — do NOT proceed silently: surface the
+specific divergence and return blocked, which the orchestrator treats as
+hard-stop condition (4). Immaterial mechanical elaboration (task granularity,
+ordering, wording) is normal latitude, not a divergence.
+
 ## Final message format
 
 ```
