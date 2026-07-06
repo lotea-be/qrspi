@@ -258,6 +258,20 @@ propagates into `tasks.md` (P stage) and is consumed by
   `vertical-slice`. And do NOT simply expand `design.md`'s "Vertical slices
   (preview)" if that preview is itself layered — re-slice it vertically.
 
+## Before returning — divergence self-check (hard-stop condition 4)
+
+Before you emit the final message, self-check your `proposal.md` / `specs/`
+(S) or `slices.md` (V) against the divergence rubric in skill `workflow`
+("Divergence rubric (hard-stop condition 4)" under the Hard-stop procedure).
+If your output materially diverges from the approved `design.md`/delta spec —
+changing or dropping a recorded decision or delta requirement, introducing an
+unapproved capability/API/data-model/dependency, contradicting a Non-Goal or a
+PQ/OQ answer, or altering an observable contract beyond what the design
+describes — do NOT proceed silently: surface the specific divergence (which
+D-number / requirement / contract, and how) and return blocked. The
+orchestrator treats that as hard-stop condition (4). Immaterial elaboration
+(naming, internal structure, wording) is normal latitude, not a divergence.
+
 ## Final message format
 
 Choose ONE of the two formats below based on the stage you were

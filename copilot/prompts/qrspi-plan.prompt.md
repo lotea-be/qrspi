@@ -8,6 +8,9 @@ You are running QRSPI stage **P (Plan)** for the current project.
 
 Change id: ${input}
 
+Read or establish the run-mode by following the **Run-mode** procedure in
+skill `workflow` before doing any other work.
+
 Precondition (canonical *precondition check* in skill `workflow`,
 "Stage choreography"): the input artifact is
 `openspec/changes/<id>/slices.md`; on failure point the user at
@@ -22,17 +25,18 @@ not inline the planner's full conversation — only the returned summary is
 used here. Because design and structure are already aligned, this stage
 should be quick and mechanical.
 
-**Before committing, update `openspec/backlog.md`:** change the change's
-row `Next QRSPI command:` line to `/qrspi-implement <id>`. This edit lands
-in the same commit as the artifact (backlog atomicity, see skill
-`workflow`).
+**Backlog:** Plan does not change the row's status or section grouping --
+`openspec/backlog.md` has no `Next QRSPI command:` line to update (see
+skill `workflow`, "Backlog atomicity"); the row stays as stage Q left it
+until the Implement stage's final slice flips it. No backlog edit is
+needed here.
 
 **Choreography (see skill `workflow`, "Stage choreography").** Follow
 the canonical *commit step* and *next-stage handoff* there, with these
 stage variables:
-- Artifact: `openspec/changes/<id>/tasks.md` + `openspec/backlog.md`.
+- Artifact: `openspec/changes/<id>/tasks.md`.
 - Commit message: `docs(<id>): add tasks.md (QRSPI stage P)`
-- Git add line: `git add openspec/changes/<id>/tasks.md openspec/backlog.md`
+- Git add line: `git add openspec/changes/<id>/tasks.md`
 - Next-stage command: `/qrspi-implement <id>` — invoke it as its own stage
   in the main loop (re-enter the slash command so its body runs on the
   orchestrator; do NOT spawn it as a subagent).

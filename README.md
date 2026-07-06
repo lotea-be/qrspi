@@ -27,7 +27,7 @@ workflow drives a .NET/Blazor app, a TypeScript service, or anything else.
 |---|-------|---------|----------|-------|
 | 1 | Questions | `/qrspi:questions <id>` | `questions.md` | Turns a vague request into concrete technical questions. |
 | 2 | Research | `/qrspi:research <id>` | `research.md` | Read-only map of the current codebase. The ticket is hidden by design. |
-| 3 | Design | `/qrspi:design <id>` | `design.md` | The "brain surgery" stage. **⛔ HUMAN APPROVAL REQUIRED before stage 4.** |
+| 3 | Design | `/qrspi:design <id>` | `design.md` | The "brain surgery" stage. **⛔ HUMAN APPROVAL REQUIRED before stage 4.** (Full auto pauses here -- see Run modes) |
 | 4 | Structure | `/qrspi:structure <id>` | `proposal.md` + `specs/` | Canonical proposal + OpenSpec spec deltas. |
 | 5 | Slices | `/qrspi:slices <id>` | `slices.md` | Vertical slices, not horizontal layers. |
 | 6 | Plan | `/qrspi:plan <id>` | `tasks.md` | Canonical numbered task list. |
@@ -35,6 +35,33 @@ workflow drives a .NET/Blazor app, a TypeScript service, or anything else.
 | 8 | PR | `/qrspi:pr <id>` | PR description | Read-only review + final checklist. |
 
 > **Acronym lineage note.** QRSPI / "Crispy" is a lineage label from the RPI ancestry; Design, Slices, and PR sit outside the five acronym letters (Q-R-S-P-I). The kit intentionally orders Slices (V) before Plan (P) -- slices-then-tasks is the natural data flow and an intentional divergence from the RPI blog's Plan-before-Work-Tree ordering.
+
+### Run modes
+
+At the top of a fresh stage invocation the orchestrator asks one question:
+
+> **Run mode for this QRSPI flow?**
+> - **Full auto** -- chain Q -> PR, pause only at Q (product questions), D (design review), backlog-capture offers, and hard-stops.
+> - **Semi-auto** -- auto-advance within-stage gates, but pause at each stage boundary before handing off to the next stage.
+> - **Manual** -- pause at every gate (today's default behaviour).
+
+*Press Esc / stop at any time to interrupt a running auto chain.* The mode is held in the orchestrator's context for the life of that chain; it is re-asked whenever a stage is started in a fresh session (no disk persistence).
+
+**Gates suppressed in Full auto and Semi-auto:**
+- Commit step (stage, commit, push -- without asking)
+- Structure's design-approval gate (auto-answered after the D pause in the same chain)
+- Implement's per-slice checkpoints (all slices run straight through; per-slice model re-invocation is preserved)
+- PR-create (runs `gh pr create` without prompting)
+
+**Also suppressed in Full auto only:**
+- Next-stage handoff (re-enters the next command immediately, carrying the held mode)
+
+**NEVER suppressed in any mode:**
+- The D review (open-questions pass + decision-by-decision approval + final confirmation)
+- Backlog-capture offers in Q, D, and S
+- Hard-stop pauses (four conditions: failing precondition check; `git commit`/`git push` failure; subagent returning error or blocked; implementation materially diverging from approved `design.md`/spec)
+
+Hard-stops always surface the error and ask the human -- they never auto-advance and never silently downgrade the rest of the run to Manual.
 
 Helpers: `/qrspi` (print the stage map), `/qrspi:init` (bootstrap `openspec/` +
 templates — per-repo onboarding), `/qrspi:stack` (bootstrap this repo's

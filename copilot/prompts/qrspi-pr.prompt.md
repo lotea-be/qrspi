@@ -8,6 +8,9 @@ You are running QRSPI stage **PR (Pull Request)** for the current project.
 
 Change id: ${input}
 
+Read or establish the run-mode by following the **Run-mode** procedure in
+skill `workflow` before doing any other work.
+
 Precondition: all boxes in `openspec/changes/<id>/tasks.md` are ticked,
 and the working tree is clean (no uncommitted changes outside of the
 change folder updates). **This stage's precondition has two parts** (the
@@ -33,15 +36,22 @@ Otherwise spawn the `reviewer` subagent via the **Agent tool** (`subagent_type: 
 The reviewer does NOT create the PR itself — it drafts the description
 and provides the suggested PR-create command for the human to run.
 
-**Interactive step (mandatory):** After the reviewer produces the PR
-description and checklist, use the #tool:vscode/askQuestions to ask:
+**PR-create step (mode-aware — follow the PR-create auto-advance rule in
+skill `workflow`).** After the reviewer produces the PR description and
+checklist:
+
+- In **Full or Semi auto**, skip the question below and run the PR-create
+  command directly per the "PR-create auto-advance" rule in skill `workflow`.
+- In **Manual**, use the #tool:vscode/askQuestions to ask:
   question: "The PR description is ready. Would you like me to create the PR now, or do you want to review the description first?"
   choices: ["Create the PR now", "Show me the description first — I'll create it manually"]
-If they choose to create, run the project's PR-create command (the host CLI
-named in its stack-cheatsheet — e.g. `gh pr create` or `az repos pr create`),
+
+Run the project's PR-create command (the host CLI named in its
+stack-cheatsheet -- e.g. `gh pr create` or `az repos pr create`),
 capturing the output so you get the PR number and URL, with the generated
 title, description, the change's source branch, and the project's default
-target branch. Otherwise print the command for them to copy.
+target branch. In Manual, only run it if the human chose "Create the PR now".
+Otherwise print the command for them to copy.
 
 **Record the PR link (mandatory).** Once the PR is created and you have
 the PR number and web URL (from the host CLI's output), persist
@@ -62,9 +72,10 @@ the link in **two** places:
    ```
 2. **`openspec/backlog.md`** — the convenient in-progress lookup (this
    row is deleted on archive, which is why pr.md above is required):
-   - Change the row `Status:` line to
-     `in-progress (Q, R, D, S, W, P, I complete; PR #<N> open — <url>)`.
-   - Change the `Next QRSPI command:` line to `archive after merge`.
+   change the row's heading backtick note from
+   `in-progress (Q, R, D, S, V, P, I complete)` to
+   `in-progress (draft PR #<N> open)` -- it stays under `## In progress`;
+   there is no separate `Status:` or `Next QRSPI command:` line to update.
 
 **Seed the follow-up queue (when the reviewer found open issues).** If the
 reviewer's "Open issues found" count is greater than zero, write those

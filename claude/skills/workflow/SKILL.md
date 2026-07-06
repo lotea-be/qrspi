@@ -159,6 +159,126 @@ this section for the procedure itself. When you read "follow the canonical
 *commit step* / *next-stage handoff* / *precondition check* in
 `workflow`", this is what is meant.
 
+### Run-mode (Full / Semi / Manual)
+
+**Establishing the run-mode.** At the top of a fresh stage invocation,
+before the precondition check, the main-loop orchestrator reads or
+establishes the run-mode for this flow:
+
+- **If you already hold a run-mode established earlier in this orchestrator
+  context** (i.e. this stage was auto-chained from a prior stage in the same
+  session), skip the prompt and reuse it. No disk state is read or written;
+  the mode lives entirely in the orchestrator’s conversational context.
+- **If you hold no run-mode** (fresh invocation — new session, standalone
+  call, or any session without a prior mode set), ask using the
+  **AskUserQuestion** tool:
+  - question: "Run mode for this QRSPI flow?"
+  - choices:
+    - "Full auto — chain Q→PR, pause only at Q, D, backlog offers, hard-stops"
+    - "Semi-auto — auto-advance within-stage gates, pause at each stage boundary"
+    - "Manual — pause at every gate (today’s behaviour)"
+  - Note in the question text: “Press Esc / stop at any time to interrupt a
+    running auto chain.” (There is no `/qrspi:stop` command — Esc/stop is
+    the only abort path.)
+
+Record the chosen mode in context for the remainder of this session. The
+mode is re-asked only when a stage runs in a context with no held mode (a
+brand-new session, after a `/clear`, or when the human resumes a flow
+manually). A mid-chain new session re-asks and the human re-picks — this is
+correct behaviour, not a bug (no disk state is ever written).
+
+**Mode-aware clause.** The four canonical procedures below each carry a
+run-mode branch. The commit step and next-stage handoff auto-branches are
+defined in this section (see "Commit step" and "Next-stage handoff" below).
+The S approval gate, I per-slice checkpoints, and PR-create auto-branches
+are defined in their respective sections ("Precondition check", the I
+per-slice note in "Stage-specific gate notes", and "PR-create auto-advance"
+below). In every procedure, if mode is Manual behave exactly as today (ask
+via AskUserQuestion at every gate, as described in each procedure).
+
+**Never-suppressed gates (all modes).** The following gates are NEVER
+suppressed in Full auto, Semi-auto, or Manual:
+
+- **The D review** (open-questions pass + decision-by-decision approval +
+  final "Ready to proceed?" confirmation) is a sanctioned pause. It is NOT
+  suppressed in any mode. Full auto pauses here and the human completes the
+  review before the chain continues.
+- **Backlog-capture offers** in Q, D, and S are NEVER suppressed in any
+  mode. The "offer, never auto-append" rule (AskUserQuestion per item, one at
+  a time) holds regardless of mode. These remain interactive AskUserQuestion
+  calls. "Full auto pauses only at Q and D" is shorthand; the backlog-capture
+  offers in Q, D, and S are the deliberate additional exception.
+
+### Hard-stop procedure
+
+A hard-stop halts the auto chain immediately, regardless of mode. The
+orchestrator MUST surface the condition via a human-readable message and ask
+the human how to proceed using the **AskUserQuestion** tool. It MUST NOT
+auto-advance after a hard-stop, and it MUST NOT silently downgrade the rest
+of the run to Manual (the human decides at the pause whether to resume or
+change mode).
+
+**The four hard-stop conditions (exact enumeration):**
+
+1. **Failing precondition check.** A required input artifact is absent -- the
+   stage has nothing to advance to. The stage refuses and surfaces which
+   artifact is missing and which prior stage to run first.
+2. **`git commit` or `git push` failure.** Any non-zero git exit code during
+   the auto-commit step -- a dirty or conflicted working tree, a rejected
+   remote push, or any other git error. Surface the git error output verbatim.
+3. **Subagent returning error or signalling it is blocked.** The stage
+   subagent's final message indicates failure, an unresolved blocker, or an
+   explicit "blocked" signal. Note: `openspec validate` failure, lint/typecheck
+   failure, test failure, and `gh pr create` failure are NOT standalone
+   hard-stops -- they surface via this condition (the subagent's
+   error/block-signal contract). The implementer in particular MUST return
+   error/blocked and MUST NOT commit when lint, typecheck, or tests fail at a
+   slice boundary (OQ2 binding resolution, D6).
+4. **Execution-stage output materially diverging from the approved
+   `design.md` or spec.** Applies to execution stages S->V->P->I. "Materially
+   diverges" means the subagent's output changes an observable contract, drops
+   a required behavior, or introduces a design element not present in the
+   approved `design.md`. This is a semantic judgement -- the subagent must
+   self-assess and signal it; the orchestrator acts on that signal.
+
+**What to do on a hard-stop:** stop the chain, surface the condition clearly,
+and ask the human via AskUserQuestion. Present the error detail and offer a
+path forward (e.g. "Fix the conflict and resume" or "Abort the chain"). Do
+not commit, do not auto-advance, and do not downgrade the mode.
+
+**Divergence rubric (hard-stop condition 4).** Condition (4) is a semantic
+self-assessment, not a process exit code: the execution-stage subagent (S, V,
+P, or I) is the only thing that can recognise it, so it MUST self-check its
+output against this rubric before returning. Treat the output as "materially
+diverges from the approved `design.md`/delta spec" -- and therefore a
+hard-stop -- when **any** of the following holds:
+
+- **(a)** it changes or drops a decision recorded in `design.md` (D1...Dn) or
+  a Requirement/Scenario in the change's delta spec
+  (`openspec/changes/<id>/specs/**`);
+- **(b)** it introduces a new capability, public API surface, data-model
+  change, or dependency that is not present in the approved design;
+- **(c)** it contradicts a stated Non-Goal, or an approved product-question /
+  open-question answer (PQ/OQ);
+- **(d)** it alters an observable contract -- a signature, a gate's behaviour,
+  or a commit/branch/push side effect -- beyond what the design describes.
+
+**Immaterial elaboration is NOT a divergence** (normal implementation
+latitude -- do NOT signal, or the hard-stop over-fires): naming, internal
+structure and organisation, wording and comments, test mechanics and coverage
+depth, and any detail the approved design deliberately left open. When the
+design is silent on a point that does not touch (a)-(d), choosing an approach
+is implementation, not divergence.
+
+**Response on a material divergence:** the subagent MUST NOT proceed silently
+and MUST NOT commit. It surfaces the specific divergence in its final message
+-- which decision (D-number) / delta requirement / contract it departs from,
+and how -- and returns an error/blocked signal. The orchestrator treats that
+signal as hard-stop condition (4): stop the chain, surface the divergence, and
+ask the human how to proceed. Each execution-stage agent contract references
+this rubric and commits to the self-check; the criteria live here (single
+source of truth).
+
 ### Precondition check (Glob-based)
 
 Before invoking a stage's subagent, confirm the stage's input artifact(s)
@@ -171,13 +291,52 @@ every required artifact is present.
 
 A stage that has an *approval* gate in addition to a file gate (e.g.
 Structure requires a human-approved `design.md`) runs that gate here too,
-via AskUserQuestion, before invoking the subagent — the file existing is not
-the same as the human having approved it.
+before invoking the subagent — the file existing is not the same as the
+human having approved it. The branch taken for Structure's approval gate
+depends on the held run-mode:
+
+**S approval gate (run-mode-aware):**
+
+- **If a run-mode is held and the human approved `design.md` at the D pause
+  earlier in this same chain** (i.e. this is an auto-chained re-entry and
+  the D review happened in this session), treat the approval gate as
+  satisfied — do not ask. The in-chain D approval is the evidence that the
+  human has reviewed and approved the design.
+- **If no in-chain D approval exists** (standalone `/qrspi:structure` call,
+  a fresh session where the mode was just re-asked, or any invocation where
+  D was not run in this session), ask the approval gate as usual via
+  AskUserQuestion before invoking the subagent.
 
 ### Commit step (mandatory)
 
 After the stage's artifact is written (and any backlog edit is staged, see
-below), ask the human before committing:
+below), commit the result. The branch taken depends on the held run-mode:
+
+**If mode is Full or Semi auto:**
+
+Stage the explicit artifact paths and push without asking the human:
+
+```
+git add <explicit artifact path(s)> [openspec/backlog.md]
+git commit -m "<the stage's exact commit-message string>"
+git push
+```
+
+Rules that apply in Full and Semi auto:
+
+- **Never use `git add -A`.** Stage only the explicit paths the stage
+  produced (the subagent's final message lists the files it
+  created/modified). This is identical to the Manual step.
+- **No `[auto]` suffix or any other decoration** on the commit message. The
+  message is identical to what Manual produces (PQ17).
+- **On any non-zero git exit code** -- dirty or conflicted working tree,
+  rejected push, or any other git error -- this is a **hard-stop** (see
+  "Hard-stop procedure" above): surface the error output verbatim and ask
+  the human how to proceed. Do NOT auto-advance to the next stage.
+
+**If mode is Manual:**
+
+Ask the human before committing:
 
 - Use the **AskUserQuestion** tool:
   - question: "Commit <the stage's artifact(s) and any backlog edit> to the feature branch?"
@@ -196,7 +355,34 @@ below), ask the human before committing:
 
 ### Next-stage handoff (mandatory)
 
-After the commit step, ask the human whether to keep going:
+After the commit step, hand off to the next stage. The branch taken depends
+on the held run-mode:
+
+**If mode is Full auto:**
+
+Do not ask. Re-enter `/qrspi:<next> <id>` immediately as a slash command on
+the main loop. The held run-mode carries automatically because the next stage
+runs in the same orchestrator context and already holds the mode (D2 /
+inheritance rule above). Re-entry is always the slash command -- never spawn
+the next stage as a subagent (that would bypass its gates and break the
+ticket-blind Research invariant, D7).
+
+**If mode is Semi-auto:**
+
+Ask one AskUserQuestion at this stage boundary -- this is the ONLY behavioural
+difference between Full auto and Semi-auto:
+
+- Use the **AskUserQuestion** tool:
+  - question: "Stage <X> complete. Continue to <Y>, or stop here?"
+  - choices: ["Continue to /qrspi:<next> <id>", "Stop here -- I'll resume later"]
+- If they choose **Continue**, re-enter `/qrspi:<next> <id>` as a slash
+  command on the main loop (same rules as Full auto above).
+- If they choose **Stop**, print `Next stage: /qrspi:<next> <id>` and end
+  your turn.
+
+**If mode is Manual:**
+
+Ask the human whether to keep going:
 
 - Use the **AskUserQuestion** tool:
   - question: "Stage <X> is complete. Continue to stage <Y> now, or stop here?"
@@ -211,13 +397,45 @@ After the commit step, ask the human whether to keep going:
 
 ### Backlog atomicity
 
+A backlog row is a single heading with a backticked status --
+`### <id> -- \`<status> (<note>)\`` -- grouped under a `##` section per
+status (`## Proposed`, `## In progress`, `## Ideas`, ...). There is no
+separate `Status:` or `Next QRSPI command:` body line: the status word,
+its free-text parenthetical note, and the row's section grouping all live
+in that one heading, and any edit to them is an edit to that heading.
+
 When a stage's state change has a matching `openspec/backlog.md` edit (a
-status transition, or the `Next QRSPI command:` line moving to the next
-stage), that backlog edit lands in the **same commit** as the stage's
-artifact -- never as a separate follow-up commit. Stage `openspec/backlog.md`
-alongside the artifact in the commit step above. This is the same
-atomic-commit rule stated under "Before Q -- the backlog"; it applies to
-every stage that touches the backlog row. A stage whose subagent already
-performed the backlog edit (e.g. the questioner's status flip) verifies the
-row rather than re-editing it -- re-editing a file the subagent just wrote
-fails with a "file modified since read" error.
+status transition and/or section-grouping move, or a new `idea` row
+captured from deferred work), that backlog edit lands in the **same
+commit** as the stage's artifact -- never as a separate follow-up commit.
+Stage `openspec/backlog.md` alongside the artifact in the commit step
+above. This is the same atomic-commit rule stated under "Before Q -- the
+backlog"; it applies to every stage that touches the backlog row. Most
+stages do **not** touch the row at all: only Q (`idea` to `proposed`), the
+Implement stage's final slice (`proposed` to `in-progress`, moving the row
+under `## In progress` with a completed-stages note), and PR (updating the
+note to the open-PR reference) flip status; Q, D, and S may additionally
+add new `idea` rows via "Capturing deferred work" above. A stage whose
+subagent already performed the backlog edit (e.g. the questioner's status
+flip) verifies the row rather than re-editing it -- re-editing a file the
+subagent just wrote fails with a "file modified since read" error.
+
+### Stage-specific gate notes
+
+These notes layer on top of the four canonical procedures above. Each note
+applies only to the stage named.
+
+**I per-slice auto-advance (Implement stage, Full/Semi auto).** The Implement
+stage command body carries the per-slice checkpoint and per-slice commit step.
+In Full or Semi auto mode both of those per-slice gates are auto-advanced
+(no AskUserQuestion is issued between slices). The per-slice model annotation
+(`**Model:** sonnet|opus`) is read for every slice and honored -- auto mode
+does NOT bypass per-slice model selection.
+
+**PR-create auto-advance (PR stage, Full/Semi auto).** After the reviewer
+subagent returns the PR description, the "Create the PR now, or show the
+description first?" question is suppressed in Full or Semi auto mode: the
+orchestrator runs `gh pr create` directly without asking. The human code
+review of the PR itself is NEVER automated -- only the create prompt is
+auto-advanced. In Manual mode ask as usual via AskUserQuestion before
+creating the PR.

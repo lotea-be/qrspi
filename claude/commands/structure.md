@@ -6,6 +6,9 @@ You are running QRSPI stage **S (Structure)** for the current project.
 
 Change id: $ARGUMENTS
 
+Read or establish the run-mode by following the **Run-mode** procedure in
+skill `workflow` before doing any other work.
+
 Precondition (canonical *precondition check* in skill `workflow`,
 "Stage choreography"): the input artifact is
 `openspec/changes/<id>/design.md`; on failure point the user at
@@ -26,14 +29,12 @@ Tell it to return the paths of files it created/modified plus a 5-bullet
 summary. The orchestrator (this main-loop context) does not inline the
 architect's full conversation — only the returned summary is used here.
 
-**Backlog update (mandatory before the commit):** Add or update the
-change's row in `openspec/backlog.md` so its `Next QRSPI command:` line
-points at `/qrspi:slices <id>`. Earlier stages do not seed this line,
-so on the first S run you are *adding* it, not editing an existing one —
-don't assume you mis-read the row if it's absent. This edit lands in the
-same commit as the artifact (backlog atomicity, see skill
-`workflow`). If the row's `Status:` line is still `idea` or
-`proposed`, do not touch it here; status transitions are a separate concern.
+**Backlog (status unchanged):** The change's row in `openspec/backlog.md`
+already exists as `### <id> — \`proposed (...)\`` from stage Q. Structure
+does not flip its status or move it between `##` section groupings — that
+transition happens at the Implement stage's final slice (see skill
+`workflow`, "Backlog atomicity"). Verify the row is present; do not edit
+its heading here.
 
 **Capture deferred work (before the commit):** Read `proposal.md`'s
 "Out of scope" section (and any out-of-scope items the design's Non-Goals
