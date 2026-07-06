@@ -14,6 +14,25 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## Ideas
 
+### archive-requires-merged-pr — `idea`
+
+**Why:** Archiving a change today doesn't verify the linked PR actually merged —
+`/qrspi:archive` moves the folder under `archive/` regardless, so a change can be
+archived while its PR is still open or was closed unmerged. Before archiving,
+fetch the linked PR's status (via `gh`) and only proceed when it's `merged`;
+otherwise stop and surface the state. As part of the archive, also update the
+change's entry in `openspec/backlog.md` (e.g. flip status to `merged` / move it
+out of "In progress") so the backlog and the archive stay in sync.
+
+### pr-review-open-tasks-and-followups — `idea`
+
+**Why:** The PR stage jumps straight to drafting the PR without reconciling
+loose ends. Before creating the PR, first walk the still-open tasks in
+`tasks.md` — loop over each open item and ask the user what to do with it
+(finish, defer, drop) — then loop over the entries in `followups.md` and ask the
+user what to do with each. Only after both review passes are resolved should the
+stage create the PR, so nothing open is silently carried into the PR.
+
 ### lint-auto-mode-gate-coverage — `idea`
 
 **Why:** `add-auto-mode` introduces a convention that every stage command must
