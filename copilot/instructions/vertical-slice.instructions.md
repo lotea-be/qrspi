@@ -31,6 +31,14 @@ contains:
 Each slice has a **checkpoint** at the end: a human can run the app and
 see the slice working before the next slice starts.
 
+When the "app" is itself a Claude Code plugin / agent-config / prompt-kit
+(including QRSPI editing its own `claude/` sources), the installed `/...`
+commands run the *released* version, not your branch — so "run the app"
+means dev-installing the in-development copy first: `claude --plugin-dir
+<repo>` (then `/reload-plugins` to pick up later edits). A live checkpoint
+that skips this silently tests the old release. Name the dev-install step in
+the slice's checkpoint so it is actually runnable.
+
 ### When the Mock-API step is optional
 
 Skip step 1 (Mock API) when the slice mirrors an existing templated

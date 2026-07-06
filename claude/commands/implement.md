@@ -35,12 +35,16 @@ The implementer will:
 
 1. Pick up the next un-ticked slice in `tasks.md`.
 2. Work the tasks in order, ticking boxes.
-3. Run lint, typecheck, and tests at the slice boundary.
+3. Run the project's available checks at the slice boundary — lint,
+   typecheck, and tests where the repo has them (plus `openspec validate` /
+   `node sync-copilot.mjs --check` for this kit) — and the slice checkpoint.
+   A repo with no test suite is not a missing gate; run the checks that exist.
 4. Stop at the slice checkpoint and wait for human go-ahead.
 
 **Implementer block-signal contract (mandatory, all modes).** The implementer
 MUST return an error or blocked signal -- and MUST NOT commit the slice --
-when lint, typecheck, tests, or `openspec validate` fail at a slice boundary.
+when any check the repo runs (lint, typecheck, tests, `openspec validate`)
+fails at a slice boundary.
 This is what makes the orchestrator's hard-stop condition (3) ("subagent
 returns error or blocked") cover the red-build case in auto mode. In Manual
 mode this is equally required: do not commit a broken slice even if the human
