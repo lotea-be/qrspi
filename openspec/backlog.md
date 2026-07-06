@@ -144,6 +144,17 @@ script** — lint/sync run in this repo's CI, but a helper a stage command invok
 at runtime ships into consumer repos and inherits their `gh`/auth availability and
 cross-platform concerns; be deliberate about that split.
 
+### lint-auto-mode-gate-coverage — `idea` · **P2** (blocked until `add-auto-mode` merges)
+
+**Why:** `add-auto-mode` introduces a convention that every stage command must
+reference the run-mode procedure in the `workflow` skill; a future command that
+silently drops that reference would quietly fail to suppress (or keep) a gate in
+auto mode. A structural `scripts/lint.mjs` check could assert the reference and
+per-gate auto-branch wiring stays consistent — the runtime suppression itself is
+not statically checkable. Surfaced by `add-auto-mode` stage D (offered, not built).
+Low-cost correctness guard (hence P2, not P3); blocked until `add-auto-mode`
+merges, since the convention it enforces ships with that change.
+
 ### optional-technology-specs — `idea` · **P3**
 
 **Why:** QRSPI delta specs today are stack-agnostic `Requirement` + `Scenario`
@@ -204,16 +215,6 @@ mind.)
 architect writes a markdown `**Model:**` annotation; the implementer self-halts and
 asks to be re-invoked when on the wrong model) is fragile and breaks on Copilot.
 Consider a simpler lever or a single implement-stage model.
-
-### lint-auto-mode-gate-coverage — `idea` · **P3**
-
-**Why:** `add-auto-mode` introduces a convention that every stage command must
-reference the run-mode procedure in the `workflow` skill; a future command that
-silently drops that reference would quietly fail to suppress (or keep) a gate in
-auto mode. A structural `scripts/lint.mjs` check could assert the reference and
-per-gate auto-branch wiring stays consistent — the runtime suppression itself is
-not statically checkable. Surfaced by `add-auto-mode` stage D (offered, not built).
-Sequenced behind `add-auto-mode` landing.
 
 ### agentFor-frontmatter-crosscheck — `idea` · **P3**
 

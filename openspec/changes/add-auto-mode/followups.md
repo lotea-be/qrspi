@@ -50,7 +50,8 @@
   self-check clause to `architect.md`, `planner.md`, and `implementer.md`
   pointing at the rubric; added a condition-(4) divergence Scenario to the
   `qrspi-run-mode` delta spec; regenerated `copilot/`.
-- [ ] **`lint-auto-mode-gate-coverage` — decide priority.** Accepted into the
+- [x] **`lint-auto-mode-gate-coverage` — decide priority.** Accepted into the
   backlog as an `idea` at stage D (a structural lint asserting every stage command
   references the run-mode procedure). Confirm priority in the next planning
-  session. (source: PR review)
+  session. (source: PR review) — **decided: P2, blocked until `add-auto-mode`
+  merges** (low-cost correctness guard; re-banded from P3 in `openspec/backlog.md`).
