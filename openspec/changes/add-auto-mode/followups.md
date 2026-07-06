@@ -3,8 +3,12 @@
 > Post-PR fix queue. Resolve with `/qrspi:followup add-auto-mode`. Archived with the
 > change; every box should be ticked before archival.
 
-- [ ] **Live-runtime dogfood (human).** Slice checkpoints 1.4, 2.5, 2.6, and 3.5
-  were static-verified only. The dev-install path already exists and is documented
+- [x] **Live-runtime dogfood (human).** ✅ Verified 2026-07-06 via a `claude
+  --plugin-dir` dogfood on a throwaway clone (isolated local remote) — the run-mode
+  prompt, Full-auto gate suppression, the D pause, the push-failure hard-stop, and
+  Semi-auto boundary pauses behaved as designed. Slice checkpoints 1.4, 2.5, 2.6,
+  and 3.5 are now live-verified (previously static-only). The dev-install path is
+  documented
   (README → "Developing QRSPI further": `claude --plugin-dir .` loads this repo's
   `claude/` tree, shadowing the installed release for that session; `/reload-plugins`
   picks up edits) — so no prerelease tag is required. What remains is actually
