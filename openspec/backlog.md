@@ -193,6 +193,24 @@ Q/R/D stages to resolve before shaping. Note the natural fit with
 [[optional-technology-specs]]: cross-repo contracts (OpenAPI, proto) are exactly
 the kind of shared artifact a central spec repo would hold.
 
+### retro-as-extension-plugin — `idea` · **P3**
+
+**Why:** The retrospective tooling — the `/qrspi:retro` command and the
+`retrospective` skill — ships inside the base `qrspi` plugin, but it is
+**kit-maintenance** tooling, not something a consumer runs against their own repo:
+the retro's whole job is to edit the kit's own `claude/` command/skill/template
+sources (which exist only in this repo, not in an installed consumer). Bundling it
+bloats the consumer-facing plugin and blurs the consumer/maintainer boundary.
+Split it into a **separate plugin that extends/depends on the base `qrspi`
+plugin**, so the base stays lean (just the eight-stage workflow consumers actually
+run) and maintainers opt into the retro tooling. Open questions: does Claude Code's
+plugin model support plugin-to-plugin dependency/extension (or just a standalone
+sibling plugin sharing the marketplace)? Does the same argument extend to other
+kit-only meta-tooling — audit whether anything else in the base plugin is
+maintainer-only (note `readme-audit` / `sync-copilot` are already `.claude/`
+dev-tooling, not plugin-shipped, so likely already on the right side). Surfaced
+during `add-auto-mode`'s stage-I/PR retro.
+
 ### reassess-copilot-port — `idea` · **P3**
 
 **Why:** The Copilot half drops the core QRSPI mechanisms (subagent orchestration,
