@@ -14,7 +14,14 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## Ideas
 
-### archive-requires-merged-pr — `idea`
+Listed in priority order (highest first). Each carries a `P1`–`P3` band:
+**P1** = correctness/safety of the live workflow, low cost — do next;
+**P2** = high-value enhancements, larger or lightly dependent;
+**P3** = strategic bets or items sequenced behind another change. Re-evaluate
+this ordering whenever an item is added, modified, or archived (see
+[[backlog-prioritization]]).
+
+### archive-requires-merged-pr — `idea` · **P1**
 
 **Why:** Archiving a change today doesn't verify the linked PR actually merged —
 `/qrspi:archive` moves the folder under `archive/` regardless, so a change can be
@@ -24,7 +31,7 @@ otherwise stop and surface the state. As part of the archive, also update the
 change's entry in `openspec/backlog.md` (e.g. flip status to `merged` / move it
 out of "In progress") so the backlog and the archive stay in sync.
 
-### pr-review-open-tasks-and-followups — `idea`
+### pr-review-open-tasks-and-followups — `idea` · **P1**
 
 **Why:** The PR stage jumps straight to drafting the PR without reconciling
 loose ends. Before creating the PR, first walk the still-open tasks in
@@ -33,16 +40,63 @@ loose ends. Before creating the PR, first walk the still-open tasks in
 user what to do with each. Only after both review passes are resolved should the
 stage create the PR, so nothing open is silently carried into the PR.
 
-### lint-auto-mode-gate-coverage — `idea`
+### init-conductor-plus-overview — `idea` · **P2**
 
-**Why:** `add-auto-mode` introduces a convention that every stage command must
-reference the run-mode procedure in the `workflow` skill; a future command that
-silently drops that reference would quietly fail to suppress (or keep) a gate in
-auto mode. A structural `scripts/lint.mjs` check could assert the reference and
-per-gate auto-branch wiring stays consistent — the runtime suppression itself is
-not statically checkable. Surfaced by `add-auto-mode` stage D (offered, not built).
+**Why:** Onboarding a repo currently means discovering two separate commands —
+`/qrspi:init` (scaffolds OpenSpec) and `/qrspi:stack` (bootstraps the per-repo
+stack-cheatsheet skill) — and there's no home at all for a *product/domain*
+description (the "what/why" the stack skill deliberately omits; the stack skill
+is "how we build" only). Every QRSPI stage loads the stack skill for tech
+context but has no equivalent for domain context, which especially hurts the
+ticket-blind R stage (a stable "what is this app" doc is grounding it's *allowed*
+to have) and the Q/D framing stages.
 
-### repo-branch-protection — `idea`
+**Shape:** Make `/qrspi:init` a **conductor** for first-time onboarding that runs
+three steps in sequence, while each step stays its own re-runnable command so a
+later change can refresh just one:
+1. **Application description** → a new `/qrspi:overview` command that writes a
+   short domain/overview project-scope skill (`<repo>-overview`), sibling to the
+   stack skill and loaded by every stage. Not skipped. Keep it lean per
+   `context-hygiene` (a page — purpose, users, core concepts/glossary, non-obvious
+   constraints), and distinct from README (user-facing) / CLAUDE.md (agent rules)
+   / stack (tech) to avoid drift.
+2. **Tech stack (optional)** → the existing `/qrspi:stack`.
+3. **OpenSpec scaffold** → the current `npx openspec init` core, but *seeded* from
+   step 1: feed the application description into OpenSpec's project context
+   (`project.md` / the specs' `Purpose` fields, which today start as literal
+   `TBD - created by archiving…`) so "bootstrap based on the previous steps" is a
+   real linkage, not cosmetic ordering.
+
+Re-running `/qrspi:init` must **detect and offer to refresh** each of the three
+(the way `/qrspi:stack` already does "Read it first — this is a refresh"), never
+clobber. README's install/onboarding section and the stage table would need
+updating (per the CLAUDE.md "keep the README current" rule), plus the regenerated
+`copilot/` tree. Relates to [[multi-repo-central-specs]] (a central spec repo
+would want a shared overview too) and [[optional-technology-specs]].
+
+### backlog-prioritization — `idea` · **P2**
+
+**Why:** The Ideas list has no ordering signal — items accrete in roughly the
+order they were surfaced, so "what should we pick up next" isn't answerable from
+the file. Introduce a lightweight priority/ranking convention for the backlog,
+and make it self-maintaining: each time the backlog changes materially — an item
+is archived (moved out of "In progress"), a new item is added, or an existing
+item is modified — propose re-evaluating the backlog and reprioritizing if the
+change shifts the relative ordering. The re-evaluation is a *proposal to the
+user*, not an automatic silent reshuffle. Pairs naturally with the archive flow
+in [[archive-requires-merged-pr]] (which already updates the backlog entry on
+archive) — that's a natural trigger point to offer the reprioritization pass.
+(The `P1`–`P3` bands + priority ordering now used in this file are a first,
+hand-maintained cut of this convention.)
+
+### enforce-research-ticket-hiding — `idea` · **P2**
+
+**Why:** Ticket-hiding (the source's most important rule) is enforced only by
+telling the researcher not to open `questions.md`, though it has Read on the whole
+repo -- the "persona, not mechanism" anti-pattern `context-hygiene` itself warns
+against. Consider a mechanical guard.
+
+### repo-branch-protection — `idea` · **P2**
 
 **Why:** The CI gates added by `kit-quality-hardening` are only advisory until
 the `main` branch requires them; a `CODEOWNERS` file would also route reviews.
@@ -51,46 +105,7 @@ Deferred from `kit-quality-hardening` as a separate governance concern (its Q7).
 `UNSTABLE` — confirming `main` has no required checks today. Pair this with the
 new `release.yml` so a tag can't publish on a red build either.
 
-### enforce-research-ticket-hiding — `idea`
-
-**Why:** Ticket-hiding (the source's most important rule) is enforced only by
-telling the researcher not to open `questions.md`, though it has Read on the whole
-repo -- the "persona, not mechanism" anti-pattern `context-hygiene` itself warns
-against. Consider a mechanical guard.
-
-### reassess-copilot-port — `idea`
-
-**Why:** The Copilot half drops the core QRSPI mechanisms (subagent orchestration,
-per-slice model, skill auto-load) the source calls the whole point, leaving a
-checklist. Weigh relabeling it a "lite" companion against the ongoing
-sync/maintenance tax.
-
-### agentFor-frontmatter-crosscheck — `idea`
-
-**Why:** `sync-copilot.mjs`'s hardcoded `agentFor` table and the Claude command's
-declared subagent are parallel representations of the same delegation with no
-automated cross-check (research open gap #3). Deferred from
-`verify-stage-gate-execution` (Non-Goal). Note the framing shifts after that
-change lands: it drops `agent:` from the stage commands, so the cross-check becomes
-`agentFor` vs the subagent named in each command **body**, not its frontmatter.
-
-### reassess-openspec-dependency — `idea`
-
-**Why:** The source only asks to "persist to disk," but the kit pins an external
-OpenSpec CLI (npx, a version pin spread across files, a CI lint to police it) to
-gain `openspec validate` on the delta specs. (`openspec/specs/` is now populated
-as of the 2026-06-19 archives, so the validated surface is real — re-weigh the
-dependency against a vendored folder convention + a small validator with that in
-mind.)
-
-### simplify-per-slice-model-selection — `idea`
-
-**Why:** Per-slice model intent is endorsed by the source, but the mechanism (the
-architect writes a markdown `**Model:**` annotation; the implementer self-halts and
-asks to be re-invoked when on the wrong model) is fragile and breaks on Copilot.
-Consider a simpler lever or a single implement-stage model.
-
-### tutorial-mode-narrated-tour — `idea`
+### tutorial-mode-narrated-tour — `idea` · **P2**
 
 **Why:** Some users report not "getting" the eight-stage workflow from the docs
 alone. **Preferred first step** (low cost — the artifacts already exist): a
@@ -105,7 +120,87 @@ you to skip, so they misrepresent why the alignment stages matter. Reuses the
 `reference-example` asset already maintained. Pairs with
 `tutorial-mode-coaching-overlay` as the deeper, hands-on follow-up.
 
-### tutorial-mode-coaching-overlay — `idea`
+### optional-technology-specs — `idea` · **P3**
+
+**Why:** QRSPI delta specs today are stack-agnostic `Requirement` + `Scenario`
+markdown (WHEN/THEN). For changes that expose a concrete technical surface, a
+formal industry-standard artifact would be more precise and machine-validatable
+than prose — e.g. **OpenAPI** for HTTP APIs, **gRPC `.proto`** for RPC contracts,
+**Gherkin `.feature`** for executable acceptance criteria. Let a change
+**optionally** attach one or more such artifacts alongside its markdown spec (not
+replacing it — the requirement/scenario spec stays the human-review surface and
+the universal format for changes with no API/RPC/BDD surface, e.g. this repo's
+own command files). When present, QRSPI's validate step should run the matching
+linter/compiler (openapi validate, `protoc`, a Gherkin parser) so the formal
+artifact can't silently drift. Kept as one item because the mechanism is shared:
+a per-change convention for where these live and how they're validated, with the
+specific formats as pluggable instances. Watch the two-source-of-truth risk —
+prefer generating from or cross-checking against the markdown spec rather than
+maintaining both by hand. Relates to [[reassess-openspec-dependency]].
+
+### multi-repo-central-specs — `idea` · **P3**
+
+**Why:** QRSPI is scoped per repo today — `openspec/` (specs, changes, backlog)
+lives inside the one repo it governs. A solution that spans multiple repos
+(e.g. a service + its clients, or a set of microservices) has no home for
+cross-repo specs and no shared backlog; each repo runs its own isolated flow.
+Support a multi-repo topology with a **central spec repository** that holds the
+shared/contract-level specs and backlog, with the individual sub-repos consuming
+or referencing them.
+
+**Open question (unresolved):** whether the sub-repos should *also* carry their
+own `openspec/` specs. Options to weigh: (a) central-only — sub-repos hold no
+specs, all specs live centrally; (b) split — cross-repo contracts live centrally,
+repo-local behavior specs stay in each sub-repo, with a link/reference mechanism
+between them; (c) mirror — central is the source of truth and sub-repos hold a
+generated/pinned copy. Each has a different drift and ownership story. Needs the
+Q/R/D stages to resolve before shaping. Note the natural fit with
+[[optional-technology-specs]]: cross-repo contracts (OpenAPI, proto) are exactly
+the kind of shared artifact a central spec repo would hold.
+
+### reassess-copilot-port — `idea` · **P3**
+
+**Why:** The Copilot half drops the core QRSPI mechanisms (subagent orchestration,
+per-slice model, skill auto-load) the source calls the whole point, leaving a
+checklist. Weigh relabeling it a "lite" companion against the ongoing
+sync/maintenance tax.
+
+### reassess-openspec-dependency — `idea` · **P3**
+
+**Why:** The source only asks to "persist to disk," but the kit pins an external
+OpenSpec CLI (npx, a version pin spread across files, a CI lint to police it) to
+gain `openspec validate` on the delta specs. (`openspec/specs/` is now populated
+as of the 2026-06-19 archives, so the validated surface is real — re-weigh the
+dependency against a vendored folder convention + a small validator with that in
+mind.)
+
+### simplify-per-slice-model-selection — `idea` · **P3**
+
+**Why:** Per-slice model intent is endorsed by the source, but the mechanism (the
+architect writes a markdown `**Model:**` annotation; the implementer self-halts and
+asks to be re-invoked when on the wrong model) is fragile and breaks on Copilot.
+Consider a simpler lever or a single implement-stage model.
+
+### lint-auto-mode-gate-coverage — `idea` · **P3**
+
+**Why:** `add-auto-mode` introduces a convention that every stage command must
+reference the run-mode procedure in the `workflow` skill; a future command that
+silently drops that reference would quietly fail to suppress (or keep) a gate in
+auto mode. A structural `scripts/lint.mjs` check could assert the reference and
+per-gate auto-branch wiring stays consistent — the runtime suppression itself is
+not statically checkable. Surfaced by `add-auto-mode` stage D (offered, not built).
+Sequenced behind `add-auto-mode` landing.
+
+### agentFor-frontmatter-crosscheck — `idea` · **P3**
+
+**Why:** `sync-copilot.mjs`'s hardcoded `agentFor` table and the Claude command's
+declared subagent are parallel representations of the same delegation with no
+automated cross-check (research open gap #3). Deferred from
+`verify-stage-gate-execution` (Non-Goal). Note the framing shifts after that
+change lands: it drops `agent:` from the stage commands, so the cross-check becomes
+`agentFor` vs the subagent named in each command **body**, not its frontmatter.
+
+### tutorial-mode-coaching-overlay — `idea` · **P3**
 
 **Why:** Follow-up to `tutorial-mode-narrated-tour` once the tour format proves
 out (higher build cost). A `/qrspi:learn` mode that runs the *real* stages on the
