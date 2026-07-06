@@ -5,13 +5,6 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 `in-progress` / `merged`. Completed work lives under
 `openspec/changes/archive/`, not here.
 
-## In progress
-
-### add-auto-mode — `in-progress (draft PR #13 open)`
-
-**Why:** Running the full 8-stage QRSPI flow requires answering many interactive prompts (commit gate, next-stage handoff, per-slice checkpoints, backlog-capture offers, PR step); an auto mode that suppresses all but the Q and D pauses would let teams run an unattended alignment-through-PR pipeline for low-risk changes.
-**Likely shape:** A ternary mode-choice prompt (Full auto / Semi-auto / Manual) asked via AskUserQuestion at the top of every fresh stage invocation — no disk persistence; the mode is carried in-process across an auto chain and re-asked on resume. In Full auto the orchestrator chains `Q → R → D → S → V → P → I → PR`, auto-advancing the commit (commit + push), handoff, Structure design-approval (auto-Yes after D), per-slice checkpoints, and PR-create gates, pausing only at the Q open-questions pass, the D review, the (still-interactive) backlog offers, and hard-stops (precondition fail, git fail, subagent error/block, design divergence). Blast radius: all 8 stage commands (+ possibly `followup.md`), `qrspi-workflow` SKILL.md choreography section, README, and regenerated `copilot/` tree (Claude-only, zero-drift). See `openspec/changes/add-auto-mode/questions.md` PQ1–PQ13 for resolved decisions.
-
 ## Ideas
 
 Listed in priority order (highest first). Each carries a `P1`–`P3` band:
@@ -144,7 +137,7 @@ script** — lint/sync run in this repo's CI, but a helper a stage command invok
 at runtime ships into consumer repos and inherits their `gh`/auth availability and
 cross-platform concerns; be deliberate about that split.
 
-### lint-auto-mode-gate-coverage — `idea` · **P2** (blocked until `add-auto-mode` merges)
+### lint-auto-mode-gate-coverage — `idea` · **P2**
 
 **Why:** `add-auto-mode` introduces a convention that every stage command must
 reference the run-mode procedure in the `workflow` skill; a future command that
@@ -152,8 +145,8 @@ silently drops that reference would quietly fail to suppress (or keep) a gate in
 auto mode. A structural `scripts/lint.mjs` check could assert the reference and
 per-gate auto-branch wiring stays consistent — the runtime suppression itself is
 not statically checkable. Surfaced by `add-auto-mode` stage D (offered, not built).
-Low-cost correctness guard (hence P2, not P3); blocked until `add-auto-mode`
-merges, since the convention it enforces ships with that change.
+Low-cost correctness guard (hence P2, not P3). Now **unblocked** — `add-auto-mode`
+merged 2026-07-06 (archived), so the convention it enforces is live.
 
 ### optional-technology-specs — `idea` · **P3**
 
