@@ -58,10 +58,17 @@ skill `workflow`).** After the implementer subagent returns for Slice N:
    to Slice N+1 (see the "Hard-stop procedure" in skill `workflow`).
 2. If successful, auto-commit the slice (explicit paths, stage commit
    message, push -- per the canonical "Commit step" in skill `workflow`):
-   - First update `openspec/backlog.md` (same rules as Manual below).
-   - Then run:
+   - On the **final** slice only, first update `openspec/backlog.md` (same
+     rule as Manual below); intermediate slices do not touch it.
+   - Then run (final slice):
      ```
      git add openspec/changes/<id>/tasks.md openspec/backlog.md <files-modified-in-this-slice>
+     git commit -m "feat(<id>): implement slice N — <slice title>"
+     git push
+     ```
+     or, on an intermediate slice (no backlog edit):
+     ```
+     git add openspec/changes/<id>/tasks.md <files-modified-in-this-slice>
      git commit -m "feat(<id>): implement slice N — <slice title>"
      git push
      ```
@@ -85,24 +92,27 @@ described below. Only proceed to the next slice after explicit confirmation.
 Only proceed to the next slice after explicit confirmation.
 
 **Per-slice commit step:** After each slice checkpoint passes (and, in Manual,
-after the human confirms), update `openspec/backlog.md`:
-- On the **final** slice, change the change's row `Status:` line to
-  `in-progress (Q, R, D, S, V, P, I complete)` and the
-  `Next QRSPI command:` line to `/qrspi:pr <id>`.
-- On **intermediate** slices, leave `Status:` alone and update the
-  `Next QRSPI command:` line to reflect that slice N+1 is in flight
-  (e.g. `/qrspi:implement <id>` is still the correct next call).
+after the human confirms):
+- On the **final** slice, update `openspec/backlog.md`: change the row's
+  heading backtick from `### <id> — \`proposed (...)\`` to
+  `### <id> — \`in-progress (Q, R, D, S, V, P, I complete)\`` and move the
+  row from `## Proposed` to `## In progress` (see skill `workflow`,
+  "Backlog atomicity").
+- On **intermediate** slices, do not touch `openspec/backlog.md` at all --
+  there is no `Next QRSPI command:` line to update, and the row's status
+  stays `proposed` until the final slice above.
 
-The backlog edit lands in the same commit as the slice (backlog
-atomicity, see skill `workflow`).
+When the backlog is edited (final slice only), that edit lands in the
+same commit as the slice (backlog atomicity, see skill `workflow`).
 
 In Manual mode, use the **AskUserQuestion** tool to ask before committing:
   question: "Commit Slice N changes to the feature branch?"
   choices: ["Yes — commit and push", "No — I'll commit later"]
 
-Then run (if committing):
+Then run (if committing; include `openspec/backlog.md` only on the final
+slice, per the per-slice commit step above):
 ```
-git add openspec/changes/<id>/tasks.md openspec/backlog.md <files-modified-in-this-slice>
+git add openspec/changes/<id>/tasks.md [openspec/backlog.md] <files-modified-in-this-slice>
 git commit -m "feat(<id>): implement slice N — <slice title>"
 git push
 ```
@@ -131,8 +141,9 @@ the design artifacts. Handle it like this:
    before writing task specs — do not skip it, or the new slice will
    contradict documented conventions (e.g. the project's chosen component
    library and iconography over alternatives).
-3. **Commit** as `docs(<id>): amend scope — add Slice N ...`, carrying the
-   matching `openspec/backlog.md` edit (status / next-command) atomically.
+3. **Commit** as `docs(<id>): amend scope — add Slice N ...`, carrying any
+   matching `openspec/backlog.md` heading edit atomically (only if the
+   amendment itself changes the row's status or note).
 4. **Then run `/qrspi:implement <id>`** to implement the new slice through the
    normal slice / checkpoint / commit machinery.
 

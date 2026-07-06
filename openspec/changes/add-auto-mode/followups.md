@@ -27,12 +27,18 @@
   5. **Red-build block (optional):** a slice whose lint fails → implementer returns
      blocked → chain stops, slice not committed.
   Then tick this box (or file bugs for any gate that misbehaves). (source: PR review)
-- [ ] **`implement.md` ↔ `backlog.md` status-line convention drift.** `implement.md`
+- [x] **`implement.md` ↔ `backlog.md` status-line convention drift.** `implement.md`
   references `Status:` and `Next QRSPI command:` body lines, but
   questioner-generated backlog rows use a `### <id> — <status-in-backticks>`
   heading format. Align either the instruction wording or the questioner's row
   template so a Full-auto run does not produce confusing no-op backlog edits.
-  (source: PR review; predates this change)
+  (source: PR review; predates this change) — fixed (commit pending): rewrote
+  the backlog-update wording in `implement.md`, `pr.md`, `plan.md`,
+  `structure.md`, `slices.md`, and `workflow` `SKILL.md` to describe the real
+  heading-backtick convention (verified against this repo's own backlog
+  history) and dropped the non-existent `Next QRSPI command:` line concept;
+  P and V now correctly say no backlog edit happens at those stages, and
+  `implement.md`'s intermediate slices no longer touch `backlog.md`.
 - [ ] **"Materially diverges" rubric for execution-stage subagents.** Hard-stop
   condition (4) — implementation/structure materially diverging from the approved
   `design.md`/spec — is a semantic self-assessment. Add a concrete divergence

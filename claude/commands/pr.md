@@ -70,9 +70,10 @@ the link in **two** places:
    ```
 2. **`openspec/backlog.md`** — the convenient in-progress lookup (this
    row is deleted on archive, which is why pr.md above is required):
-   - Change the row `Status:` line to
-     `in-progress (Q, R, D, S, W, P, I complete; PR #<N> open — <url>)`.
-   - Change the `Next QRSPI command:` line to `archive after merge`.
+   change the row's heading backtick note from
+   `in-progress (Q, R, D, S, V, P, I complete)` to
+   `in-progress (draft PR #<N> open)` -- it stays under `## In progress`;
+   there is no separate `Status:` or `Next QRSPI command:` line to update.
 
 **Seed the follow-up queue (when the reviewer found open issues).** If the
 reviewer's "Open issues found" count is greater than zero, write those

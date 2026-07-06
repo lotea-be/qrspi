@@ -360,16 +360,28 @@ Ask the human whether to keep going:
 
 ### Backlog atomicity
 
+A backlog row is a single heading with a backticked status --
+`### <id> -- \`<status> (<note>)\`` -- grouped under a `##` section per
+status (`## Proposed`, `## In progress`, `## Ideas`, ...). There is no
+separate `Status:` or `Next QRSPI command:` body line: the status word,
+its free-text parenthetical note, and the row's section grouping all live
+in that one heading, and any edit to them is an edit to that heading.
+
 When a stage's state change has a matching `openspec/backlog.md` edit (a
-status transition, or the `Next QRSPI command:` line moving to the next
-stage), that backlog edit lands in the **same commit** as the stage's
-artifact -- never as a separate follow-up commit. Stage `openspec/backlog.md`
-alongside the artifact in the commit step above. This is the same
-atomic-commit rule stated under "Before Q -- the backlog"; it applies to
-every stage that touches the backlog row. A stage whose subagent already
-performed the backlog edit (e.g. the questioner's status flip) verifies the
-row rather than re-editing it -- re-editing a file the subagent just wrote
-fails with a "file modified since read" error.
+status transition and/or section-grouping move, or a new `idea` row
+captured from deferred work), that backlog edit lands in the **same
+commit** as the stage's artifact -- never as a separate follow-up commit.
+Stage `openspec/backlog.md` alongside the artifact in the commit step
+above. This is the same atomic-commit rule stated under "Before Q -- the
+backlog"; it applies to every stage that touches the backlog row. Most
+stages do **not** touch the row at all: only Q (`idea` to `proposed`), the
+Implement stage's final slice (`proposed` to `in-progress`, moving the row
+under `## In progress` with a completed-stages note), and PR (updating the
+note to the open-PR reference) flip status; Q, D, and S may additionally
+add new `idea` rows via "Capturing deferred work" above. A stage whose
+subagent already performed the backlog edit (e.g. the questioner's status
+flip) verifies the row rather than re-editing it -- re-editing a file the
+subagent just wrote fails with a "file modified since read" error.
 
 ### Stage-specific gate notes
 
