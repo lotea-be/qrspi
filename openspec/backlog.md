@@ -120,6 +120,30 @@ you to skip, so they misrepresent why the alignment stages matter. Reuses the
 `reference-example` asset already maintained. Pairs with
 `tutorial-mode-coaching-overlay` as the deeper, hands-on follow-up.
 
+### standardize-recurring-ops-scripts — `idea` · **P2**
+
+**Why:** Several QRSPI operations recur across changes, and today the agent
+re-derives "the best method" each run (which risks drift and costs re-exploration).
+The kit already proves the fix — [`scripts/lint.mjs`](scripts/lint.mjs) and
+[`sync-copilot.mjs`](sync-copilot.mjs) are recurring mechanical tasks extracted to
+Node scripts. Extend that pattern to the **deterministic** recurring ops so stage
+commands call a helper instead of reinventing it: "does the linked PR show
+`merged`?", "create the PR from this title/body template", "flip a backlog entry's
+status", "list open items in `tasks.md`/`followups.md`". Direct enabler for
+[[archive-requires-merged-pr]] (the PR-status check) and
+[[pr-review-open-tasks-and-followups]] (PR-create + open-item enumeration) — do
+those first and the first one or two helpers worth extracting fall out naturally.
+
+**Scope boundary — mechanical, not judgment.** Script only ops with one correct
+answer; leave decisions (finish/defer/drop a task, reprioritize, approve a design)
+to the human/agent. The script supplies the *fact*; the caller makes the *call*.
+Two constraints: (1) **Node, not shell** — per CLAUDE.md the permission checker
+rejects shell-injection in slash commands, so helpers follow the lint/sync
+precedent. (2) **A shipped runtime helper is a bigger commitment than a CI-only
+script** — lint/sync run in this repo's CI, but a helper a stage command invokes
+at runtime ships into consumer repos and inherits their `gh`/auth availability and
+cross-platform concerns; be deliberate about that split.
+
 ### optional-technology-specs — `idea` · **P3**
 
 **Why:** QRSPI delta specs today are stack-agnostic `Requirement` + `Scenario`
