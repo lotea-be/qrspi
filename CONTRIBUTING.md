@@ -60,6 +60,13 @@ and several merged PRs batch into one release.
    the only step outside this repo, and the only thing that actually ships to
    users.)
 
+> **Shortcut:** `/qrspi-release [X.Y.Z]` (local dev-tooling — the `qrspi-release`
+> command + skill under `.claude/`) runs steps 1–5 for you: it checks the
+> preconditions, bumps `plugin.json`, rolls the CHANGELOG, re-verifies lint +
+> drift, and makes the `release: vX.Y.Z` commit — then **gates the tag-push
+> (the publish) behind an explicit confirmation**. Step 6 (the marketplace ref)
+> stays manual.
+
 The `.github/workflows/release.yml` job runs on the `v*` tag push: it re-runs
 lint + drift, asserts the tag matches `plugin.json` `version` and that a
 matching `CHANGELOG.md` section exists, then publishes a GitHub Release with
