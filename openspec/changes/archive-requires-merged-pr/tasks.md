@@ -9,40 +9,40 @@ logic is pinned down verbatim in design.md D1–D6 and D8; this is templated
 hard-stop authoring against a pattern (`workflow` skill's hard-stop
 procedure) the kit already documents elsewhere, not a novel design decision.
 
-- [ ] 1.1 In `claude/commands/archive.md`, insert a new step 3 (renumbering
+- [x] 1.1 In `claude/commands/archive.md`, insert a new step 3 (renumbering
   the existing skill-delegation step to step 4) that reads
   `openspec/changes/<id>/pr.md` via Read/Glob and extracts the PR number,
   tolerating field drift: prefer a `#<N>` token on the `- **PR:** #<N>`
   line, else fall back to a number parsed from a `URL:` / `PR link:` line
   (D2).
-- [ ] 1.2 In the same step, hard-block with instructions to run `/qrspi:pr`
+- [x] 1.2 In the same step, hard-block with instructions to run `/qrspi:pr`
   first when `pr.md` is absent, and hard-block showing what was found in
   `pr.md` (asking the human to fix it) when no PR number can be extracted
   at all (D2).
-- [ ] 1.3 Add host CLI + status-query resolution: read the status-query
+- [x] 1.3 Add host CLI + status-query resolution: read the status-query
   line from the project stack-cheatsheet's `## PR & git workflow` section
   when present; otherwise infer the host from repo signals (`.github/`/
   GitHub remote → `gh`; `azure-pipelines.yml` → `az repos`; `.gitlab-ci.yml`
   → `glab`), defaulting to `gh` when signals are ambiguous (D3).
-- [ ] 1.4 Add the per-host "merged" definition and invoke the resolved
+- [x] 1.4 Add the per-host "merged" definition and invoke the resolved
   status-query command via the Bash tool at runtime (not literal
   shell-injection syntax): GitHub `state == MERGED`; Azure DevOps
   `status == completed`; GitLab `state == merged` (D4).
-- [ ] 1.5 Add the "surface first, then decide" behavior: always fetch and
+- [x] 1.5 Add the "surface first, then decide" behavior: always fetch and
   print the PR's number/state/URL before deciding; on `merged`, proceed
   silently to step 4 (skill delegation); on any non-merged state, hard-stop
   unconditionally with the "PR #<N> is <state> (not merged) … merge PR
   #<N>, then re-run `/qrspi:archive <id>`" wording, uniform across `open`
   and closed-unmerged (D5).
-- [ ] 1.6 Add the CLI-unavailable/unauthenticated branch: when the resolved
+- [x] 1.6 Add the CLI-unavailable/unauthenticated branch: when the resolved
   CLI is missing or the query fails on an auth error, hard-stop with a
   distinct, actionable message naming the fix (e.g. "run `gh auth login`,
   then re-run `/qrspi:archive <id>`") — never a silent skip (D6).
-- [ ] 1.7 In `claude/commands/stack.md`'s `## PR & git workflow` section
+- [x] 1.7 In `claude/commands/stack.md`'s `## PR & git workflow` section
   template, add a parallel PR-status-query line next to the existing
   PR-create line (e.g. `gh pr view <N> --json state`, `az repos pr show
   --id <N>`, `glab mr view <N>`) (D8).
-- [ ] 1.8 Regenerate Copilot: run `node sync-copilot.mjs`, then `node
+- [x] 1.8 Regenerate Copilot: run `node sync-copilot.mjs`, then `node
   sync-copilot.mjs --check` and confirm it exits 0 (confirms
   `copilot/prompts/qrspi-archive.prompt.md` picked up the new step).
 - [ ] 1.9 (human) Dev-install the in-progress plugin (`claude --plugin-dir
