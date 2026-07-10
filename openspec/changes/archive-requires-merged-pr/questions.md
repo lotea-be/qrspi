@@ -287,7 +287,7 @@ sync on archive" below.
   sees why it stopped. The status query runs, its result is displayed, and
   only then does a non-`merged` state hard-stop. Uniform across open and
   closed-unmerged (no per-state softening).**
-- [ ] **PQ3 — Backlog outcome on archive:** What happens to the change's row
+- [x] **PQ3 — Backlog outcome on archive:** What happens to the change's row
   in `openspec/backlog.md` on a successful archive? Options: (a) flip the
   row's status backtick to `merged` and leave the row in place, per the
   ticket's literal wording — note this contradicts `qrspi-workflow`'s
@@ -306,7 +306,7 @@ sync on archive" below.
   backtick). `qrspi-workflow`'s "Before Q — the backlog" wording should
   gain a forward-reference naming `/qrspi:archive` as the row-removal owner
   (Q12 — this becomes the first/only command that removes a completed row).**
-- [ ] **PQ4 — Git-host CLI generalization:** `pr.md`'s PR-*creation* step
+- [x] **PQ4 — Git-host CLI generalization:** `pr.md`'s PR-*creation* step
   already generalizes across hosts via the stack-cheatsheet's "PR & git
   workflow" section (`gh pr create` / `az repos pr create` / `glab mr
   create`). Should the merge-*status query* use that same per-project
@@ -323,7 +323,7 @@ sync on archive" below.
   parallel status-query line (`gh pr view` / `az repos pr show` / `glab mr
   view`) next to the existing PR-create line, so the merge check stays
   host-agnostic in step with `pr.md`.**
-- [ ] **PQ5 — Inline check vs. extracted helper now:** `standardize-recurring-ops-scripts`
+- [x] **PQ5 — Inline check vs. extracted helper now:** `standardize-recurring-ops-scripts`
   (P2 idea) explicitly proposes extracting "does the linked PR show merged?"
   into a shared Node helper and names this change as the direct enabler,
   saying the first helper(s) worth extracting "fall out naturally" once
@@ -338,7 +338,7 @@ sync on archive" below.
   `standardize-recurring-ops-scripts` backlog item. Keeps the
   runtime-helper-ships-to-consumers concern (Q17) out of scope for this
   change.**
-- [ ] **PQ6 — Where the check lives given the generated-skill constraint:**
+- [x] **PQ6 — Where the check lives given the generated-skill constraint:**
   `openspec-archive-change` is an auto-generated skill (regenerated from the
   OpenSpec CLI's template, like `copilot/`) that must not be hand-edited.
   Confirm the PR-merge check is implemented entirely as new steps in
@@ -351,7 +351,7 @@ sync on archive" below.
   in `claude/commands/archive.md`, running before it delegates to the
   auto-generated `openspec-archive-change` skill. No alternative mechanism;
   the generated skill is not hand-edited.**
-- [ ] **PQ7 — CLI/auth unavailable:** If the host CLI (`gh`/`az`/`glab`) is
+- [x] **PQ7 — CLI/auth unavailable:** If the host CLI (`gh`/`az`/`glab`) is
   not installed or not authenticated when the status query runs, how should
   archive respond? Options: (a) hard-stop with an actionable message (e.g.
   "run `gh auth login`, then retry"); (b) the same soft-block+confirm
