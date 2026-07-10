@@ -118,7 +118,7 @@ called out verbatim in D7, not a judgment call.
 
 **Model:** sonnet — mechanical repo-wide verification, no new decisions.
 
-- [ ] 3.1 Run `node scripts/lint.mjs` and confirm it passes (README↔command
+- [x] 3.1 Run `node scripts/lint.mjs` and confirm it passes (README↔command
   bidirectional coverage, Check 4) — no README edit is expected since
   `/qrspi:archive` is already documented and D10/Q18 confirmed no stale
   README prose describes today's unconditional-move behavior.
