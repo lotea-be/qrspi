@@ -31,8 +31,9 @@ QRSPI starts at Q, but candidate changes are tracked beforehand in
 deciding what to propose next, and update the matching row whenever a
 change is proposed, merged, or archived (remove archived rows — the
 `openspec/changes/archive/` folder is the source of truth for completed
-work). The backlog is not a stage and produces no QRSPI artifact; it just
-feeds Q.
+work). `/qrspi-archive` is the command that performs that removal,
+atomically with the folder move. The backlog is not a stage and produces
+no QRSPI artifact; it just feeds Q.
 
 **Always commit the backlog edit in the same commit as the state change
 it reflects** — never as a separate follow-up. If you're proposing a

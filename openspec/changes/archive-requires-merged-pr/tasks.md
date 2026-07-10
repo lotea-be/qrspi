@@ -73,22 +73,22 @@ wording edit are both fully specified; the only care point (plain `mv`
 staging, per design's risk note) is a mechanical `git add` detail already
 called out verbatim in D7, not a judgment call.
 
-- [ ] 2.1 In `claude/commands/archive.md`, add a new post-skill step (after
+- [x] 2.1 In `claude/commands/archive.md`, add a new post-skill step (after
   the unchanged `openspec-archive-change` skill delegation succeeds) that
   removes the `<id>` row from `openspec/backlog.md` (D7).
-- [ ] 2.2 In the same step, stage explicit paths only — the new
+- [x] 2.2 In the same step, stage explicit paths only — the new
   `openspec/changes/archive/YYYY-MM-DD-<id>/` tree, the deletion of the old
   `openspec/changes/<id>/` path, and `openspec/backlog.md` — never
   `git add -A` (D7).
-- [ ] 2.3 Commit with the exact message
+- [x] 2.3 Commit with the exact message
   `chore(<id>): archive change + remove backlog row`, then `git push` (D7).
-- [ ] 2.4 On any non-zero `git commit`/`git push` exit code, hard-stop and
+- [x] 2.4 On any non-zero `git commit`/`git push` exit code, hard-stop and
   surface the git error verbatim rather than leaving the tree
   moved-but-uncommitted (D7).
-- [ ] 2.5 Edit `claude/skills/workflow/SKILL.md`'s "Before Q — the
+- [x] 2.5 Edit `claude/skills/workflow/SKILL.md`'s "Before Q — the
   backlog" wording to name `/qrspi:archive` as the command that performs
   the archived-row removal, atomically with the folder move (D9).
-- [ ] 2.6 Regenerate Copilot again: run `node sync-copilot.mjs`, then
+- [x] 2.6 Regenerate Copilot again: run `node sync-copilot.mjs`, then
   `node sync-copilot.mjs --check` and confirm it exits 0 (confirms
   `copilot/instructions/workflow.instructions.md` picked up the D9
   wording via the sync, not a hand-edit).
@@ -105,7 +105,7 @@ called out verbatim in D7, not a judgment call.
   commit `chore(<id>): archive change + remove backlog row` containing
   the archived tree, the old-path deletion, and the backlog edit together
   — no separate commit for the backlog row (D7).
-- [ ] 2.11 Read the edited `claude/skills/workflow/SKILL.md` passage to
+- [x] 2.11 Read the edited `claude/skills/workflow/SKILL.md` passage to
   confirm it names `/qrspi:archive` as the row-removal owner (D9), and
   spot-check the regenerated `copilot/instructions/workflow.instructions.md`
   picked up the wording via the sync.

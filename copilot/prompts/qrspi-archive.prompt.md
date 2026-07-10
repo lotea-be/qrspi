@@ -76,8 +76,36 @@ Steps:
    artifact/task completion, assesses delta-spec sync state, moves the folder to
    `archive/YYYY-MM-DD-<id>/`, and prints the archive summary.
 
-5. Relay the skill's completion summary to the user, including the archive path
-   and whether specs were synced.
+5. **Remove the backlog row and commit the archive (mandatory).** The skill in
+   step 4 only moves the folder on disk; it never touches git or
+   `openspec/backlog.md`. This step finishes the job with the archive flow's
+   first-ever explicit commit, so the folder move and the backlog-row removal
+   land together atomically.
+   - **Remove the backlog row.** Edit `openspec/backlog.md` and delete the
+     `<id>` row's heading and body entirely — the row disappears rather than
+     flipping to a `merged` status, because the dated `archive/` folder from
+     step 4 is now the source of truth for this completed work.
+   - **Stage explicit paths only, never `git add -A`** (the canonical *commit
+     step* in skill `workflow` applies). The skill in step 4 used a plain
+     `mv`, not `git mv`, so nothing is staged yet: `git add` both the new
+     archived path (from the archive summary in step 4) and the now-deleted
+     old change path so the deletion is staged too, alongside the backlog
+     edit:
+     ```
+     git add openspec/changes/archive/<YYYY-MM-DD>-<id>/ openspec/changes/<id>/ openspec/backlog.md
+     git commit -m "chore(<id>): archive change + remove backlog row"
+     git push
+     ```
+   - **On any non-zero exit from `git commit` or `git push`,** this is a
+     hard-stop (see the *hard-stop procedure* in skill `workflow`): surface
+     the git error verbatim and stop here — do not proceed to step 6, and do
+     not retry silently. The tree is now moved-but-uncommitted; say so
+     explicitly so the human knows to resolve it before re-running.
+
+6. Relay the skill's completion summary to the user, including the archive
+   path, whether specs were synced, and confirmation that the backlog row was
+   removed and the archive commit landed (or the git error, if step 5
+   hard-stopped).
 
 Repository signals you may use (to list in-flight and archived changes, use the
 **Glob** tool with patterns `openspec/changes/*` and
