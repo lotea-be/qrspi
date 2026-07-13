@@ -139,21 +139,21 @@ called out verbatim in D7, not a judgment call.
 (`chore/archive-<id>`), the default, and reuses D7's staging/commit/hard-stop
 verbatim; mechanical instruction-following, no first-of-kind reasoning.
 
-- [ ] 4.1 In `claude/commands/archive.md` step 5, after staging the archive
+- [x] 4.1 In `claude/commands/archive.md` step 5, after staging the archive
   changes and before the `git commit`, insert an AskUserQuestion that proposes
   the commit target with two options, defaulting to the new-branch path:
   "New branch + push (open a PR)" and "Commit straight to main" (D11).
-- [ ] 4.2 New-branch path: `git checkout -b chore/archive-<id>` off the current
+- [x] 4.2 New-branch path: `git checkout -b chore/archive-<id>` off the current
   HEAD, commit the staged changes with the unchanged
   `chore(<id>): archive change + remove backlog row` message, `git push -u`,
   then surface the host PR-create command as the suggested next step (D11).
-- [ ] 4.3 Main path: commit + push on the current branch, exactly D7's original
+- [x] 4.3 Main path: commit + push on the current branch, exactly D7's original
   behavior (D11).
-- [ ] 4.4 Both paths preserve D7's identical staged paths (never `git add -A`)
+- [x] 4.4 Both paths preserve D7's identical staged paths (never `git add -A`)
   and the non-zero-git-exit hard-stop; the branch name is fixed, not prompted.
-- [ ] 4.5 Update step 6's relay so it reports which target was chosen (branch +
+- [x] 4.5 Update step 6's relay so it reports which target was chosen (branch +
   PR-create suggestion, or straight-to-main).
-- [ ] 4.6 Regenerate Copilot: `node sync-copilot.mjs`, then `node
+- [x] 4.6 Regenerate Copilot: `node sync-copilot.mjs`, then `node
   sync-copilot.mjs --check` and confirm it exits 0.
 - [ ] 4.7 (human) Dogfood: on a merged-PR archive, confirm the branch-vs-main
   prompt appears after the folder move + backlog-row removal (D11).

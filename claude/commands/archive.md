@@ -76,11 +76,16 @@ Steps:
    artifact/task completion, assesses delta-spec sync state, moves the folder to
    `archive/YYYY-MM-DD-<id>/`, and prints the archive summary.
 
-5. **Remove the backlog row and commit the archive (mandatory).** The skill in
-   step 4 only moves the folder on disk; it never touches git or
-   `openspec/backlog.md`. This step finishes the job with the archive flow's
-   first-ever explicit commit, so the folder move and the backlog-row removal
-   land together atomically.
+5. **Remove the backlog row, propose the commit target, and commit the
+   archive (mandatory).** The skill in step 4 only moves the folder on disk;
+   it never touches git or `openspec/backlog.md`. This step finishes the job
+   with the archive flow's first-ever explicit commit, so the folder move
+   and the backlog-row removal land together atomically. Because this step
+   runs after the PR has merged (the human is typically sitting on `main`)
+   and the archive syncs the change's delta specs into `openspec/specs/` — a
+   reviewable content change, not silent bookkeeping — it also asks where
+   that commit should land rather than pushing it straight to the current
+   branch.
    - **Remove the backlog row.** Edit `openspec/backlog.md` and delete the
      `<id>` row's heading and body entirely — the row disappears rather than
      flipping to a `merged` status, because the dated `archive/` folder from
@@ -93,19 +98,48 @@ Steps:
      edit:
      ```
      git add openspec/changes/archive/<YYYY-MM-DD>-<id>/ openspec/changes/<id>/ openspec/backlog.md
+     ```
+   - **Propose the commit target (always shown — not a suppressible
+     confirmation).** Use the **AskUserQuestion** tool:
+     - question: "Where should the archive commit land?"
+     - choices:
+       - "New branch + push (open a PR)" — **default / recommended**
+       - "Commit straight to main"
+   - **New branch + push (the default).** Create `chore/archive-<id>` off
+     the current HEAD — the staged changes carry over onto the new branch —
+     commit them with the unchanged message, then push with `-u`:
+     ```
+     git checkout -b chore/archive-<id>
+     git commit -m "chore(<id>): archive change + remove backlog row"
+     git push -u origin chore/archive-<id>
+     ```
+     Then surface the project's PR-create command (the host CLI named in
+     its stack-cheatsheet — e.g. `gh pr create` or `az repos pr create`) as
+     the suggested next step, mirroring how `/qrspi:pr` surfaces its
+     PR-create line. Do not run it automatically — just print it.
+   - **Commit straight to main.** Commit and push on the current branch —
+     the same commit as the new-branch path, just without the intermediate
+     `git checkout -b`, and no PR-create suggestion follows:
+     ```
      git commit -m "chore(<id>): archive change + remove backlog row"
      git push
      ```
-   - **On any non-zero exit from `git commit` or `git push`,** this is a
-     hard-stop (see the *hard-stop procedure* in skill `workflow`): surface
-     the git error verbatim and stop here — do not proceed to step 6, and do
-     not retry silently. The tree is now moved-but-uncommitted; say so
-     explicitly so the human knows to resolve it before re-running.
+   - **On any non-zero exit from `git checkout -b`, `git commit`, or `git
+     push` in either path,** this is a hard-stop (see the *hard-stop
+     procedure* in skill `workflow`): surface the git error verbatim and
+     stop here — do not proceed to step 6, and do not retry silently. The
+     tree is now moved-but-uncommitted; say so explicitly so the human
+     knows to resolve it before re-running.
 
 6. Relay the skill's completion summary to the user, including the archive
-   path, whether specs were synced, and confirmation that the backlog row was
-   removed and the archive commit landed (or the git error, if step 5
-   hard-stopped).
+   path, whether specs were synced, confirmation that the backlog row was
+   removed, and which commit target was chosen (or the git error, if step 5
+   hard-stopped):
+   - **New branch chosen:** name the branch (`chore/archive-<id>`), confirm
+     the archive commit landed there and was pushed, and repeat the
+     suggested PR-create command as the next step.
+   - **Main chosen:** confirm the archive commit landed and was pushed on
+     the current branch, with no new branch created.
 
 Repository signals you may use (to list in-flight and archived changes, use the
 **Glob** tool with patterns `openspec/changes/*` and
