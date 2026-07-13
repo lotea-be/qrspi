@@ -21,18 +21,20 @@ dev-installing this in-progress copy first: `claude --plugin-dir
 the checkpoint silently exercises the last-released `archive.md`, not the one
 being edited.
 
-Two slices exactly match the design's preview (design.md "Vertical slices
-(preview)") — the block path is the higher-risk, higher-value half (it is the
-change's entire reason to exist: never archive an unmerged PR), so it comes
+The first two slices match the design's original preview (design.md "Vertical
+slices (preview)") — the block path is the higher-risk, higher-value half (it is
+the change's entire reason to exist: never archive an unmerged PR), so it comes
 first and is fully demoable on its own (a hard-stop *is* the observable
 behavior). The merge path builds on it and is demoable independently once the
-gate exists. Both fit the 3–5 slice band without padding — a third slice
-would only split D1–D6 or D7–D9 further with no added reviewability.
+gate exists. **Slice 3 was added as a scope amendment** after the Slice 1/2
+dogfood surfaced D11 (propose the archive commit's target — branch or main —
+rather than committing silently on the current branch); it builds on Slice 2's
+commit step and is independently demoable.
 
 All slices default to `sonnet`: every decision (gate ordering, message
-wording, host-inference fallback, commit staging) is already pinned down in
-design.md D1–D9 — this is templated instruction-following against an
-existing hard-stop pattern the `workflow` skill already documents, not
+wording, host-inference fallback, commit staging, commit-target proposal) is
+already pinned down in design.md D1–D11 — this is templated instruction-following
+against an existing hard-stop pattern the `workflow` skill already documents, not
 first-of-kind reasoning.
 
 ## Slices
@@ -153,3 +155,45 @@ goal (backlog hygiene) visibly true end-to-end.
   specifies, the backlog row is gone, the archived folder exists at the
   dated path, `sync-copilot.mjs --check` exits 0, and the `workflow` skill
   wording reads as D9 describes.
+
+### Slice 3 — Commit-target proposal: branch or main after a successful archive
+
+> Scope amendment (2026-07-13), added after the Slice 1/2 dogfood.
+
+Building on Slice 2's commit step, a human archiving a merged-PR change is now
+**asked where to land the archive commit** instead of it silently landing on the
+current branch. Because `/qrspi:archive` runs after the PR merged (typically on
+`main`) and the archive syncs delta specs into `openspec/specs/` — a reviewable
+content change — the default is a fresh `chore/archive-<id>` branch that can be
+PR'd, with "commit straight to main" as the explicit alternative (D11).
+
+- M (n/a — markdown-only tooling): amend the D7 commit step (step 5) in
+  `claude/commands/archive.md` so that, after staging the archive changes and
+  before committing, it proposes the target via AskUserQuestion (D11):
+  - **New branch + push (default):** `git checkout -b chore/archive-<id>` off
+    the current HEAD, commit the staged changes with the unchanged
+    `chore(<id>): archive change + remove backlog row` message, `git push -u`,
+    then surface the host PR-create command as the suggested next step.
+  - **Commit straight to main:** commit + push on the current branch (D7's
+    original behavior).
+  - Both paths keep the identical staged paths, commit message, and non-zero-
+    git-exit hard-stop from D7; the branch name is fixed, not prompted.
+- F (n/a): none — the observable surface is the AskUserQuestion prompt plus the
+  resulting branch/commit, both directly inspectable.
+- D (n/a): no data store; the "data" is git branch/commit state.
+- T (dogfood walk):
+  1. Regenerate Copilot: `node sync-copilot.mjs` then `--check` (exit 0).
+  2. On a merged-PR archive, confirm the branch-vs-main prompt appears after the
+     folder move + backlog-row removal.
+  3. Choose the new-branch path → confirm `chore/archive-<id>` is created off
+     HEAD, the archive commit lands there with the exact message, `git push -u`
+     runs, and the host PR-create command is printed.
+  4. Re-run (or on another merged change) choose "commit straight to main" →
+     confirm the commit lands on the current branch with no new branch created.
+- **Model:** sonnet — D11 fully specifies both paths, the branch name, the
+  default, and reuses D7's staging/commit/hard-stop verbatim; mechanical
+  instruction-following, no first-of-kind reasoning.
+- Checkpoint: the prompt appears on a merged-PR archive; the new-branch path
+  creates `chore/archive-<id>`, commits with the D7 message, pushes, and prints
+  the PR-create command; the main path commits on the current branch; and
+  `sync-copilot.mjs --check` exits 0.

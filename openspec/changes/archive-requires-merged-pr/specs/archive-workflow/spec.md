@@ -133,7 +133,9 @@ old `openspec/changes/<id>/` path, and `openspec/backlog.md`) and MUST NEVER
 use a repo-wide `git add -A`. The commit message MUST be
 `chore(<id>): archive change + remove backlog row`. On any non-zero git exit
 code, `/qrspi:archive` MUST hard-stop and surface the git error verbatim
-rather than leaving the archive move uncommitted and unexplained.
+rather than leaving the archive move uncommitted and unexplained. The *target*
+of this commit is proposed to the human per the next requirement, not fixed to
+the current branch.
 
 #### Scenario: archive succeeds and commits atomically
 - **GIVEN** the PR-merge gate confirmed `merged` and the `openspec-archive-change`
@@ -151,3 +153,38 @@ rather than leaving the archive move uncommitted and unexplained.
 - **THEN** `/qrspi:archive` hard-stops and surfaces the git error output
   verbatim, rather than silently leaving the working tree in a moved-but-
   uncommitted state.
+
+### Requirement: The archive commit target is proposed — a new branch or straight to main
+`/qrspi:archive` MUST propose the archive commit's target to the human rather
+than silently committing to the current branch. This is because it runs after
+the PR has merged (the human is typically on `main`) and the archive syncs the
+change's delta specs into `openspec/specs/` — a reviewable content change. After
+staging the archive changes and before committing, it MUST offer two options,
+defaulting to the new-branch path:
+- **New branch + push (open a PR)** — the default: create a `chore/archive-<id>`
+  branch off the current HEAD, commit the staged archive changes there, `git
+  push -u`, and surface the host PR-create command as the suggested next step.
+- **Commit straight to main** — commit and push on the current branch.
+
+Both paths MUST use the identical staged paths, commit message
+(`chore(<id>): archive change + remove backlog row`), and non-zero-git-exit
+hard-stop defined in the previous requirement. The branch name MUST be
+`chore/archive-<id>` (not prompted). The proposal MUST always be shown — it is a
+genuine target decision, not a suppressible confirmation.
+
+#### Scenario: human chooses a new branch
+- **GIVEN** a merged-PR change whose folder was moved and backlog row removed,
+  with the archive changes staged on the current branch (e.g. `main`)
+- **WHEN** `/qrspi:archive <id>` proposes the commit target and the human
+  chooses the new-branch option
+- **THEN** the command creates `chore/archive-<id>` off the current HEAD,
+  commits the staged changes there with `chore(<id>): archive change + remove
+  backlog row`, pushes with `-u`, and prints the host PR-create command as the
+  next step.
+
+#### Scenario: human chooses to commit straight to main
+- **GIVEN** the same staged archive changes
+- **WHEN** the human chooses "commit straight to main"
+- **THEN** the command commits the staged changes on the current branch and
+  pushes, exactly as the atomic-commit requirement describes, without creating a
+  new branch.

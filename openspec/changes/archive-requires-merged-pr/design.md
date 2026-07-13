@@ -166,7 +166,9 @@ cleanly, but the generated skill uses plain `mv` (research); the commit step mus
 therefore `git add` both the new archive path and the deletion of the old path
 (`git add -A <specific paths>` scoped to the change dir + archive dir, still never
 a repo-wide `-A`). This is a real behavioral addition — flagged for human review.
-(Answers Q11, Q12, Q13, Q14, PQ3.)
+(Answers Q11, Q12, Q13, Q14, PQ3.) **Refined by D11:** the commit target
+(current branch vs. a fresh `chore/archive-<id>` branch) is now proposed at
+archive time rather than always the current branch.
 
 ### D8 — `stack.md`'s `## PR & git workflow` template gains a parallel status-query line
 So that newly-generated cheatsheets document the query the gate needs, the
@@ -197,6 +199,37 @@ proceed), plus the closed-unmerged negative path (Q22 a+b). The `example-greetin
 reference change already has a merged PR to double as the happy path (Q23).
 (Answers Q22, Q23.)
 
+### D11 — The archive commit proposes its target: a new branch (default) or straight to main
+**Scope amendment (added post-dogfood, 2026-07-13).** D7 introduced the archive
+flow's commit step but committed-and-pushed unconditionally on the *current*
+branch. Dogfooding surfaced the gap: `/qrspi:archive` runs **after the PR has
+merged**, so the human is typically sitting on `main`, and the archive is not a
+trivial move — the `openspec-archive-change` skill **syncs the change's delta
+specs into `openspec/specs/`** (a real content change to the main specs) on top
+of the folder move and backlog-row removal. Pushing all of that straight to
+`main` silently bypasses branch protection and a second review.
+
+So the D7 commit step (step 5) gains a **target proposal**: after staging the
+archive changes but before committing, `/qrspi:archive` asks (AskUserQuestion)
+where to land the commit:
+- **"New branch + push (open a PR)"** — the **default/recommended** option:
+  create `chore/archive-<id>` off the current HEAD, commit the staged changes
+  there, `git push -u`, and print the host PR-create command as the suggested
+  next step (mirroring how `pr.md` surfaces its PR-create line). Rationale:
+  syncing delta specs into `openspec/specs/` is a reviewable content change and
+  keeps `main` protected.
+- **"Commit straight to main"** — commit + push on the current branch (D7's
+  original behavior), for repos/humans that treat archival as post-merge
+  bookkeeping.
+
+Both paths are otherwise identical to D7: same explicit staged paths (never
+`git add -A`), same commit message `chore(<id>): archive change + remove backlog
+row`, and the same non-zero-git-exit hard-stop. The proposal is always shown (it
+is a genuine target decision, like a backlog-capture offer); the branch name is
+fixed as `chore/archive-<id>`, not prompted. This refines D7; it does not change
+what is committed, only where. (Supersedes D7's "commit on the current branch"
+default; answers the post-dogfood scope request.)
+
 ## Data model changes
 Not applicable — this is a kit/workflow-tooling change. The closest analogues:
 the `pr.md` artifact shape (read-only consumer here: the `- **PR:** #<N>` line)
@@ -223,7 +256,7 @@ Not applicable — no roles. The implicit "authorization" is the host CLI's own
 auth (the human must be `gh auth login`'d); D6 handles the unauthenticated case.
 
 ## Vertical slices (preview)
-Two user-facing slices (Structure will detail; each ends demoable end-to-end):
+Three user-facing slices (Structure will detail; each ends demoable end-to-end):
 - **Slice 1 — Block path: archive refuses an unmerged/missing/unauth PR.** The
   PR-merge gate (D1–D6) inserted into `archive.md`, plus the `stack.md` template
   line (D8). Demo: run `/qrspi:archive` on a change with an open PR → it surfaces
@@ -233,6 +266,12 @@ Two user-facing slices (Structure will detail; each ends demoable end-to-end):
   The successful-archive branch (D7 commit step + row removal) plus the `workflow`
   wording (D9). Demo: merge the PR, re-run `/qrspi:archive` → folder moves,
   backlog row disappears, one atomic commit lands. Then regenerate copilot + sync.
+- **Slice 3 — Commit-target proposal: branch or main (D11).** The D7 commit step
+  gains the branch-vs-main AskUserQuestion (default `chore/archive-<id>` + PR
+  suggestion). Demo: on a merged-PR archive, confirm the prompt appears, the
+  branch path lands the archive on `chore/archive-<id>` and prints the PR-create
+  command, and the main path commits on the current branch as before. Regenerate
+  copilot + sync. (Scope amendment — added after the Slice 1/2 dogfood.)
 
 ## Risks / Trade-offs
 - **Introducing the archive flow's first commit step (D7)** is the biggest

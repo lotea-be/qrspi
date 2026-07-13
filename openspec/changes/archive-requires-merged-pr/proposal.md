@@ -46,6 +46,12 @@ the backlog row atomically with the archive move (design.md D1–D9).
 - Update the `workflow` skill's "Before Q — the backlog" wording to name
   `/qrspi:archive` as the command that performs the row removal, atomically
   with the folder move (D9).
+- Propose the archive commit's target instead of committing silently on the
+  current branch: after staging the archive changes, `/qrspi:archive` asks
+  whether to land them on a new `chore/archive-<id>` branch (default, then
+  suggests the PR-create command) or straight to `main`. Motivated by the
+  archive syncing delta specs into `openspec/specs/` — a reviewable content
+  change — while running post-merge on `main` (D11, scope amendment).
 - Regenerate `copilot/prompts/qrspi-archive.prompt.md` via
   `node sync-copilot.mjs` and confirm `--check` passes.
 
@@ -69,10 +75,11 @@ the backlog row atomically with the archive move (design.md D1–D9).
   change whose PR is still open now correctly fails to archive where it
   previously succeeded — this is the intended fix, not a regression.
 - Phases: kit/workflow-tooling change, single phase (no phased rollout);
-  Structure previews two vertical slices (Slices stage will detail): Slice 1 —
+  Structure previews three vertical slices (Slices stage will detail): Slice 1 —
   block path (gate refuses unmerged/missing-`pr.md`/unauthenticated CLI, plus
   the `stack.md` template line); Slice 2 — merge path (archive proceeds,
-  backlog row removed, atomic commit, `workflow` wording).
+  backlog row removed, atomic commit, `workflow` wording); Slice 3 —
+  commit-target proposal (branch-or-main after archive, D11 scope amendment).
 - Affected code / APIs / dependencies:
   - `claude/commands/archive.md` (the gate + the new commit step)
   - `claude/commands/stack.md` (D8 template line)
@@ -107,4 +114,4 @@ already-tracked backlog item, not folded into this change:
 ## Vertical slices (preview)
 
 See design.md's "Vertical slices (preview)" — the Slices (V) stage will detail
-the full M/F/D/T breakdown per slice, honoring the two-slice shape above.
+the full M/F/D/T breakdown per slice, honoring the three-slice shape above.
