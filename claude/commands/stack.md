@@ -83,9 +83,11 @@ Steps:
 
    ## PR & git workflow
    <!-- the git host and its PR-create CLI (e.g. `gh pr create`,
-        `az repos pr create`, `glab mr create`); the source-branch naming
-        convention (e.g. `features/<id>`); the default target branch (e.g.
-        `main`); any PR-description size cap to stay under. -->
+        `az repos pr create`, `glab mr create`); the PR-status-query CLI used
+        to check whether a PR has merged (e.g. `gh pr view <N> --json state`,
+        `az repos pr show --id <N>`, `glab mr view <N>`); the source-branch
+        naming convention (e.g. `features/<id>`); the default target branch
+        (e.g. `main`); any PR-description size cap to stay under. -->
 
    ## Dependency policy
    <!-- e.g. prefer stable over prerelease; how versions are pinned; the

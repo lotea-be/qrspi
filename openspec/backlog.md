@@ -14,7 +14,7 @@ Listed in priority order (highest first). Each carries a `P1`–`P3` band:
 this ordering whenever an item is added, modified, or archived (see
 [[backlog-prioritization]]).
 
-### archive-requires-merged-pr — `idea` · **P1**
+### archive-requires-merged-pr — `in-progress (PR #15 open)` · **P1**
 
 **Why:** Archiving a change today doesn't verify the linked PR actually merged —
 `/qrspi:archive` moves the folder under `archive/` regardless, so a change can be
@@ -147,6 +147,25 @@ per-gate auto-branch wiring stays consistent — the runtime suppression itself 
 not statically checkable. Surfaced by `add-auto-mode` stage D (offered, not built).
 Low-cost correctness guard (hence P2, not P3). Now **unblocked** — `add-auto-mode`
 merged 2026-07-06 (archived), so the convention it enforces is live.
+
+### pr-md-tracks-superseding-pr — `idea` · **P3**
+
+**Why:** When a change's PR is closed unmerged and a *new* PR is later opened for
+the same change, `openspec/changes/<id>/pr.md` still points at the stale closed
+PR — so the archive merge-gate ([[archive-requires-merged-pr]]) queries the wrong
+PR and reports "not merged" even after the replacement PR merged. Have
+`/qrspi:pr` update `pr.md` when it opens a superseding PR. Surfaced as a Non-Goal
+of `archive-requires-merged-pr` (its Q5).
+
+### validate-pr-md-shape — `idea` · **P3**
+
+**Why:** `pr.md`'s canonical six-field shape (`PR:`/`URL:`/`Title:`/`Source
+branch:`/`Target branch:`/`Created:`, prescribed in `claude/commands/pr.md`) is
+not validated anywhere; archived examples show real format drift, forcing
+downstream consumers (the archive merge-gate in [[archive-requires-merged-pr]],
+which must parse the PR number defensively) to tolerate non-canonical shapes. Add
+a lint/guard that enforces the shape at source. Surfaced as a Non-Goal of
+`archive-requires-merged-pr`.
 
 ### optional-technology-specs — `idea` · **P3**
 
