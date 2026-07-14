@@ -14,7 +14,7 @@ Listed in priority order (highest first). Each carries a `P1`–`P3` band:
 this ordering whenever an item is added, modified, or archived (see
 [[backlog-prioritization]]).
 
-### archive-requires-merged-pr — `in-progress (Q, R, D, S, V, P, I complete)` · **P1**
+### archive-requires-merged-pr — `in-progress (PR #15 open)` · **P1**
 
 **Why:** Archiving a change today doesn't verify the linked PR actually merged —
 `/qrspi:archive` moves the folder under `archive/` regardless, so a change can be
