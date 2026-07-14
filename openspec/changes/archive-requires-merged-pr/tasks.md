@@ -155,14 +155,14 @@ verbatim; mechanical instruction-following, no first-of-kind reasoning.
   PR-create suggestion, or straight-to-main).
 - [x] 4.6 Regenerate Copilot: `node sync-copilot.mjs`, then `node
   sync-copilot.mjs --check` and confirm it exits 0.
-- [ ] 4.7 (human) Dogfood: on a merged-PR archive, confirm the branch-vs-main
+- [x] 4.7 (human) Dogfood: on a merged-PR archive, confirm the branch-vs-main
   prompt appears after the folder move + backlog-row removal (D11).
-- [ ] 4.8 (human) Dogfood: choose the new-branch path → confirm
+- [x] 4.8 (human) Dogfood: choose the new-branch path → confirm
   `chore/archive-<id>` is created off HEAD, the archive commit lands there with
   the exact D7 message, `git push -u` runs, and the PR-create command is printed.
-- [ ] 4.9 (human) Dogfood: choose "commit straight to main" → confirm the commit
+- [x] 4.9 (human) Dogfood: choose "commit straight to main" → confirm the commit
   lands on the current branch with no new branch created (D11).
-- [ ] 4.10 Checkpoint: the prompt appears on a merged-PR archive; the new-branch
+- [x] 4.10 Checkpoint: the prompt appears on a merged-PR archive; the new-branch
   path creates `chore/archive-<id>`, commits with the D7 message, pushes, and
   prints the PR-create command; the main path commits on the current branch; and
   `sync-copilot.mjs --check` exits 0.
