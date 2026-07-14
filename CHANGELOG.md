@@ -14,6 +14,10 @@ kit version.
 
 ## [Unreleased]
 
+_No unreleased changes._
+
+## [0.5.0] - 2026-07-08
+
 ### Added
 
 - **Ternary run-mode (Full auto / Semi-auto / Manual).** A run-mode prompt now
