@@ -5,6 +5,23 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 `in-progress` / `merged`. Completed work lives under
 `openspec/changes/archive/`, not here.
 
+## Proposed
+
+### tighten-stage-read-boundaries — `proposed (change folder created 2026-07-14)` · **P1**
+
+**Why:** Later QRSPI stages re-read artifacts from steps other than their
+direct predecessor (e.g. the architect reads `questions.md` + `research.md` +
+`design.md` at stage S; the implementer opens `design.md` cover-to-cover),
+causing unnecessary token blowup. Enforce a strict minimum-read matrix:
+researcher reads no prior artifacts (already mostly enforced — verify);
+designer reads `questions.md` + `research.md`; architect (S) reads `design.md`
+only; architect (V) reads `proposal.md` + `specs/` only; planner reads
+`slices.md` + bounded/lazy `design.md` (D-number lookups only); implementer
+reads `tasks.md` + bounded/lazy `design.md` (divergence self-check only);
+reviewer keeps full-folder read (unchanged). Changes land in
+`claude/agents/*.md` (and possibly matching `claude/commands/*.md`), followed
+by a `node sync-copilot.mjs` pass.
+
 ## Ideas
 
 Listed in priority order (highest first). Each carries a `P1`–`P3` band:
