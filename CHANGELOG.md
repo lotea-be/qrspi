@@ -14,7 +14,27 @@ kit version.
 
 ## [Unreleased]
 
-_No unreleased changes._
+### Added
+
+- **`/qrspi:archive` now gates on a merged PR and keeps the backlog in sync.**
+  Archival previously moved a change folder under `archive/` unconditionally —
+  never verifying the linked PR merged, and never touching `openspec/backlog.md`.
+  `/qrspi:archive` now, before delegating to the generated
+  `openspec-archive-change` skill, reads the change's `pr.md`, queries the linked
+  PR's live status via the host git CLI (`gh` / `az repos` / `glab`, resolved
+  from the stack-cheatsheet's `## PR & git workflow` section or inferred from repo
+  signals), surfaces the PR number/state/URL, and **hard-blocks** unless the PR is
+  `merged` — uniformly for open and closed-unmerged, with distinct hard-stops for
+  a missing `pr.md` and an unavailable/unauthenticated CLI. On a successful
+  archive it **removes the change's backlog row** and commits it atomically with
+  the folder move (the archive flow's first-ever explicit commit step), and
+  **proposes the commit target** — a new `chore/archive-<id>` branch (default,
+  with a PR-create suggestion) or straight to `main`, since the archive syncs
+  delta specs into `openspec/specs/` while typically running post-merge on `main`.
+  Adds a parallel PR-status-query line to the `stack.md` cheatsheet template and
+  names `/qrspi:archive` as the row-removal owner in the `workflow` skill.
+  Claude-only; the `copilot/` tree is regenerated at zero drift. See
+  `openspec/changes/archive-requires-merged-pr/`.
 
 ## [0.5.0] - 2026-07-08
 
