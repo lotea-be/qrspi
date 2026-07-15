@@ -421,8 +421,20 @@ so `copilot/` stays in sync with any `claude/` edits — covered under
       read-boundaries). This change only relocates the designer's trigger source to
       base specs (PQ11(b)); it does not build the tracker.
 
-    **Sequencing (updated):** `versioned-update-command` (prerequisite) →
-    `tighten-stage-read-boundaries` (this) → `enforce-research-ticket-hiding`.
+    **Sequencing (updated):** `versioned-update-command` (prerequisite, now MERGED
+    to `main` via PR #16) → `tighten-stage-read-boundaries` (this) →
+    `enforce-research-ticket-hiding`.
+
+    **Post-merge scope deltas (added after `versioned-update-command` merged; see
+    PQ12/PQ13):**
+    - **IN scope (new required deliverable):** this change ships its own
+      `migrations/<version>.yaml` entry — an empty `automated` list + one `manual`
+      note about re-aligning locally-overridden stage-agent files. Required by the
+      release gate (lint Check 6) now on `main`. Plan/Implement must include it.
+    - **OUT of scope:** the newly-merged `/qrspi:update` command and `qrspi-update`
+      skill are NOT subject to the read-contract banner (PQ6) or the read-matrix lint
+      (PQ7) — they are not Q→PR stage agents and read migration manifests + the
+      `.qrspi-version` marker, not change-folder artifacts.
 
 ---
 
@@ -566,3 +578,33 @@ so `copilot/` stays in sync with any `claude/` edits — covered under
   a richer durable home for cross-change / cross-version pending updates; captured as
   a backlog `idea` needing its own Questions pass. It may later supersede the
   base-spec relocation.**
+
+- [x] **PQ12 — This change's own migration entry (NEW; added after
+  `versioned-update-command` merged to main):** `versioned-update-command` shipped
+  the version/update mechanism and a release gate (lint Check 6) that requires every
+  release to carry a `migrations/<version>.yaml` entry. What should
+  `tighten-stage-read-boundaries` ship as its migration entry? Options: (a) a
+  "no consumer action required" stub — consumers receive the narrowed stage-agent
+  files automatically from the plugin, so nothing to do; (b) a `manual` step:
+  "if you have locally overridden any stage-agent file, re-align it to the new read
+  contracts"; (c) an `automated` `edit-file` step.
+  **Answer: (a)+(b) — ship a `migrations/<version>.yaml` whose `automated` list is
+  empty and whose `manual` list carries ONE note: "if you have locally overridden any
+  QRSPI stage-agent file, re-align it to the new per-agent read contracts." No
+  `automated` edit-file step (the plugin delivers the new agent files itself). This
+  entry is a REQUIRED Implement-stage deliverable now (release gate); the version
+  string is chosen at release time — Design/Plan add the task, Implement writes the
+  file. Downstream stages must treat writing it as in scope.**
+
+- [x] **PQ13 — Are `/qrspi:update` + the `qrspi-update` skill in read-contract
+  scope? (NEW):** The merge added a shipped command (`claude/commands/update.md`) and
+  skill (`claude/skills/qrspi-update/SKILL.md`). Do the new per-agent read-contract
+  banner (PQ6) and the read-matrix lint check (PQ7) extend to them? Options:
+  (a) out of scope — they are not QRSPI *stage* agents in the Q→PR pipeline and do
+  not read change-folder artifacts (they read migration manifests + the marker);
+  (b) in scope — give them read-contract banners too.
+  **Answer: (a) OUT OF SCOPE. The read-matrix and its banner/lint apply to the seven
+  Q→PR stage agents only. `/qrspi:update` / `qrspi-update` read migration manifests
+  and the `.qrspi-version` marker, not `openspec/changes/<id>/` artifacts, so the
+  read-boundary contract does not apply. The PQ7 lint check must NOT flag them, and
+  the PQ6 read-matrix table need not list them. (See Scope-guard addition below.)**
