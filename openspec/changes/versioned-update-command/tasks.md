@@ -18,10 +18,10 @@ sentinel write.
 in `scripts/lint.mjs` (dependency-free ESM, errors array, labelled stdout
 lines), and the YAML schema is fully settled in the specs.
 
-- [ ] 2.1 Create `migrations/` directory and add `migrations/0.6.0.yaml` as a valid stub with `version`, `summary`, and empty `automated` and `manual` lists (D4, D6)
-- [ ] 2.2 In `scripts/lint.mjs`, add a new check function (async, errors pushed to `errors[]`, labelled `process.stdout.write` call in `main()`) that asserts every `## [X.Y.Z]` CHANGELOG section has a corresponding `migrations/<version>.yaml` (D6)
-- [ ] 2.3 Extend the same lint check function to validate manifest schema well-formedness: required keys (`version`, `summary`, `automated`, `manual`), `automated[].action` must be `edit-file` only, `automated[].path` must start with `openspec/` (D4, D6, D7)
-- [ ] 2.4 Extend the same lint check function to validate the marker SemVer format (bare semver regex) where `openspec/.qrspi-version` exists (D1, D7)
+- [x] 2.1 Create `migrations/` directory and add `migrations/0.6.0.yaml` as a valid stub with `version`, `summary`, and empty `automated` and `manual` lists (D4, D6)
+- [x] 2.2 In `scripts/lint.mjs`, add a new check function (async, errors pushed to `errors[]`, labelled `process.stdout.write` call in `main()`) that asserts every `## [X.Y.Z]` CHANGELOG section has a corresponding `migrations/<version>.yaml` (D6)
+- [x] 2.3 Extend the same lint check function to validate manifest schema well-formedness: required keys (`version`, `summary`, `automated`, `manual`), `automated[].action` must be `edit-file` only, `automated[].path` must start with `openspec/` (D4, D6, D7)
+- [x] 2.4 Extend the same lint check function to validate the marker SemVer format (bare semver regex) where `openspec/.qrspi-version` exists (D1, D7)
 - [ ] 2.5 (human) From the kit repo root, run `node scripts/lint.mjs`; confirm exit 0. Temporarily rename `migrations/0.6.0.yaml` to `.bak`; rerun and confirm non-zero exit with a clear "missing manifest entry" error line. Restore the file; confirm exit 0. Also add a temp `migrations/bad.yaml` with `action: run-command` and confirm the schema check fires, then remove the temp file.
 
 ## 3. /qrspi:update walk read-path (plan, no edits)

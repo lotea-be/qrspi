@@ -17,6 +17,20 @@
 //     openspec-templates/*.template.md must also appear in the corresponding
 //     inline skeleton in the relevant agent file.
 //
+//  4. README COMMAND COVERAGE -- every claude/commands/<stem>.md is documented
+//     in README.md as /qrspi:<stem>, and every /qrspi:<token> in README.md
+//     resolves to a real command file.
+//
+//  5. GATE-TOOL / EXECUTOR AGREEMENT -- no command with a non-builtin agent:
+//     reaches a main-loop-only gate tool (AskUserQuestion) directly or
+//     transitively via the workflow choreography.
+//
+//  6. MIGRATION MANIFEST PRESENCE + SCHEMA + MARKER FORMAT -- every
+//     CHANGELOG ## [X.Y.Z] section whose version is >= the lowest version in
+//     migrations/ must have a migrations/<version>.yaml; each manifest must
+//     be schema-valid (required keys, edit-file-only action, openspec/-scoped
+//     paths); openspec/.qrspi-version (if present) must be bare SemVer.
+//
 //  Exits 0 if all checks pass, 1 if any check reports a violation.
 //  Requires only Node.js built-ins (fs, path) -- no npm dependencies.
 // ============================================================================
@@ -638,6 +652,278 @@ async function checkGateExecutor(errors) {
   return violations;
 }
 
+// ---- Check 6: MIGRATION MANIFEST PRESENCE + SCHEMA + MARKER FORMAT --------
+//
+// Three sub-checks, all reported under the same labelled block:
+//
+//   (a) PRESENCE -- every ## [X.Y.Z] CHANGELOG section whose version is >=
+//       the lowest version already present in migrations/ must have a
+//       corresponding migrations/<version>.yaml. Versions below that baseline
+//       are pre-feature and are NOT required to have entries.
+//
+//   (b) SCHEMA -- each migrations/*.yaml must be well-formed:
+//       - required top-level keys: version, summary, automated, manual
+//       - automated[].action must be 'edit-file' only
+//       - automated[].path must start with 'openspec/'
+//
+//   (c) MARKER FORMAT -- if openspec/.qrspi-version exists it must contain
+//       a bare SemVer string (X.Y.Z, no 'v' prefix, no trailing content).
+//
+// YAML is parsed with a minimal dependency-free extractor sufficient for the
+// manifest's known shape (flat key/value + list-of-objects).
+
+const SEMVER_RE = /^\d+\.\d+\.\d+$/;
+
+// Compare two SemVer strings ('A.B.C'). Returns -1, 0, or 1.
+function semverCmp(a, b) {
+  const pa = a.split('.').map(Number);
+  const pb = b.split('.').map(Number);
+  for (let i = 0; i < 3; i++) {
+    if (pa[i] < pb[i]) return -1;
+    if (pa[i] > pb[i]) return 1;
+  }
+  return 0;
+}
+
+// Minimal YAML extractor for the manifest schema.
+// Returns { version, summary, automated, manual } or null on parse failure.
+// 'automated' and 'manual' are arrays; automated items have { action, path, description }.
+function parseManifestYaml(text) {
+  const lines = text.replace(/\r\n/g, '\n').split('\n');
+
+  const result = { version: null, summary: null, automated: null, manual: null };
+  let currentKey = null;
+  let inBlockScalar = false;
+  let inList = null; // 'automated' | 'manual' | null
+  let currentItem = null;
+
+  for (let i = 0; i < lines.length; i++) {
+    const raw = lines[i];
+    const line = raw.trimEnd();
+
+    // Block scalar continuation (indented lines after 'summary: >')
+    if (inBlockScalar) {
+      if (line.startsWith('  ') || line === '') {
+        // continuation of block scalar -- summary already marked present
+        continue;
+      }
+      inBlockScalar = false;
+    }
+
+    // Top-level keys (not indented or indented with exactly 0 leading spaces for key:)
+    const topKeyM = line.match(/^(\w[\w-]*):\s*(.*)/);
+    if (topKeyM && !line.startsWith(' ') && !line.startsWith('-')) {
+      const key = topKeyM[1];
+      const val = topKeyM[2].trim();
+
+      if (key === 'version') {
+        result.version = val;
+        currentKey = 'version';
+        inList = null;
+        currentItem = null;
+      } else if (key === 'summary') {
+        // Value may be '>' (block scalar), a quoted string, or a bare string
+        if (val === '>' || val === '|' || val.length > 0) {
+          result.summary = val === '>' || val === '|' ? '__block__' : val;
+          inBlockScalar = (val === '>' || val === '|');
+        }
+        currentKey = 'summary';
+        inList = null;
+        currentItem = null;
+      } else if (key === 'automated') {
+        // Could be '[]' (empty) or the start of a list
+        result.automated = val === '[]' ? [] : [];
+        currentKey = 'automated';
+        inList = 'automated';
+        currentItem = null;
+      } else if (key === 'manual') {
+        result.manual = val === '[]' ? [] : [];
+        currentKey = 'manual';
+        inList = 'manual';
+        currentItem = null;
+      }
+      continue;
+    }
+
+    // List item start: '  - ...' or '- ...'
+    const listItemM = line.match(/^(\s*)-\s*(.*)/);
+    if (listItemM) {
+      const itemContent = listItemM[2].trim();
+      if (inList === 'automated') {
+        // New item
+        currentItem = { action: null, path: null, description: null };
+        result.automated.push(currentItem);
+        // Inline key on same line as '-'
+        const inlineKeyM = itemContent.match(/^(\w[\w-]*):\s*(.*)/);
+        if (inlineKeyM) {
+          applyItemField(currentItem, inlineKeyM[1], inlineKeyM[2].trim());
+        }
+      } else if (inList === 'manual') {
+        currentItem = { description: null };
+        result.manual.push(currentItem);
+        const inlineKeyM = itemContent.match(/^(\w[\w-]*):\s*(.*)/);
+        if (inlineKeyM) {
+          applyItemField(currentItem, inlineKeyM[1], inlineKeyM[2].trim());
+        }
+      }
+      continue;
+    }
+
+    // Indented key inside a list item: '    action: edit-file'
+    const indentKeyM = line.match(/^\s{2,}(\w[\w-]*):\s*(.*)/);
+    if (indentKeyM && currentItem !== null) {
+      applyItemField(currentItem, indentKeyM[1], indentKeyM[2].trim());
+    }
+  }
+
+  return result;
+}
+
+function applyItemField(item, key, val) {
+  if (key === 'action') item.action = val;
+  else if (key === 'path') item.path = val;
+  else if (key === 'description') item.description = val;
+}
+
+async function checkMigrationManifests(errors) {
+  const migrationsDir = path.join(root, 'migrations');
+  const changelogPath = path.join(root, 'CHANGELOG.md');
+  const markerPath = path.join(root, 'openspec', '.qrspi-version');
+
+  let subviolations = 0;
+
+  // --- (a) PRESENCE CHECK ---
+
+  // Collect all migrations/*.yaml filenames (stem = version string)
+  let migrationFiles;
+  try {
+    const entries = await fs.readdir(migrationsDir, { withFileTypes: true });
+    migrationFiles = entries
+      .filter((e) => e.isFile() && e.name.endsWith('.yaml'))
+      .map((e) => e.name);
+  } catch {
+    migrationFiles = [];
+  }
+
+  const migratedVersions = new Set(migrationFiles.map((f) => f.replace(/\.yaml$/, '')));
+
+  // Determine baseline: lowest version in migrations/ (if any)
+  const validMigrationVersions = [...migratedVersions].filter((v) => SEMVER_RE.test(v));
+  let baseline = null;
+  if (validMigrationVersions.length > 0) {
+    baseline = validMigrationVersions.sort(semverCmp)[0];
+  }
+
+  // Parse CHANGELOG.md for all ## [X.Y.Z] sections
+  const changelog = await readFileOr(changelogPath, null);
+  if (changelog === null) {
+    errors.push('[migration] CHANGELOG.md not found -- cannot check manifest presence');
+    subviolations++;
+  } else {
+    const changelogVersionRe = /^##\s+\[(\d+\.\d+\.\d+)\]/gm;
+    const changelogVersions = [];
+    let m;
+    while ((m = changelogVersionRe.exec(changelog)) !== null) {
+      changelogVersions.push(m[1]);
+    }
+
+    if (baseline !== null) {
+      // Check each CHANGELOG version >= baseline
+      for (const ver of changelogVersions) {
+        if (semverCmp(ver, baseline) >= 0 && !migratedVersions.has(ver)) {
+          errors.push(
+            `[migration] Missing migration manifest: migrations/${ver}.yaml` +
+            ` (CHANGELOG ## [${ver}] section requires an entry)`
+          );
+          subviolations++;
+        }
+      }
+    }
+    // If baseline is null (no migrations/ files at all), skip presence check --
+    // this would mean migrations/ is empty, which is reported by (b) below only
+    // if files exist. If no migration files exist at all, presence check is vacuously
+    // satisfied (the feature hasn't shipped its first entry yet). However, the
+    // migrations/ directory must exist and contain 0.6.0.yaml once this feature ships.
+    // We enforce presence only where baseline is known.
+  }
+
+  // --- (b) SCHEMA CHECK ---
+
+  for (const filename of migrationFiles.sort()) {
+    const ver = filename.replace(/\.yaml$/, '');
+    const filePath = path.join(migrationsDir, filename);
+    const rel = `migrations/${filename}`;
+
+    const text = await readFileOr(filePath, null);
+    if (text === null) {
+      errors.push(`[migration] ${rel}: cannot read file`);
+      subviolations++;
+      continue;
+    }
+
+    const manifest = parseManifestYaml(text);
+
+    // Required top-level keys
+    const missingKeys = [];
+    if (manifest.version === null) missingKeys.push('version');
+    if (manifest.summary === null) missingKeys.push('summary');
+    if (manifest.automated === null) missingKeys.push('automated');
+    if (manifest.manual === null) missingKeys.push('manual');
+
+    if (missingKeys.length > 0) {
+      errors.push(`[migration] ${rel}: missing required key(s): ${missingKeys.join(', ')}`);
+      subviolations++;
+    }
+
+    // version field must match filename stem
+    if (manifest.version !== null && manifest.version !== ver) {
+      errors.push(`[migration] ${rel}: 'version: ${manifest.version}' does not match filename stem '${ver}'`);
+      subviolations++;
+    }
+
+    // automated[] schema
+    if (manifest.automated !== null && manifest.automated.length > 0) {
+      for (let idx = 0; idx < manifest.automated.length; idx++) {
+        const step = manifest.automated[idx];
+        if (step.action !== 'edit-file') {
+          errors.push(
+            `[migration] ${rel}: automated[${idx}].action is '${step.action}' -- only 'edit-file' is allowed`
+          );
+          subviolations++;
+        }
+        if (!step.path || !step.path.startsWith('openspec/')) {
+          errors.push(
+            `[migration] ${rel}: automated[${idx}].path '${step.path}' must start with 'openspec/'`
+          );
+          subviolations++;
+        }
+      }
+    }
+  }
+
+  // --- (c) MARKER FORMAT CHECK ---
+
+  const markerText = await readFileOr(markerPath, null);
+  if (markerText !== null) {
+    const marker = markerText.replace(/\n$/, '').trim();
+    if (!SEMVER_RE.test(marker)) {
+      errors.push(
+        `[migration] openspec/.qrspi-version contains '${marker}' -- expected bare SemVer (X.Y.Z, no 'v' prefix)`
+      );
+      subviolations++;
+    }
+  }
+
+  if (subviolations === 0) {
+    const manifestCount = migrationFiles.length;
+    const markerNote = markerText !== null ? ', marker format valid' : ', no marker file (skipped)';
+    process.stdout.write(
+      `  OK: ${manifestCount} migration manifest(s) present and schema-valid${markerNote}\n`
+    );
+  }
+  return subviolations;
+}
+
 // ---- main ------------------------------------------------------------------
 
 async function main() {
@@ -659,6 +945,9 @@ async function main() {
 
   process.stdout.write('\nCheck 5: Gate-tool / executor agreement\n');
   await checkGateExecutor(errors);
+
+  process.stdout.write('\nCheck 6: Migration manifest presence + schema + marker format\n');
+  await checkMigrationManifests(errors);
 
   process.stdout.write('\n');
   if (errors.length === 0) {
