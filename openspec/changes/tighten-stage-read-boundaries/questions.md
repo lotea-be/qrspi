@@ -412,6 +412,17 @@ so `copilot/` stays in sync with any `claude/` edits — covered under
       live in `qrspi-workflow/SKILL.md` and were settled by `add-auto-mode`).
     - `enforce-research-ticket-hiding` (mechanical guard for the researcher) — a
       separate backlog item.
+    - A dedicated **update command + skill that tracks what to adapt/verify per QRSPI
+      version** — a QRSPI-initialized repo pins the plugin version it uses, and a new
+      `/qrspi:update` command + skill walks the per-version adaptations/verifications.
+      **Split into its own change `versioned-update-command`, sequenced FIRST as a
+      prerequisite of this change** (a consuming repo needs the version/update
+      migration path in place before the kit ships agent-behavior changes like these
+      read-boundaries). This change only relocates the designer's trigger source to
+      base specs (PQ11(b)); it does not build the tracker.
+
+    **Sequencing (updated):** `versioned-update-command` (prerequisite) →
+    `tighten-stage-read-boundaries` (this) → `enforce-research-ticket-hiding`.
 
 ---
 
@@ -509,3 +520,49 @@ so `copilot/` stays in sync with any `claude/` edits — covered under
   increase scope.
   **Answer: (a) This change first — land the read-boundary narrowing now;
   `enforce-research-ticket-hiding` layers a mechanical guard on `researcher.md` later.**
+
+- [x] **PQ9 — Cross-change read boundary (NEW):** Beyond the *within-change*
+  boundaries (PQ1–PQ8), should a stage be prohibited from reading the artifacts of
+  *other* changes — any `openspec/changes/<other-id>/` folder, in-flight or under
+  `openspec/changes/archive/` — with an exception for `spec.md` files? Options:
+  (a) yes; exception covers **any** `spec.md` — base specs
+  `openspec/specs/**/spec.md` AND delta `specs/**/spec.md` in other/archived
+  changes; (b) yes, but the exception is base specs only; (c) do not add the rule.
+  **Answer: (a) Add the cross-change read boundary. No stage may read another
+  change's *process* artifacts (`questions.md`, `research.md`, `design.md`,
+  `proposal.md`, `slices.md`, `tasks.md`, `pr.md`, `followups.md`), whether
+  in-flight or archived. Sole exception: any `spec.md` — base specs under
+  `openspec/specs/**` and delta `specs/**/spec.md` in other/archived changes.
+  This is a new read-contract clause for EVERY agent, not just the narrowed ones.**
+
+- [x] **PQ10 — Questioner worked-example read (NEW):** The questioner today skims
+  the most recent archived `questions.md` (`questioner.md` step 5) as a worked
+  example — a now-prohibited cross-change read under PQ9. How to resolve? Options:
+  (a) drop the archived-example read (rely on the inline canonical shape);
+  (b) keep it as a sanctioned exception; (c) point at a stable checked-in fixture
+  outside the change folders.
+  **Answer: Drop the cross-change archived read (a), satisfied via (c): a stable
+  fixture already exists — `openspec-templates/questions.template.md`. The
+  questioner references its inline canonical shape and that template, never an
+  archived `questions.md`. NB for stage D: `questioner.md` currently says "there is
+  no per-repo template file to read"; the design must confirm whether
+  `openspec-templates/` is reachable by the agent in a *consuming* repo — if not,
+  the inline shape alone stands and the archived read is simply removed. Same
+  archived-example pattern must be checked in the other agents (e.g. `designer.md`
+  cites archived design records — see PQ11).**
+
+- [x] **PQ11 — Designer cross-change trigger continuity (NEW):** The designer
+  honours "scheduled triggers" recorded in a prior/archived `design.md`
+  (`designer.md` step 6, "Honour prior conditional triggers") — a now-prohibited
+  cross-change read under PQ9. How to preserve the continuity? Options: (a) keep a
+  narrow explicit exception; (b) relocate triggers into base specs so the designer
+  honours them via the allowed `spec.md` read; (c) drop it.
+  **Answer: (b) Relocate — scheduled triggers must live in an allowed, durable
+  channel (base spec `openspec/specs/**`, read via the PQ9 `spec.md` exception), so
+  the designer never opens another change's `design.md`. `designer.md` step 6 is
+  reworded to source triggers from base specs, not archived design records.
+  SEPARATE IDEA (out of scope here — see Scope guard): the human proposed a
+  dedicated *update command + skill that tracks what to update per QRSPI version* as
+  a richer durable home for cross-change / cross-version pending updates; captured as
+  a backlog `idea` needing its own Questions pass. It may later supersede the
+  base-spec relocation.**
