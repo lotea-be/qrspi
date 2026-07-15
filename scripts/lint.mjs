@@ -31,6 +31,13 @@
 //     be schema-valid (required keys, edit-file-only action, openspec/-scoped
 //     paths); openspec/.qrspi-version (if present) must be bare SemVer.
 //
+//  7. READ-CONTRACT BANNER AGREEMENT -- each of the seven QRSPI stage agents
+//     carries a `> **Read contract** -- Reads: ...` banner whose Reads: field
+//     must EQUAL that agent's row in the approved read matrix (banner-keyed
+//     positive check). Handles the architect two-mode (S/V) contract and the
+//     reviewer full-folder special case; scoped strictly to the seven stage
+//     agents (never /qrspi:update or qrspi-update).
+//
 //  Exits 0 if all checks pass, 1 if any check reports a violation.
 //  Requires only Node.js built-ins (fs, path) -- no npm dependencies.
 // ============================================================================
@@ -922,6 +929,119 @@ async function checkMigrationManifests(errors) {
   return subviolations;
 }
 
+// ---- Check 7: READ-CONTRACT BANNER AGREEMENT -------------------------------
+//
+// Each of the seven QRSPI stage agents (researcher, questioner, designer,
+// architect, planner, implementer, reviewer) carries a machine-readable
+// read-contract banner at the top of its claude/agents/<stem>.md:
+//
+//   > **Read contract** -- Reads: <set>. Never opens: <deny>; no other
+//   > change's process artifacts (spec.md excepted -- see workflow skill Read
+//   > Matrix).
+//
+// This is a banner-keyed POSITIVE check (D10 / OQ2): it parses the `Reads:`
+// field out of each banner and asserts it EQUALS the agent's expected value,
+// derived from the approved read matrix (design.md Data-model section). The
+// banner's own `Never opens:` list therefore cannot self-trip the check, and
+// legitimate prohibition prose elsewhere in the file is ignored.
+//
+// Two special cases (OQ3):
+//   - ARCHITECT carries a two-mode contract -- one file, two `Reads (S/V):`
+//     assertions -- because the same agent runs both S and V.
+//   - REVIEWER is special-cased "full change-folder by design" -- it has no
+//     within-change restriction.
+//
+// SCOPE (PQ13 / D10): strictly the seven stage agents. This check must NOT
+// flag /qrspi:update, claude/commands/update.md, or claude/skills/qrspi-update/
+// -- they read manifests + the marker, not change artifacts, and carry no
+// read-contract banner. The expected-map keys ARE the scope: no other file is
+// ever opened by this check.
+
+// Expected `Reads:` field per stage agent -- the exact text that must appear
+// between the banner's em-dash separator and its `Never opens:` clause, after
+// whitespace normalisation. Derived mechanically from the read matrix; the
+// architect entry encodes the two-mode S/V contract and the reviewer entry
+// uses the "full ... folder (by design)" string.
+const READ_CONTRACT_EXPECTED = {
+  researcher: 'Reads: none (whole changes/<id>/ folder banned).',
+  questioner: 'Reads: backlog + templates (no change-folder artifact).',
+  designer: 'Reads: questions.md, research.md.',
+  architect: 'Reads (S): design.md. Reads (V): proposal.md, specs/.',
+  planner: 'Reads: slices.md.',
+  implementer: 'Reads: tasks.md.',
+  reviewer: 'Reads: full changes/<id>/ folder (by design).',
+};
+
+// Collapse runs of whitespace to single spaces and trim -- applied identically
+// to the extracted banner text and the expected value so the equality check is
+// insensitive to incidental spacing.
+function normalizeWs(s) {
+  return s.replace(/\s+/g, ' ').trim();
+}
+
+// Extract the `Reads:` field from a `> **Read contract**` banner line.
+// Returns the substring between the em-dash separator and the `Never opens:`
+// clause (inclusive of the leading `Reads:`), or null if the banner or that
+// clause is absent. Handles both the single-mode (`Reads: X.`) and two-mode
+// (`Reads (S): X. Reads (V): Y.`) shapes uniformly, since it simply captures
+// everything up to `Never opens:`.
+function extractReadsField(body) {
+  // Find the banner line (a blockquote line naming the read contract).
+  const lines = body.split('\n');
+  const bannerLine = lines.find((l) => /^>\s*\*\*Read contract\*\*/.test(l));
+  if (!bannerLine) return null;
+
+  // Split on the em-dash (U+2014) separator, then take the part before
+  // `Never opens:`.
+  const afterMarker = bannerLine.split('—').slice(1).join('—');
+  if (!afterMarker) return null;
+  const idx = afterMarker.indexOf('Never opens:');
+  if (idx === -1) return null;
+  return normalizeWs(afterMarker.slice(0, idx));
+}
+
+async function checkReadContracts(errors) {
+  const agentsDir = path.join(root, 'claude', 'agents');
+  let violations = 0;
+
+  for (const stem of Object.keys(READ_CONTRACT_EXPECTED)) {
+    const rel = `claude/agents/${stem}.md`;
+    const text = await readFileOr(path.join(agentsDir, `${stem}.md`), null);
+    if (text === null) {
+      errors.push(`[read-contract] ${rel}: file not found -- expected a stage-agent read-contract banner`);
+      violations++;
+      continue;
+    }
+
+    const { body } = splitFront(text);
+    const actual = extractReadsField(body);
+    if (actual === null) {
+      errors.push(
+        `[read-contract] ${rel}: no parseable '> **Read contract** -- Reads: ... Never opens: ...' banner found`
+      );
+      violations++;
+      continue;
+    }
+
+    const expected = normalizeWs(READ_CONTRACT_EXPECTED[stem]);
+    if (actual !== expected) {
+      errors.push(
+        `[read-contract] ${rel}: banner Reads-field mismatch\n` +
+        `    expected: ${expected}\n` +
+        `    actual:   ${actual}`
+      );
+      violations++;
+    }
+  }
+
+  if (violations === 0) {
+    process.stdout.write(
+      `  OK: ${Object.keys(READ_CONTRACT_EXPECTED).length} stage-agent read-contract banner(s) match the read matrix\n`
+    );
+  }
+  return violations;
+}
+
 // ---- main ------------------------------------------------------------------
 
 async function main() {
@@ -946,6 +1066,9 @@ async function main() {
 
   process.stdout.write('\nCheck 6: Migration manifest presence + schema + marker format\n');
   await checkMigrationManifests(errors);
+
+  process.stdout.write('\nCheck 7: Read-contract banner agreement\n');
+  await checkReadContracts(errors);
 
   process.stdout.write('\n');
   if (errors.length === 0) {

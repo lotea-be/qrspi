@@ -59,16 +59,16 @@
 
 **Model:** opus — Check 7 has non-obvious parsing logic: it must handle the architect's two-mode contract (one agent file, two distinct `Reads:` assertions for S vs. V), the reviewer's special-case "full change-folder by design" string, and must not flag non-stage-agent files. The parse-and-assert pattern is first-of-kind in the lint script; getting the extraction regex and the equality checks wrong silently passes a bad state.
 
-- [ ] 4.1 `claude/skills/workflow/SKILL.md` — add a "Read Matrix" subsection near `## The eight stages`; the subsection contains an 8-row table (R through PR) with columns `Stage`, `Agent`, `Reads (within-change)`, `Cross-change`, matching the approved matrix from `design.md` (D9)
-- [ ] 4.2 `claude/skills/workflow/SKILL.md` — include in the Read Matrix subsection the full cross-change boundary clause and `spec.md` exception text as the single authoritative source (D6, D9)
-- [ ] 4.3 `claude/skills/workflow/SKILL.md` — annotate the architect row with its two-mode contract (S: `design.md` / V: `proposal.md` + `specs/`) and the reviewer row with the "full change-folder by design" intentional note (D1, D2, D9)
-- [ ] 4.4 `scripts/lint.mjs` — add `async function checkReadContracts(errors)` following the existing Check 5/6 pattern; place it after the last existing check function (D10)
-- [ ] 4.5 `scripts/lint.mjs` — inside `checkReadContracts`: define the expected per-agent `Reads:` value map (7 entries), derived mechanically from the approved read matrix; architect entry must encode the two-mode S/V contract; reviewer entry must use the "full change-folder by design" string (D10, OQ3)
-- [ ] 4.6 `scripts/lint.mjs` — inside `checkReadContracts`: read each of the 7 `claude/agents/*.md` files; extract the `Reads:` field from the `> **Read contract**` banner using a regex; push to `errors[]` if the banner is missing or if the extracted value does not equal the expected value for that agent (D10, OQ2)
-- [ ] 4.7 `scripts/lint.mjs` — inside `checkReadContracts`: scope the check to the 7 stage-agent files only; explicitly exclude `claude/commands/update.md` and `claude/skills/qrspi-update/SKILL.md` from any path glob used (D10)
-- [ ] 4.8 `scripts/lint.mjs` — register `checkReadContracts` in `main()` as `Check 7: checkReadContracts` following the existing OK-line pattern (D10)
-- [ ] 4.9 Checkpoint: run `node scripts/lint.mjs` — must exit 0 with all 7 checks passing; confirm the output line `Check 7: checkReadContracts OK` appears
-- [ ] 4.10 Checkpoint: temporarily corrupt one agent banner's `Reads:` value; run `node scripts/lint.mjs`; confirm it exits non-zero and reports a Check 7 failure; restore the banner
+- [x] 4.1 `claude/skills/workflow/SKILL.md` — add a "Read Matrix" subsection near `## The eight stages`; the subsection contains an 8-row table (R through PR) with columns `Stage`, `Agent`, `Reads (within-change)`, `Cross-change`, matching the approved matrix from `design.md` (D9)
+- [x] 4.2 `claude/skills/workflow/SKILL.md` — include in the Read Matrix subsection the full cross-change boundary clause and `spec.md` exception text as the single authoritative source (D6, D9)
+- [x] 4.3 `claude/skills/workflow/SKILL.md` — annotate the architect row with its two-mode contract (S: `design.md` / V: `proposal.md` + `specs/`) and the reviewer row with the "full change-folder by design" intentional note (D1, D2, D9)
+- [x] 4.4 `scripts/lint.mjs` — add `async function checkReadContracts(errors)` following the existing Check 5/6 pattern; place it after the last existing check function (D10)
+- [x] 4.5 `scripts/lint.mjs` — inside `checkReadContracts`: define the expected per-agent `Reads:` value map (7 entries), derived mechanically from the approved read matrix; architect entry must encode the two-mode S/V contract; reviewer entry must use the "full change-folder by design" string (D10, OQ3)
+- [x] 4.6 `scripts/lint.mjs` — inside `checkReadContracts`: read each of the 7 `claude/agents/*.md` files; extract the `Reads:` field from the `> **Read contract**` banner using a regex; push to `errors[]` if the banner is missing or if the extracted value does not equal the expected value for that agent (D10, OQ2)
+- [x] 4.7 `scripts/lint.mjs` — inside `checkReadContracts`: scope the check to the 7 stage-agent files only; explicitly exclude `claude/commands/update.md` and `claude/skills/qrspi-update/SKILL.md` from any path glob used (D10)
+- [x] 4.8 `scripts/lint.mjs` — register `checkReadContracts` in `main()` as `Check 7: checkReadContracts` following the existing OK-line pattern (D10)
+- [x] 4.9 Checkpoint: run `node scripts/lint.mjs` — must exit 0 with all 7 checks passing; confirm the output line `Check 7: checkReadContracts OK` appears
+- [x] 4.10 Checkpoint: temporarily corrupt one agent banner's `Reads:` value; run `node scripts/lint.mjs`; confirm it exits non-zero and reports a Check 7 failure; restore the banner
 - [ ] 4.11 (human) Dev-install the in-progress copy (`claude --plugin-dir /workspaces/git/qrspi` then `/reload-plugins`) and confirm the updated workflow skill loads without parse error
 
 ## 5. Migration entry + CHANGELOG + copilot sync
