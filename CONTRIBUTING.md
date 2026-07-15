@@ -45,27 +45,30 @@ and several merged PRs batch into one release.
 
 1. Choose the new version per the semver table above.
 2. Bump `plugin.json` `version`.
-3. Move the `## [Unreleased]` items into a new `## [X.Y.Z] - <date>` section,
+3. Write `migrations/<version>.yaml` for the new version (a "no consumer action"
+   stub is valid — `automated` and `manual` lists may be empty). The lint gate
+   checks presence on every PR, so this step must be done before pushing.
+4. Move the `## [Unreleased]` items into a new `## [X.Y.Z] - <date>` section,
    leaving `## [Unreleased]` with its "No unreleased changes" placeholder.
-4. Run `node scripts/lint.mjs` and `node sync-copilot.mjs --check` (both exit 0).
-5. Commit, then tag and push:
+5. Run `node scripts/lint.mjs` and `node sync-copilot.mjs --check` (both exit 0).
+6. Commit, then tag and push:
 
    ```
    git tag vX.Y.Z
    git push origin main --tags
    ```
 
-6. Update the qrspi entry's `source` ref to `vX.Y.Z` in
+7. Update the qrspi entry's `source` ref to `vX.Y.Z` in
    `lotea-be/ai-agent-marketplace`, so consumers pick up the release. (This is
    the only step outside this repo, and the only thing that actually ships to
    users.)
 
 > **Shortcut:** `/qrspi-release [X.Y.Z]` (local dev-tooling — the `qrspi-release`
-> command + skill under `.claude/`) runs steps 1–5 for you: it checks the
-> preconditions, bumps `plugin.json`, rolls the CHANGELOG, re-verifies lint +
-> drift, and makes the `release: vX.Y.Z` commit — then **gates the tag-push
-> (the publish) behind an explicit confirmation**. Step 6 (the marketplace ref)
-> stays manual.
+> command + skill under `.claude/`) runs steps 1–6 for you: it checks the
+> preconditions, bumps `plugin.json`, writes/validates the migration manifest
+> entry, rolls the CHANGELOG, re-verifies lint + drift, and makes the
+> `release: vX.Y.Z` commit — then **gates the tag-push (the publish) behind an
+> explicit confirmation**. Step 7 (the marketplace ref) stays manual.
 
 The `.github/workflows/release.yml` job runs on the `v*` tag push: it re-runs
 lint + drift, asserts the tag matches `plugin.json` `version` and that a
@@ -106,6 +109,8 @@ When bumping `plugin.json` `version`:
 
 - [ ] Decide the correct component (see semver table above).
 - [ ] Update `plugin.json` `version`.
+- [ ] Write `migrations/<version>.yaml` for the new version (stub with empty
+  `automated`/`manual` lists is valid). The lint gate enforces presence.
 - [ ] Update `CHANGELOG.md`: move items from `## [Unreleased]` into the new
   version section, add the release date.
 - [ ] **Pin-coupling rule:** if the OpenSpec CLI pin is also changing (e.g.

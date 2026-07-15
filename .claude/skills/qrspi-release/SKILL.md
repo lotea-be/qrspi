@@ -36,10 +36,16 @@ Stop and surface the problem if any fail; do not proceed:
    (see CONTRIBUTING "Semver discipline"): a new feature (`### Added`, or a
    behaviour-changing `### Changed`) bumps the **minor**; fixes / prose / docs bump
    the **patch**. The human owns this call — see step 1 below.
-4. **Tag is free.** `vX.Y.Z` does not already exist locally
+4. **Migration manifest entry exists.** `migrations/<X.Y.Z>.yaml` must exist in
+   the kit repo (use the Read tool to check the path). A stub with empty
+   `automated` and `manual` lists is valid — but the file must be present. If it
+   is absent, halt and instruct the human to write `migrations/<X.Y.Z>.yaml`
+   before re-running. (The lint gate also catches this on every PR, but this
+   hard-stop ensures the release skill never commits without the entry.)
+5. **Tag is free.** `vX.Y.Z` does not already exist locally
    (`git tag --list vX.Y.Z`) or on origin
    (`git ls-remote --tags origin vX.Y.Z`).
-5. **Gates are green.** `node scripts/lint.mjs` exits 0 and
+6. **Gates are green.** `node scripts/lint.mjs` exits 0 and
    `node sync-copilot.mjs --check` exits 0 (release.yml re-runs both — catching it
    here avoids a failed publish).
 

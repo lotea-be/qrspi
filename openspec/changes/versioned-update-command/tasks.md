@@ -58,11 +58,11 @@ tail mirrors the existing pattern used in QRSPI's own commit step.
 logic, every target file follows a well-understood existing pattern in this
 kit.
 
-- [ ] 5.1 Update `README.md`: add `/qrspi:update` to the helpers line and add an "Updating your repo" note describing the update flow (D2)
-- [ ] 5.2 Add an `[Unreleased]` CHANGELOG entry in `CHANGELOG.md` for the versioned-update-command change (D6)
-- [ ] 5.3 Update `CONTRIBUTING.md` release checklist to include the manifest-entry step (`write migrations/<version>.yaml`) adjacent to the CHANGELOG roll step (D6)
-- [ ] 5.4 Update `.claude/skills/qrspi-release/SKILL.md` preconditions to include a manifest-presence hard-stop: halt if `migrations/<version>.yaml` for the release version does not exist (D6)
-- [ ] 5.5 Run `node sync-copilot.mjs` to regenerate `copilot/prompts/qrspi-update.prompt.md` (do not hand-edit `copilot/`) (D2)
-- [ ] 5.6 Run `node scripts/lint.mjs` from the kit repo root; confirm exit 0 and that Check 4 passes for `/qrspi:update` (D6, D7)
-- [ ] 5.7 Run `node sync-copilot.mjs --check` from the kit repo root; confirm exit 0 (no drift)
+- [x] 5.1 Update `README.md`: add `/qrspi:update` to the helpers line and add an "Updating your repo" note describing the update flow (D2)
+- [x] 5.2 Add an `[Unreleased]` CHANGELOG entry in `CHANGELOG.md` for the versioned-update-command change (D6)
+- [x] 5.3 Update `CONTRIBUTING.md` release checklist to include the manifest-entry step (`write migrations/<version>.yaml`) adjacent to the CHANGELOG roll step (D6)
+- [x] 5.4 Update `.claude/skills/qrspi-release/SKILL.md` preconditions to include a manifest-presence hard-stop: halt if `migrations/<version>.yaml` for the release version does not exist (D6)
+- [x] 5.5 Run `node sync-copilot.mjs` to regenerate `copilot/prompts/qrspi-update.prompt.md` (do not hand-edit `copilot/`) (D2)
+- [x] 5.6 Run `node scripts/lint.mjs` from the kit repo root; confirm exit 0 and that Check 4 passes for `/qrspi:update` (D6, D7)
+- [x] 5.7 Run `node sync-copilot.mjs --check` from the kit repo root; confirm exit 0 (no drift)
 - [ ] 5.8 (human) Open `README.md` and confirm `/qrspi:update` appears in the helpers line. Open `CONTRIBUTING.md` and confirm the release checklist includes the manifest-entry step. Confirm `qrspi-release` skill halts on a missing manifest entry (manual review).

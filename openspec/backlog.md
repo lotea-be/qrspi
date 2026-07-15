@@ -5,9 +5,9 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 `in-progress` / `merged`. Completed work lives under
 `openspec/changes/archive/`, not here.
 
-## Proposed
+## In progress
 
-### versioned-update-command — `proposed (change folder created 2026-07-15)` · **P1**
+### versioned-update-command — `in-progress (Q, R, D, S, V, P, I complete)` · **P1**
 
 **Why:** A QRSPI-initialized consuming repo has no record of which kit version it is on, so there is no safe, guided path for bumping the plugin when the kit ships behavior-changing updates (such as `tighten-stage-read-boundaries`). Introduces a version marker written by `/qrspi:init` and bumped by a new `/qrspi:update` command, backed by a per-version migration/checklist manifest in the kit source, so consumers always know what to adapt or verify when upgrading. Prerequisite for `tighten-stage-read-boundaries`.
 
