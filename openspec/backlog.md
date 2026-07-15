@@ -13,7 +13,7 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 **Likely shape:** New `claude/commands/update.md` + `claude/skills/qrspi-update/SKILL.md` shipped to consumers; a migration manifest (location and format TBD — see PQ3); a version marker file (location TBD — see PQ1) written by `/qrspi:init` and bumped by `/qrspi:update`; release-flow integration (CONTRIBUTING.md checklist + optional CI gate — see PQ5); README update per CLAUDE.md. `copilot/` regenerated at zero drift.
 
-### tighten-stage-read-boundaries — `in-progress (Q, R, D, S, V, P, I complete)` · **P1**
+### tighten-stage-read-boundaries — `in-progress (PR #17 open)` · **P1**
 
 **Why:** Later QRSPI stages re-read artifacts from steps other than their
 direct predecessor (e.g. the architect reads `questions.md` + `research.md` +
