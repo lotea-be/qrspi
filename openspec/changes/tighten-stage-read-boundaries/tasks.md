@@ -41,19 +41,19 @@
 
 **Model:** sonnet — mechanical clause addition to 7 files + two targeted rewrites (questioner step, designer trigger step); every change is fully specified in D6, D7, D8.
 
-- [ ] 3.1 `claude/agents/researcher.md` — add cross-change boundary clause to the read-prose body (the banner already carries the reference; ensure the body instruction also states: "never open another change's process artifacts; spec.md excepted — see workflow skill Read Matrix") (D6)
-- [ ] 3.2 `claude/agents/questioner.md` — locate the step that globs/opens an archived `questions.md` as a worked example; remove that step entirely (D7)
-- [ ] 3.3 `claude/agents/questioner.md` — replace the removed step with a reference to `openspec-templates/questions.template.md` and the inline canonical shape (watch-item: if `openspec-templates/` is unreachable in a consuming repo, the inline shape alone stands — note this in the file) (D7)
-- [ ] 3.4 `claude/agents/questioner.md` — add cross-change boundary clause to the body (D6)
-- [ ] 3.5 `claude/agents/designer.md` — reword the trigger-honouring step (step 6 or equivalent) to source scheduled triggers from `openspec/specs/**` base specs instead of any archived `design.md` (D8)
-- [ ] 3.6 `claude/agents/designer.md` — add cross-change boundary clause to the body (D6)
-- [ ] 3.7 `claude/agents/architect.md` — add cross-change boundary clause to the body (D6)
-- [ ] 3.8 `claude/agents/planner.md` — add cross-change boundary clause to the body (D6)
-- [ ] 3.9 `claude/agents/implementer.md` — add cross-change boundary clause to the body (D6)
-- [ ] 3.10 `claude/agents/reviewer.md` — add cross-change boundary clause to the body, noting that "full current-change folder" is intentional but other changes' process artifacts remain off-limits (D6)
-- [ ] 3.11 Checkpoint: run `node scripts/lint.mjs` — must exit 0
-- [ ] 3.12 Checkpoint: grep all 7 agent files for `openspec/changes/archive` — must return zero results in `questioner.md`; reviewer may reference the archive path only as its own-change folder path, not as a cross-change read
-- [ ] 3.13 Checkpoint: grep `claude/agents/designer.md` for any reference to an archived `design.md` as a trigger source — must return zero results
+- [x] 3.1 `claude/agents/researcher.md` — add cross-change boundary clause to the read-prose body (the banner already carries the reference; ensure the body instruction also states: "never open another change's process artifacts; spec.md excepted — see workflow skill Read Matrix") (D6)
+- [x] 3.2 `claude/agents/questioner.md` — locate the step that globs/opens an archived `questions.md` as a worked example; remove that step entirely (D7)
+- [x] 3.3 `claude/agents/questioner.md` — replace the removed step with a reference to `openspec-templates/questions.template.md` and the inline canonical shape (watch-item: if `openspec-templates/` is unreachable in a consuming repo, the inline shape alone stands — note this in the file) (D7)
+- [x] 3.4 `claude/agents/questioner.md` — add cross-change boundary clause to the body (D6)
+- [x] 3.5 `claude/agents/designer.md` — reword the trigger-honouring step (step 6 or equivalent) to source scheduled triggers from `openspec/specs/**` base specs instead of any archived `design.md` (D8)
+- [x] 3.6 `claude/agents/designer.md` — add cross-change boundary clause to the body (D6)
+- [x] 3.7 `claude/agents/architect.md` — add cross-change boundary clause to the body (D6)
+- [x] 3.8 `claude/agents/planner.md` — add cross-change boundary clause to the body (D6)
+- [x] 3.9 `claude/agents/implementer.md` — add cross-change boundary clause to the body (D6)
+- [x] 3.10 `claude/agents/reviewer.md` — add cross-change boundary clause to the body, noting that "full current-change folder" is intentional but other changes' process artifacts remain off-limits (D6)
+- [x] 3.11 Checkpoint: run `node scripts/lint.mjs` — must exit 0
+- [x] 3.12 Checkpoint: grep all 7 agent files for `openspec/changes/archive` — must return zero results in `questioner.md`; reviewer may reference the archive path only as its own-change folder path, not as a cross-change read
+- [x] 3.13 Checkpoint: grep `claude/agents/designer.md` for any reference to an archived `design.md` as a trigger source — must return zero results
 
 ## 4. Workflow-skill read-matrix table + lint Check 7
 

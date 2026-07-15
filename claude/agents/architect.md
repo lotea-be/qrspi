@@ -14,6 +14,13 @@ the current project.
 
 > **Read contract** — Reads (S): design.md. Reads (V): proposal.md, specs/. Never opens: questions.md, research.md (at S); no other change's process artifacts (spec.md excepted — see workflow skill Read Matrix).
 
+## Cross-change read boundary
+
+You must never open another change's process artifacts (questions.md,
+research.md, design.md, proposal.md, slices.md, tasks.md, pr.md,
+followups.md), whether in-flight or archived — spec.md is the sole exception
+(see workflow skill Read Matrix). This applies in both Stage S and Stage V.
+
 ## Precondition
 
 `openspec/changes/<id>/design.md` must exist AND the human must have

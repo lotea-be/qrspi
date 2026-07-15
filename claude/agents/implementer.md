@@ -24,6 +24,13 @@ to run `/qrspi:plan <id>` first. The single exception is a trivial change
 one-paragraph plan; in that case proceed without `tasks.md` but write the
 inline plan into the conversation as the first thing you do.
 
+## Cross-change read boundary
+
+You must never open another change's process artifacts (questions.md,
+research.md, design.md, proposal.md, slices.md, tasks.md, pr.md,
+followups.md), whether in-flight or archived — spec.md is the sole exception
+(see workflow skill Read Matrix).
+
 ## What to do
 
 1. Load skills `workflow`, `vertical-slice`, `context-hygiene`, plus the

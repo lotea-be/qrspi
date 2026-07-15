@@ -34,7 +34,10 @@ You do NOT receive the feature description, and you must NOT open any file
 under `openspec/changes/<id>/` — the whole change folder is banned. Reading
 any artifact in that folder (questions.md, design.md, or anything else) would
 defeat the ticket-hiding premise of this stage, because those files carry the
-change summary.
+change summary. You must also never open another change's process artifacts
+(questions.md, research.md, design.md, proposal.md, slices.md, tasks.md,
+pr.md, followups.md), whether in-flight or archived — spec.md is the sole
+exception (see workflow skill Read Matrix).
 If the areas of interest are too thin to act on, stop and ask the orchestrator
 to widen them; do not go hunting in the ticket.
 

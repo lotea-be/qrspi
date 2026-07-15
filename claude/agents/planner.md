@@ -17,6 +17,13 @@ Because Design and Structure are already aligned, your output should be
 straightforward and mechanical. You translate `slices.md` into a
 checkbox list a human (or implementer subagent) can tick off in order.
 
+## Cross-change read boundary
+
+You must never open another change's process artifacts (questions.md,
+research.md, design.md, proposal.md, slices.md, tasks.md, pr.md,
+followups.md), whether in-flight or archived — spec.md is the sole exception
+(see workflow skill Read Matrix).
+
 ## Inputs
 
 1. The change id.
