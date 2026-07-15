@@ -10,6 +10,15 @@ the current project.
 > is settled — the architectural reasoning was already paid for at D.
 > Sonnet handles the proposal / specs / slice plan turn-the-crank work.
 
+> **Read contract** — Reads (S): design.md. Reads (V): proposal.md, specs/. Never opens: questions.md, research.md (at S); no other change's process artifacts (spec.md excepted — see workflow skill Read Matrix).
+
+## Cross-change read boundary
+
+You must never open another change's process artifacts (questions.md,
+research.md, design.md, proposal.md, slices.md, tasks.md, pr.md,
+followups.md), whether in-flight or archived — spec.md is the sole exception
+(see workflow skill Read Matrix). This applies in both Stage S and Stage V.
+
 ## Precondition
 
 `openspec/changes/<id>/design.md` must exist AND the human must have
@@ -34,12 +43,11 @@ final message. Do NOT write `slices.md` during S, and do NOT touch
 
 1. Consult the instructions for `workflow`, `openspec-workflow`, `vertical-slice`, plus
    the project's stack-cheatsheet skill if it defines one.
-2. Read `openspec/changes/<id>/questions.md`, `research.md`, and
-   `design.md` in order. `design.md` is the source of truth for
-   technical decisions; the other two anchor the spec scenarios in
-   the technical-question record and the codebase factual map (so
-   requirements cite real existing precedents in the codebase — existing
-   endpoints, configurations, and conventions).
+2. Read `openspec/changes/<id>/design.md`. `design.md` is the sole
+   source of truth for technical decisions at this stage — it is the
+   approved summary of questions, research, and design reasoning. Do
+   not open `questions.md` or `research.md`; everything relevant has
+   been distilled into `design.md` by the designer.
 3. Write `openspec/changes/<id>/proposal.md` using the canonical OpenSpec
    shape. Generate from the skeleton embedded below — it is the runtime source
    of truth and mirrors the QRSPI kit's canonical
@@ -194,7 +202,16 @@ With the prerequisites in place, read `proposal.md` and `specs/` for the
 capability structure, then write `openspec/changes/<id>/slices.md`. If
 `slices.md` already exists, read it first, then overwrite it with the
 updated version and note in the V-only final message that a previous
-`slices.md` was replaced:
+`slices.md` was replaced.
+
+**Required output-format rule (D3):** every slice bullet that implements
+a numbered design decision MUST carry an inline `(D<n>)` tag (or
+`(D<n>, D<m>)` for multiple decisions). This is required, not
+best-effort — the tags propagate `slices.md → tasks.md → implementer`
+and let the planner and implementer keep their read sets closed (D2, D4).
+Omit the tag only on scaffolding bullets that implement no named design
+decision (e.g. a pure T line with no decision reference). Add the dogfood
+note to the Overview block so the file announces its own compliance.
 
 ```markdown
 # Slices — <change-id>
@@ -209,6 +226,9 @@ deliver, and the rationale for how they are grouped. The planner and
 implementer should be able to read this block cold without
 re-reading `proposal.md` or `design.md`.
 
+The `(D<n>)` tags embedded throughout this file are required — this
+`slices.md` dogfoods the rule it describes.
+
 ## Slices
 
 ### Slice 1 — <name>
@@ -217,7 +237,7 @@ One paragraph (the "Deliverable") describing what a human can see
 working in the browser at the end of this slice, and any deliberate
 gaps that will be filled by a later slice.
 
-- M (Mock API): <service method or API endpoint returning hard-coded data>
+- M (Mock API): <service method or API endpoint returning hard-coded data> (D1)
 - F (Frontend): <page or component>
 - D (DB): <data-store entity or query>
 - T (Tests): <unit + component + e2e>
@@ -287,9 +307,9 @@ Next stage: /qrspi-slices <id>
 
 Use `Overwrote:` instead of `Wrote:` for any file that already existed.
 **Open questions surfaced** = any assumption you made that was NOT answered
-by `design.md`, `questions.md`, or `research.md` and that could affect
-implementation correctness (plus any missing template file noted above).
-Write "none" only if every decision was fully grounded in those documents.
+by `design.md` alone and that could affect implementation correctness (plus
+any missing template file noted above).
+Write "none" only if every decision was fully grounded in `design.md`.
 
 ### V-only (when invoked via `/qrspi-slices`)
 

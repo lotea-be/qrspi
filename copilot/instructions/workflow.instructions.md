@@ -111,6 +111,61 @@ and Structure were already aligned, this review is fast and contains few
 surprises. `/qrspi-pr` records the PR link in `openspec/changes/<id>/pr.md`
 and seeds `followups.md` with any open issues the reviewer found.
 
+### Read Matrix — what each stage may open
+
+Each stage agent reads the strict minimum the human approved in Q. Reading
+more than the row below burns tokens and blurs the stage boundary. This table
+is the **single authoritative source** of the per-stage read contract; the
+`> **Read contract**` banner at the top of each `claude/agents/*.md` is a terse
+mirror of its row, and lint Check 7 (`checkReadContracts`) asserts each banner
+equals its row here. All paths are relative to the current change folder
+`openspec/changes/<id>/` unless stated otherwise.
+
+| Stage | Agent | Reads (within-change) | Cross-change |
+|-------|-------|-----------------------|--------------|
+| R  | researcher  | *none* — the whole `changes/<id>/` folder is banned | spec.md only |
+| Q  | questioner  | backlog + templates (no change-folder artifact) | spec.md only |
+| D  | designer    | `questions.md`, `research.md` | spec.md only |
+| S  | architect   | `design.md` | spec.md only |
+| V  | architect   | `proposal.md`, `specs/` | spec.md only |
+| P  | planner     | `slices.md` | spec.md only |
+| I  | implementer | `tasks.md` | spec.md only |
+| PR | reviewer    | full `changes/<id>/` folder (by design) | spec.md only |
+
+Two rows carry a special case:
+
+- **Architect (S vs. V) — two-mode contract.** The architect runs both the
+  Structure stage and the Slices stage, and its read set differs by mode: at
+  **S** it reads `design.md` only (the designer has already distilled
+  `questions.md` + `research.md` into it); at **V** it reads `proposal.md` +
+  `specs/` only. It never reopens `questions.md`/`research.md` once past D. Its
+  banner encodes both modes: `Reads (S): design.md. Reads (V): proposal.md,
+  specs/.`
+- **Reviewer — full folder by design.** The PR reviewer intentionally reads the
+  *entire* current change folder — there is no within-change restriction for it,
+  because its whole job is to check the change end-to-end. This is the sole
+  "read everything" row and is deliberate, not a gap.
+
+#### Cross-change boundary (the `spec.md` exception)
+
+On **every** stage agent, one boundary holds regardless of the within-change
+row above: **no agent may read another change's *process* artifacts** —
+`questions.md`, `research.md`, `design.md`, `proposal.md`, `slices.md`,
+`tasks.md`, `pr.md`, or `followups.md` — whether that other change is in-flight
+under `openspec/changes/<other-id>/` or archived under
+`openspec/changes/archive/`. Do not skim an archived worked example, do not
+honour a trigger recorded in another change's `design.md`, do not "check how
+the last change did it" by opening its process files.
+
+**The sole exception is any `spec.md`.** Base specs under `openspec/specs/**`
+and delta `specs/**/spec.md` inside other or archived changes are the durable,
+shared contract surface and MAY be read across changes (e.g. the designer
+sources scheduled triggers from base specs; the researcher may consult base
+specs). Everything else in another change's folder is off-limits. This is the
+single home of this rule — each agent banner ends with a short pointer back to
+it (`…no other change's process artifacts (spec.md excepted — see workflow
+skill Read Matrix)`) rather than restating it.
+
 ## After PR — the fix loop
 
 QRSPI ends at PR, but small follow-ups always surface afterwards: the

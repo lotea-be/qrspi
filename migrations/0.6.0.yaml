@@ -3,6 +3,11 @@ summary: >
   Introduces the openspec/.qrspi-version marker and the /qrspi:update command.
   No structural changes to openspec/ are required for existing repos. After
   updating the plugin, run /qrspi:update (or manually write 0.6.0 to
-  openspec/.qrspi-version) to initialize the marker.
+  openspec/.qrspi-version) to initialize the marker. Also narrows per-agent
+  read contracts: each of the seven QRSPI stage agents now carries an explicit
+  Read contract banner and a cross-change boundary clause.
 automated: []
-manual: []
+manual:
+  - "If you have locally overridden any QRSPI stage-agent file, re-align it\
+    \ to the new per-agent read contracts introduced in\
+    \ tighten-stage-read-boundaries."

@@ -75,11 +75,11 @@
 
 **Model:** sonnet — mechanical YAML + changelog prose + running the sync script; no non-obvious logic.
 
-- [ ] 5.1 Read `plugin.json` to obtain the current version string; derive the migration manifest filename as `migrations/<version>.yaml` (do NOT bump `plugin.json`) (D11)
-- [ ] 5.2 Write `migrations/<version>.yaml` with `automated: []` and `manual: ["If you have locally overridden any QRSPI stage-agent file, re-align it to the new per-agent read contracts introduced in tighten-stage-read-boundaries."]` (D11)
-- [ ] 5.3 `CHANGELOG.md` — add one or more bullet points under `## [Unreleased]` summarising: seven agent read-contract banners + narrowed read sets, workflow-skill Read Matrix table, lint Check 7 (`checkReadContracts`), and migration entry (D9, D10, D11)
-- [ ] 5.4 Run `node sync-copilot.mjs` to regenerate `copilot/` from the updated `claude/` sources (never hand-edit `copilot/`)
-- [ ] 5.5 Checkpoint: run `node scripts/lint.mjs` — must exit 0 (all 7 checks, including Check 6 migration-file check for the new manifest)
-- [ ] 5.6 Checkpoint: run `node sync-copilot.mjs --check` — must exit 0 (zero drift between `claude/` and `copilot/`)
-- [ ] 5.7 Checkpoint: confirm `migrations/<version>.yaml` exists and lint Check 6 output reports OK for it
-- [ ] 5.8 Checkpoint: confirm `CHANGELOG.md` `## [Unreleased]` section contains an entry referencing this change
+- [x] 5.1 Read `plugin.json` to obtain the current version string; derive the migration manifest filename as `migrations/<version>.yaml` (do NOT bump `plugin.json`) (D11) — DEVIATION: did not read plugin.json (0.5.0, already released); per user correction, appended to the existing `migrations/0.6.0.yaml` instead of creating a new file
+- [x] 5.2 Write `migrations/<version>.yaml` with `automated: []` and `manual: ["If you have locally overridden any QRSPI stage-agent file, re-align it to the new per-agent read contracts introduced in tighten-stage-read-boundaries."]` (D11) — DEVIATION: appended the manual note + extended summary to the existing `migrations/0.6.0.yaml` (per user correction); `manual: []` changed to a YAML list with the one entry
+- [x] 5.3 `CHANGELOG.md` — add one or more bullet points under `## [Unreleased]` summarising: seven agent read-contract banners + narrowed read sets, workflow-skill Read Matrix table, lint Check 7 (`checkReadContracts`), and migration entry (D9, D10, D11)
+- [x] 5.4 Run `node sync-copilot.mjs` to regenerate `copilot/` from the updated `claude/` sources (never hand-edit `copilot/`)
+- [x] 5.5 Checkpoint: run `node scripts/lint.mjs` — must exit 0 (all 7 checks, including Check 6 migration-file check for the new manifest)
+- [x] 5.6 Checkpoint: run `node sync-copilot.mjs --check` — must exit 0 (zero drift between `claude/` and `copilot/`)
+- [x] 5.7 Checkpoint: confirm `migrations/<version>.yaml` exists and lint Check 6 output reports OK for it
+- [x] 5.8 Checkpoint: confirm `CHANGELOG.md` `## [Unreleased]` section contains an entry referencing this change
