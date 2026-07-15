@@ -154,3 +154,92 @@ dependency-free ESM pattern (async function pushing to `errors[]`,
 - **THEN** Check 5 flags the new command as a violation, preventing the
   gate-trapping bug from recurring silently.
 
+### Requirement: Lint job checks migration manifest presence and schema
+The CI `lint` job MUST include a check that, for every `## [X.Y.Z]` section in
+`CHANGELOG.md` (i.e. every historically released version), a corresponding
+`migrations/<version>.yaml` file exists in the kit. The check MUST also validate
+schema well-formedness of every `migrations/*.yaml` file: required fields
+(`version`, `summary`, `automated`, `manual`) must be present; every item in
+`automated` must have `action: edit-file` and no other action value; every
+`automated` item's `path` field must start with `openspec/`. The check MUST
+validate, where `openspec/.qrspi-version` exists in the repo being linted, that
+its contents match a bare SemVer regex (no `v` prefix, no key). The check MUST
+be implemented in `scripts/lint.mjs` using the same dependency-free ESM pattern
+(async function, errors pushed to `errors[]`, labelled `process.stdout.write`
+line in `main()`). Because `release.yml` already runs `node scripts/lint.mjs`,
+this check is enforced both on every PR and at every tag push without a separate
+`release.yml` assertion.
+
+#### Scenario: release version missing a manifest entry
+- **WHEN** `CHANGELOG.md` contains a `## [0.7.0]` section but
+  `migrations/0.7.0.yaml` does not exist, and the lint job runs
+- **THEN** the lint check reports the missing entry and `node scripts/lint.mjs`
+  exits non-zero.
+
+#### Scenario: every released version has a manifest entry
+- **WHEN** every version section in `CHANGELOG.md` has a corresponding
+  `migrations/<version>.yaml` and all files are schema-well-formed
+- **THEN** the lint check passes and does not contribute to a non-zero exit.
+
+#### Scenario: automated step with disallowed action is caught
+- **WHEN** a `migrations/<version>.yaml` file contains an `automated` step with
+  `action: run-command` (not `edit-file`) and the lint job runs
+- **THEN** the lint check reports the schema violation and exits non-zero.
+
+#### Scenario: automated step with non-openspec path is caught
+- **WHEN** a `migrations/<version>.yaml` file contains an `automated` step whose
+  `path` does not start with `openspec/` and the lint job runs
+- **THEN** the lint check reports the path scope violation and exits non-zero.
+
+#### Scenario: marker file with malformed SemVer is caught
+- **WHEN** `openspec/.qrspi-version` exists and contains `v0.6.0` (with a `v`
+  prefix) or any non-SemVer string, and the lint job runs
+- **THEN** the lint check reports the format violation and exits non-zero.
+
+#### Scenario: valid stub for a no-action release passes
+- **WHEN** `migrations/0.6.0.yaml` exists with `version: 0.6.0`, a `summary`
+  string, `automated: []`, and `manual: []`
+- **THEN** the lint check treats this as a valid stub and does not flag it.
+
+### Requirement: Lint job validates agent read-contract banners via Check 7
+The CI `lint` job MUST include a Check 7 (`checkReadContracts`) that parses
+each of the seven QRSPI stage agent files (`claude/agents/researcher.md`,
+`questioner.md`, `designer.md`, `architect.md`, `planner.md`,
+`implementer.md`, `reviewer.md`) for their read-contract banner's `Reads:`
+field and asserts it equals the agent's expected row in the approved read-matrix.
+This is a banner-keyed POSITIVE check (not a free-prose forbidden-token scan):
+it extracts the `Reads:` value from the terse banner block and compares it
+against a hardcoded expected value per agent. The check MUST handle the
+architect's two-mode contract (stage S: `design.md` only; stage V:
+`proposal.md + specs/`) and MUST special-case the reviewer as "full
+change-folder by design." The check MUST NOT flag `/qrspi:update`,
+`qrspi-update`, or any non-stage-agent file. Check 7 MUST be registered in
+`scripts/lint.mjs` after Check 6 using the same dependency-free ESM pattern
+(async function pushing to `errors[]`, `process.stdout.write('Check 7: ...')`)
+label in `main()`).
+
+#### Scenario: agent banner Reads field matches matrix row
+- **WHEN** all seven stage agent files carry read-contract banners whose
+  `Reads:` fields match the approved read-matrix rows and `node scripts/lint.mjs`
+  is run
+- **THEN** Check 7 reports `OK` and exits 0.
+
+#### Scenario: architect banner with wrong Reads field is caught
+- **WHEN** `claude/agents/architect.md`'s read-contract banner has a `Reads:`
+  field that names `questions.md` (forbidden at both S and V) and
+  `node scripts/lint.mjs` is run
+- **THEN** Check 7 reports a violation for the architect agent and exits
+  non-zero.
+
+#### Scenario: banner missing from an agent file is caught
+- **WHEN** one of the seven agent files lacks a read-contract banner entirely
+  and `node scripts/lint.mjs` is run
+- **THEN** Check 7 reports a missing-banner violation for that agent and
+  exits non-zero.
+
+#### Scenario: update command and skill are not flagged by Check 7
+- **WHEN** `claude/commands/update.md` and `claude/skills/qrspi-update/SKILL.md`
+  do not carry read-contract banners and `node scripts/lint.mjs` is run
+- **THEN** Check 7 does not flag either file, because they are not Q→PR stage
+  agents.
+

@@ -7,26 +7,7 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## In progress
 
-### versioned-update-command — `in-progress (PR #16 open)` · **P1**
-
-**Why:** A QRSPI-initialized consuming repo has no record of which kit version it is on, so there is no safe, guided path for bumping the plugin when the kit ships behavior-changing updates (such as `tighten-stage-read-boundaries`). Introduces a version marker written by `/qrspi:init` and bumped by a new `/qrspi:update` command, backed by a per-version migration/checklist manifest in the kit source, so consumers always know what to adapt or verify when upgrading. Prerequisite for `tighten-stage-read-boundaries`.
-
-**Likely shape:** New `claude/commands/update.md` + `claude/skills/qrspi-update/SKILL.md` shipped to consumers; a migration manifest (location and format TBD — see PQ3); a version marker file (location TBD — see PQ1) written by `/qrspi:init` and bumped by `/qrspi:update`; release-flow integration (CONTRIBUTING.md checklist + optional CI gate — see PQ5); README update per CLAUDE.md. `copilot/` regenerated at zero drift.
-
-### tighten-stage-read-boundaries — `in-progress (PR #17 open)` · **P1**
-
-**Why:** Later QRSPI stages re-read artifacts from steps other than their
-direct predecessor (e.g. the architect reads `questions.md` + `research.md` +
-`design.md` at stage S; the implementer opens `design.md` cover-to-cover),
-causing unnecessary token blowup. Enforce a strict minimum-read matrix:
-researcher reads no prior artifacts (already mostly enforced — verify);
-designer reads `questions.md` + `research.md`; architect (S) reads `design.md`
-only; architect (V) reads `proposal.md` + `specs/` only; planner reads
-`slices.md` + bounded/lazy `design.md` (D-number lookups only); implementer
-reads `tasks.md` + bounded/lazy `design.md` (divergence self-check only);
-reviewer keeps full-folder read (unchanged). Changes land in
-`claude/agents/*.md` (and possibly matching `claude/commands/*.md`), followed
-by a `node sync-copilot.mjs` pass.
+_None._
 
 ---
 
@@ -39,16 +20,6 @@ Listed in priority order (highest first). Each carries a `P1`–`P3` band:
 this ordering whenever an item is added, modified, or archived (see
 [[backlog-prioritization]]).
 
-### archive-requires-merged-pr — `in-progress (PR #15 open)` · **P1**
-
-**Why:** Archiving a change today doesn't verify the linked PR actually merged —
-`/qrspi:archive` moves the folder under `archive/` regardless, so a change can be
-archived while its PR is still open or was closed unmerged. Before archiving,
-fetch the linked PR's status (via `gh`) and only proceed when it's `merged`;
-otherwise stop and surface the state. As part of the archive, also update the
-change's entry in `openspec/backlog.md` (e.g. flip status to `merged` / move it
-out of "In progress") so the backlog and the archive stay in sync.
-
 ### pr-review-open-tasks-and-followups — `idea` · **P1**
 
 **Why:** The PR stage jumps straight to drafting the PR without reconciling
@@ -57,6 +28,23 @@ loose ends. Before creating the PR, first walk the still-open tasks in
 (finish, defer, drop) — then loop over the entries in `followups.md` and ask the
 user what to do with each. Only after both review passes are resolved should the
 stage create the PR, so nothing open is silently carried into the PR.
+
+### right-size-followup-handling — `idea` · **P2**
+
+**Why:** `/qrspi:followup` (the `postpr-fix` skill) has a single hard-coded
+path — delegate to the implementer in FIX MODE for a small, atomic post-PR fix
+— but not every follow-up is that small, and forcing a large one through the
+small-fix path patches blind (no re-alignment, specs drift). The command should
+first **right-size** the follow-up and pick one of three paths: (1) **implement
+directly** — call the implementer and, when the fix changes behavior, adapt the
+change folder's DELTA specs in place (today's flow, correct for small fixes);
+(2) **addendum flow** — for a follow-up big enough to need re-alignment, spin up
+an addendum that re-enters the QRSPI pipeline from an earlier stage (any of
+Q/R/D/S/V/P/I) rather than patching without a plan; (3) **defer** — when it is
+really new scope, drop it here as a backlog idea instead of squeezing it into
+the current change. The triage itself is a size/scope judgment, kept
+human-in-the-loop, added up front so a large follow-up isn't silently run
+through the small-fix path. Relates to [[pr-review-open-tasks-and-followups]].
 
 ### init-conductor-plus-overview — `idea` · **P2**
 
@@ -270,6 +258,21 @@ mind.)
 architect writes a markdown `**Model:**` annotation; the implementer self-halts and
 asks to be re-invoked when on the wrong model) is fragile and breaks on Copilot.
 Consider a simpler lever or a single implement-stage model.
+
+### configurable-effort-and-thinking — `idea` · **P3**
+
+**Why:** A change can already set a per-slice **model** (the architect writes a
+`**Model:**` annotation the implementer honors), but reasoning **effort** and
+**thinking budget** are not similarly configurable — they inherit whatever the
+invoking session defaults to. That leaves tokens on the table in both
+directions: mechanical slices could run at low effort with no extended thinking,
+while the design-adjacent "brain surgery" work wants high effort and a large
+thinking budget. Consider making effort and thinking declarable alongside model
+(per-slice, or as a stage-level knob) and have the stage command/agent pass them
+through on delegation. Weigh against [[simplify-per-slice-model-selection]],
+which argues the existing `**Model:**` annotation is already too fragile — any
+effort/thinking lever should ride the same (simpler) mechanism rather than
+bolting on a third fragile markdown knob.
 
 ### agentFor-frontmatter-crosscheck — `idea` · **P3**
 
