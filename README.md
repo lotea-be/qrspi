@@ -65,7 +65,9 @@ Hard-stops always surface the error and ask the human -- they never auto-advance
 
 Helpers: `/qrspi` (print the stage map), `/qrspi:init` (bootstrap `openspec/` +
 templates — per-repo onboarding), `/qrspi:stack` (bootstrap this repo's
-stack-cheatsheet skill — per-repo onboarding), `/qrspi:followup <id>` (post-PR fix loop),
+stack-cheatsheet skill — per-repo onboarding), `/qrspi:update` (walk migration
+entries and update the repo's `openspec/` layout to a newer kit version),
+`/qrspi:followup <id>` (post-PR fix loop),
 `/qrspi:archive <id>` (archive a change after its PR merges),
 `/qrspi:retro <id> <stage>` (retrospective that improves the prompts themselves).
 
@@ -147,6 +149,26 @@ does **not** by itself upgrade an installed plugin:
 marketplaces don't auto-update by default; enable it per-marketplace under `/plugin`
 → **Marketplaces** if you'd rather upgrades land automatically. After an update,
 Claude Code may prompt `/reload-plugins` to activate it in the current session.
+
+### Updating your repo after a kit upgrade
+
+Upgrading the plugin refreshes the *code* but does not automatically adapt each
+repo's `openspec/` layout to new conventions. To apply any per-repo migration
+steps, run `/qrspi:update` in the repo after the plugin is updated:
+
+```
+/qrspi:update
+```
+
+This reads the `openspec/.qrspi-version` marker (written by `/qrspi:init` and
+bumped on each update), walks every migration entry between the marker and the
+installed kit version in ascending SemVer order, auto-applies mechanical file
+edits, and gates any judgment steps for human confirmation. When all steps
+complete it stages the changes and prints a ready-to-run `git commit` command.
+
+If a repo was initialized before the marker was introduced (pre-0.6.0), the
+command detects the absent marker, explains the situation, and offers to
+initialize it to the current version.
 
 ### GitHub Copilot — via the install script
 
