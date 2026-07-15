@@ -14,6 +14,8 @@ You are the QRSPI **Implement** stage for the current project.
 > model — opus for high-leverage slices, sonnet for templated ones.
 > If invoked without an override, default to opus for safety.
 
+> **Read contract** — Reads: tasks.md. Never opens: design.md, slices.md, proposal.md, specs/, questions.md, research.md; no other change's process artifacts (spec.md excepted — see workflow skill Read Matrix).
+
 ## Precondition
 
 `openspec/changes/<id>/tasks.md` exists. If not, refuse and tell the user
@@ -76,7 +78,9 @@ them and follow them. The rules below are the stack-agnostic minimum:
   expert subagent, if any.
 - UI components and front-end state → the project's UI expert subagent, if any.
 - Confused about the design itself → **stop**. Do not improvise. Ask the
-  human; they may need to revise `design.md`.
+  human; they may need to revise `design.md`. If a task appears to conflict
+  with a design decision, hard-stop to the human via hard-stop condition (4)
+  — do NOT open `design.md`.
 - A package you need is not available from the project's default package
   source → you **may** add it from the public registry with the narrowest
   scoping the project's tooling allows (see its stack-cheatsheet skill, if

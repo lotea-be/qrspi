@@ -6,24 +6,24 @@
 
 **Model:** sonnet — mechanical banner insertion + prose narrowing across 7 files; every change mirrors a fixed template from the spec (D9 OQ1 answer).
 
-- [ ] 1.1 `claude/agents/researcher.md` — tighten within-change read prose to "none (whole `changes/<id>/` folder banned)"; reword any existing single-artifact ban to cover the whole folder (D5, D9)
-- [ ] 1.2 `claude/agents/researcher.md` — insert the uniform read-contract banner block at the top of the file: `> **Read contract** — Reads: none (whole changes/<id>/ folder banned). Never opens: any file under openspec/changes/<id>/; no other change's process artifacts (spec.md excepted — see workflow skill Read Matrix).` (D9)
-- [ ] 1.3 `claude/agents/questioner.md` — tighten within-change read prose to "backlog + templates, no change-folder artifact" (D9)
-- [ ] 1.4 `claude/agents/questioner.md` — insert read-contract banner: `> **Read contract** — Reads: backlog + templates (no change-folder artifact). Never opens: any change-folder file (questions.md, research.md, design.md, etc.); no other change's process artifacts (spec.md excepted — see workflow skill Read Matrix).` (D9)
-- [ ] 1.5 `claude/agents/designer.md` — tighten within-change read prose to "questions.md + research.md" (D9)
-- [ ] 1.6 `claude/agents/designer.md` — insert read-contract banner: `> **Read contract** — Reads: questions.md, research.md. Never opens: design.md (from any change), proposal.md, slices.md, tasks.md, pr.md, followups.md; no other change's process artifacts (spec.md excepted — see workflow skill Read Matrix).` (D9)
-- [ ] 1.7 `claude/agents/architect.md` — stage-S step 2: change to read `design.md` only; drop any mention of `questions.md` and `research.md` from the S-path read instruction (D1)
-- [ ] 1.8 `claude/agents/architect.md` — reword the S-path final-message "Open questions surfaced" field from "not answered by `design.md`, `questions.md`, or `research.md`" to "not answered by `design.md` alone" (D1)
-- [ ] 1.9 `claude/agents/architect.md` — verify the V-path reads only `proposal.md` + `specs/`; adjust wording if any V-path step names additional artifacts (D1)
-- [ ] 1.10 `claude/agents/architect.md` — insert two-mode read-contract banner covering both S and V: `> **Read contract** — Reads (S): design.md. Reads (V): proposal.md, specs/. Never opens: questions.md, research.md (at S); no other change's process artifacts (spec.md excepted — see workflow skill Read Matrix).` (D1, D9)
-- [ ] 1.11 `claude/agents/planner.md` — tighten within-change read prose to "`slices.md` only"; remove any mention of `design.md`, `proposal.md`, `specs/` from the inputs/step-2 read list (D2)
-- [ ] 1.12 `claude/agents/planner.md` — insert read-contract banner: `> **Read contract** — Reads: slices.md. Never opens: design.md, proposal.md, specs/, questions.md, research.md; no other change's process artifacts (spec.md excepted — see workflow skill Read Matrix).` (D2, D9)
-- [ ] 1.13 `claude/agents/implementer.md` — confirm within-change read is stated as `tasks.md` only; add explicit hard-stop clause: "If a task appears to conflict with a design decision, hard-stop to the human via hard-stop condition (4) — do NOT open `design.md`." (D4)
-- [ ] 1.14 `claude/agents/implementer.md` — insert read-contract banner: `> **Read contract** — Reads: tasks.md. Never opens: design.md, slices.md, proposal.md, specs/, questions.md, research.md; no other change's process artifacts (spec.md excepted — see workflow skill Read Matrix).` (D4, D9)
-- [ ] 1.15 `claude/agents/reviewer.md` — add "full change-folder by design" note to the read-prose section (D9)
-- [ ] 1.16 `claude/agents/reviewer.md` — insert read-contract banner: `> **Read contract** — Reads: full changes/<id>/ folder (by design). Never opens: no restriction within the current change; no other change's process artifacts (spec.md excepted — see workflow skill Read Matrix).` (D9)
-- [ ] 1.17 Checkpoint: run `node scripts/lint.mjs` — must exit 0 (checks 1–6; Check 7 does not exist yet so no new assertion fires)
-- [ ] 1.18 Checkpoint: grep all 7 agent files for `> **Read contract**` — all 7 must match; zero missing banners
+- [x] 1.1 `claude/agents/researcher.md` — tighten within-change read prose to "none (whole `changes/<id>/` folder banned)"; reword any existing single-artifact ban to cover the whole folder (D5, D9)
+- [x] 1.2 `claude/agents/researcher.md` — insert the uniform read-contract banner block at the top of the file: `> **Read contract** — Reads: none (whole changes/<id>/ folder banned). Never opens: any file under openspec/changes/<id>/; no other change's process artifacts (spec.md excepted — see workflow skill Read Matrix).` (D9)
+- [x] 1.3 `claude/agents/questioner.md` — tighten within-change read prose to "backlog + templates, no change-folder artifact" (D9)
+- [x] 1.4 `claude/agents/questioner.md` — insert read-contract banner: `> **Read contract** — Reads: backlog + templates (no change-folder artifact). Never opens: any change-folder file (questions.md, research.md, design.md, etc.); no other change's process artifacts (spec.md excepted — see workflow skill Read Matrix).` (D9)
+- [x] 1.5 `claude/agents/designer.md` — tighten within-change read prose to "questions.md + research.md" (D9)
+- [x] 1.6 `claude/agents/designer.md` — insert read-contract banner: `> **Read contract** — Reads: questions.md, research.md. Never opens: design.md (from any change), proposal.md, slices.md, tasks.md, pr.md, followups.md; no other change's process artifacts (spec.md excepted — see workflow skill Read Matrix).` (D9)
+- [x] 1.7 `claude/agents/architect.md` — stage-S step 2: change to read `design.md` only; drop any mention of `questions.md` and `research.md` from the S-path read instruction (D1)
+- [x] 1.8 `claude/agents/architect.md` — reword the S-path final-message "Open questions surfaced" field from "not answered by `design.md`, `questions.md`, or `research.md`" to "not answered by `design.md` alone" (D1)
+- [x] 1.9 `claude/agents/architect.md` — verify the V-path reads only `proposal.md` + `specs/`; adjust wording if any V-path step names additional artifacts (D1)
+- [x] 1.10 `claude/agents/architect.md` — insert two-mode read-contract banner covering both S and V: `> **Read contract** — Reads (S): design.md. Reads (V): proposal.md, specs/. Never opens: questions.md, research.md (at S); no other change's process artifacts (spec.md excepted — see workflow skill Read Matrix).` (D1, D9)
+- [x] 1.11 `claude/agents/planner.md` — tighten within-change read prose to "`slices.md` only"; remove any mention of `design.md`, `proposal.md`, `specs/` from the inputs/step-2 read list (D2)
+- [x] 1.12 `claude/agents/planner.md` — insert read-contract banner: `> **Read contract** — Reads: slices.md. Never opens: design.md, proposal.md, specs/, questions.md, research.md; no other change's process artifacts (spec.md excepted — see workflow skill Read Matrix).` (D2, D9)
+- [x] 1.13 `claude/agents/implementer.md` — confirm within-change read is stated as `tasks.md` only; add explicit hard-stop clause: "If a task appears to conflict with a design decision, hard-stop to the human via hard-stop condition (4) — do NOT open `design.md`." (D4)
+- [x] 1.14 `claude/agents/implementer.md` — insert read-contract banner: `> **Read contract** — Reads: tasks.md. Never opens: design.md, slices.md, proposal.md, specs/, questions.md, research.md; no other change's process artifacts (spec.md excepted — see workflow skill Read Matrix).` (D4, D9)
+- [x] 1.15 `claude/agents/reviewer.md` — add "full change-folder by design" note to the read-prose section (D9)
+- [x] 1.16 `claude/agents/reviewer.md` — insert read-contract banner: `> **Read contract** — Reads: full changes/<id>/ folder (by design). Never opens: no restriction within the current change; no other change's process artifacts (spec.md excepted — see workflow skill Read Matrix).` (D9)
+- [x] 1.17 Checkpoint: run `node scripts/lint.mjs` — must exit 0 (checks 1–6; Check 7 does not exist yet so no new assertion fires)
+- [x] 1.18 Checkpoint: grep all 7 agent files for `> **Read contract**` — all 7 must match; zero missing banners
 
 ## 2. `(D<n>)` embed rule + template/skeleton label fixes
 

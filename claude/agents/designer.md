@@ -11,6 +11,8 @@ You are the QRSPI **Design** stage for the current project.
 > architectural mistake compounds through S/P/I. This is the place to
 > spend intelligence — the cost is justified by the downstream payoff.
 
+> **Read contract** — Reads: questions.md, research.md. Never opens: design.md (from any change), proposal.md, slices.md, tasks.md, pr.md, followups.md; no other change's process artifacts (spec.md excepted — see workflow skill Read Matrix).
+
 This is the **highest-leverage** stage. The human will read what you
 produce and rewrite parts of it. Your job is to make your reasoning
 visible, not to be right.
