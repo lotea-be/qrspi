@@ -38,14 +38,15 @@ only; PR (reviewer) reads the full `changes/<id>/` folder by design.
   reviewer is the final gate and needs the complete picture).
 
 ### Requirement: Every stage agent carries a uniform read-contract banner
-Each of the seven QRSPI stage agent files (`claude/agents/researcher.md`,
-`questioner.md`, `designer.md`, `architect.md`, `planner.md`,
-`implementer.md`, `reviewer.md`) MUST carry a terse, machine-readable
-read-contract banner near the top of the file. The banner MUST use the fixed
-shape: `> **Read contract** — Reads: <set>. Never opens: <deny>; no other
-change's process artifacts (spec.md excepted — see workflow skill Read
-Matrix).` The `Reads:` field MUST match the agent's row in the approved
-read-matrix exactly.
+Every QRSPI stage agent file MUST carry a terse, machine-readable read-contract
+banner near the top of the file — all seven of them (researcher, questioner,
+designer, architect, planner, implementer, reviewer). The banner MUST use the
+fixed "Read contract" shape, and its `Reads:` field MUST match the agent's row
+in the approved read-matrix exactly. The fixed shape is:
+
+```
+> **Read contract** — Reads: <set>. Never opens: <deny>; no other change's process artifacts (spec.md excepted — see workflow skill Read Matrix).
+```
 
 #### Scenario: architect banner shows two-mode Reads field
 - **WHEN** `claude/agents/architect.md` is opened
