@@ -29,6 +29,23 @@ loose ends. Before creating the PR, first walk the still-open tasks in
 user what to do with each. Only after both review passes are resolved should the
 stage create the PR, so nothing open is silently carried into the PR.
 
+### right-size-followup-handling — `idea` · **P2**
+
+**Why:** `/qrspi:followup` (the `postpr-fix` skill) has a single hard-coded
+path — delegate to the implementer in FIX MODE for a small, atomic post-PR fix
+— but not every follow-up is that small, and forcing a large one through the
+small-fix path patches blind (no re-alignment, specs drift). The command should
+first **right-size** the follow-up and pick one of three paths: (1) **implement
+directly** — call the implementer and, when the fix changes behavior, adapt the
+change folder's DELTA specs in place (today's flow, correct for small fixes);
+(2) **addendum flow** — for a follow-up big enough to need re-alignment, spin up
+an addendum that re-enters the QRSPI pipeline from an earlier stage (any of
+Q/R/D/S/V/P/I) rather than patching without a plan; (3) **defer** — when it is
+really new scope, drop it here as a backlog idea instead of squeezing it into
+the current change. The triage itself is a size/scope judgment, kept
+human-in-the-loop, added up front so a large follow-up isn't silently run
+through the small-fix path. Relates to [[pr-review-open-tasks-and-followups]].
+
 ### init-conductor-plus-overview — `idea` · **P2**
 
 **Why:** Onboarding a repo currently means discovering two separate commands —
@@ -241,6 +258,21 @@ mind.)
 architect writes a markdown `**Model:**` annotation; the implementer self-halts and
 asks to be re-invoked when on the wrong model) is fragile and breaks on Copilot.
 Consider a simpler lever or a single implement-stage model.
+
+### configurable-effort-and-thinking — `idea` · **P3**
+
+**Why:** A change can already set a per-slice **model** (the architect writes a
+`**Model:**` annotation the implementer honors), but reasoning **effort** and
+**thinking budget** are not similarly configurable — they inherit whatever the
+invoking session defaults to. That leaves tokens on the table in both
+directions: mechanical slices could run at low effort with no extended thinking,
+while the design-adjacent "brain surgery" work wants high effort and a large
+thinking budget. Consider making effort and thinking declarable alongside model
+(per-slice, or as a stage-level knob) and have the stage command/agent pass them
+through on delegation. Weigh against [[simplify-per-slice-model-selection]],
+which argues the existing `**Model:**` annotation is already too fragile — any
+effort/thinking lever should ride the same (simpler) mechanism rather than
+bolting on a third fragile markdown knob.
 
 ### agentFor-frontmatter-crosscheck — `idea` · **P3**
 
