@@ -32,10 +32,10 @@ auto-detect vs. fallback branching introduces conditional logic that is
 first-of-kind in this kit; deep reasoning materially reduces the risk of
 a subtle mis-ordering or missed edge-case.
 
-- [ ] 3.1 Write `claude/commands/update.md` with no `agent:` frontmatter (main-loop command), accepting an optional `<target-version>` arg, loading the `qrspi-update` skill, and delegating arg parsing and auto-detect fallback to the skill (D2, D3)
-- [ ] 3.2 Write `claude/skills/qrspi-update/SKILL.md` with the manifest schema contract, the SemVer-ordered walk algorithm (`A < v ≤ B` in ascending SemVer order), and plan-only output for this slice (prints summary + step count per version, applies no edits) (D2, D4)
-- [ ] 3.3 In `claude/skills/qrspi-update/SKILL.md`, document auto-detect as primary (derive target from installed plugin version/manifest) and explicit `<target-version>` arg as the guaranteed-portable fallback, with OQ1's stage-I watch-item noted (D2, D5)
-- [ ] 3.4 In `claude/skills/qrspi-update/SKILL.md`, implement all three edge-case handlers: marker == target → "already up to date" + exit; no marker present → detect, tell human, offer to initialize to current target via `AskUserQuestion`; marker > target → hard-stop and warn (D5)
+- [x] 3.1 Write `claude/commands/update.md` with no `agent:` frontmatter (main-loop command), accepting an optional `<target-version>` arg, loading the `qrspi-update` skill, and delegating arg parsing and auto-detect fallback to the skill (D2, D3)
+- [x] 3.2 Write `claude/skills/qrspi-update/SKILL.md` with the manifest schema contract, the SemVer-ordered walk algorithm (`A < v ≤ B` in ascending SemVer order), and plan-only output for this slice (prints summary + step count per version, applies no edits) (D2, D4)
+- [x] 3.3 In `claude/skills/qrspi-update/SKILL.md`, document auto-detect as primary (derive target from installed plugin version/manifest) and explicit `<target-version>` arg as the guaranteed-portable fallback, with OQ1's stage-I watch-item noted (D2, D5)
+- [x] 3.4 In `claude/skills/qrspi-update/SKILL.md`, implement all three edge-case handlers: marker == target → "already up to date" + exit; no marker present → detect, tell human, offer to initialize to current target via `AskUserQuestion`; marker > target → hard-stop and warn (D5)
 - [ ] 3.5 (human) Dev-install the branch in a scratch consumer repo with marker set to a version behind the kit. Run `/qrspi:update` (no arg, auto-detect path) and confirm terminal shows the per-version plan in ascending SemVer order with no file writes (`git status` clean). Run `/qrspi:update <explicit-target>` and confirm same output. Also test: marker == target → "already up to date"; absent marker → `AskUserQuestion` offer fires; marker > target → hard-stop warning.
 
 ## 4. Hybrid apply + marker bump
