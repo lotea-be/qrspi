@@ -8,8 +8,8 @@
 command file; no novel logic, mirrors the existing `openspec/config.yaml`
 sentinel write.
 
-- [ ] 1.1 In `claude/commands/init.md`, add a marker-write step after the `openspec/config.yaml` sentinel write: create `openspec/.qrspi-version` containing the bare SemVer string from `plugin.json` `version`, no `v` prefix, no trailing key (D1)
-- [ ] 1.2 Verify the marker-write step is positioned before the `git add openspec/` commit step in `claude/commands/init.md`, so the file is committed in the same commit as `openspec/config.yaml` (D1)
+- [x] 1.1 In `claude/commands/init.md`, add a marker-write step after the `openspec/config.yaml` sentinel write: create `openspec/.qrspi-version` containing the bare SemVer string from `plugin.json` `version`, no `v` prefix, no trailing key (D1)
+- [x] 1.2 Verify the marker-write step is positioned before the `git add openspec/` commit step in `claude/commands/init.md`, so the file is committed in the same commit as `openspec/config.yaml` (D1)
 - [ ] 1.3 (human) Dev-install the branch (`claude --plugin-dir /workspaces/git/qrspi`) in a scratch consumer repo, run `/qrspi:init`, confirm `openspec/.qrspi-version` contains the bare SemVer of the installed kit (e.g. `0.6.0`), and run `git log --name-only -1` to confirm it is committed alongside `openspec/config.yaml`
 
 ## 2. Migration manifest schema + lint gate
