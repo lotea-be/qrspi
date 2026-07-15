@@ -45,11 +45,11 @@ steps, branch on `action == edit-file`, call `AskUserQuestion` for manual);
 the walk ordering was settled in slice 3 (opus). The git stage + print-commit
 tail mirrors the existing pattern used in QRSPI's own commit step.
 
-- [ ] 4.1 Extend `claude/skills/qrspi-update/SKILL.md` with the automated `edit-file` dispatcher: for each automated step in a manifest entry, apply the edit to the `openspec/`-scoped file in the consumer repo without prompting (D2, D4)
-- [ ] 4.2 Extend `claude/skills/qrspi-update/SKILL.md` with the manual step gate: for each manual step, surface it to the human via `AskUserQuestion` and hold the walk until the human confirms before advancing (D2, D4)
-- [ ] 4.3 Extend `claude/skills/qrspi-update/SKILL.md` with the marker bump: after all steps for all intervening versions complete, write the target version to `openspec/.qrspi-version` (D1, D2)
-- [ ] 4.4 Extend `claude/skills/qrspi-update/SKILL.md` with the stage + print-commit tail: stage all changed files (marker + any auto-edited `openspec/` files) and print a ready-to-run `git commit` command for the human (do not auto-commit) (D2, D5)
-- [ ] 4.5 If any dispatch logic belongs in the command body, extend `claude/commands/update.md` accordingly (D3)
+- [x] 4.1 Extend `claude/skills/qrspi-update/SKILL.md` with the automated `edit-file` dispatcher: for each automated step in a manifest entry, apply the edit to the `openspec/`-scoped file in the consumer repo without prompting (D2, D4)
+- [x] 4.2 Extend `claude/skills/qrspi-update/SKILL.md` with the manual step gate: for each manual step, surface it to the human via `AskUserQuestion` and hold the walk until the human confirms before advancing (D2, D4)
+- [x] 4.3 Extend `claude/skills/qrspi-update/SKILL.md` with the marker bump: after all steps for all intervening versions complete, write the target version to `openspec/.qrspi-version` (D1, D2)
+- [x] 4.4 Extend `claude/skills/qrspi-update/SKILL.md` with the stage + print-commit tail: stage all changed files (marker + any auto-edited `openspec/` files) and print a ready-to-run `git commit` command for the human (do not auto-commit) (D2, D5)
+- [x] 4.5 If any dispatch logic belongs in the command body, extend `claude/commands/update.md` accordingly (D3)
 - [ ] 4.6 (human) Dev-install the branch in a scratch consumer repo. Write a `migrations/<next>.yaml` with one `automated` `edit-file` step (e.g. append a comment to `openspec/config.yaml`) and one `manual` step. Run `/qrspi:update`; confirm the automated edit is applied immediately, the manual step is gated via `AskUserQuestion`, the marker is bumped after confirmation, and `git status` shows both the marker and the edited file staged. Run the printed commit command; verify `git log` shows the expected commit.
 
 ## 5. Docs, release-gate, and parity
