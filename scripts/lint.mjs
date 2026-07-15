@@ -807,44 +807,42 @@ async function checkMigrationManifests(errors) {
 
   const migratedVersions = new Set(migrationFiles.map((f) => f.replace(/\.yaml$/, '')));
 
-  // Determine baseline: lowest version in migrations/ (if any)
-  const validMigrationVersions = [...migratedVersions].filter((v) => SEMVER_RE.test(v));
-  let baseline = null;
-  if (validMigrationVersions.length > 0) {
-    baseline = validMigrationVersions.sort(semverCmp)[0];
+  // Presence floor is a FIXED constant -- the version that first ships the
+  // migration mechanism. It must NOT be derived from migrations/ contents: doing
+  // so is circular (deleting the floor manifest would remove the floor and the
+  // check would pass open). Everything below the floor (0.1.0-0.5.0) is
+  // intentionally exempt (PQ6: no retroactive entries).
+  const MIGRATION_FLOOR = '0.6.0';
+
+  // (1) The floor manifest itself must always exist -- this is what makes the
+  //     gate testable pre-release and prevents the fail-open.
+  if (!migratedVersions.has(MIGRATION_FLOOR)) {
+    errors.push(
+      `[migration] Missing migration manifest: migrations/${MIGRATION_FLOOR}.yaml` +
+      ` (the ${MIGRATION_FLOOR} floor manifest is required and must not be removed)`
+    );
+    subviolations++;
   }
 
-  // Parse CHANGELOG.md for all ## [X.Y.Z] sections
+  // (2) Every released CHANGELOG ## [X.Y.Z] section at or above the floor must
+  //     have a matching manifest.
   const changelog = await readFileOr(changelogPath, null);
   if (changelog === null) {
     errors.push('[migration] CHANGELOG.md not found -- cannot check manifest presence');
     subviolations++;
   } else {
     const changelogVersionRe = /^##\s+\[(\d+\.\d+\.\d+)\]/gm;
-    const changelogVersions = [];
     let m;
     while ((m = changelogVersionRe.exec(changelog)) !== null) {
-      changelogVersions.push(m[1]);
-    }
-
-    if (baseline !== null) {
-      // Check each CHANGELOG version >= baseline
-      for (const ver of changelogVersions) {
-        if (semverCmp(ver, baseline) >= 0 && !migratedVersions.has(ver)) {
-          errors.push(
-            `[migration] Missing migration manifest: migrations/${ver}.yaml` +
-            ` (CHANGELOG ## [${ver}] section requires an entry)`
-          );
-          subviolations++;
-        }
+      const ver = m[1];
+      if (semverCmp(ver, MIGRATION_FLOOR) >= 0 && !migratedVersions.has(ver)) {
+        errors.push(
+          `[migration] Missing migration manifest: migrations/${ver}.yaml` +
+          ` (CHANGELOG ## [${ver}] section at/above the ${MIGRATION_FLOOR} floor requires an entry)`
+        );
+        subviolations++;
       }
     }
-    // If baseline is null (no migrations/ files at all), skip presence check --
-    // this would mean migrations/ is empty, which is reported by (b) below only
-    // if files exist. If no migration files exist at all, presence check is vacuously
-    // satisfied (the feature hasn't shipped its first entry yet). However, the
-    // migrations/ directory must exist and contain 0.6.0.yaml once this feature ships.
-    // We enforce presence only where baseline is known.
   }
 
   // --- (b) SCHEMA CHECK ---

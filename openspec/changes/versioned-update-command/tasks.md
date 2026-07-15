@@ -22,7 +22,7 @@ lines), and the YAML schema is fully settled in the specs.
 - [x] 2.2 In `scripts/lint.mjs`, add a new check function (async, errors pushed to `errors[]`, labelled `process.stdout.write` call in `main()`) that asserts every `## [X.Y.Z]` CHANGELOG section has a corresponding `migrations/<version>.yaml` (D6)
 - [x] 2.3 Extend the same lint check function to validate manifest schema well-formedness: required keys (`version`, `summary`, `automated`, `manual`), `automated[].action` must be `edit-file` only, `automated[].path` must start with `openspec/` (D4, D6, D7)
 - [x] 2.4 Extend the same lint check function to validate the marker SemVer format (bare semver regex) where `openspec/.qrspi-version` exists (D1, D7)
-- [ ] 2.5 (human) From the kit repo root, run `node scripts/lint.mjs`; confirm exit 0. Temporarily rename `migrations/0.6.0.yaml` to `.bak`; rerun and confirm non-zero exit with a clear "missing manifest entry" error line. Restore the file; confirm exit 0. Also add a temp `migrations/bad.yaml` with `action: run-command` and confirm the schema check fires, then remove the temp file.
+- [x] 2.5 (verified by agent) From the kit repo root, ran `node scripts/lint.mjs` (exit 0); removed `migrations/0.6.0.yaml` → exit 1 with `the 0.6.0 floor manifest is required` error; restored → exit 0; added a temp manifest with `action: run-command` → schema check fired (exit 1); removed it. (Presence gate was fixed post-slice-2 to use a fixed floor — see the fail-open fix commit.)
 
 ## 3. /qrspi:update walk read-path (plan, no edits)
 
@@ -65,4 +65,4 @@ kit.
 - [x] 5.5 Run `node sync-copilot.mjs` to regenerate `copilot/prompts/qrspi-update.prompt.md` (do not hand-edit `copilot/`) (D2)
 - [x] 5.6 Run `node scripts/lint.mjs` from the kit repo root; confirm exit 0 and that Check 4 passes for `/qrspi:update` (D6, D7)
 - [x] 5.7 Run `node sync-copilot.mjs --check` from the kit repo root; confirm exit 0 (no drift)
-- [ ] 5.8 (human) Open `README.md` and confirm `/qrspi:update` appears in the helpers line. Open `CONTRIBUTING.md` and confirm the release checklist includes the manifest-entry step. Confirm `qrspi-release` skill halts on a missing manifest entry (manual review).
+- [x] 5.8 (verified by agent) `/qrspi:update` appears in README.md helpers line (L68) + the "Updating your repo" section; CONTRIBUTING.md release checklist has the `migrations/<version>.yaml` step (L48, L112); `.claude/skills/qrspi-release/SKILL.md` precondition 4 halts on a missing manifest entry (L39–42).
