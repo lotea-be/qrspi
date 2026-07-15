@@ -310,3 +310,13 @@ non-idempotent steps (e.g. `append`) can double-apply. The skill warns about
 this today. Add per-version resume state (or a completed-versions marker) plus
 idempotency guidance for manifest authors. Surfaced by `versioned-update-command`
 PR review (non-blocking).
+
+### enforce-d-number-tags-in-slices — `idea` · **P3**
+
+**Why:** `tighten-stage-read-boundaries` makes embedding `(D<n>)` decision tags in
+every `slices.md` bullet a *prose* "required output rule" (its D3), and removes the
+planner's/implementer's `design.md` fallback (D2/D4). So a missing `(D<n>)` tag now
+silently breaks the design→task traceability chain with nothing to catch it. Add a
+structural `scripts/lint.mjs` check (or heading assertion) that every slice bullet
+which implements a decision carries its tag, mechanically enforcing D3. Flagged in
+that change's design Risks section as "not this change".
