@@ -1,0 +1,8 @@
+version: 0.6.0
+summary: >
+  Introduces the openspec/.qrspi-version marker and the /qrspi:update command.
+  No structural changes to openspec/ are required for existing repos. After
+  updating the plugin, run /qrspi:update (or manually write 0.6.0 to
+  openspec/.qrspi-version) to initialize the marker.
+automated: []
+manual: []

@@ -16,6 +16,28 @@ kit version.
 
 ### Added
 
+- **`/qrspi:update` command + `qrspi-update` skill for versioned per-repo
+  migration.** Introduces an `openspec/.qrspi-version` marker written by
+  `/qrspi:init` (bare SemVer, no `v` prefix) that records the kit version each
+  repo's `openspec/` layout was initialized against. A new main-loop
+  `/qrspi:update [<target-version>]` command reads the marker, resolves the
+  target via auto-detect (installed plugin version) with an explicit-arg
+  fallback, walks every `migrations/<version>.yaml` entry in ascending SemVer
+  order for `marker < v <= target`, hybrid-applies mechanical `edit-file` steps
+  automatically and gates judgment steps via `AskUserQuestion`, then bumps the
+  marker and prints a ready-to-run `git commit` command (does not auto-commit).
+  Edge cases are handled: already-up-to-date exits cleanly; absent marker offers
+  to initialize; downgrade is a hard-stop. A new `migrations/` directory ships
+  the kit-side manifest (one YAML per release from `0.6.0` onward); `scripts/
+  lint.mjs` gains a presence check (every `## [X.Y.Z]` CHANGELOG section must
+  have a matching `migrations/<version>.yaml`) plus schema well-formedness
+  validation (`edit-file`-only `action`, `openspec/`-scoped paths, required keys,
+  SemVer marker format). The `qrspi-release` skill and CONTRIBUTING release
+  checklist now include the manifest-entry step as a precondition. README gains
+  `/qrspi:update` in the helpers line and an "Updating your repo" note.
+  The `copilot/` tree is regenerated at zero drift. See
+  `openspec/changes/versioned-update-command/`.
+
 - **`/qrspi:archive` now gates on a merged PR and keeps the backlog in sync.**
   Archival previously moved a change folder under `archive/` unconditionally —
   never verifying the linked PR merged, and never touching `openspec/backlog.md`.

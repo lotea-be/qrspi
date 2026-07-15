@@ -84,6 +84,20 @@ b-bis. **Write the QRSPI sentinel config.** Because the CLI skips it (step b),
    Keep `openspec_version` in sync with the pinned version run in step b. If a
    future repo is re-initialized with a newer pinned CLI, update this value.
 
+b-ter. **Write the QRSPI version marker.** After the config sentinel is in
+   place, create `openspec/.qrspi-version` with the bare SemVer string from
+   `.claude-plugin/plugin.json` `version` field (e.g. `0.5.0`) -- no `v`
+   prefix, no YAML key, no trailing newline beyond what the Write tool adds.
+   Use the Write tool (do not shell out). This marker records which kit version
+   initialized the repo and is the anchor for future `/qrspi:update` walks.
+
+   Read `.claude-plugin/plugin.json` to obtain the version string. The content
+   of `openspec/.qrspi-version` is exactly that bare string, for example:
+
+   ```
+   0.5.0
+   ```
+
 c. Verify the result with Glob: `openspec/config.yaml`, `openspec/changes/`,
    and `openspec/specs/` must all exist. (`config.yaml` exists because step
    b-bis wrote it; `changes/` and `specs/` come from the CLI.) If any are
