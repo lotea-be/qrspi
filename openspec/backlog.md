@@ -7,7 +7,7 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## In progress
 
-### versioned-update-command — `in-progress (Q, R, D, S, V, P, I complete)` · **P1**
+### versioned-update-command — `in-progress (PR #16 open)` · **P1**
 
 **Why:** A QRSPI-initialized consuming repo has no record of which kit version it is on, so there is no safe, guided path for bumping the plugin when the kit ships behavior-changing updates (such as `tighten-stage-read-boundaries`). Introduces a version marker written by `/qrspi:init` and bumped by a new `/qrspi:update` command, backed by a per-version migration/checklist manifest in the kit source, so consumers always know what to adapt or verify when upgrading. Prerequisite for `tighten-stage-read-boundaries`.
 
@@ -275,3 +275,21 @@ gates (design approval, commit, next-stage handoff). The payoff is learning on
 productive work — the training wheels come off naturally as the first real change
 ships. More invasive to build than the tour because it wraps the live command path
 rather than narrating a static artifact set.
+
+### qrspi-release-auto-stub-manifest — `idea` · **P3**
+
+**Why:** `/qrspi-release` precondition 4 halts when the release version's
+`migrations/<version>.yaml` is missing, but the human must write the stub by
+hand. Have the release skill offer to auto-generate a "no consumer action" stub
+(empty `automated`/`manual`, placeholder `summary`) when absent, so a routine
+release doesn't require a manual file. Surfaced by `versioned-update-command`
+PR review (non-blocking).
+
+### update-walk-resume-idempotency — `idea` · **P3**
+
+**Why:** `/qrspi:update`'s hybrid walk has no mid-run checkpoint — aborting
+mid-walk re-applies already-run `edit-file` steps on the next run, so
+non-idempotent steps (e.g. `append`) can double-apply. The skill warns about
+this today. Add per-version resume state (or a completed-versions marker) plus
+idempotency guidance for manifest authors. Surfaced by `versioned-update-command`
+PR review (non-blocking).
