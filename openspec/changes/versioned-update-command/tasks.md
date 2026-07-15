@@ -10,7 +10,7 @@ sentinel write.
 
 - [x] 1.1 In `claude/commands/init.md`, add a marker-write step after the `openspec/config.yaml` sentinel write: create `openspec/.qrspi-version` containing the bare SemVer string from `plugin.json` `version`, no `v` prefix, no trailing key (D1)
 - [x] 1.2 Verify the marker-write step is positioned before the `git add openspec/` commit step in `claude/commands/init.md`, so the file is committed in the same commit as `openspec/config.yaml` (D1)
-- [ ] 1.3 (human) Dev-install the branch (`claude --plugin-dir /workspaces/git/qrspi`) in a scratch consumer repo, run `/qrspi:init`, confirm `openspec/.qrspi-version` contains the bare SemVer of the installed kit (e.g. `0.6.0`), and run `git log --name-only -1` to confirm it is committed alongside `openspec/config.yaml`
+- [x] 1.3 (human — verified) Dev-install the branch (`claude --plugin-dir /workspaces/git/qrspi`) in a scratch consumer repo, run `/qrspi:init`, confirm `openspec/.qrspi-version` contains the bare SemVer of the installed kit (e.g. `0.6.0`), and run `git log --name-only -1` to confirm it is committed alongside `openspec/config.yaml`
 
 ## 2. Migration manifest schema + lint gate
 
@@ -36,7 +36,7 @@ a subtle mis-ordering or missed edge-case.
 - [x] 3.2 Write `claude/skills/qrspi-update/SKILL.md` with the manifest schema contract, the SemVer-ordered walk algorithm (`A < v ≤ B` in ascending SemVer order), and plan-only output for this slice (prints summary + step count per version, applies no edits) (D2, D4)
 - [x] 3.3 In `claude/skills/qrspi-update/SKILL.md`, document auto-detect as primary (derive target from installed plugin version/manifest) and explicit `<target-version>` arg as the guaranteed-portable fallback, with OQ1's stage-I watch-item noted (D2, D5)
 - [x] 3.4 In `claude/skills/qrspi-update/SKILL.md`, implement all three edge-case handlers: marker == target → "already up to date" + exit; no marker present → detect, tell human, offer to initialize to current target via `AskUserQuestion`; marker > target → hard-stop and warn (D5)
-- [ ] 3.5 (human) Dev-install the branch in a scratch consumer repo with marker set to a version behind the kit. Run `/qrspi:update` (no arg, auto-detect path) and confirm terminal shows the per-version plan in ascending SemVer order with no file writes (`git status` clean). Run `/qrspi:update <explicit-target>` and confirm same output. Also test: marker == target → "already up to date"; absent marker → `AskUserQuestion` offer fires; marker > target → hard-stop warning.
+- [x] 3.5 (human — verified) Dev-install the branch in a scratch consumer repo with marker set to a version behind the kit. Run `/qrspi:update` (no arg, auto-detect path) and confirm terminal shows the per-version plan in ascending SemVer order with no file writes (`git status` clean). Run `/qrspi:update <explicit-target>` and confirm same output. Also test: marker == target → "already up to date"; absent marker → `AskUserQuestion` offer fires; marker > target → hard-stop warning.
 
 ## 4. Hybrid apply + marker bump
 
@@ -50,7 +50,7 @@ tail mirrors the existing pattern used in QRSPI's own commit step.
 - [x] 4.3 Extend `claude/skills/qrspi-update/SKILL.md` with the marker bump: after all steps for all intervening versions complete, write the target version to `openspec/.qrspi-version` (D1, D2)
 - [x] 4.4 Extend `claude/skills/qrspi-update/SKILL.md` with the stage + print-commit tail: stage all changed files (marker + any auto-edited `openspec/` files) and print a ready-to-run `git commit` command for the human (do not auto-commit) (D2, D5)
 - [x] 4.5 If any dispatch logic belongs in the command body, extend `claude/commands/update.md` accordingly (D3)
-- [ ] 4.6 (human) Dev-install the branch in a scratch consumer repo. Write a `migrations/<next>.yaml` with one `automated` `edit-file` step (e.g. append a comment to `openspec/config.yaml`) and one `manual` step. Run `/qrspi:update`; confirm the automated edit is applied immediately, the manual step is gated via `AskUserQuestion`, the marker is bumped after confirmation, and `git status` shows both the marker and the edited file staged. Run the printed commit command; verify `git log` shows the expected commit.
+- [x] 4.6 (human — verified) Dev-install the branch in a scratch consumer repo. Write a `migrations/<next>.yaml` with one `automated` `edit-file` step (e.g. append a comment to `openspec/config.yaml`) and one `manual` step. Run `/qrspi:update`; confirm the automated edit is applied immediately, the manual step is gated via `AskUserQuestion`, the marker is bumped after confirmation, and `git status` shows both the marker and the edited file staged. Run the printed commit command; verify `git log` shows the expected commit.
 
 ## 5. Docs, release-gate, and parity
 
