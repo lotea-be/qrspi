@@ -29,13 +29,13 @@
 
 **Model:** sonnet — targeted prose additions in two files; the rule wording is fully specified in D3 and OQ6.
 
-- [ ] 2.1 `claude/agents/architect.md` — locate the inline `slices.md` skeleton section; add required output-format rule: "MUST embed `(D<n>)` or `(D<n>, D<m>)` tags in every slice bullet that implements a numbered design decision" (D3)
-- [ ] 2.2 `claude/agents/architect.md` — update at least one example slice bullet in the skeleton to demonstrate the `(D<n>)` tag (e.g. `- F: ... (D1)`); add the dogfood note mirroring the one in `slices.md` line 22–23 (D3)
-- [ ] 2.3 `openspec-templates/tasks.template.md` — fix the stale `worktree.md` label: change every occurrence of `worktree.md` to `slices.md` in the annotation wording (D3, OQ6)
-- [ ] 2.4 `openspec-templates/tasks.template.md` — add `(D<n>)` carry-forward note to the `**Model:**` annotation line and/or the Format rules section, making clear the tags propagate from `slices.md` without the planner opening `design.md` (D3, OQ6)
-- [ ] 2.5 Checkpoint: run `node scripts/lint.mjs` — must exit 0
-- [ ] 2.6 Checkpoint: grep `openspec-templates/tasks.template.md` for `worktree.md` — must return zero results
-- [ ] 2.7 Checkpoint: grep `claude/agents/architect.md` for `(D<n>)` — must return at least one occurrence inside the slices skeleton section
+- [x] 2.1 `claude/agents/architect.md` — locate the inline `slices.md` skeleton section; add required output-format rule: "MUST embed `(D<n>)` or `(D<n>, D<m>)` tags in every slice bullet that implements a numbered design decision" (D3)
+- [x] 2.2 `claude/agents/architect.md` — update at least one example slice bullet in the skeleton to demonstrate the `(D<n>)` tag (e.g. `- F: ... (D1)`); add the dogfood note mirroring the one in `slices.md` line 22–23 (D3)
+- [x] 2.3 `openspec-templates/tasks.template.md` — fix the stale `worktree.md` label: change every occurrence of `worktree.md` to `slices.md` in the annotation wording (D3, OQ6)
+- [x] 2.4 `openspec-templates/tasks.template.md` — add `(D<n>)` carry-forward note to the `**Model:**` annotation line and/or the Format rules section, making clear the tags propagate from `slices.md` without the planner opening `design.md` (D3, OQ6)
+- [x] 2.5 Checkpoint: run `node scripts/lint.mjs` — must exit 0
+- [x] 2.6 Checkpoint: grep `openspec-templates/tasks.template.md` for `worktree.md` — must return zero results
+- [x] 2.7 Checkpoint: grep `claude/agents/architect.md` for `(D<n>)` — must return at least one occurrence inside the slices skeleton section
 
 ## 3. Cross-change boundary + questioner archived-read drop + designer trigger relocation
 

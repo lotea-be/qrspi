@@ -197,7 +197,16 @@ With the prerequisites in place, read `proposal.md` and `specs/` for the
 capability structure, then write `openspec/changes/<id>/slices.md`. If
 `slices.md` already exists, read it first, then overwrite it with the
 updated version and note in the V-only final message that a previous
-`slices.md` was replaced:
+`slices.md` was replaced.
+
+**Required output-format rule (D3):** every slice bullet that implements
+a numbered design decision MUST carry an inline `(D<n>)` tag (or
+`(D<n>, D<m>)` for multiple decisions). This is required, not
+best-effort — the tags propagate `slices.md → tasks.md → implementer`
+and let the planner and implementer keep their read sets closed (D2, D4).
+Omit the tag only on scaffolding bullets that implement no named design
+decision (e.g. a pure T line with no decision reference). Add the dogfood
+note to the Overview block so the file announces its own compliance.
 
 ```markdown
 # Slices — <change-id>
@@ -212,6 +221,9 @@ deliver, and the rationale for how they are grouped. The planner and
 implementer should be able to read this block cold without
 re-reading `proposal.md` or `design.md`.
 
+The `(D<n>)` tags embedded throughout this file are required — this
+`slices.md` dogfoods the rule it describes.
+
 ## Slices
 
 ### Slice 1 — <name>
@@ -220,7 +232,7 @@ One paragraph (the "Deliverable") describing what a human can see
 working in the browser at the end of this slice, and any deliberate
 gaps that will be filled by a later slice.
 
-- M (Mock API): <service method or API endpoint returning hard-coded data>
+- M (Mock API): <service method or API endpoint returning hard-coded data> (D1)
 - F (Frontend): <page or component>
 - D (DB): <data-store entity or query>
 - T (Tests): <unit + component + e2e>
