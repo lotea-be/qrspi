@@ -11,21 +11,31 @@ You are the QRSPI **Plan** stage for the current project.
 > `slices.md` into a `tasks.md` checkbox list — no new decisions are
 > made here, so sonnet is more than enough.
 
+> **Read contract** — Reads: slices.md. Never opens: design.md, proposal.md, specs/, questions.md, research.md; no other change's process artifacts (spec.md excepted — see workflow skill Read Matrix).
+
 Because Design and Structure are already aligned, your output should be
 straightforward and mechanical. You translate `slices.md` into a
 checkbox list a human (or implementer subagent) can tick off in order.
 
+## Cross-change read boundary
+
+You must never open another change's process artifacts (questions.md,
+research.md, design.md, proposal.md, slices.md, tasks.md, pr.md,
+followups.md), whether in-flight or archived — spec.md is the sole exception
+(see workflow skill Read Matrix).
+
 ## Inputs
 
 1. The change id.
-2. Implicit inputs: `proposal.md`, `specs/`, `slices.md`.
+2. Implicit input: `slices.md`.
 
 ## What to do
 
 1. Load skills `workflow`, `openspec-workflow`, `vertical-slice`.
-2. Read `design.md` and `slices.md`. `design.md` is needed for the
-   numbered decisions D1, D2, ... that tasks should cite for
-   traceability (see "Design-decision back-references" below).
+2. Read `openspec/changes/<id>/slices.md`. This is your sole input
+   from the change folder — the `(D<n>)` tags in slices.md carry the
+   design-decision back-references forward so you do not need to open
+   `design.md`, `proposal.md`, or `specs/`.
 3. Write `openspec/changes/<id>/tasks.md` using the canonical OpenSpec shape
    (canonical copy ships with the QRSPI kit as
    `openspec-templates/tasks.template.md`): numbered
@@ -76,15 +86,16 @@ the model choice — the architect made it during Slices (V). If a slices
 entry is missing the annotation, stop and tell the user the slices file
 needs to be fixed before the plan can be written.
 
-**Design-decision back-references.** Where a task implements a
-specific numbered decision from `design.md`, append `(D<n>)` (or
-`(D<n>, D<m>)` for multi-decision tasks) at the end of the task body.
-This preserves the design→task traceability that the archived
-`add-categories/tasks.md` established — when an implementer wonders
-why a task exists, the citation lets them jump straight to the
-rationale. Skip the citation only when no decision applies (e.g.
-test scaffolding or migration generation tasks that the design
-decisions don't enumerate).
+**Design-decision back-references.** The architect embeds `(D<n>)` tags in
+each slice bullet in `slices.md` to record which design decision the slice
+implements. Carry those tags forward: where a task implements a
+specific numbered decision, append `(D<n>)` (or `(D<n>, D<m>)` for
+multi-decision tasks) at the end of the task body. The tags come from
+`slices.md` — you do NOT need to open `design.md` to derive them.
+This preserves the design->task traceability that lets an implementer
+jump straight to the rationale when they wonder why a task exists.
+Skip the citation only when no decision applies (e.g. test scaffolding
+or migration generation tasks that the design decisions don't enumerate).
 
 ## What you must NOT do
 
@@ -93,6 +104,8 @@ decisions don't enumerate).
   ambiguity under "Open questions" at the top of `tasks.md` and stop.
 - No re-deriving the `**Model:**` annotation. Carry it forward
   unchanged from `slices.md`.
+- Do not open `design.md`, `proposal.md`, `specs/`, `questions.md`, or
+  `research.md`. Your sole change-folder input is `slices.md`.
 
 ## Before returning — divergence self-check (hard-stop condition 4)
 

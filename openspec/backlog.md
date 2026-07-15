@@ -13,6 +13,21 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 **Likely shape:** New `claude/commands/update.md` + `claude/skills/qrspi-update/SKILL.md` shipped to consumers; a migration manifest (location and format TBD — see PQ3); a version marker file (location TBD — see PQ1) written by `/qrspi:init` and bumped by `/qrspi:update`; release-flow integration (CONTRIBUTING.md checklist + optional CI gate — see PQ5); README update per CLAUDE.md. `copilot/` regenerated at zero drift.
 
+### tighten-stage-read-boundaries — `in-progress (PR #17 open)` · **P1**
+
+**Why:** Later QRSPI stages re-read artifacts from steps other than their
+direct predecessor (e.g. the architect reads `questions.md` + `research.md` +
+`design.md` at stage S; the implementer opens `design.md` cover-to-cover),
+causing unnecessary token blowup. Enforce a strict minimum-read matrix:
+researcher reads no prior artifacts (already mostly enforced — verify);
+designer reads `questions.md` + `research.md`; architect (S) reads `design.md`
+only; architect (V) reads `proposal.md` + `specs/` only; planner reads
+`slices.md` + bounded/lazy `design.md` (D-number lookups only); implementer
+reads `tasks.md` + bounded/lazy `design.md` (divergence self-check only);
+reviewer keeps full-folder read (unchanged). Changes land in
+`claude/agents/*.md` (and possibly matching `claude/commands/*.md`), followed
+by a `node sync-copilot.mjs` pass.
+
 ---
 
 ## Ideas
@@ -293,3 +308,13 @@ non-idempotent steps (e.g. `append`) can double-apply. The skill warns about
 this today. Add per-version resume state (or a completed-versions marker) plus
 idempotency guidance for manifest authors. Surfaced by `versioned-update-command`
 PR review (non-blocking).
+
+### enforce-d-number-tags-in-slices — `idea` · **P3**
+
+**Why:** `tighten-stage-read-boundaries` makes embedding `(D<n>)` decision tags in
+every `slices.md` bullet a *prose* "required output rule" (its D3), and removes the
+planner's/implementer's `design.md` fallback (D2/D4). So a missing `(D<n>)` tag now
+silently breaks the design→task traceability chain with nothing to catch it. Add a
+structural `scripts/lint.mjs` check (or heading assertion) that every slice bullet
+which implements a decision carries its tag, mechanically enforcing D3. Flagged in
+that change's design Risks section as "not this change".

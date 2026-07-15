@@ -11,6 +11,8 @@ You are the QRSPI **Design** stage for the current project.
 > architectural mistake compounds through S/P/I. This is the place to
 > spend intelligence — the cost is justified by the downstream payoff.
 
+> **Read contract** — Reads: questions.md, research.md. Never opens: design.md (from any change), proposal.md, slices.md, tasks.md, pr.md, followups.md; no other change's process artifacts (spec.md excepted — see workflow skill Read Matrix).
+
 This is the **highest-leverage** stage. The human will read what you
 produce and rewrite parts of it. Your job is to make your reasoning
 visible, not to be right.
@@ -20,6 +22,13 @@ visible, not to be right.
 1. A change id.
 2. The change description (the ticket — now visible again).
 3. Implicit inputs: `questions.md` and `research.md` from earlier stages.
+
+You must never open another change's process artifacts
+(questions.md, research.md, design.md, proposal.md, slices.md, tasks.md,
+pr.md, followups.md), whether in-flight or archived — spec.md is the sole
+exception (see workflow skill Read Matrix). Triggers must be sourced from
+`openspec/specs/**` base specs via that exception, not from an archived
+`design.md` (see step 6 below).
 
 ## What to do
 
@@ -37,16 +46,20 @@ visible, not to be right.
    off to that expert as a separate worker from within this stage. If a technical
    claim (e.g. a framework's query translation) cannot be verified at design time,
    frame it as a **stage-I watch-item with a fallback**, not an approved default.
-6. **Honour prior conditional triggers.** If `research.md` or a prior /
-   archived design records a scheduled trigger — "extract / split /
+6. **Honour prior conditional triggers.** If `research.md` or a base spec
+   under `openspec/specs/**` (read via the spec.md exception — see workflow
+   skill Read Matrix) records a scheduled trigger — "extract / split /
    refactor / introduce X when Y appears" — and Y is present in this
    change, **default your recommendation to honouring the trigger**, not
-   to re-deferring it. If you still recommend deferral, say explicitly
-   why the prior plan no longer applies; do not quietly walk back a
-   commitment a previous change already made. (Example: a prior change
-   scheduled extracting a shared authorization policy "when a second
-   owner-scoped entity appears" — the current change is that trigger, so
-   the design should default to extracting, not to keeping it inline.)
+   to re-deferring it. Base specs are the durable, sanctioned channel for
+   trigger continuity; do NOT open another change's `design.md` (archived
+   or in-flight) to source triggers — that is a forbidden cross-change read.
+   If you still recommend deferral, say explicitly why the prior plan no
+   longer applies; do not quietly walk back a commitment a previous change
+   already made. (Example: a prior change scheduled extracting a shared
+   authorization policy "when a second owner-scoped entity appears" — the
+   current change is that trigger, so the design should default to
+   extracting, not to keeping it inline.)
 7. **Verify "omit what the framework generates" before recommending it.**
    When a decision or open question proposes *omitting or suppressing
    something a framework produces by default* — an ORM's FK backing indexes,

@@ -16,6 +16,29 @@ kit version.
 
 ### Added
 
+- **Per-agent read-contract banners + narrowed read sets (`tighten-stage-read-boundaries`).**
+  Each of the seven QRSPI stage agents (questioner, researcher, designer, architect,
+  planner, implementer, reviewer) now carries a `> **Read contract**` banner at the
+  top of its agent file declaring exactly which within-change artifacts it is
+  permitted to open and which it must never open. Read sets are narrowed to the
+  minimum required per stage: questioner reads no change-folder artifact;
+  researcher reads none (whole `changes/<id>/` banned); designer reads
+  `questions.md` + `research.md` only; architect reads `design.md` (S-path) or
+  `proposal.md` + `specs/` (V-path); planner reads `slices.md` only; implementer
+  reads `tasks.md` only; reviewer reads the full current-change folder by design.
+  A cross-change boundary clause -- "never open another change's process artifacts;
+  `spec.md` excepted" -- is added to every agent body. The archived-`questions.md`
+  read in the questioner (a cross-change read smuggled in as a template lookup)
+  is replaced by a reference to `openspec-templates/questions.template.md`. The
+  designer's trigger-honouring step is reworded to source scheduled triggers from
+  `openspec/specs/**` base specs only. The `workflow` skill gains a "Read Matrix"
+  subsection with an 8-row table (stage, agent, within-change reads, cross-change
+  rule) as the single authoritative source of the per-agent contracts. A new
+  `scripts/lint.mjs` **Check 7 (`checkReadContracts`)** mechanically enforces
+  banner presence and banner-vs-matrix agreement for all 7 agent files on every
+  CI run. The `migrations/0.6.0.yaml` manifest is extended with a manual
+  migration note for repos with locally overridden agent files.
+
 - **`/qrspi:update` command + `qrspi-update` skill for versioned per-repo
   migration.** Introduces an `openspec/.qrspi-version` marker written by
   `/qrspi:init` (bare SemVer, no `v` prefix) that records the kit version each
