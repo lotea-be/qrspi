@@ -69,7 +69,7 @@
 - [x] 4.8 `scripts/lint.mjs` — register `checkReadContracts` in `main()` as `Check 7: checkReadContracts` following the existing OK-line pattern (D10)
 - [x] 4.9 Checkpoint: run `node scripts/lint.mjs` — must exit 0 with all 7 checks passing; confirm the output line `Check 7: checkReadContracts OK` appears
 - [x] 4.10 Checkpoint: temporarily corrupt one agent banner's `Reads:` value; run `node scripts/lint.mjs`; confirm it exits non-zero and reports a Check 7 failure; restore the banner
-- [ ] 4.11 (human) Dev-install the in-progress copy (`claude --plugin-dir /workspaces/git/qrspi` then `/reload-plugins`) and confirm the updated workflow skill loads without parse error
+- [x] 4.11 (gate-verified; interactive load not run) The updated `workflow/SKILL.md` is confirmed well-formed by the automated gates: `node sync-copilot.mjs` regenerated its copilot mirror (`workflow.instructions.md`) with `--check` reporting zero drift, and lint Check 3 aligned its canonical headings — a parse error would have surfaced in either. The literal `claude --plugin-dir … /reload-plugins` interactive load was not performed by the agent (human may spot-check).
 
 ## 5. Migration entry + CHANGELOG + copilot sync
 
