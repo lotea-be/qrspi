@@ -5,6 +5,16 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 `in-progress` / `merged`. Completed work lives under
 `openspec/changes/archive/`, not here.
 
+## Proposed
+
+### versioned-update-command — `proposed (change folder created 2026-07-15)` · **P1**
+
+**Why:** A QRSPI-initialized consuming repo has no record of which kit version it is on, so there is no safe, guided path for bumping the plugin when the kit ships behavior-changing updates (such as `tighten-stage-read-boundaries`). Introduces a version marker written by `/qrspi:init` and bumped by a new `/qrspi:update` command, backed by a per-version migration/checklist manifest in the kit source, so consumers always know what to adapt or verify when upgrading. Prerequisite for `tighten-stage-read-boundaries`.
+
+**Likely shape:** New `claude/commands/update.md` + `claude/skills/qrspi-update/SKILL.md` shipped to consumers; a migration manifest (location and format TBD — see PQ3); a version marker file (location TBD — see PQ1) written by `/qrspi:init` and bumped by `/qrspi:update`; release-flow integration (CONTRIBUTING.md checklist + optional CI gate — see PQ5); README update per CLAUDE.md. `copilot/` regenerated at zero drift.
+
+---
+
 ## Ideas
 
 Listed in priority order (highest first). Each carries a `P1`–`P3` band:
