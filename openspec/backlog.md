@@ -7,26 +7,7 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## In progress
 
-### versioned-update-command — `in-progress (PR #16 open)` · **P1**
-
-**Why:** A QRSPI-initialized consuming repo has no record of which kit version it is on, so there is no safe, guided path for bumping the plugin when the kit ships behavior-changing updates (such as `tighten-stage-read-boundaries`). Introduces a version marker written by `/qrspi:init` and bumped by a new `/qrspi:update` command, backed by a per-version migration/checklist manifest in the kit source, so consumers always know what to adapt or verify when upgrading. Prerequisite for `tighten-stage-read-boundaries`.
-
-**Likely shape:** New `claude/commands/update.md` + `claude/skills/qrspi-update/SKILL.md` shipped to consumers; a migration manifest (location and format TBD — see PQ3); a version marker file (location TBD — see PQ1) written by `/qrspi:init` and bumped by `/qrspi:update`; release-flow integration (CONTRIBUTING.md checklist + optional CI gate — see PQ5); README update per CLAUDE.md. `copilot/` regenerated at zero drift.
-
-### tighten-stage-read-boundaries — `in-progress (PR #17 open)` · **P1**
-
-**Why:** Later QRSPI stages re-read artifacts from steps other than their
-direct predecessor (e.g. the architect reads `questions.md` + `research.md` +
-`design.md` at stage S; the implementer opens `design.md` cover-to-cover),
-causing unnecessary token blowup. Enforce a strict minimum-read matrix:
-researcher reads no prior artifacts (already mostly enforced — verify);
-designer reads `questions.md` + `research.md`; architect (S) reads `design.md`
-only; architect (V) reads `proposal.md` + `specs/` only; planner reads
-`slices.md` + bounded/lazy `design.md` (D-number lookups only); implementer
-reads `tasks.md` + bounded/lazy `design.md` (divergence self-check only);
-reviewer keeps full-folder read (unchanged). Changes land in
-`claude/agents/*.md` (and possibly matching `claude/commands/*.md`), followed
-by a `node sync-copilot.mjs` pass.
+_None._
 
 ---
 
@@ -38,16 +19,6 @@ Listed in priority order (highest first). Each carries a `P1`–`P3` band:
 **P3** = strategic bets or items sequenced behind another change. Re-evaluate
 this ordering whenever an item is added, modified, or archived (see
 [[backlog-prioritization]]).
-
-### archive-requires-merged-pr — `in-progress (PR #15 open)` · **P1**
-
-**Why:** Archiving a change today doesn't verify the linked PR actually merged —
-`/qrspi:archive` moves the folder under `archive/` regardless, so a change can be
-archived while its PR is still open or was closed unmerged. Before archiving,
-fetch the linked PR's status (via `gh`) and only proceed when it's `merged`;
-otherwise stop and surface the state. As part of the archive, also update the
-change's entry in `openspec/backlog.md` (e.g. flip status to `merged` / move it
-out of "In progress") so the backlog and the archive stay in sync.
 
 ### pr-review-open-tasks-and-followups — `idea` · **P1**
 
