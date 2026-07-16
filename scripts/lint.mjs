@@ -1042,6 +1042,65 @@ async function checkReadContracts(errors) {
   return violations;
 }
 
+// ---- Check 8: PR RECONCILIATION PASSES STRUCTURE ---------------------------
+//
+// Asserts that claude/commands/pr.md contains the two reconciliation-gate
+// sections with their required choice labels. Checks for stable structural
+// anchors -- section headings and the named choice strings -- rather than
+// incidental prose that may change with rewording.
+//
+// Tasks pass required anchors:
+//   - heading: '## Tasks pass'
+//   - choice labels: 'Finish it now', 'Drop -- no longer needed', 'Pause --'
+//
+// Follow-ups pass required anchors:
+//   - heading: '## Follow-ups pass'
+//   - choice labels: 'Fix now', 'Defer --', 'Promote to backlog'
+//   - (Drop is shared with tasks pass -- its presence is implied by tasks pass check)
+//
+// Reports a violation if either pass section or any required label is absent.
+
+async function checkPrReconciliationPasses(errors) {
+  const prPath = path.join(root, 'claude', 'commands', 'pr.md');
+  const text = await readFileOr(prPath, null);
+  const rel = 'claude/commands/pr.md';
+
+  if (text === null) {
+    errors.push(`[pr-passes] ${rel}: file not found`);
+    return 1;
+  }
+
+  let violations = 0;
+
+  // Tasks pass anchors
+  const tasksPassAnchors = [
+    { label: 'tasks-pass heading', anchor: '## Tasks pass' },
+    { label: 'Finish-it-now choice', anchor: 'Finish it now' },
+    { label: 'Drop choice (tasks pass)', anchor: 'Drop -- no longer needed' },
+    { label: 'Pause choice', anchor: 'Pause --' },
+  ];
+
+  // Follow-ups pass anchors
+  const followupsPassAnchors = [
+    { label: 'follow-ups-pass heading', anchor: '## Follow-ups pass' },
+    { label: 'Fix-now choice', anchor: 'Fix now' },
+    { label: 'Defer choice', anchor: 'Defer --' },
+    { label: 'Promote choice', anchor: 'Promote to backlog' },
+  ];
+
+  for (const { label, anchor } of [...tasksPassAnchors, ...followupsPassAnchors]) {
+    if (!text.includes(anchor)) {
+      errors.push(`[pr-passes] ${rel}: missing structural anchor for ${label} (expected to find: "${anchor}")`);
+      violations++;
+    }
+  }
+
+  if (violations === 0) {
+    process.stdout.write(`  OK: tasks pass and follow-ups pass structural anchors present in ${rel}\n`);
+  }
+  return violations;
+}
+
 // ---- main ------------------------------------------------------------------
 
 async function main() {
@@ -1069,6 +1128,9 @@ async function main() {
 
   process.stdout.write('\nCheck 7: Read-contract banner agreement\n');
   await checkReadContracts(errors);
+
+  process.stdout.write('\nCheck 8: PR reconciliation passes structure\n');
+  await checkPrReconciliationPasses(errors);
 
   process.stdout.write('\n');
   if (errors.length === 0) {

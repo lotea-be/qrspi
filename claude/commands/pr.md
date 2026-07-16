@@ -36,6 +36,17 @@ matching `- [ ]` (un-ticked). Separate them into two lists:
 Let R = count of regular un-ticked tasks, H = count of un-ticked `(human)`
 tasks, M = R + H total open items.
 
+**Mode-awareness.** The tasks pass is mode-aware:
+
+- **Full or Semi-auto, M = 0:** suppress the banner silently and skip
+  directly to the follow-ups pass. Do NOT display any "0 open" message.
+- **Full or Semi-auto, M > 0:** this is a **hard-stop** (see the Hard-stop
+  procedure in skill `workflow`). Display the count banner below and run the
+  per-item gate. Do NOT auto-advance past the gate; the user must resolve
+  each open item interactively. The auto chain is halted until all items
+  are resolved or the user chooses to exit (Pause / Stop here).
+- **Manual:** always display the banner, including the "0 open" variant.
+
 **Count banner.** Display before the per-item loop (always in Manual; in
 Full/Semi-auto only when M > 0):
 
@@ -125,6 +136,18 @@ un-resolved follow-ups and proceed directly to spawning the reviewer.
 
 If `followups.md` exists and has `- [ ]` lines, enumerate them. Let F = count
 of un-ticked follow-up entries.
+
+**Mode-awareness.** The follow-ups pass is mode-aware:
+
+- **Full or Semi-auto, F = 0 (or file absent / all-ticked):** suppress the
+  banner silently and proceed directly to spawning the reviewer. Do NOT
+  display any "0 un-resolved" message.
+- **Full or Semi-auto, F > 0:** this is a **hard-stop** (see the Hard-stop
+  procedure in skill `workflow`). Display the count banner below and run the
+  per-entry gate. Do NOT auto-advance past the gate; the user must resolve
+  each open entry interactively. The auto chain is halted until all entries
+  are resolved or the user chooses to exit (Stop here).
+- **Manual:** always display the banner, including the "0 un-resolved" variant.
 
 **Count banner.** Display before the per-entry loop (always in Manual; in
 Full/Semi-auto only when F > 0):

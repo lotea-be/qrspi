@@ -7,13 +7,7 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## In progress
 
-_None._
-
----
-
-## Proposed
-
-### pr-review-open-tasks-and-followups — `proposed (change folder created 2026-07-16)` · **P1**
+### pr-review-open-tasks-and-followups — `in-progress (Q, R, D, S, V, P, I complete)` · **P1**
 
 **Why:** The PR stage jumps straight to drafting the PR without reconciling
 loose ends. Before creating the PR, first walk the still-open tasks in
@@ -21,6 +15,12 @@ loose ends. Before creating the PR, first walk the still-open tasks in
 (finish, defer, drop) — then loop over the entries in `followups.md` and ask the
 user what to do with each. Only after both review passes are resolved should the
 stage create the PR, so nothing open is silently carried into the PR.
+
+---
+
+## Proposed
+
+_None._
 
 ---
 

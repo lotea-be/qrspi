@@ -297,6 +297,8 @@ change mode).
    approved `design.md`. This is a semantic judgement -- the subagent must
    self-assess and signal it; the orchestrator acts on that signal.
 
+The PR reconciliation gate (tasks pass + follow-ups pass in `claude/commands/pr.md`) also triggers a hard-stop in Full/Semi-auto mode when open items are found -- see that file for the full mechanics; it does not add a fifth condition, but is a conditional application of condition (3).
+
 **What to do on a hard-stop:** stop the chain, surface the condition clearly,
 and ask the human via AskUserQuestion. Present the error detail and offer a
 path forward (e.g. "Fix the conflict and resume" or "Abort the chain"). Do

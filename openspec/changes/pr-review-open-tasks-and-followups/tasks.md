@@ -27,13 +27,13 @@
 
 **Model:** sonnet — mode-wiring is a straightforward conditional wrap over already-written prose; the lint check mirrors the existing Check 1–7 pattern; the one-line notes in `workflow` and `reviewer.md` are small targeted additions; Copilot sync is a script run, not authored code
 
-- [ ] 3.1 Edit `claude/commands/pr.md`: wrap each pass's AskUserQuestion calls with mode-awareness — Full/Semi-auto + clean pass → suppress silently; Full/Semi-auto + open items → fire hard-stop (show banner, run gate, do NOT auto-advance); Manual → always show banner including "0 open" message (D5, OQ2)
-- [ ] 3.2 Edit `claude/skills/workflow/SKILL.md`: add one-line cross-reference in the Hard-stop procedure section noting the conditional hard-stop at the PR reconciliation gate and pointing to `claude/commands/pr.md` for full mechanics (OQ2)
-- [ ] 3.3 Edit `claude/agents/reviewer.md`: add one-line awareness note that a pre-reconciliation gate runs upstream and that a `(human)` box left via Leave-for-now is a sanctioned open box, not a blocking issue (D8)
-- [ ] 3.4 Edit `scripts/lint.mjs`: add `checkPrReconciliationPasses()` async function after Check 7 using the same dependency-free ESM pattern; check for structural anchors (tasks-pass heading + Finish/Drop/Pause labels; follow-ups-pass heading + Fix-now/Defer/Drop/Promote labels) in `claude/commands/pr.md`; report violation if either pass is missing; emit `process.stdout.write('Check 8: ...')` label in `main()` (D8-bis, OQ3)
-- [ ] 3.5 Run `node sync-copilot.mjs` to regenerate `copilot/prompts/qrspi-pr.prompt.md` from the updated `claude/commands/pr.md`; run `node sync-copilot.mjs --check` to assert zero drift (D1)
-- [ ] 3.6 Add an entry under `## [Unreleased]` in `CHANGELOG.md` describing this change (D1)
-- [ ] 3.7 Verify `README.md` currency: no new commands or skills added, so the command table is unchanged — confirm no lint Check 4 violations via `node scripts/lint.mjs` (D1)
+- [x] 3.1 Edit `claude/commands/pr.md`: wrap each pass's AskUserQuestion calls with mode-awareness — Full/Semi-auto + clean pass → suppress silently; Full/Semi-auto + open items → fire hard-stop (show banner, run gate, do NOT auto-advance); Manual → always show banner including "0 open" message (D5, OQ2)
+- [x] 3.2 Edit `claude/skills/workflow/SKILL.md`: add one-line cross-reference in the Hard-stop procedure section noting the conditional hard-stop at the PR reconciliation gate and pointing to `claude/commands/pr.md` for full mechanics (OQ2)
+- [x] 3.3 Edit `claude/agents/reviewer.md`: add one-line awareness note that a pre-reconciliation gate runs upstream and that a `(human)` box left via Leave-for-now is a sanctioned open box, not a blocking issue (D8)
+- [x] 3.4 Edit `scripts/lint.mjs`: add `checkPrReconciliationPasses()` async function after Check 7 using the same dependency-free ESM pattern; check for structural anchors (tasks-pass heading + Finish/Drop/Pause labels; follow-ups-pass heading + Fix-now/Defer/Drop/Promote labels) in `claude/commands/pr.md`; report violation if either pass is missing; emit `process.stdout.write('Check 8: ...')` label in `main()` (D8-bis, OQ3)
+- [x] 3.5 Run `node sync-copilot.mjs` to regenerate `copilot/prompts/qrspi-pr.prompt.md` from the updated `claude/commands/pr.md`; run `node sync-copilot.mjs --check` to assert zero drift (D1)
+- [x] 3.6 Add an entry under `## [Unreleased]` in `CHANGELOG.md` describing this change (D1)
+- [x] 3.7 Verify `README.md` currency: no new commands or skills added, so the command table is unchanged — confirm no lint Check 4 violations via `node scripts/lint.mjs` (D1)
 - [ ] 3.8 (human) Dev-install the kit; run `/qrspi:pr toy-change` in Full-auto mode on a fully-ticked toy change — confirm no AskUserQuestion fires and the reviewer spawns directly
 - [ ] 3.9 (human) Add one un-ticked box back to the toy `tasks.md` and re-run in Full-auto mode — confirm the banner appears and the per-item gate fires (hard-stop)
 - [ ] 3.10 (human) Run `node scripts/lint.mjs` — confirm Check 8 reports OK and exit code is 0

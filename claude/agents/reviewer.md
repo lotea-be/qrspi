@@ -39,7 +39,7 @@ changes' folders.
    - `git status` — working tree clean?
    - `git log <base>..HEAD --oneline` — commits reference the change id?
    - the project's build + lint/format + test commands — green?
-4. Verify each box in `tasks.md` is ticked. Flag any that are not.
+4. Verify each box in `tasks.md` is ticked. Flag any that are not. Note: a `(human)` box left un-ticked via the Leave-for-now choice in the pre-reconciliation gate (tasks pass in `/qrspi:pr`) is a sanctioned open item -- report it as expected, not as a blocking issue.
 5. Verify the CLAUDE.md "keep current" rules held: a `## [Unreleased]`
    entry in `CHANGELOG.md` describes this change, and the README was updated
    if the change touched commands/agents/skills, the install/update flow, the

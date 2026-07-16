@@ -14,6 +14,29 @@ kit version.
 
 ## [Unreleased]
 
+### Added
+
+- **PR stage reconciliation gates: tasks pass + follow-ups pass (`pr-review-open-tasks-and-followups`).**
+  `/qrspi:pr` now runs two reconciliation passes before spawning the reviewer subagent.
+  The **tasks pass** reads `tasks.md`, separates un-ticked boxes into regular tasks and
+  `(human)` boxes, and presents each one via AskUserQuestion (Finish / Drop / Pause for
+  regular tasks; Confirm-done / Drop / Leave-for-now for human boxes). Dropped items are
+  annotated `- [x] ~~N.M text~~ (dropped)`; Leave-for-now boxes remain un-ticked as a
+  sanctioned exception noted for the reviewer. The **follow-ups pass** reads `followups.md`
+  (if present) and presents each un-ticked entry via AskUserQuestion (Fix now / Defer /
+  Drop / Promote to backlog idea). Both passes are mode-aware: in Full/Semi-auto mode
+  a clean pass (zero open items) is suppressed silently, while open items trigger a
+  hard-stop that halts the auto chain; Manual mode always shows the banner including
+  the "0 open" variant. If either pass ends early (Finish / Pause / Stop here / Fix now),
+  any Drop/Confirm-done edits already made are committed as
+  `docs(<id>): reconcile open tasks before PR`. The reviewer agent gains an awareness
+  note that a Leave-for-now `(human)` box is a sanctioned open item, not a blocking issue.
+  The `workflow` skill Hard-stop section gains a one-line cross-reference to the
+  reconciliation-gate hard-stop mechanics. A new lint **Check 8** asserts that
+  `claude/commands/pr.md` contains both reconciliation-pass sections with their required
+  structural anchors (tasks-pass heading + Finish/Drop/Pause labels; follow-ups-pass
+  heading + Fix-now/Defer/Drop/Promote labels).
+
 ### Changed
 
 - **Implementer ticks each `tasks.md` checkbox immediately after its task.**
