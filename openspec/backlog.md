@@ -181,6 +181,29 @@ not statically checkable. Surfaced by `add-auto-mode` stage D (offered, not buil
 Low-cost correctness guard (hence P2, not P3). Now **unblocked** — `add-auto-mode`
 merged 2026-07-06 (archived), so the convention it enforces is live.
 
+### dedicated-spec-sync-agent — `idea` · **P3**
+
+**Why:** The archive flow's delta-spec → main-spec sync is delegated to a
+catch-all `general-purpose` subagent (with `*` — all tools), because that
+`subagent_type` is hard-coded inside the *generated* `openspec-archive-change`
+skill (which must not be hand-edited — it is regenerated from the OpenSpec CLI).
+The sync only needs Read/Edit plus `openspec validate` on `openspec/specs/**`,
+so a dedicated least-privilege agent (e.g. `qrspi:spec-syncer`) would be a
+tighter fit: it can't wander outside the specs tree, and its system prompt could
+carry the delta-merge contract (ADDED/MODIFIED/REMOVED/renamed semantics, "never
+alter unrelated requirements") so the caller doesn't re-inject those rules each
+run. The catch is *where* the fix lands: since the generated skill owns the
+`general-purpose` spawn, the clean change is to have the `/qrspi:archive`
+**command** (which the kit owns, in `claude/commands/`) perform the sync
+delegation itself with the dedicated agent instead of deferring to the generated
+skill's spawn — plus a new `claude/agents/spec-syncer.md`, its Read-Matrix row,
+lint Check 7 banner, and the regenerated `copilot/` tree. Least-privilege +
+convention-consistency (every other QRSPI stage has a named agent), not a live-
+workflow correctness gap — hence P3. Surfaced 2026-07-16 while archiving
+`progressive-task-ticking`. Relates to [[standardize-recurring-ops-scripts]] and
+[[retro-as-extension-plugin]] (both concern the consumer/maintainer + generated-
+artifact boundary).
+
 ### pr-md-tracks-superseding-pr — `idea` · **P3**
 
 **Why:** When a change's PR is closed unmerged and a *new* PR is later opened for
