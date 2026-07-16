@@ -47,7 +47,7 @@ followups.md), whether in-flight or archived — spec.md is the sole exception
      (e.g. a slice flagged for sonnet turned out to need opus reasoning).
    Do not silently proceed on the wrong model.
 4. **Implement exactly one slice at a time**, in order:
-   a. For each task in the slice, do the work and tick the box.
+   a. For each task in the slice, do the work and, once you have confirmed that task's output is correct, tick its box **immediately** — before you start the next task — so progress is visible live and `tasks.md` stays durable if the slice is interrupted. Persist each tick as its own edit; do not batch ticks to the end of the slice. Ticking is immediate; committing and the human checkpoint stay at slice granularity.
    b. Run the slice's tests locally (the project's test command — see its
       stack-cheatsheet skill) and fix until green.
    c. Run the project's lint/format and build commands. **Report the result**
@@ -74,8 +74,7 @@ them and follow them. The rules below are the stack-agnostic minimum:
 - Validate all external inputs; never trust request data.
 - Every new behavior gets a test at the appropriate level — a unit test for
   logic, an integration/e2e test for a wired endpoint or page.
-- Tick the boxes in `tasks.md` as you complete them. The commit message
-  references the change id.
+- Tick each box immediately after its task — see step 4a. The commit message references the change id.
 
 ## When you get stuck
 

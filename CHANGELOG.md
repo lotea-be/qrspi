@@ -14,7 +14,16 @@ kit version.
 
 ## [Unreleased]
 
-_No unreleased changes._
+### Changed
+
+- **Implementer ticks each `tasks.md` checkbox immediately after its task.**
+  The QRSPI implementer agent now ticks each checkbox immediately after confirming
+  that task's output is correct -- before the next task starts -- so progress is
+  visible live and `tasks.md` stays durable if a slice is interrupted. Each tick
+  is persisted as its own edit; batching ticks to the end of the slice is
+  explicitly prohibited. Commits and human checkpoints remain at slice granularity;
+  only the ticking is immediate. The Coding-rules bullet is rewritten as a terse
+  pointer to step 4a.
 
 ## [0.6.0] - 2026-07-15
 

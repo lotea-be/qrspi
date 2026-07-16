@@ -7,7 +7,23 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## In progress
 
-_None._
+### progressive-task-ticking — `in-progress (draft PR #19 open)` · **P2**
+
+**Why:** In the I stage the implementer is meant to tick each `tasks.md` box as
+it finishes that task ([`claude/agents/implementer.md`](../../claude/agents/implementer.md),
+step 4a + the "Tick the boxes as you complete them" coding rule), but in
+practice the model does the coding and then ticks everything in one pass right
+before the slice's final message — so ticks land in a batch at the slice
+checkpoint. Strengthen the prompt so each box is ticked **immediately** after
+its task is done (before the next task starts), persisted as its own edit, not
+batched to the slice end. Payoff: progress is observable live in the IDE and
+`tasks.md` stays durable if a long slice is interrupted mid-way. **Scope
+boundary — ticking only:** the git commit and the human verification checkpoint
+stay at slice granularity by design (the slice is the atomic reviewable /
+verifiable unit, and the block-signal contract forbids committing a red,
+half-built slice), so this does *not* touch per-task commits or per-task
+checkpoints. Low-cost, prompt-text-only; touches `implementer.md` (+ regenerated
+`copilot/`). Surfaced 2026-07-15.
 
 ---
 
@@ -29,23 +45,25 @@ loose ends. Before creating the PR, first walk the still-open tasks in
 user what to do with each. Only after both review passes are resolved should the
 stage create the PR, so nothing open is silently carried into the PR.
 
-### progressive-task-ticking — `idea` · **P2**
+### session-version-check-and-update-prompt — `idea` · **P2**
 
-**Why:** In the I stage the implementer is meant to tick each `tasks.md` box as
-it finishes that task ([`claude/agents/implementer.md`](../../claude/agents/implementer.md),
-step 4a + the "Tick the boxes as you complete them" coding rule), but in
-practice the model does the coding and then ticks everything in one pass right
-before the slice's final message — so ticks land in a batch at the slice
-checkpoint. Strengthen the prompt so each box is ticked **immediately** after
-its task is done (before the next task starts), persisted as its own edit, not
-batched to the slice end. Payoff: progress is observable live in the IDE and
-`tasks.md` stays durable if a long slice is interrupted mid-way. **Scope
-boundary — ticking only:** the git commit and the human verification checkpoint
-stay at slice granularity by design (the slice is the atomic reviewable /
-verifiable unit, and the block-signal contract forbids committing a red,
-half-built slice), so this does *not* touch per-task commits or per-task
-checkpoints. Low-cost, prompt-text-only; touches `implementer.md` (+ regenerated
-`copilot/`). Surfaced 2026-07-15.
+**Why:** A repo initialized with QRSPI carries an `openspec/.qrspi-version`
+marker, and [[versioned-update-command]] shipped `/qrspi:update` to migrate it
+forward — but nothing surfaces that a newer kit version exists. A consumer can
+run stage after stage on a stale kit without ever being told, and the burden is
+entirely on them to remember to check. During each QRSPI session (e.g. at the
+start of a stage command, or in `/qrspi:status`), compare the repo's
+`.qrspi-version` marker against the latest released kit version and, when the
+repo is behind, **propose** running `/qrspi:update` — a prompt/offer, not a
+silent auto-migration (the update walk stays human-gated). Open questions to
+resolve in Q/R/D: where the "latest version" is read from (the installed
+plugin's `plugin.json`? a marketplace lookup? a bundled manifest?) without
+adding a network dependency to every session; where the check hooks in so it
+fires once per session, not once per command, to avoid nag-spam; and how it
+degrades when the marker is absent (uninitialized repo) — reuse the
+edge-case handling `/qrspi:update` already defines (up-to-date / no-marker /
+downgrade). Low runtime cost, high "don't silently rot" value. Relates to
+[[versioned-update-command]].
 
 ### right-size-followup-handling — `idea` · **P2**
 
