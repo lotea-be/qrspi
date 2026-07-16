@@ -7,7 +7,7 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## In progress
 
-### progressive-task-ticking — `in-progress (Q, R, D, S, V, P, I complete)` · **P2**
+### progressive-task-ticking — `in-progress (draft PR #19 open)` · **P2**
 
 **Why:** In the I stage the implementer is meant to tick each `tasks.md` box as
 it finishes that task ([`claude/agents/implementer.md`](../../claude/agents/implementer.md),
