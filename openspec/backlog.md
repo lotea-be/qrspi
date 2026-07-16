@@ -7,7 +7,7 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## In progress
 
-### pr-review-open-tasks-and-followups — `in-progress (Q, R, D, S, V, P, I complete)` · **P1**
+### pr-review-open-tasks-and-followups — `in-progress (draft PR #21 open)` · **P1**
 
 **Why:** The PR stage jumps straight to drafting the PR without reconciling
 loose ends. Before creating the PR, first walk the still-open tasks in
