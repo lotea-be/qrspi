@@ -7,23 +7,7 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## In progress
 
-### progressive-task-ticking — `in-progress (draft PR #19 open)` · **P2**
-
-**Why:** In the I stage the implementer is meant to tick each `tasks.md` box as
-it finishes that task ([`claude/agents/implementer.md`](../../claude/agents/implementer.md),
-step 4a + the "Tick the boxes as you complete them" coding rule), but in
-practice the model does the coding and then ticks everything in one pass right
-before the slice's final message — so ticks land in a batch at the slice
-checkpoint. Strengthen the prompt so each box is ticked **immediately** after
-its task is done (before the next task starts), persisted as its own edit, not
-batched to the slice end. Payoff: progress is observable live in the IDE and
-`tasks.md` stays durable if a long slice is interrupted mid-way. **Scope
-boundary — ticking only:** the git commit and the human verification checkpoint
-stay at slice granularity by design (the slice is the atomic reviewable /
-verifiable unit, and the block-signal contract forbids committing a red,
-half-built slice), so this does *not* touch per-task commits or per-task
-checkpoints. Low-cost, prompt-text-only; touches `implementer.md` (+ regenerated
-`copilot/`). Surfaced 2026-07-15.
+_None._
 
 ---
 
@@ -196,6 +180,29 @@ per-gate auto-branch wiring stays consistent — the runtime suppression itself 
 not statically checkable. Surfaced by `add-auto-mode` stage D (offered, not built).
 Low-cost correctness guard (hence P2, not P3). Now **unblocked** — `add-auto-mode`
 merged 2026-07-06 (archived), so the convention it enforces is live.
+
+### dedicated-spec-sync-agent — `idea` · **P3**
+
+**Why:** The archive flow's delta-spec → main-spec sync is delegated to a
+catch-all `general-purpose` subagent (with `*` — all tools), because that
+`subagent_type` is hard-coded inside the *generated* `openspec-archive-change`
+skill (which must not be hand-edited — it is regenerated from the OpenSpec CLI).
+The sync only needs Read/Edit plus `openspec validate` on `openspec/specs/**`,
+so a dedicated least-privilege agent (e.g. `qrspi:spec-syncer`) would be a
+tighter fit: it can't wander outside the specs tree, and its system prompt could
+carry the delta-merge contract (ADDED/MODIFIED/REMOVED/renamed semantics, "never
+alter unrelated requirements") so the caller doesn't re-inject those rules each
+run. The catch is *where* the fix lands: since the generated skill owns the
+`general-purpose` spawn, the clean change is to have the `/qrspi:archive`
+**command** (which the kit owns, in `claude/commands/`) perform the sync
+delegation itself with the dedicated agent instead of deferring to the generated
+skill's spawn — plus a new `claude/agents/spec-syncer.md`, its Read-Matrix row,
+lint Check 7 banner, and the regenerated `copilot/` tree. Least-privilege +
+convention-consistency (every other QRSPI stage has a named agent), not a live-
+workflow correctness gap — hence P3. Surfaced 2026-07-16 while archiving
+`progressive-task-ticking`. Relates to [[standardize-recurring-ops-scripts]] and
+[[retro-as-extension-plugin]] (both concern the consumer/maintainer + generated-
+artifact boundary).
 
 ### pr-md-tracks-superseding-pr — `idea` · **P3**
 
