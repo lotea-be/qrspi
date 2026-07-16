@@ -6,10 +6,10 @@
 
 **Model:** sonnet — prose additions and AskUserQuestion wiring inside an existing command file, following established `pr.md` patterns; the decision logic is well-scoped by the spec
 
-- [ ] 1.1 Edit `claude/commands/pr.md`: soften step-2 precondition from "all boxes ticked" to "tasks.md exists + working tree clean" (D2)
-- [ ] 1.2 Edit `claude/commands/pr.md`: insert tasks-pass section between the precondition check and the reviewer spawn — count banner, regular-task loop (Finish / Drop / Pause), `(human)`-tag loop (Confirm-done / Drop / Leave-for-now), Drop annotation writes (`- [x] ~~N.M text~~ (dropped)`), Confirm-done writes (`- [x] N.M text`), and early-exit commit logic (`docs(<id>): reconcile open tasks before PR`) (D3, PQ5, PQ8, D7)
-- [ ] 1.3 Author all AskUserQuestion prompt text inline in `claude/commands/pr.md`: count banner wording, per-item choice sets with slice/task context and `(i of M)` counter, the Finish second-question redirect to `/qrspi:implement`, and the Pause end-of-turn message (D3)
-- [ ] 1.4 Verify `node scripts/lint.mjs` passes (no Check 8 yet — that arrives in Slice 3)
+- [x] 1.1 Edit `claude/commands/pr.md`: soften step-2 precondition from "all boxes ticked" to "tasks.md exists + working tree clean" (D2)
+- [x] 1.2 Edit `claude/commands/pr.md`: insert tasks-pass section between the precondition check and the reviewer spawn — count banner, regular-task loop (Finish / Drop / Pause), `(human)`-tag loop (Confirm-done / Drop / Leave-for-now), Drop annotation writes (`- [x] ~~N.M text~~ (dropped)`), Confirm-done writes (`- [x] N.M text`), and early-exit commit logic (`docs(<id>): reconcile open tasks before PR`) (D3, PQ5, PQ8, D7)
+- [x] 1.3 Author all AskUserQuestion prompt text inline in `claude/commands/pr.md`: count banner wording, per-item choice sets with slice/task context and `(i of M)` counter, the Finish second-question redirect to `/qrspi:implement`, and the Pause end-of-turn message (D3)
+- [x] 1.4 Verify `node scripts/lint.mjs` passes (no Check 8 yet — that arrives in Slice 3)
 - [ ] 1.5 (human) Prepare toy change folder `openspec/changes/toy-change/` with `tasks.md` containing `- [ ] 1.1 Wire endpoint`, `- [ ] 1.2 (human) Code-review checkpoint`, and `- [x] 1.3 Write tests`; dev-install the kit (`claude --plugin-dir .`; `/reload-plugins` if already open); run `/qrspi:pr toy-change` and verify: precondition passes; banner shows "2 open tasks (1 `(human)` box)"; box 1.1 offered [Finish, Drop, Pause]; choose Drop → line becomes `- [x] ~~1.1 Wire endpoint~~ (dropped)`; box 1.2 offered [Confirm-done, Drop, Leave-for-now] (Finish absent); choose Leave-for-now → box remains un-ticked; if a prior run had Pause after a Drop, confirm early-exit commit via `git log --oneline -1`
 
 ## 2. Follow-ups pass end-to-end
