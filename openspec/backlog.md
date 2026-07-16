@@ -7,7 +7,23 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## In progress
 
-_None._
+### progressive-task-ticking — `in-progress (Q, R, D, S, V, P, I complete)` · **P2**
+
+**Why:** In the I stage the implementer is meant to tick each `tasks.md` box as
+it finishes that task ([`claude/agents/implementer.md`](../../claude/agents/implementer.md),
+step 4a + the "Tick the boxes as you complete them" coding rule), but in
+practice the model does the coding and then ticks everything in one pass right
+before the slice's final message — so ticks land in a batch at the slice
+checkpoint. Strengthen the prompt so each box is ticked **immediately** after
+its task is done (before the next task starts), persisted as its own edit, not
+batched to the slice end. Payoff: progress is observable live in the IDE and
+`tasks.md` stays durable if a long slice is interrupted mid-way. **Scope
+boundary — ticking only:** the git commit and the human verification checkpoint
+stay at slice granularity by design (the slice is the atomic reviewable /
+verifiable unit, and the block-signal contract forbids committing a red,
+half-built slice), so this does *not* touch per-task commits or per-task
+checkpoints. Low-cost, prompt-text-only; touches `implementer.md` (+ regenerated
+`copilot/`). Surfaced 2026-07-15.
 
 ---
 
@@ -48,24 +64,6 @@ degrades when the marker is absent (uninitialized repo) — reuse the
 edge-case handling `/qrspi:update` already defines (up-to-date / no-marker /
 downgrade). Low runtime cost, high "don't silently rot" value. Relates to
 [[versioned-update-command]].
-
-### progressive-task-ticking — `proposed (change folder created 2026-07-16)` · **P2**
-
-**Why:** In the I stage the implementer is meant to tick each `tasks.md` box as
-it finishes that task ([`claude/agents/implementer.md`](../../claude/agents/implementer.md),
-step 4a + the "Tick the boxes as you complete them" coding rule), but in
-practice the model does the coding and then ticks everything in one pass right
-before the slice's final message — so ticks land in a batch at the slice
-checkpoint. Strengthen the prompt so each box is ticked **immediately** after
-its task is done (before the next task starts), persisted as its own edit, not
-batched to the slice end. Payoff: progress is observable live in the IDE and
-`tasks.md` stays durable if a long slice is interrupted mid-way. **Scope
-boundary — ticking only:** the git commit and the human verification checkpoint
-stay at slice granularity by design (the slice is the atomic reviewable /
-verifiable unit, and the block-signal contract forbids committing a red,
-half-built slice), so this does *not* touch per-task commits or per-task
-checkpoints. Low-cost, prompt-text-only; touches `implementer.md` (+ regenerated
-`copilot/`). Surfaced 2026-07-15.
 
 ### right-size-followup-handling — `idea` · **P2**
 
