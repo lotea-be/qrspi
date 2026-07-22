@@ -34,7 +34,7 @@
 - [x] 3.5 Run `node sync-copilot.mjs` to regenerate `copilot/prompts/qrspi-pr.prompt.md` from the updated `claude/commands/pr.md`; run `node sync-copilot.mjs --check` to assert zero drift (D1)
 - [x] 3.6 Add an entry under `## [Unreleased]` in `CHANGELOG.md` describing this change (D1)
 - [x] 3.7 Verify `README.md` currency: no new commands or skills added, so the command table is unchanged — confirm no lint Check 4 violations via `node scripts/lint.mjs` (D1)
-- [ ] 3.8 (human) Dev-install the kit; run `/qrspi:pr toy-change` in Full-auto mode on a fully-ticked toy change — confirm no AskUserQuestion fires and the reviewer spawns directly
+- [x] 3.8 (human) Dev-install the kit; run `/qrspi:pr toy-change` in Full-auto mode on a fully-ticked toy change — confirm no AskUserQuestion fires and the reviewer spawns directly
 - [x] 3.9 (human) Add one un-ticked box back to the toy `tasks.md` and re-run in Full-auto mode — confirm the banner appears and the per-item gate fires (hard-stop)
 - [ ] 3.10 (human) Run `node scripts/lint.mjs` — confirm Check 8 reports OK and exit code is 0
 - [ ] 3.11 (human) Temporarily delete the tasks-pass section from `claude/commands/pr.md` and re-run `node scripts/lint.mjs` — confirm Check 8 reports "tasks pass missing from pr.md" and exits non-zero; restore the section afterwards
