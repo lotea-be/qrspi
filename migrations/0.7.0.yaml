@@ -1,0 +1,22 @@
+version: 0.7.0
+summary: >
+  Adds two pre-PR reconciliation passes to /qrspi:pr — a tasks pass over the
+  un-ticked boxes in tasks.md and a follow-ups pass over the entries in
+  followups.md — that run before the reviewer subagent. In Full/Semi-auto mode a
+  clean pass (zero open items) is suppressed silently, while open items trigger a
+  hard-stop that halts the auto chain; Manual mode always shows the banner. The
+  reviewer agent gains an awareness note that a Leave-for-now (human) box is a
+  sanctioned open item, and a new lint Check 8 asserts both passes remain present
+  in pr.md. Also makes the implementer tick each tasks.md checkbox immediately
+  after its task instead of batching at slice end. No structural changes to
+  openspec/ are required for existing repos; installing the new plugin tag picks
+  up the new behaviour automatically.
+automated: []
+manual:
+  - >-
+    If you have locally overridden claude/commands/pr.md, re-apply your
+    customizations on top of the new tasks-pass and follow-ups-pass sections so
+    the reconciliation gate is not lost.
+  - >-
+    If you have locally overridden the implementer stage-agent file, re-align it
+    to the new immediate per-task ticking behaviour (progressive-task-ticking).

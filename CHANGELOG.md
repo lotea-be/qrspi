@@ -14,6 +14,10 @@ kit version.
 
 ## [Unreleased]
 
+_No unreleased changes._
+
+## [0.7.0] - 2026-07-22
+
 ### Added
 
 - **PR stage reconciliation gates: tasks pass + follow-ups pass (`pr-review-open-tasks-and-followups`).**
