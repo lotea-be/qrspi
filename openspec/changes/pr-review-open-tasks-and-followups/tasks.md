@@ -35,7 +35,7 @@
 - [x] 3.6 Add an entry under `## [Unreleased]` in `CHANGELOG.md` describing this change (D1)
 - [x] 3.7 Verify `README.md` currency: no new commands or skills added, so the command table is unchanged — confirm no lint Check 4 violations via `node scripts/lint.mjs` (D1)
 - [ ] 3.8 (human) Dev-install the kit; run `/qrspi:pr toy-change` in Full-auto mode on a fully-ticked toy change — confirm no AskUserQuestion fires and the reviewer spawns directly
-- [ ] 3.9 (human) Add one un-ticked box back to the toy `tasks.md` and re-run in Full-auto mode — confirm the banner appears and the per-item gate fires (hard-stop)
+- [x] 3.9 (human) Add one un-ticked box back to the toy `tasks.md` and re-run in Full-auto mode — confirm the banner appears and the per-item gate fires (hard-stop)
 - [ ] 3.10 (human) Run `node scripts/lint.mjs` — confirm Check 8 reports OK and exit code is 0
 - [ ] 3.11 (human) Temporarily delete the tasks-pass section from `claude/commands/pr.md` and re-run `node scripts/lint.mjs` — confirm Check 8 reports "tasks pass missing from pr.md" and exits non-zero; restore the section afterwards
 - [ ] 3.12 (human) Run `node sync-copilot.mjs --check` — confirm zero drift; inspect `claude/agents/reviewer.md` for the Leave-for-now tolerance note; inspect `claude/skills/workflow/SKILL.md` for the one-line reconciliation-gate cross-reference
