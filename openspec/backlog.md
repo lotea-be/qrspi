@@ -7,14 +7,7 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## In progress
 
-### pr-review-open-tasks-and-followups — `in-progress (draft PR #21 open)` · **P1**
-
-**Why:** The PR stage jumps straight to drafting the PR without reconciling
-loose ends. Before creating the PR, first walk the still-open tasks in
-`tasks.md` — loop over each open item and ask the user what to do with it
-(finish, defer, drop) — then loop over the entries in `followups.md` and ask the
-user what to do with each. Only after both review passes are resolved should the
-stage create the PR, so nothing open is silently carried into the PR.
+_None._
 
 ---
 
