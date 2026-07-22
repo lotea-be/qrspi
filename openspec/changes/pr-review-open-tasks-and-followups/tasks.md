@@ -21,7 +21,7 @@
 - [x] 2.3 Implement on-disk writes for the follow-ups pass in `claude/commands/pr.md`: Drop → `- [x] … (dropped — no longer needed)`; Promote → `- [x] … (promoted to backlog)` plus one new `idea` row appended to `openspec/backlog.md`; Defer → entry left unchanged; all Drop/Promote writes staged for the final `docs(<id>): record PR #<N> link` commit (D7)
 - [x] 2.4 Verify `node scripts/lint.mjs` passes
 - [x] 2.5 (human) Extend the toy change: add `followups.md` with `- [ ] Investigate caching` and `- [ ] Remove debug logging`; run `/qrspi:pr toy-change`; verify: tasks pass completes (or skips cleanly); follow-ups banner shows "2 un-resolved follow-ups"; entry 1 offered [Fix now, Defer, Drop, Promote to backlog idea]; choose Drop → becomes `- [x] Investigate caching (dropped — no longer needed)`; entry 2 choose Promote → becomes `- [x] Remove debug logging (promoted to backlog)` and `openspec/backlog.md` gains one new `idea` row
-- [ ] 2.6 (human) Remove `followups.md` from the toy change folder and re-run `/qrspi:pr toy-change`; confirm the follow-ups pass is a clean no-op (no AskUserQuestion, no error)
+- [x] 2.6 (human) Remove `followups.md` from the toy change folder and re-run `/qrspi:pr toy-change`; confirm the follow-ups pass is a clean no-op (no AskUserQuestion, no error)
 
 ## 3. Auto-mode wiring, lint Check 8, reviewer note, and docs
 
