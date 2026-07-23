@@ -1,20 +1,21 @@
 ---
-description: Cut and publish a tag-based release of the QRSPI kit. Bumps plugin.json, rolls CHANGELOG [Unreleased] into a dated version section, re-checks lint + drift, commits, and — after an explicit human gate — tags and pushes so release.yml publishes the GitHub Release. Local repo dev-tooling, not shipped in the plugin.
+description: Cut a tag-based release of the QRSPI kit. Bumps plugin.json, rolls CHANGELOG [Unreleased] into a dated version section, re-checks lint + drift, commits, and pushes main — then hands the tag push to you, who publishes by pushing the tag (which triggers release.yml). The command never pushes the tag itself. Local repo dev-tooling, not shipped in the plugin.
 agent: build
 ---
 
 Cut a **tag-based release** of the QRSPI kit. Merging to `main` ships nothing;
 consumers install from tags, and pushing a `vX.Y.Z` tag is the only thing that
-publishes. This command prepares the release and gates the publish behind an
-explicit human yes.
+publishes. This command prepares the release — bump, CHANGELOG roll, commit, and
+`main` push — then hands the publishing tag push to you; it never pushes the tag
+itself.
 
 Optional argument — the target version `X.Y.Z`: $ARGUMENTS
 (If omitted, the version is proposed from the `## [Unreleased]` contents and
 confirmed with you.)
 
 **Load skill `qrspi-release` first** — it carries the authoritative checklist
-(preconditions, the CHANGELOG roll, the release.yml contract, the tag-push gate,
-and the external marketplace step). Follow it exactly.
+(preconditions, the CHANGELOG roll, the release.yml contract, the tag-push
+handoff, and the external marketplace step). Follow it exactly.
 
 Summary of what happens (the skill is the source of truth):
 
@@ -36,16 +37,23 @@ Summary of what happens (the skill is the source of truth):
    git commit -m "release: vX.Y.Z"
    ```
 
-6. **Tag-and-publish gate** — show the release notes release.yml will publish,
-   then ask via **AskUserQuestion** before pushing. On yes:
+6. **Push `main`, then hand off the tag** — show the release notes release.yml
+   will publish, then push the release commit to `main` (this ships nothing):
 
    ```
    git push origin main
+   ```
+
+   Then **stop and ask you to push the publishing tag yourself** — the command
+   never pushes the tag. It prints these for you to run when ready:
+
+   ```
    git tag vX.Y.Z
    git push origin vX.Y.Z
    ```
 
-   and report the `release.yml` run. On no: stop and print the commands.
+   Pushing the tag triggers `release.yml` to publish; you can watch it with
+   `gh run watch`.
 7. **Remind** to bump the qrspi `source` ref to `vX.Y.Z` in
    `lotea-be/ai-agent-marketplace` — the only step that reaches installed users,
    and the only one outside this repo.
