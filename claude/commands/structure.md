@@ -6,8 +6,12 @@ You are running QRSPI stage **S (Structure)** for the current project.
 
 Change id: $ARGUMENTS
 
-Read or establish the run-mode by following the **Run-mode** procedure in
-skill `workflow` before doing any other work.
+1. **Version check.** Load skill `qrspi-version-check` and follow its
+   instructions exactly. This is the first step -- before the run-mode
+   establishment and before any other work.
+
+2. Read or establish the run-mode by following the **Run-mode** procedure in
+   skill `workflow` before doing any other work.
 
 Precondition (canonical *precondition check* in skill `workflow`,
 "Stage choreography"): the input artifact is
