@@ -8,8 +8,8 @@
 
 - [x] 1.1 Create `claude/skills/qrspi-version-check/SKILL.md` with the complete skill body: session-flag guard, read installed version B from `.claude-plugin/plugin.json`, read repo marker A from `openspec/.qrspi-version`, numeric-tuple SemVer compare, and all four branches (up-to-date silent, behind AskUserQuestion with two-choice offer, downgrade one-line warning, unreadable-B one-line notice). (D1, D2, D3, D4, D5, D6, D7, D8)
 - [x] 1.2 Add the `qrspi-version-check` inline load line as the first step of `claude/commands/status.md`, positioned before the onboarding check. (D1, D4)
-- [ ] 1.3 (human) Dev-install the in-repo copy (`claude --plugin-dir /workspaces/git/qrspi`), then in a repo with `openspec/.qrspi-version` = `0.6.0` and installed plugin at `0.7.0`, run `/qrspi:status`. Verify the AskUserQuestion names both version strings and offers exactly `["Run /qrspi:update now", "Continue on the current version"]`. (D2, D3) — re-verify: revised D2 reads B from installed_plugins.json (prior pass was a CWD-dependent false positive)
-- [ ] 1.4 (human) In a repo with matching versions, run `/qrspi:status`. Verify no version output appears. (D7)
+- [x] 1.3 (human) Dev-install the in-repo copy (`claude --plugin-dir /workspaces/git/qrspi`), then in a repo with `openspec/.qrspi-version` = `0.6.0` and installed plugin at `0.7.0`, run `/qrspi:status`. Verify the AskUserQuestion names both version strings and offers exactly `["Run /qrspi:update now", "Continue on the current version"]`. (D2, D3) — re-verified under revised D2 (registry read); offer appeared where the old build showed "unavailable"
+- [x] 1.4 (human) In a repo with matching versions, run `/qrspi:status`. Verify no version output appears. (D7) — re-verified after the silence-hardening (8699eec); fully silent
 - [ ] 1.5 (human) In a rolled-back repo (A ahead of B, e.g. marker `0.8.0` vs installed `0.7.0`), run `/qrspi:status`. Verify a one-line warning prints and the command continues. (D7) — re-verify under revised D2 (B from installed_plugins.json)
 - [x] 1.6 (human) Confirm `claude/skills/qrspi-version-check/SKILL.md` exists under `claude/skills/` (not `.claude/skills/`). (D1)
 
