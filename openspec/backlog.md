@@ -210,6 +210,23 @@ workflow correctness gap — hence P3. Surfaced 2026-07-16 while archiving
 [[retro-as-extension-plugin]] (both concern the consumer/maintainer + generated-
 artifact boundary).
 
+### pr-human-task-loop-stop-option — `idea` · **P3**
+
+**Why:** The PR reconciliation gate in `claude/commands/pr.md` is asymmetric. The
+**regular-task loop** offers a `Pause — let me check the code first` choice with a
+defined early-exit commit that ends the turn; the **`(human)`-task loop** offers
+only `Confirm-done` / `Drop` / `Leave-for-now` — none of which halts the gate. A
+human who wants to stop the human-task review partway (e.g. to go run the live
+dev-install verifications before deciding, rather than clicking `Leave-for-now`
+through every remaining item) has no clean exit. Add a `Pause/Stop the review`
+choice to the `(human)`-task loop that reuses the regular-task loop's early-exit
+commit (commit any edits already made, end the turn with a "re-run `/qrspi:pr`
+when ready" message). Mirror the change into the generated `copilot/` PR prompt
+and the workflow-skill choreography if the loop wording lives there. Surfaced
+2026-07-23 during the PR stage of [[session-version-check-and-update-prompt]],
+whose change embeds many `(human)` live-session checks that made the missing
+exit obvious.
+
 ### pr-md-tracks-superseding-pr — `idea` · **P3**
 
 **Why:** When a change's PR is closed unmerged and a *new* PR is later opened for
