@@ -91,8 +91,17 @@ Branch on the result:
 
 ### A == B -- up-to-date (silent)
 
-Produce no visible output. Set the in-context session flag and return. The
-stage continues normally. No banner, no confirmation line.
+Produce **no visible output whatsoever**. Set the in-context session flag and
+return. The stage continues normally.
+
+This path is completely invisible: the very next thing the user sees is the
+stage's own output (for `/qrspi:status`, the onboarding/stage map). Do **not**
+narrate that the check ran or that the versions match. In particular, do NOT
+print a success or confirmation line such as `Version check: repo marker <A> =
+installed kit <B> -- up to date` or any `up to date`/`✅` acknowledgement --
+emitting one on the matched path is the exact per-command nag D7/Q18 forbids,
+and it would repeat on `/qrspi:status` plus all eight stage commands. Silence is
+the designed behaviour, not an omission to be helpfully filled in.
 
 ### A < B -- behind (AskUserQuestion gate)
 
