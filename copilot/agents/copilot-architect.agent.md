@@ -157,10 +157,12 @@ Quick reference — every constraint for a single requirement, by operation
 |---|---|---|---|
 | Section header | `## ADDED Requirements` | `## MODIFIED Requirements` | `## REMOVED Requirements` |
 | Requirement title | new, free-form | **verbatim** from base spec | **verbatim** from base spec |
-| Body | first sentence has MUST/SHALL | **full** replacement text, first sentence has MUST/SHALL | one line: why removed |
+| Body | **first line** has MUST/SHALL | **full** replacement text, **first line** has MUST/SHALL | one line: why removed |
 | `#### Scenario:` block | ≥1 required | ≥1 required | none |
 
-Format rules — these are enforced by `openspec validate`:
+Format rules — these are enforced by `openspec validate <id> --strict` (the
+non-strict `openspec validate <id>` does NOT check the MUST/SHALL rule; CI runs
+`openspec validate --all`, which is strict):
 
 - Section headers MUST be exactly `## ADDED Requirements`,
   `## MODIFIED Requirements`, or `## REMOVED Requirements`. Do NOT invent
@@ -173,12 +175,17 @@ Format rules — these are enforced by `openspec validate`:
   operation). A mismatched title means sync cannot locate the requirement.
 - `## MODIFIED` requirements carry the **full** new requirement text, not just
   the changed sentence.
-- The first sentence of every requirement body MUST contain `MUST` or `SHALL`.
+- The **first line** of every requirement body MUST contain `MUST` or `SHALL`.
+  OpenSpec reads the requirement's *first physical line* as its statement, so a
+  `MUST`/`SHALL` that wraps onto the second line does NOT count — keep it on line
+  one (write `The skill MUST …`, not `When X …, the\nskill MUST …`).
 - Every `### Requirement:` under `## ADDED` or `## MODIFIED` MUST have at least
   one `#### Scenario:` block using `- **WHEN** / **THEN**` bullets (`GIVEN` /
   `AND` optional).
 
-After writing all spec files, run `openspec validate <id>` and fix any errors
+After writing all spec files, run `openspec validate <id> --strict` (the `--strict`
+flag is required — plain `openspec validate <id>` skips the MUST/SHALL check and
+will pass specs that CI's strict `validate --all` later rejects) and fix any errors
 before emitting the final message. If validate reports an error you cannot
 resolve on your own — for example, a `## MODIFIED` or `## REMOVED` requirement
 title that you cannot match **verbatim** to a header in the base spec, or a

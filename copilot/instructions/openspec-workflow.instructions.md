@@ -78,9 +78,11 @@ with the QRSPI kit (bundled with the plugin as `openspec-templates/`).
 | `questions.md` | QRSPI-only (no OpenSpec equivalent) | `openspec-templates/questions.template.md` |
 | `slices.md` | QRSPI-only (`## Slice N — …`); maps onto `tasks.md` numbered groups | — |
 
-`openspec validate <id>` enforces the spec-delta shape strictly; the proposal /
-design / tasks shapes follow OpenSpec's own canonical templates so artifacts
-round-trip through OpenSpec tooling.
+`openspec validate <id> --strict` enforces the spec-delta shape fully — use the
+`--strict` flag (plain `openspec validate <id>` skips the MUST/SHALL requirement
+check, and CI runs the strict `openspec validate --all`, so a non-strict local
+pass can still fail CI). The proposal / design / tasks shapes follow OpenSpec's
+own canonical templates so artifacts round-trip through OpenSpec tooling.
 
 The canonical templates ship with the QRSPI kit — they travel bundled with the
 plugin (and live in the kit's own `openspec-templates/`). They are **not** copied

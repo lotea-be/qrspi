@@ -33,6 +33,16 @@ kit version.
   `(human)` verification tasks one at a time against a live `--plugin-dir`
   session, so runtime behaviour is observed before the PR stage.
 
+### Changed
+
+- **Local spec validation now matches CI's strict gate.** The architect (stage S)
+  and implementer (slice boundary) now run `openspec validate <id> --strict`, and
+  the spec-delta guidance is corrected: a requirement's **first line** (not merely
+  its first *sentence*) must contain `MUST`/`SHALL`, because OpenSpec's strict
+  parser reads the first physical line as the requirement statement. Plain
+  `openspec validate <id>` skips this rule, so a spec could pass locally yet fail
+  CI's `openspec validate --all` (strict); aligning the local gate closes that gap.
+
 ## [0.7.0] - 2026-07-22
 
 ### Added

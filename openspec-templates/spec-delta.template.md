@@ -69,7 +69,11 @@ One line stating why it is removed. (No scenarios are needed under REMOVED.)
 
 ---
 
-## Format rules (enforced by `openspec validate`)
+## Format rules (enforced by `openspec validate <id> --strict`)
+
+> Use `--strict`. Plain `openspec validate <id>` does NOT check the MUST/SHALL
+> rule below; CI runs `openspec validate --all` (strict), so a spec that passes
+> non-strict locally can still fail CI.
 
 - Section headers MUST be exactly `## ADDED Requirements`,
   `## MODIFIED Requirements`, or `## REMOVED Requirements`. Do NOT invent
@@ -82,10 +86,13 @@ One line stating why it is removed. (No scenarios are needed under REMOVED.)
   operation). A mismatched title means sync cannot locate the requirement.
 - `## MODIFIED` requirements carry the **full** new requirement text, not just
   the changed sentence.
-- The first sentence of every requirement body MUST contain `MUST` or `SHALL`.
+- The **first line** of every requirement body MUST contain `MUST` or `SHALL`.
+  OpenSpec reads the requirement's *first physical line* as its statement, so a
+  `MUST`/`SHALL` that wraps onto the second line does NOT count — keep it on line
+  one (write `The skill MUST …`, not `When X …, the\nskill MUST …`).
 - Every `### Requirement:` under `## ADDED` or `## MODIFIED` MUST have at least
   one `#### Scenario:` block using `- **WHEN** / **THEN**` bullets (`GIVEN` /
   `AND` optional).
 
-After writing all spec files, run `openspec validate <id>` and fix any errors
-before emitting the final message.
+After writing all spec files, run `openspec validate <id> --strict` and fix any
+errors before emitting the final message.

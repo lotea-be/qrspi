@@ -42,7 +42,8 @@ The implementer will:
 1. Pick up the next un-ticked slice in `tasks.md`.
 2. Work the tasks in order, ticking boxes.
 3. Run the project's available checks at the slice boundary — lint,
-   typecheck, and tests where the repo has them (plus `openspec validate` /
+   typecheck, and tests where the repo has them (plus `openspec validate <id>
+   --strict` — matching CI's strict `validate --all` — and
    `node sync-copilot.mjs --check` for this kit) — and the slice checkpoint.
    A repo with no test suite is not a missing gate; run the checks that exist.
 4. Stop at the slice checkpoint and wait for human go-ahead.
