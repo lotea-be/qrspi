@@ -98,7 +98,8 @@ qrspi/
   install.ps1 / install.sh   # installs the Copilot kit into ~/.copilot (Claude = plugin)
   uninstall.ps1 / uninstall.sh  # removes only the files this kit ships
   .claude/                   # kit-DEV tooling, project scope, NOT shipped to users:
-                             #   /qrspi-sync-copilot command + skill (only useful in THIS repo)
+                             #   /qrspi-sync-copilot, /qrspi-readme-audit, /qrspi-release,
+                             #   /qrspi-dogfood commands + skills (only useful in THIS repo)
   README.md
 ```
 
