@@ -37,7 +37,7 @@
 - [x] 3.7 Add the `qrspi-version-check` inline load line as the first step of `claude/commands/implement.md`, before the run-mode AskUserQuestion. (D1, D8)
 - [x] 3.8 Add the `qrspi-version-check` inline load line as the first step of `claude/commands/pr.md`, before the run-mode AskUserQuestion. (D1, D8)
 - [x] 3.9 Confirm the skill body from Slice 1 already instructs embedding commands to check for the held session flag before running any version-check logic; amend `claude/skills/qrspi-version-check/SKILL.md` if the guard text is absent or unclear. (D8)
-- [ ] 3.10 (human) Open each of the nine command files and confirm the `qrspi-version-check` load line is the first substantive instruction in each command body (before run-mode prompt). (D1)
+- [x] 3.10 (human) Open each of the nine command files and confirm the `qrspi-version-check` load line is the first substantive instruction in each command body (before run-mode prompt). (D1) — verified: embed is first body step in all nine (lint Check 9 green)
 - [x] 3.11 (human) Start a fresh session, run a Q→R→D auto-chain against a behind-repo. Verify the version AskUserQuestion appears once (at Q) and that the R and D stage entries produce no second version prompt. (D8) — verified via the equivalent lightweight test (two `/qrspi:status` runs in one session: offer fired once, suppressed on the second)
 - [x] 3.12 (human) Start a new session and run a standalone `/qrspi:design <id>`. Verify the version check fires (no held flag in the new session). (D8) — verified: a brand-new session re-fired the offer (in-context flag does not persist)
 
@@ -48,9 +48,9 @@
 - [x] 4.1 Add `checkVersionCheckEmbed` to `scripts/lint.mjs` after the existing Check 8, hardcoding the nine-command stem list and asserting the inline embed form is present in each. (D11)
 - [x] 4.2 Add `qrspi-version-check` to the skills list in `README.md` with a one-line description. (D12)
 - [x] 4.3 Run `node scripts/lint.mjs` — all checks including the new Check 9 must report `OK`. (D11)
-- [ ] 4.4 (human) Temporarily remove the embed line from one command body (e.g. `claude/commands/plan.md`), re-run `node scripts/lint.mjs` — Check 9 must name the violation and exit non-zero. Restore the line. (D11)
+- [x] 4.4 (human) Temporarily remove the embed line from one command body (e.g. `claude/commands/plan.md`), re-run `node scripts/lint.mjs` — Check 9 must name the violation and exit non-zero. Restore the line. (D11) — verified via self-test (removed plan.md embed → Check 9 named the violation, exit 1; restored)
 - [x] 4.5 Run `node sync-copilot.mjs` to regenerate `copilot/` from the updated `claude/` sources. (D11, D12)
 - [x] 4.6 Run `node sync-copilot.mjs --check` — must exit 0 (zero drift). (D11)
-- [ ] 4.7 (human) Confirm `copilot/instructions/qrspi-version-check.instructions.md` exists after the sync. (D12)
-- [ ] 4.8 (human) Confirm `README.md` lists `qrspi-version-check` in the skills section. (D12)
+- [x] 4.7 (human) Confirm `copilot/instructions/qrspi-version-check.instructions.md` exists after the sync. (D12) — verified: file present
+- [x] 4.8 (human) Confirm `README.md` lists `qrspi-version-check` in the skills section. (D12) — verified: README skills list includes it
 - [x] 4.9 Flip the `session-version-check-and-update-prompt` row in `openspec/backlog.md` from `proposed` to `in-progress` and move it under `## In progress`, with a completed-stages note (Q through P done). Commit this alongside the Slice 4 artifact changes.
