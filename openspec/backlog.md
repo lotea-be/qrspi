@@ -42,11 +42,87 @@ prompt/skill/command edits.
 ## Ideas
 
 Listed in priority order (highest first). Each carries a `P1`–`P3` band:
-**P1** = correctness/safety of the live workflow, low cost — do next;
+**P1** = correctness/safety of the live workflow, or a highly visible defect in
+every generated artifact — do next;
 **P2** = high-value enhancements, larger or lightly dependent;
 **P3** = strategic bets or items sequenced behind another change. Re-evaluate
 this ordering whenever an item is added, modified, or archived (see
 [[backlog-prioritization]]).
+
+### repo-applicable-artifact-sections — `idea` · **P1**
+
+**Why:** QRSPI artifacts should carry **only sections and checks applicable to
+the repository (and the change)** — not a fixed CRUD/web skeleton that every
+document reproduces regardless of what the repo is. The boilerplate assumes a
+data-store + HTTP + web-UI app, so on a docs/prompt project like this kit it
+emits content that has nothing to do with the change or the repo. **This is a
+highly visible, ugly defect** — it lands in *every* generated artifact a human
+reads (questions, design, proposal, tasks, and the PR body itself), so despite
+being artifact-quality rather than a live-workflow correctness gap, it is P1 to
+fix. A sweep (2026-07-23) found it baked in across **most of the pipeline**, in
+two kinds:
+
+**(A) Fixed section/checklist skeletons emitted verbatim into artifacts** — the
+core problem. The same CRUD/web section list is reproduced by every artifact-
+producing stage:
+- **Q — `claude/agents/questioner.md` + `openspec-templates/questions.template.md`.**
+  Fixed list (Data model, Indexing & query performance, API surface, State,
+  Migrations & seed data, Auth) stamped `Not applicable` per section — seven
+  near-identical stanzas in `right-size-followup-handling`'s `questions.md`,
+  several just restating the label ("No entities, tables, or DTOs. Not
+  applicable to this repo.").
+- **D — `claude/agents/designer.md` + `openspec-templates/design.template.md`.**
+  Mirrors it with `## Data model changes` / `## API surface` / `## UI surface`
+  / `## Authorization` sections.
+- **S — `claude/agents/architect.md` + `openspec-templates/proposal.template.md`.**
+  `Impact — Migrations: <yes/no>` line.
+- **P — `claude/agents/planner.md` + `openspec-templates/tasks.template.md`.**
+  Seeds a "Generate the data-store migration (D6)" task line.
+- **PR — `claude/agents/reviewer.md`.** Hard-codes a `## Migrations` section and
+  checklist items — "No raw SQL in feature code", "No nullable suppression
+  (`!`) without justification comment", "All new endpoints use authorization
+  policies", "Migration is reversible" — none of which can apply to a repo with
+  no SQL/DB/endpoints.
+
+**(B) CRUD/web-shaped *illustrative framing*** — softer, not emitted boilerplate
+but web-app-shaped examples/vocabulary that bias the agent and read oddly for a
+non-web repo: `claude/skills/vertical-slice/SKILL.md` (the whole mock-API →
+entity → migration → DTO slice example set), the architect's slice examples
+(`entity + migration + seed`, "all the endpoints"), and
+`claude/skills/workflow/SKILL.md` ("touches the data model, an API surface, or
+auth" as the full-pipeline trigger; the researcher "maps the data model"). Fix
+this more lightly — examples need *some* concrete domain — but at least flag
+that these are illustrative, not a required shape.
+
+**The tension to resolve:** the questions template deliberately keeps N/A
+headings "so stage S doesn't re-litigate whether they were considered"
+(`openspec-templates/questions.template.md`). That rule guards the wrong
+scope — it makes sense **per change** (a dimension a given change skipped could
+apply to the next one), but not **per repo** (a dimension the repo can never
+have). Separate the two levels: dimensions permanently absent at the **repo**
+level are simply not sections/checks anywhere, while "considered but N/A for
+*this* change" keeps its explicit heading. The natural source of truth for
+"does this repo have a data-store / HTTP / web-UI surface at all" is the
+`<repo>-stack` cheatsheet, which already declares the tech surface — every
+stage that emits a fixed section/checklist list should filter it against that.
+
+**Shape:** Take the whole thing up as **one big change** spanning the pipeline
+rather than per-stage patches — the fix is a single shared convention (a
+section/checklist list is a *starting menu filtered by repo surface*, not a
+fixed skeleton every artifact reproduces) applied consistently at Q/D/S/P/PR.
+Touches the (A) skeleton sources — `claude/agents/questioner.md`,
+`claude/agents/designer.md`, `claude/agents/architect.md`,
+`claude/agents/planner.md`, `claude/agents/reviewer.md` and the four templates
+`openspec-templates/{questions,design,proposal,tasks}.template.md` — and,
+lightly, the (B) framing sources (`claude/skills/vertical-slice/SKILL.md`,
+`claude/skills/workflow/SKILL.md`). The `<repo>-stack` cheatsheet is the
+filter's source of truth. Regenerate the `copilot/` tree via
+`sync-copilot.mjs` at the end. Highly visible artifact-quality defect in every
+generated artifact — hence P1 despite not being a live-workflow correctness
+gap. Surfaced 2026-07-23 reviewing `right-size-followup-handling` (questions.md
+N/A stanzas; irrelevant PR-checklist items). Relates to
+[[init-conductor-plus-overview]] (the overview/stack skills are where "what
+surface does this repo have" would live).
 
 ### init-conductor-plus-overview — `idea` · **P2**
 
@@ -367,43 +443,6 @@ non-idempotent steps (e.g. `append`) can double-apply. The skill warns about
 this today. Add per-version resume state (or a completed-versions marker) plus
 idempotency guidance for manifest authors. Surfaced by `versioned-update-command`
 PR review (non-blocking).
-
-### repo-applicable-question-sections — `idea` · **P3**
-
-**Why:** `questions.md` should carry **only sections that are applicable to
-the repository** — not the full CRUD/web checklist with most entries marked
-`Not applicable`. Today the questioner starts from a fixed section list (Data
-model, Indexing & query performance, API, UI, Front-end state, Migrations &
-data, Auth) and, for a repo with no data-store/HTTP/web-UI surface (this kit, a
-docs/prompt project), stamps every one `Not applicable` — its own heading plus
-a rationale sentence, several just restating the label ("No entities, tables,
-or DTOs. Not applicable to this repo."). In `right-size-followup-handling`'s
-`questions.md` that's seven near-identical stanzas of noise, and the shape
-cascades into `design.md`/`proposal.md` which mirror the section list.
-
-**The tension to resolve:** the template deliberately keeps N/A headings "so
-stage S doesn't re-litigate whether they were considered"
-(`openspec-templates/questions.template.md`). That rule guards the wrong
-scope — it makes sense **per change** (a dimension a given change skipped could
-apply to the next one), but not **per repo** (a dimension the repo can never
-have). The fix is to separate those two levels: dimensions that are
-permanently absent at the **repo** level are simply not sections here, while
-"considered but N/A for *this* change" retains its explicit heading. The
-questioner should derive its applicable section set from what the repo actually
-is — the `<repo>-stack` cheatsheet already declares the tech surface and is the
-natural source of truth for "does this repo have a data-store / HTTP / web-UI
-surface at all."
-
-**Shape:** Rework the questioner and the template so the standard section list
-is a **starting menu filtered by repo surface**, not a fixed skeleton every
-document must reproduce. Touches `claude/agents/questioner.md`,
-`openspec-templates/questions.template.md`, and the design/structure guidance
-that inherits the section list, plus the regenerated `copilot/` tree via
-`sync-copilot.mjs`. Prose/structure-quality fix, no live-workflow correctness
-impact — hence P3. Surfaced 2026-07-23 reviewing
-`right-size-followup-handling`'s `questions.md`. Relates to
-[[init-conductor-plus-overview]] (the overview/stack skills are where "what
-surface does this repo have" would live).
 
 ### enforce-d-number-tags-in-slices — `idea` · **P3**
 
