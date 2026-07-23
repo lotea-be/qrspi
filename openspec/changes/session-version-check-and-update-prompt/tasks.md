@@ -17,9 +17,9 @@
 
 **Model:** sonnet — refinements to an already-authored skill file; the wiring text is precisely specified in the spec and requires no novel reasoning.
 
-- [ ] 2.1 Update `claude/skills/qrspi-version-check/SKILL.md`: make the "Run now" branch explicit that it re-enters `/qrspi:update` as a slash command on the main loop (not a subagent spawn). (D5, D6)
-- [ ] 2.2 Update `claude/skills/qrspi-version-check/SKILL.md`: confirm the no-marker branch (when `openspec/.qrspi-version` is absent but `openspec/` exists) hands off to `/qrspi:update`'s own no-marker gate without issuing a second competing AskUserQuestion from the skill itself. (D5, D6)
-- [ ] 2.3 Update `claude/skills/qrspi-version-check/SKILL.md`: confirm the unreadable-B branch (when `.claude-plugin/plugin.json` is missing) sets the session flag and returns with a one-line notice, without blocking. (D10)
+- [x] 2.1 Update `claude/skills/qrspi-version-check/SKILL.md`: make the "Run now" branch explicit that it re-enters `/qrspi:update` as a slash command on the main loop (not a subagent spawn). (D5, D6)
+- [x] 2.2 Update `claude/skills/qrspi-version-check/SKILL.md`: confirm the no-marker branch (when `openspec/.qrspi-version` is absent but `openspec/` exists) hands off to `/qrspi:update`'s own no-marker gate without issuing a second competing AskUserQuestion from the skill itself. (D5, D6)
+- [x] 2.3 Update `claude/skills/qrspi-version-check/SKILL.md`: confirm the unreadable-B branch (when `.claude-plugin/plugin.json` is missing) sets the session flag and returns with a one-line notice, without blocking. (D10)
 - [ ] 2.4 (human) Dev-install, then in the behind-repo scenario select "Run /qrspi:update now" and confirm `/qrspi:update` enters as a main-loop re-entry (not spawned as a subagent). (D5, D6)
 - [ ] 2.5 (human) Remove `openspec/.qrspi-version` from a scratch repo (keep `openspec/` present), run `/qrspi:status`. Confirm the skill's no-marker branch fires and sends you to `/qrspi:update`'s own gate — no second competing AskUserQuestion from the skill. (D5)
 - [ ] 2.6 (human) Rename `.claude-plugin/plugin.json` temporarily, run `/qrspi:status`. Confirm a one-line notice prints and the command continues normally (no AskUserQuestion). Restore the file. (D10)
