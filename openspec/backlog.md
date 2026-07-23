@@ -7,7 +7,7 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## In progress
 
-### session-version-check-and-update-prompt — `in-progress (Q, R, D, S, V, P, I complete)` · **P2**
+### session-version-check-and-update-prompt — `in-progress (PR #24 open)` · **P2**
 
 **Why:** A repo initialized with QRSPI carries an `openspec/.qrspi-version`
 marker, and [[versioned-update-command]] shipped `/qrspi:update` to migrate it
