@@ -13,8 +13,9 @@ that walks intervening releases to bring a repo forward. Today nothing tells a
 user their repo is behind — they only discover it if they think to run
 `/qrspi:update`. This change adds a **session-start version check**: at the top
 of `/qrspi:status` and all eight stage commands, compare the repo marker `A`
-against the installed kit version `B` (from `.claude-plugin/plugin.json`
-`version`, local only, no network) and, when the repo is behind, **offer** to
+against the installed kit version `B` (from Claude Code's
+`installed_plugins.json` registry per revised D2 — local only, no network) and,
+when the repo is behind, **offer** to
 run `/qrspi:update` — a human-gated prompt, never a silent auto-migration. The
 check degrades gracefully when the marker is absent, when the kit version is
 unreadable, and warns (no gate) on a downgrade.
@@ -50,9 +51,11 @@ once; lint gains a coverage check; the README and `copilot/` are synced.
   re-invokes the original stage fresh (PQ7 chose check-first, not auto-resume).
 - No reverse/downgrade migration — downgrade is warn-only (PQ6); `/qrspi:update`
   still owns the downgrade hard-stop if the user runs it.
-- Not solving the auto-detect portability problem in general — this design
-  frames the unverified read as a stage-I watch-item with a defined fallback
-  (see D2), consistent with `qrspi-update` OQ1.
+- The portability problem the original D2 deferred is now **solved** (revised
+  D2: read the installed version from Claude Code's `installed_plugins.json`
+  registry, portable across CWDs). Note this disproves `qrspi-update` OQ1's "no
+  portable primitive" premise — a follow-up could migrate `qrspi-update`'s own
+  auto-detect to the same registry source (out of scope here).
 - Follow-up idea (not this change): mechanically asserting `config.yaml`
   `openspec_version` vs kit version coupling (an existing open gap, unrelated).
 
@@ -84,36 +87,48 @@ Each of the nine command bodies carries a single short preamble line —
 
 Answers Q9, Q20–Q23, Q31 (thin wrapper — see D5).
 
-### D2 — Version source `B`: read `.claude-plugin/plugin.json` `version`; unverified-read fallback is a warn-and-proceed, not a hard block (PQ1)
+### D2 (revised 2026-07-23) — Version source `B`: read the installed kit version from Claude Code's plugin registry, portably; warn-and-proceed on any failure (PQ1)
 
-`B` is read from the installed plugin's `.claude-plugin/plugin.json` `version`
-field — the same file `/qrspi:init` reads to write the marker, and the same
-source `qrspi-update` auto-detect targets. **Local only, no network** (PQ1,
-Q5).
+> Supersedes the original D2 (CWD-relative `.claude-plugin/plugin.json`), which
+> dogfooding proved unreadable in a real consumer repo — see "Dogfood findings"
+> below. PQ1's *intent* holds (read the **installed kit version**, local only,
+> no network); only the specific source file changes.
 
-The portability problem is real and identical to `qrspi-update` OQ1: *there is
-no portable primitive for a command body to learn its own install directory*,
-and the plugin cache path encodes the version
-(`~/.claude/plugins/cache/<marketplace>/qrspi/<version>/…`), so guessing the
-path is fragile. This design does **not** claim to have solved it. Instead:
+`B` is read from Claude Code's own installed-plugin registry: the file
+`plugins/installed_plugins.json` under the Claude config directory
+(`$CLAUDE_CONFIG_DIR`, default `~/.claude`). Parse the JSON, find the plugin key
+matching **`qrspi@*`** (glob on the key — never a hardcoded marketplace name like
+`qrspi@lotea-agents`), and take that entry's `version`. If the key holds multiple
+scope entries (user/project/local), use the **highest SemVer** — the effective
+installed kit. **Local only, no network** (PQ1, Q5).
 
-- The skill attempts the read best-effort. **If `B` cannot be read reliably, the
-  check does not guess a wrong version** — it prints a one-line "version check
-  unavailable — run `/qrspi:update` manually if needed" notice, sets the
-  session flag (so it does not re-nag), and **proceeds with the stage** (Q17
-  chooses warn-not-silent; proceeding, never blocking).
-- The exact read mechanism is a **stage-I watch-item** carried into
-  implementation with the explicit fallback above, mirroring `qrspi-update`'s
-  own watch-item wording rather than presenting an unverified read path as a
-  settled default.
+- **Why this source.** It is Claude Code's authoritative record of *what kit
+  version is actually installed*, and it is readable from **any working
+  directory** — which the CWD-relative `.claude-plugin/plugin.json` was not.
+  Dogfooding empirically confirmed the old path degrades to "unavailable" in
+  every real consumer repo (CWD ≠ kit repo), while this registry path resolves.
+  `plugin.json` is **no longer read at all**.
+- **Fallback (unchanged behaviour).** If `$CLAUDE_CONFIG_DIR` cannot be resolved,
+  the file is missing/unreadable/malformed, or there is no `qrspi@*` entry, the
+  check **does not guess a wrong version** — it prints the one-line notice
+  `version check unavailable — run /qrspi:update manually if needed`, sets the
+  session flag (so it does not re-nag), and **proceeds with the stage** (Q17:
+  warn-not-silent; proceeding, never blocking).
+- **Accepted coupling (the risk this trades into).** `installed_plugins.json` is
+  Claude Code **internal state**; its shape is not a public contract. A future
+  CC format change degrades the feature to the warn-and-proceed fallback (safe,
+  not a regression). This replaces the old "no portable primitive exists"
+  premise, which the finding disproved.
+- **Verification obligation.** Step 2's read is **re-dogfooded in a real consumer
+  fixture before PR** — the original D2 shipped an unverified read that was
+  wrong; this decision does not repeat that.
 
-**Rejected** the migrations-stem fallback (Q4 option) as a *primary* source — it
-is a second source of truth that can diverge from `plugin.json` if a stub is
-omitted (research: migrations mirror `plugin.json` but are not guaranteed
-identical). PQ1 binds source to `plugin.json` `version`; the migrations stem is
-not adopted even as fallback here — an unreadable `B` degrades to the warn path
-above, which is safer than silently comparing against a possibly-divergent
-number. Answers Q1–Q4, Q17.
+**Rejected:** the migrations-stem fallback (Q4) — it needs the plugin install
+path too, so it inherits the same portability problem and adds a second source of
+truth. **Rejected:** keeping `plugin.json` even as a fallback — under
+`--plugin-dir` it reflects a different copy than the registry, reintroducing
+two-source drift; the single registry source + warn fallback is cleaner.
+Answers Q1–Q4, Q17.
 
 ### D3 — SemVer comparison: reuse `qrspi-update`'s numeric-tuple compare (not string equality)
 
@@ -269,7 +284,8 @@ Adding a shipped skill and touching nine command files requires:
 ## Data model changes
 
 None. No new persisted schema. The check reads two existing values
-(`.claude-plugin/plugin.json` `version` = `B`; `openspec/.qrspi-version` = `A`)
+(`$CLAUDE_CONFIG_DIR/plugins/installed_plugins.json` → `qrspi@*` `version` = `B`
+per revised D2; `openspec/.qrspi-version` = `A`)
 and holds one **in-context** boolean (the session-checked flag, no on-disk
 representation — same as run-mode). No migration manifest is required (this
 change adds behaviour to the kit, not a consumer-repo `openspec/` layout change;
@@ -320,11 +336,13 @@ Slices are cut by user-facing path (Structure will detail):
 
 ## Risks / Trade-offs
 
-- **Unverified `B` read (D2, primary risk).** The plugin-own-path read is the
-  same unsolved OQ1 as `qrspi-update`. Mitigation: warn-and-proceed fallback +
-  stage-I watch-item; the check never blocks a stage and never guesses a wrong
-  version. If the read proves reliably impossible on some platforms, the feature
-  degrades to "silent on those platforms" — acceptable, not a regression.
+- **CC-internal-state coupling (revised D2, primary risk).** `B` now comes from
+  Claude Code's `installed_plugins.json` — internal state with no public-contract
+  guarantee on its shape. Mitigation: match the `qrspi@*` key defensively and
+  keep the warn-and-proceed fallback, so a format change degrades to
+  "unavailable", never a wrong version or a block. Re-dogfooded before PR so the
+  read is verified, not assumed (the lesson from the original D2's unverified
+  read, which shipped broken and was caught only by dogfooding).
 - **Nag frequency (D6).** Broad placement (nine commands) without suppression
   would nag ~9× per chain. The in-context flag makes it once-per-session; the
   residual risk is a user who runs many *standalone* stage calls in one OS
@@ -366,7 +384,14 @@ Slices are cut by user-facing path (Structure will detail):
   `.qrspi-version` does not. D5's no-marker/onboarding note already encodes this
   (no change needed).
 
-## Dogfood findings (2026-07-23) — D2 REOPENED, implementation paused
+## Dogfood findings (2026-07-23) — RESOLVED: D2 revised to the registry source
+
+> **Resolution (2026-07-23):** option (a) chosen and approved — revised D2 now
+> reads `B` from `$CLAUDE_CONFIG_DIR/plugins/installed_plugins.json`. The finding
+> below is retained as the rationale record. Downstream work to land the fix:
+> update the `session-version-check` delta spec's Version-source requirement +
+> scenarios (S), re-implement skill step 2 (I), and re-dogfood 1.3/1.4/1.5/2.6
+> before PR.
 
 Dogfooding the implemented change (`claude --plugin-dir` into a real consumer
 fixture) surfaced a design-blocking finding. **Implementation is paused pending a
