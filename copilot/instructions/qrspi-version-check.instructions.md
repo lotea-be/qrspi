@@ -1,5 +1,5 @@
 ---
-description: Session-scoped version check for QRSPI commands. Compares the repo's installed-kit marker (A from openspec/.qrspi-version) against the installed plugin version (B from .github-plugin/plugin.json) and branches on the result -- silent on match, vscode/askQuestions gate when behind, one-line warning on downgrade. Load this at the top of each QRSPI stage command.
+description: Session-scoped version check for QRSPI commands. Compares the repo's installed-kit marker (A from openspec/.qrspi-version) against the installed plugin version (B from Claude Code's installed_plugins.json registry under $CLAUDE_CONFIG_DIR) and branches on the result -- silent on match, vscode/askQuestions gate when behind, one-line warning on downgrade. Load this at the top of each QRSPI stage command.
 ---
 
 ## What this skill does
@@ -43,12 +43,27 @@ read B, do not issue any prompt. The stage continues from where it was.
 
 ## Step 2 -- Read installed kit version B
 
-Read `.github-plugin/plugin.json` using the Read tool (local only -- no
-network call). Extract the `version` field. B must be a bare SemVer string
-(e.g. `0.7.0` -- three dot-separated non-negative integers, no `v` prefix).
+Read B from **Claude Code's installed-plugin registry**, not from the plugin's
+own `.github-plugin/plugin.json` -- that file is not resolvable from an arbitrary
+consumer working directory (a real consumer's CWD is their repo, not the kit).
+The registry is readable from any CWD. Local only -- no network call.
 
-**If `.github-plugin/plugin.json` cannot be read, or the `version` field
-is absent or malformed:**
+1. **Resolve the Claude config directory.** Use the `CLAUDE_CONFIG_DIR`
+   environment variable if set; otherwise default to `~/.copilot` (expand `~` to
+   an absolute home path). The registry file is
+   `<config-dir>/plugins/installed_plugins.json`.
+2. **Read and parse it** with the Read tool. It is JSON of the shape
+   `{ "plugins": { "<name>@<marketplace>": [ { "version": "X.Y.Z", ... }, ... ] } }`.
+3. **Select the QRSPI entry.** Find the plugin key matching the glob `qrspi@*`
+   (match on the `qrspi@` prefix -- never hardcode a marketplace name such as
+   `qrspi@lotea-agents`). Take that key's entry `version`. If the key holds more
+   than one entry (multiple install scopes), use the **highest** SemVer -- the
+   effective installed kit.
+4. B must be a bare SemVer string (e.g. `0.7.0` -- three dot-separated
+   non-negative integers, no `v` prefix).
+
+**If the config directory cannot be resolved, `installed_plugins.json` cannot be
+read or is malformed, or there is no `qrspi@*` entry with a valid `version`:**
 - Print a one-line notice: `version check unavailable -- run /qrspi-update manually if needed`
 - Set the in-context session flag (so the notice does not repeat in a chain)
 - Return immediately (do not block; do not issue an vscode/askQuestions)

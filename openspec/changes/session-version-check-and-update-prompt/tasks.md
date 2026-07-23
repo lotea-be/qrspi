@@ -8,9 +8,9 @@
 
 - [x] 1.1 Create `claude/skills/qrspi-version-check/SKILL.md` with the complete skill body: session-flag guard, read installed version B from `.claude-plugin/plugin.json`, read repo marker A from `openspec/.qrspi-version`, numeric-tuple SemVer compare, and all four branches (up-to-date silent, behind AskUserQuestion with two-choice offer, downgrade one-line warning, unreadable-B one-line notice). (D1, D2, D3, D4, D5, D6, D7, D8)
 - [x] 1.2 Add the `qrspi-version-check` inline load line as the first step of `claude/commands/status.md`, positioned before the onboarding check. (D1, D4)
-- [x] 1.3 (human) Dev-install the in-repo copy (`claude --plugin-dir /workspaces/git/qrspi`), then in a repo with `openspec/.qrspi-version` = `0.6.0` and installed plugin at `0.7.0`, run `/qrspi:status`. Verify the AskUserQuestion names both version strings and offers exactly `["Run /qrspi:update now", "Continue on the current version"]`. (D2, D3)
+- [ ] 1.3 (human) Dev-install the in-repo copy (`claude --plugin-dir /workspaces/git/qrspi`), then in a repo with `openspec/.qrspi-version` = `0.6.0` and installed plugin at `0.7.0`, run `/qrspi:status`. Verify the AskUserQuestion names both version strings and offers exactly `["Run /qrspi:update now", "Continue on the current version"]`. (D2, D3) — re-verify: revised D2 reads B from installed_plugins.json (prior pass was a CWD-dependent false positive)
 - [ ] 1.4 (human) In a repo with matching versions, run `/qrspi:status`. Verify no version output appears. (D7)
-- [x] 1.5 (human) In a rolled-back repo (A `0.7.0`, B `0.6.0`), run `/qrspi:status`. Verify a one-line warning prints and the command continues. (D8)
+- [ ] 1.5 (human) In a rolled-back repo (A ahead of B, e.g. marker `0.8.0` vs installed `0.7.0`), run `/qrspi:status`. Verify a one-line warning prints and the command continues. (D7) — re-verify under revised D2 (B from installed_plugins.json)
 - [x] 1.6 (human) Confirm `claude/skills/qrspi-version-check/SKILL.md` exists under `claude/skills/` (not `.claude/skills/`). (D1)
 
 ## 2. Behind-offer wires through to `/qrspi:update`; no-marker and unreadable-B paths covered
@@ -22,7 +22,7 @@
 - [x] 2.3 Update `claude/skills/qrspi-version-check/SKILL.md`: confirm the unreadable-B branch (when `.claude-plugin/plugin.json` is missing) sets the session flag and returns with a one-line notice, without blocking. (D10)
 - [ ] 2.4 (human) Dev-install, then in the behind-repo scenario select "Run /qrspi:update now" and confirm `/qrspi:update` enters as a main-loop re-entry (not spawned as a subagent). (D5, D6)
 - [ ] 2.5 (human) Remove `openspec/.qrspi-version` from a scratch repo (keep `openspec/` present), run `/qrspi:status`. Confirm the skill's no-marker branch fires and sends you to `/qrspi:update`'s own gate — no second competing AskUserQuestion from the skill. (D5)
-- [ ] 2.6 (human) Rename `.claude-plugin/plugin.json` temporarily, run `/qrspi:status`. Confirm a one-line notice prints and the command continues normally (no AskUserQuestion). Restore the file. (D10)
+- [ ] 2.6 (human) Make B unreadable — temporarily point `CLAUDE_CONFIG_DIR` at an empty dir (or rename `installed_plugins.json`), run `/qrspi:status`. Confirm the one-line "version check unavailable" notice prints and the command continues normally (no AskUserQuestion). Restore. (D2 fallback)
 
 ## 3. Embed added to all eight stage commands; in-context session suppression verified in a chain
 

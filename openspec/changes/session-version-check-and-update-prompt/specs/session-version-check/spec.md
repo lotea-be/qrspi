@@ -26,21 +26,30 @@ be available.
 - **THEN** `qrspi-version-check/SKILL.md` is present in `claude/skills/` and
   NOT in `.claude/skills/`.
 
-### Requirement: Version source B is read from the installed plugin's plugin.json
-The skill MUST read the installed kit version B from `.claude-plugin/plugin.json`
-`version` field — local only, no network call. B MUST be a bare SemVer string.
-If B cannot be read reliably, the skill MUST print a one-line notice ("version
-check unavailable — run `/qrspi:update` manually if needed"), set the in-context
-session flag, and proceed with the stage without blocking.
+### Requirement: Version source B is read from Claude Code's installed-plugin registry
+The skill MUST read the installed kit version B from Claude Code's
+installed-plugin registry — the file `plugins/installed_plugins.json` under the
+Claude config directory (`$CLAUDE_CONFIG_DIR`, defaulting to `~/.claude`) — local
+only, no network call. The skill MUST locate the plugin entry by matching the key
+glob `qrspi@*` (never a hardcoded marketplace name) and take that entry's
+`version`; when multiple scope entries exist, it MUST use the highest SemVer. B
+MUST be a bare SemVer string. The skill MUST NOT read the plugin's own
+`.claude-plugin/plugin.json` for B (that path is not resolvable from an arbitrary
+consumer working directory). If B cannot be read reliably, the skill MUST print a
+one-line notice ("version check unavailable — run `/qrspi:update` manually if
+needed"), set the in-context session flag, and proceed with the stage without
+blocking.
 
 #### Scenario: B read succeeds
-- **WHEN** `.claude-plugin/plugin.json` is accessible and contains a `version`
-  field with a bare SemVer string
-- **THEN** the skill reads B from that field and proceeds with the comparison.
+- **WHEN** `$CLAUDE_CONFIG_DIR/plugins/installed_plugins.json` is accessible and
+  contains a `qrspi@*` plugin entry whose `version` is a bare SemVer string
+- **THEN** the skill reads B from that entry (highest SemVer if several) and
+  proceeds with the comparison, regardless of the current working directory.
 
 #### Scenario: B is unreadable — warn and proceed
-- **WHEN** `.claude-plugin/plugin.json` cannot be read or the `version` field
-  is absent or malformed
+- **WHEN** the config directory cannot be resolved, `installed_plugins.json`
+  cannot be read or is malformed, or no `qrspi@*` entry with a valid `version`
+  is present
 - **THEN** the skill prints a one-line notice, sets the in-context session flag
   (so it does not re-nag), and returns immediately without issuing an
   AskUserQuestion or blocking the stage.
