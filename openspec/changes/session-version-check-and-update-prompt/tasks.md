@@ -22,7 +22,7 @@
 - [x] 2.3 Update `claude/skills/qrspi-version-check/SKILL.md`: confirm the unreadable-B branch (when `.claude-plugin/plugin.json` is missing) sets the session flag and returns with a one-line notice, without blocking. (D10)
 - [ ] 2.4 (human) Dev-install, then in the behind-repo scenario select "Run /qrspi:update now" and confirm `/qrspi:update` enters as a main-loop re-entry (not spawned as a subagent). (D5, D6)
 - [x] 2.5 (human) Remove `openspec/.qrspi-version` from a scratch repo (keep `openspec/` present), run `/qrspi:status`. Confirm the skill's no-marker branch fires and sends you to `/qrspi:update`'s own gate — no second competing AskUserQuestion from the skill. (D5) — verified: single delegated gate, no competing prompt
-- [ ] 2.6 (human) Make B unreadable — temporarily point `CLAUDE_CONFIG_DIR` at an empty dir (or rename `installed_plugins.json`), run `/qrspi:status`. Confirm the one-line "version check unavailable" notice prints and the command continues normally (no AskUserQuestion). Restore. (D2 fallback)
+- [x] 2.6 (human) Make B unreadable — temporarily point `CLAUDE_CONFIG_DIR` at an empty dir (or rename `installed_plugins.json`), run `/qrspi:status`. Confirm the one-line "version check unavailable" notice prints and the command continues normally (no AskUserQuestion). Restore. (D2 fallback) — verified via empty CLAUDE_CONFIG_DIR: notice printed, no gate, no guess
 
 ## 3. Embed added to all eight stage commands; in-context session suppression verified in a chain
 
