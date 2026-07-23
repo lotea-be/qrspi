@@ -7,7 +7,22 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## In progress
 
-_None._
+### session-version-check-and-update-prompt — `in-progress (PR #24 open)` · **P2**
+
+**Why:** A repo initialized with QRSPI carries an `openspec/.qrspi-version`
+marker, and [[versioned-update-command]] shipped `/qrspi:update` to migrate it
+forward — but nothing surfaces that a newer kit version exists. A consumer can
+run stage after stage on a stale kit without ever being told, and the burden is
+entirely on them to remember to check. During each QRSPI session (e.g. at the
+start of a stage command, or in `/qrspi:status`), compare the repo's
+`.qrspi-version` marker against the latest released kit version and, when the
+repo is behind, **propose** running `/qrspi:update` — a prompt/offer, not a
+silent auto-migration (the update walk stays human-gated). **Likely shape:**
+a new or extended skill (`qrspi-version-check`?) loaded by `/qrspi:status`
+(and possibly stage commands), reading version from `.claude-plugin/plugin.json`;
+hook point and session-suppression mechanism TBD pending PQ2/PQ3 answers.
+Low runtime cost, high "don't silently rot" value. Relates to
+[[versioned-update-command]].
 
 ---
 
@@ -25,26 +40,6 @@ Listed in priority order (highest first). Each carries a `P1`–`P3` band:
 **P3** = strategic bets or items sequenced behind another change. Re-evaluate
 this ordering whenever an item is added, modified, or archived (see
 [[backlog-prioritization]]).
-
-### session-version-check-and-update-prompt — `idea` · **P2**
-
-**Why:** A repo initialized with QRSPI carries an `openspec/.qrspi-version`
-marker, and [[versioned-update-command]] shipped `/qrspi:update` to migrate it
-forward — but nothing surfaces that a newer kit version exists. A consumer can
-run stage after stage on a stale kit without ever being told, and the burden is
-entirely on them to remember to check. During each QRSPI session (e.g. at the
-start of a stage command, or in `/qrspi:status`), compare the repo's
-`.qrspi-version` marker against the latest released kit version and, when the
-repo is behind, **propose** running `/qrspi:update` — a prompt/offer, not a
-silent auto-migration (the update walk stays human-gated). Open questions to
-resolve in Q/R/D: where the "latest version" is read from (the installed
-plugin's `plugin.json`? a marketplace lookup? a bundled manifest?) without
-adding a network dependency to every session; where the check hooks in so it
-fires once per session, not once per command, to avoid nag-spam; and how it
-degrades when the marker is absent (uninitialized repo) — reuse the
-edge-case handling `/qrspi:update` already defines (up-to-date / no-marker /
-downgrade). Low runtime cost, high "don't silently rot" value. Relates to
-[[versioned-update-command]].
 
 ### right-size-followup-handling — `idea` · **P2**
 
@@ -178,6 +173,20 @@ not statically checkable. Surfaced by `add-auto-mode` stage D (offered, not buil
 Low-cost correctness guard (hence P2, not P3). Now **unblocked** — `add-auto-mode`
 merged 2026-07-06 (archived), so the convention it enforces is live.
 
+### assert-openspec-version-pin-coupling — `idea` · **P3**
+
+**Why:** `openspec/config.yaml` carries an `openspec_version` field recording the
+OpenSpec CLI version a consumer repo was scaffolded with, but its own comment
+notes it is "informational only" and nothing asserts it stays coupled to the
+kit's pinned OpenSpec version (the pin the README documents and lint Check 1
+guards at the source). So a consumer's `openspec_version` can silently drift
+from the kit's pin with no check noticing — the same "version marker rots
+unnoticed" failure mode [[session-version-check-and-update-prompt]] fixes for
+`.qrspi-version`, but for this parallel, un-enforced OpenSpec-CLI version field.
+Add a mechanical guard (lint/CI, distinct from the session-time qrspi-version
+check) that flags divergence. Surfaced as a Non-Goal of
+[[session-version-check-and-update-prompt]] (stage D, 2026-07-23).
+
 ### dedicated-spec-sync-agent — `idea` · **P3**
 
 **Why:** The archive flow's delta-spec → main-spec sync is delegated to a
@@ -200,6 +209,23 @@ workflow correctness gap — hence P3. Surfaced 2026-07-16 while archiving
 `progressive-task-ticking`. Relates to [[standardize-recurring-ops-scripts]] and
 [[retro-as-extension-plugin]] (both concern the consumer/maintainer + generated-
 artifact boundary).
+
+### pr-human-task-loop-stop-option — `idea` · **P3**
+
+**Why:** The PR reconciliation gate in `claude/commands/pr.md` is asymmetric. The
+**regular-task loop** offers a `Pause — let me check the code first` choice with a
+defined early-exit commit that ends the turn; the **`(human)`-task loop** offers
+only `Confirm-done` / `Drop` / `Leave-for-now` — none of which halts the gate. A
+human who wants to stop the human-task review partway (e.g. to go run the live
+dev-install verifications before deciding, rather than clicking `Leave-for-now`
+through every remaining item) has no clean exit. Add a `Pause/Stop the review`
+choice to the `(human)`-task loop that reuses the regular-task loop's early-exit
+commit (commit any edits already made, end the turn with a "re-run `/qrspi:pr`
+when ready" message). Mirror the change into the generated `copilot/` PR prompt
+and the workflow-skill choreography if the loop wording lives there. Surfaced
+2026-07-23 during the PR stage of [[session-version-check-and-update-prompt]],
+whose change embeds many `(human)` live-session checks that made the missing
+exit obvious.
 
 ### pr-md-tracks-superseding-pr — `idea` · **P3**
 

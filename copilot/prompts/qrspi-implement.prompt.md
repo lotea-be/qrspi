@@ -8,8 +8,14 @@ You are running QRSPI stage **I (Implement)** for the current project.
 
 Change id: ${input}
 
-Read or establish the run-mode by following the **Run-mode** procedure in
-skill `workflow` before doing any other work.
+1. **Session version check — run silently.** Consult the **qrspi-version-check** instructions (`qrspi-version-check.instructions.md`) and follow its
+   instructions exactly. Follow its
+   Silence discipline: do not announce or narrate this step, and print nothing
+   unless the check itself must prompt or warn. This is the first step -- before the run-mode
+   establishment and before any other work.
+
+2. Read or establish the run-mode by following the **Run-mode** procedure in
+   skill `workflow` before doing any other work.
 
 Precondition (canonical *precondition check* in skill `workflow`,
 "Stage choreography"): the input artifact is
@@ -41,7 +47,8 @@ The implementer will:
 1. Pick up the next un-ticked slice in `tasks.md`.
 2. Work the tasks in order, ticking boxes.
 3. Run the project's available checks at the slice boundary — lint,
-   typecheck, and tests where the repo has them (plus `openspec validate` /
+   typecheck, and tests where the repo has them (plus `openspec validate <id>
+   --strict` — matching CI's strict `validate --all` — and
    `node sync-copilot.mjs --check` for this kit) — and the slice checkpoint.
    A repo with no test suite is not a missing gate; run the checks that exist.
 4. Stop at the slice checkpoint and wait for human go-ahead.

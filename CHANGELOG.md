@@ -14,7 +14,34 @@ kit version.
 
 ## [Unreleased]
 
-_No unreleased changes._
+### Added
+
+- **Session-start version check (`session-version-check-and-update-prompt`).**
+  A new shipped skill `qrspi-version-check`, loaded as the first step of
+  `/qrspi:status` and all eight stage commands, compares the repo's
+  `openspec/.qrspi-version` marker against the installed kit version — read
+  portably from Claude Code's `installed_plugins.json` registry (under
+  `$CLAUDE_CONFIG_DIR`), never from a CWD-relative `plugin.json` — and, when the
+  repo is behind, offers to run `/qrspi:update` (a human-gated prompt, never a
+  silent migration). Up-to-date is silent, a downgrade warns once, and an
+  unreadable version degrades to a warn-and-proceed notice; the check is
+  suppressed to once per session via an in-context flag. Adds lint Check 9
+  (`checkVersionCheckEmbed`) asserting the embed in all nine command bodies, a
+  README skills-list entry, and regenerated `copilot/` artifacts.
+- **`/qrspi-dogfood` dev-tooling** (under `.claude/`, not shipped to consumers):
+  provisions a throwaway consumer fixture and walks an in-flight change's
+  `(human)` verification tasks one at a time against a live `--plugin-dir`
+  session, so runtime behaviour is observed before the PR stage.
+
+### Changed
+
+- **Local spec validation now matches CI's strict gate.** The architect (stage S)
+  and implementer (slice boundary) now run `openspec validate <id> --strict`, and
+  the spec-delta guidance is corrected: a requirement's **first line** (not merely
+  its first *sentence*) must contain `MUST`/`SHALL`, because OpenSpec's strict
+  parser reads the first physical line as the requirement statement. Plain
+  `openspec validate <id>` skips this rule, so a spec could pass locally yet fail
+  CI's `openspec validate --all` (strict); aligning the local gate closes that gap.
 
 ## [0.7.0] - 2026-07-22
 

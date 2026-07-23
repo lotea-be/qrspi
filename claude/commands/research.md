@@ -6,8 +6,14 @@ You are running QRSPI stage **R (Research)** for the current project.
 
 Arguments: $ARGUMENTS
 
-Read or establish the run-mode by following the **Run-mode** procedure in
-skill `workflow` before doing any other work.
+1. **Session version check — run silently.** Load skill `qrspi-version-check` and follow its
+   instructions exactly. Follow its
+   Silence discipline: do not announce or narrate this step, and print nothing
+   unless the check itself must prompt or warn. This is the first step -- before the run-mode
+   establishment and before any other work.
+
+2. Read or establish the run-mode by following the **Run-mode** procedure in
+   skill `workflow` before doing any other work.
 
 **Critical**: do NOT pass the feature description or any opinion about
 what the change should do to the researcher. The researcher works

@@ -7,7 +7,13 @@ the QRSPI workflow.
 
 Steps:
 
-1. **Onboarding check (the two per-repo setup commands).**
+1. **Session version check — run silently.** Load skill `qrspi-version-check` and follow its
+   instructions exactly. Follow its
+   Silence discipline: do not announce or narrate this step, and print nothing
+   unless the check itself must prompt or warn. This is the first step -- before the onboarding
+   check and before any other work.
+
+2. **Onboarding check (the two per-repo setup commands).**
    - If `openspec/` does not exist, this repo has not been bootstrapped.
      Tell the user to run `/qrspi:init` first (it scaffolds `openspec/`
      and seeds the QRSPI templates), then stop — the stages need that
@@ -21,7 +27,8 @@ Steps:
    Together `/qrspi:init` and `/qrspi:stack` are the two per-repo
    onboarding steps; surface whichever is still missing as the next
    action before any change-level stage.
-2. List the in-flight change folders under `openspec/changes/` (ignore
+
+3. List the in-flight change folders under `openspec/changes/` (ignore
    `archive/`). For each, look at which artifacts exist and infer the
    next stage:
 
@@ -50,23 +57,23 @@ Steps:
    incomplete tasks remain, all implementation is done — the change is
    ready for PR review and archival, not for `/qrspi:implement`.
 
-3. Print the eight stages with a 1-line description each (from skill
+4. Print the eight stages with a 1-line description each (from skill
    `workflow`).
 
-4. **Mention the retrospective.** After every stage, the human can
+5. **Mention the retrospective.** After every stage, the human can
    optionally run `/qrspi:retro <id> <stage>` to capture friction
    and fold it back into the prompts/skills/templates. This is
    recommended after stages Q, D, S, and PR (the stages where the
    prompts have the most leverage), but optional everywhere.
 
-5. If the user gave an argument, treat it as a change id and only show
+6. If the user gave an argument, treat it as a change id and only show
    the status for that one. Otherwise show all in-flight changes.
 
 User argument: $ARGUMENTS
 
 To discover the current openspec state, use the **Glob** tool with pattern
 `openspec/changes/**/*` (it returns nothing if `openspec/changes/` is
-missing — in that case follow step 1 and stop). Do not shell out — Glob
+missing — in that case follow step 2 and stop). Do not shell out — Glob
 has no permission requirements and works on every platform.
 
 End with: "What change are you working on, and what stage are you in?"
