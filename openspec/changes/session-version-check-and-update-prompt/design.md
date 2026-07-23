@@ -365,3 +365,56 @@ Slices are cut by user-facing path (Structure will detail):
   `/qrspi:init`); its no-marker gate is reached only when `openspec/` exists but
   `.qrspi-version` does not. D5's no-marker/onboarding note already encodes this
   (no change needed).
+
+## Dogfood findings (2026-07-23) — D2 REOPENED, implementation paused
+
+Dogfooding the implemented change (`claude --plugin-dir` into a real consumer
+fixture) surfaced a design-blocking finding. **Implementation is paused pending a
+human design rethink of D2; the code is committed but must not ship as-is.**
+
+**Finding (empirical).** Running `/qrspi:status` in a consumer repo whose CWD is
+*not* the kit repo always hits the unreadable-`B` branch and prints
+`version check unavailable — run /qrspi:update manually if needed`. Cause: step 2
+of the `qrspi-version-check` skill reads `.claude-plugin/plugin.json` on a
+**CWD-relative** path, but in a real consumer the plugin manifest lives at the
+plugin's install location, not the working directory. The warn-and-proceed
+fallback (D2) behaves correctly (no guess, no block), but the feature is
+therefore **inert in its primary scenario** — it can never detect "behind". The
+earlier 1.3 "behind" pass was a false positive: that session's CWD happened to be
+the kit repo.
+
+**This contradicts D2's founding premise** (and `qrspi-update` OQ1): the design
+assumed *"no portable primitive for a command body to learn its own install
+directory."* That assumption is **false**.
+
+**Discovered portable source.** Claude Code exports `CLAUDE_CONFIG_DIR`
+(default `~/.claude`), and `$CLAUDE_CONFIG_DIR/plugins/installed_plugins.json`
+authoritatively records the installed version from any CWD:
+```json
+"qrspi@<marketplace>": [ { "installPath": ".../qrspi/0.7.0", "version": "0.7.0" } ]
+```
+`B` = that `.version` (match the `qrspi@*` key to avoid marketplace-name
+coupling). This is arguably a *better* source than `plugin.json` — it is the
+source of truth for "what is actually installed," which is exactly what the
+marker should be compared against.
+
+**Caveats to weigh in the rethink:**
+- Reads Claude Code **internal state** (undocumented file shape; may change across
+  CC versions) — a coupling `plugin.json` did not have.
+- Marketplace-key coupling (`qrspi@lotea-agents`) — mitigate by matching `qrspi@*`.
+- Under `--plugin-dir` this file reflects the *installed* release, not the
+  working-dir plugin — a **dogfooding** caveat only; for a normally-installed
+  consumer it is correct.
+
+**Options for the reopened D2 (human decides):**
+- **(a)** Adopt the portable source above; revise D2 + the `session-version-check`
+  delta spec's "Version source B" requirement; re-implement skill step 2;
+  re-dogfood.
+- **(b)** Keep `plugin.json`; accept the feature is inert in real repos; document
+  the limitation (low value — near-defeats the change's purpose).
+- **(c)** Broader rethink of version sourcing (installed_plugins.json vs
+  migrations-stem vs dropping/deferring the feature).
+
+**Downstream if (a) or (c):** the `session-version-check` spec's Version-source
+requirement + scenarios change; skill step 2 + task 1.x/2.6 re-verify; the up-to-
+date-silence fix (commit `e0c4e9e`) stands regardless.
