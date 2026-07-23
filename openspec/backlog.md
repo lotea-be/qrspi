@@ -173,6 +173,20 @@ not statically checkable. Surfaced by `add-auto-mode` stage D (offered, not buil
 Low-cost correctness guard (hence P2, not P3). Now **unblocked** — `add-auto-mode`
 merged 2026-07-06 (archived), so the convention it enforces is live.
 
+### assert-openspec-version-pin-coupling — `idea` · **P3**
+
+**Why:** `openspec/config.yaml` carries an `openspec_version` field recording the
+OpenSpec CLI version a consumer repo was scaffolded with, but its own comment
+notes it is "informational only" and nothing asserts it stays coupled to the
+kit's pinned OpenSpec version (the pin the README documents and lint Check 1
+guards at the source). So a consumer's `openspec_version` can silently drift
+from the kit's pin with no check noticing — the same "version marker rots
+unnoticed" failure mode [[session-version-check-and-update-prompt]] fixes for
+`.qrspi-version`, but for this parallel, un-enforced OpenSpec-CLI version field.
+Add a mechanical guard (lint/CI, distinct from the session-time qrspi-version
+check) that flags divergence. Surfaced as a Non-Goal of
+[[session-version-check-and-update-prompt]] (stage D, 2026-07-23).
+
 ### dedicated-spec-sync-agent — `idea` · **P3**
 
 **Why:** The archive flow's delta-spec → main-spec sync is delegated to a
