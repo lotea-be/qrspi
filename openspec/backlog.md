@@ -13,20 +13,7 @@ _None._
 
 ## Proposed
 
-_None._
-
----
-
-## Ideas
-
-Listed in priority order (highest first). Each carries a `P1`–`P3` band:
-**P1** = correctness/safety of the live workflow, low cost — do next;
-**P2** = high-value enhancements, larger or lightly dependent;
-**P3** = strategic bets or items sequenced behind another change. Re-evaluate
-this ordering whenever an item is added, modified, or archived (see
-[[backlog-prioritization]]).
-
-### right-size-followup-handling — `idea` · **P2**
+### right-size-followup-handling — `proposed (change folder created 2026-07-23)` · **P2**
 
 **Why:** `/qrspi:followup` (the `postpr-fix` skill) has a single hard-coded
 path — delegate to the implementer in FIX MODE for a small, atomic post-PR fix
@@ -42,6 +29,24 @@ really new scope, drop it here as a backlog idea instead of squeezing it into
 the current change. The triage itself is a size/scope judgment, kept
 human-in-the-loop, added up front so a large follow-up isn't silently run
 through the small-fix path. Relates to [[pr-review-open-tasks-and-followups]].
+
+**Likely shape (after Q):** Changes to `claude/commands/followup.md` (insert
+triage gate before handing off to the implementer), `claude/skills/postpr-fix/SKILL.md`
+(possibly a brief three-path overview or pointer), and the `workflow` skill's
+"After PR — the fix loop" section. Regenerated `copilot/` tree via
+`sync-copilot.mjs`. No data-model, API, or migration changes — pure
+prompt/skill/command edits.
+
+---
+
+## Ideas
+
+Listed in priority order (highest first). Each carries a `P1`–`P3` band:
+**P1** = correctness/safety of the live workflow, low cost — do next;
+**P2** = high-value enhancements, larger or lightly dependent;
+**P3** = strategic bets or items sequenced behind another change. Re-evaluate
+this ordering whenever an item is added, modified, or archived (see
+[[backlog-prioritization]]).
 
 ### init-conductor-plus-overview — `idea` · **P2**
 
@@ -362,6 +367,43 @@ non-idempotent steps (e.g. `append`) can double-apply. The skill warns about
 this today. Add per-version resume state (or a completed-versions marker) plus
 idempotency guidance for manifest authors. Surfaced by `versioned-update-command`
 PR review (non-blocking).
+
+### repo-applicable-question-sections — `idea` · **P3**
+
+**Why:** `questions.md` should carry **only sections that are applicable to
+the repository** — not the full CRUD/web checklist with most entries marked
+`Not applicable`. Today the questioner starts from a fixed section list (Data
+model, Indexing & query performance, API, UI, Front-end state, Migrations &
+data, Auth) and, for a repo with no data-store/HTTP/web-UI surface (this kit, a
+docs/prompt project), stamps every one `Not applicable` — its own heading plus
+a rationale sentence, several just restating the label ("No entities, tables,
+or DTOs. Not applicable to this repo."). In `right-size-followup-handling`'s
+`questions.md` that's seven near-identical stanzas of noise, and the shape
+cascades into `design.md`/`proposal.md` which mirror the section list.
+
+**The tension to resolve:** the template deliberately keeps N/A headings "so
+stage S doesn't re-litigate whether they were considered"
+(`openspec-templates/questions.template.md`). That rule guards the wrong
+scope — it makes sense **per change** (a dimension a given change skipped could
+apply to the next one), but not **per repo** (a dimension the repo can never
+have). The fix is to separate those two levels: dimensions that are
+permanently absent at the **repo** level are simply not sections here, while
+"considered but N/A for *this* change" retains its explicit heading. The
+questioner should derive its applicable section set from what the repo actually
+is — the `<repo>-stack` cheatsheet already declares the tech surface and is the
+natural source of truth for "does this repo have a data-store / HTTP / web-UI
+surface at all."
+
+**Shape:** Rework the questioner and the template so the standard section list
+is a **starting menu filtered by repo surface**, not a fixed skeleton every
+document must reproduce. Touches `claude/agents/questioner.md`,
+`openspec-templates/questions.template.md`, and the design/structure guidance
+that inherits the section list, plus the regenerated `copilot/` tree via
+`sync-copilot.mjs`. Prose/structure-quality fix, no live-workflow correctness
+impact — hence P3. Surfaced 2026-07-23 reviewing
+`right-size-followup-handling`'s `questions.md`. Relates to
+[[init-conductor-plus-overview]] (the overview/stack skills are where "what
+surface does this repo have" would live).
 
 ### enforce-d-number-tags-in-slices — `idea` · **P3**
 
