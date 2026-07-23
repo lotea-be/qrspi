@@ -38,7 +38,7 @@
 - [x] 3.8 Add the `qrspi-version-check` inline load line as the first step of `claude/commands/pr.md`, before the run-mode AskUserQuestion. (D1, D8)
 - [x] 3.9 Confirm the skill body from Slice 1 already instructs embedding commands to check for the held session flag before running any version-check logic; amend `claude/skills/qrspi-version-check/SKILL.md` if the guard text is absent or unclear. (D8)
 - [ ] 3.10 (human) Open each of the nine command files and confirm the `qrspi-version-check` load line is the first substantive instruction in each command body (before run-mode prompt). (D1)
-- [ ] 3.11 (human) Start a fresh session, run a Q→R→D auto-chain against a behind-repo. Verify the version AskUserQuestion appears once (at Q) and that the R and D stage entries produce no second version prompt. (D8)
+- [x] 3.11 (human) Start a fresh session, run a Q→R→D auto-chain against a behind-repo. Verify the version AskUserQuestion appears once (at Q) and that the R and D stage entries produce no second version prompt. (D8) — verified via the equivalent lightweight test (two `/qrspi:status` runs in one session: offer fired once, suppressed on the second)
 - [ ] 3.12 (human) Start a new session and run a standalone `/qrspi:design <id>`. Verify the version check fires (no held flag in the new session). (D8)
 
 ## 4. Lint Check 9 added; README entry; `sync-copilot.mjs` run
