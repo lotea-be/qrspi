@@ -3,7 +3,8 @@
 > Delta against `openspec/specs/ci-quality-gates/spec.md` for the
 > `session-version-check-and-update-prompt` change.
 > Adds a new lint check (Check 9) asserting the `qrspi-version-check` embed line
-> is present inline in all nine command bodies.
+> is present inline in all nine command bodies, and modifies the validate-job
+> requirement to record that CI runs strict `openspec validate --all`.
 
 ## ADDED Requirements
 
@@ -44,3 +45,26 @@ Check 8 using the same dependency-free ESM pattern (async function pushing to
   reaches the check via another skill, and `node scripts/lint.mjs` is run
 - **THEN** Check 9 reports a violation for that command, because the inline
   form is required.
+
+## MODIFIED Requirements
+
+### Requirement: Validate job runs openspec validate on the reference example
+The CI `validate` job MUST run `npx @fission-ai/openspec@<pin> validate --all`
+(strict) on `ubuntu-latest`, validating every base spec under `openspec/specs/`
+and every active change under `openspec/changes/` — including the hand-authored
+reference example — and failing the job if any item reports an error. Because
+`--all` runs strict, it enforces rules the non-strict `openspec validate <id>`
+skips (notably that each requirement's **first line** contains `MUST`/`SHALL`);
+authoring stages therefore validate locally with `openspec validate <id>
+--strict` to match this gate rather than discovering violations only in CI.
+
+#### Scenario: all specs and active changes pass strict validation
+- **WHEN** the validate CI job runs and every base spec and active change (the
+  reference example included) is well-formed under strict rules
+- **THEN** `openspec validate --all` exits 0 and the job passes.
+
+#### Scenario: a spec violates the strict format
+- **WHEN** any base spec or active change violates the spec-delta format — e.g.
+  a `## MODIFIED` requirement title does not match a base requirement, or a
+  requirement's first line lacks `MUST`/`SHALL` under strict validation
+- **THEN** `openspec validate --all` exits non-zero and the job fails.
