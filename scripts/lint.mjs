@@ -38,6 +38,14 @@
 //     reviewer full-folder special case; scoped strictly to the seven stage
 //     agents (never /qrspi:update or qrspi-update).
 //
+//  8. PR RECONCILIATION PASSES STRUCTURE -- claude/commands/pr.md must carry
+//     the tasks-pass and follow-ups-pass section headings and their required
+//     choice labels.
+//
+//  9. VERSION-CHECK EMBED -- the nine QRSPI stage command files (status,
+//     questions, research, design, structure, slices, plan, implement, pr)
+//     must each contain the inline `qrspi-version-check` skill load line.
+//
 //  Exits 0 if all checks pass, 1 if any check reports a violation.
 //  Requires only Node.js built-ins (fs, path) -- no npm dependencies.
 // ============================================================================
@@ -1101,6 +1109,73 @@ async function checkPrReconciliationPasses(errors) {
   return violations;
 }
 
+// ---- Check 9: VERSION-CHECK EMBED ------------------------------------------
+//
+// Asserts that each of the nine QRSPI stage command files (status, questions,
+// research, design, structure, slices, plan, implement, pr) contains the
+// inline qrspi-version-check skill load line. The exact string to match is:
+//
+//   Load skill `qrspi-version-check` and follow its instructions exactly.
+//
+// This line must appear in every stage command body so that a fresh session
+// always runs the version check before any substantive work. The check is
+// hardcoded against the nine known command stems -- no dynamic discovery --
+// to catch regressions when a command is edited and the embed is accidentally
+// removed.
+
+const VERSION_CHECK_COMMAND_STEMS = [
+  'status',
+  'questions',
+  'research',
+  'design',
+  'structure',
+  'slices',
+  'plan',
+  'implement',
+  'pr',
+];
+
+// The canonical inline embed line all nine commands must contain. Whitespace is
+// normalised before matching because the sentence may wrap across two source lines
+// (the check collapses runs of whitespace including newlines to single spaces before
+// the includes() call, so the exact line-break position is immaterial).
+const VERSION_CHECK_EMBED_LINE = 'Load skill `qrspi-version-check` and follow its instructions exactly.';
+
+async function checkVersionCheckEmbed(errors) {
+  const commandsDir = path.join(root, 'claude', 'commands');
+  let violations = 0;
+
+  for (const stem of VERSION_CHECK_COMMAND_STEMS) {
+    const filePath = path.join(commandsDir, `${stem}.md`);
+    const rel = `claude/commands/${stem}.md`;
+
+    const text = await readFileOr(filePath, null);
+    if (text === null) {
+      errors.push(`[version-check-embed] ${rel}: file not found`);
+      violations++;
+      continue;
+    }
+
+    // Collapse runs of whitespace (including newlines) to a single space so
+    // that the embed sentence is matchable even when it wraps across two lines.
+    const collapsed = text.replace(/\s+/g, ' ');
+    if (!collapsed.includes(VERSION_CHECK_EMBED_LINE)) {
+      errors.push(
+        `[version-check-embed] ${rel}: missing inline qrspi-version-check embed line` +
+        ` (expected to find: "${VERSION_CHECK_EMBED_LINE}")`
+      );
+      violations++;
+    }
+  }
+
+  if (violations === 0) {
+    process.stdout.write(
+      `  OK: all ${VERSION_CHECK_COMMAND_STEMS.length} stage command(s) contain the qrspi-version-check embed line\n`
+    );
+  }
+  return violations;
+}
+
 // ---- main ------------------------------------------------------------------
 
 async function main() {
@@ -1131,6 +1206,9 @@ async function main() {
 
   process.stdout.write('\nCheck 8: PR reconciliation passes structure\n');
   await checkPrReconciliationPasses(errors);
+
+  process.stdout.write('\nCheck 9: Version-check embed\n');
+  await checkVersionCheckEmbed(errors);
 
   process.stdout.write('\n');
   if (errors.length === 0) {

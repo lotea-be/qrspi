@@ -7,13 +7,7 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## In progress
 
-_None._
-
----
-
-## Proposed
-
-### session-version-check-and-update-prompt — `proposed (change folder created 2026-07-23)` · **P2**
+### session-version-check-and-update-prompt — `in-progress (Q, R, D, S, V, P, I complete)` · **P2**
 
 **Why:** A repo initialized with QRSPI carries an `openspec/.qrspi-version`
 marker, and [[versioned-update-command]] shipped `/qrspi:update` to migrate it
@@ -29,6 +23,12 @@ a new or extended skill (`qrspi-version-check`?) loaded by `/qrspi:status`
 hook point and session-suppression mechanism TBD pending PQ2/PQ3 answers.
 Low runtime cost, high "don't silently rot" value. Relates to
 [[versioned-update-command]].
+
+---
+
+## Proposed
+
+_None._
 
 ---
 

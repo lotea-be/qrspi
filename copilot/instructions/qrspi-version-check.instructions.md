@@ -1,0 +1,135 @@
+---
+description: Session-scoped version check for QRSPI commands. Compares the repo's installed-kit marker (A from openspec/.qrspi-version) against the installed plugin version (B from .github-plugin/plugin.json) and branches on the result -- silent on match, vscode/askQuestions gate when behind, one-line warning on downgrade. Load this at the top of each QRSPI stage command.
+---
+
+## What this skill does
+
+Each QRSPI stage command loads this skill **as its very first step**, before
+run-mode establishment, before any precondition Glob, and before any branch,
+folder, subagent, or commit work. The skill compares the consumer repo's
+QRSPI version marker (`A`) against the installed plugin's version (`B`) and
+acts on the result. It is session-scoped: once run in an orchestrator context
+it sets an in-context flag so subsequent commands in the same chained session
+skip the check entirely.
+
+> **Shipped skill location:** `claude/skills/qrspi-version-check/SKILL.md`
+> (not `.github/instructions/`). It auto-registers from the `skills: ./claude/skills`
+> directory and requires no `plugin.json` edit.
+
+## Execution order (mandatory)
+
+Within each embedding command, execute in this exact order:
+
+1. Session-flag guard (step 1 below) -- exit immediately if already run
+2. Read B -- installed plugin version (step 2)
+3. Read A -- repo marker (step 3)
+4. Compare and branch (step 4)
+5. Set the session flag (always, in every exit path that reaches step 4)
+
+## Step 1 -- Session-flag guard
+
+Before reading any file, check whether an in-context "version-checked this
+session" flag is already held in the orchestrator's conversational context.
+
+This flag is held in context only -- no disk file, no temp marker, no
+frontmatter -- using the same mechanism as the run-mode flag. It is lost
+on `/clear` or a new terminal session, which is correct behaviour (a fresh
+session re-checks, just as it re-asks for run-mode).
+
+**If the flag is already held:** return immediately. Do not read A, do not
+read B, do not issue any prompt. The stage continues from where it was.
+
+**If the flag is NOT held:** continue to step 2.
+
+## Step 2 -- Read installed kit version B
+
+Read `.github-plugin/plugin.json` using the Read tool (local only -- no
+network call). Extract the `version` field. B must be a bare SemVer string
+(e.g. `0.7.0` -- three dot-separated non-negative integers, no `v` prefix).
+
+**If `.github-plugin/plugin.json` cannot be read, or the `version` field
+is absent or malformed:**
+- Print a one-line notice: `version check unavailable -- run /qrspi-update manually if needed`
+- Set the in-context session flag (so the notice does not repeat in a chain)
+- Return immediately (do not block; do not issue an vscode/askQuestions)
+
+## Step 3 -- Read repo marker A
+
+Read `openspec/.qrspi-version` using the Read or Glob tool. A must be a
+bare SemVer string.
+
+**If `openspec/.qrspi-version` does not exist:**
+
+- Check whether `openspec/` itself exists (use Glob `openspec/`).
+- **If `openspec/` is absent:** do nothing -- the repo has never been
+  initialized and the onboarding check in the embedding command (e.g.
+  `/qrspi-status`) owns that case. Set the session flag and return
+  immediately without issuing any prompt.
+- **If `openspec/` exists but `openspec/.qrspi-version` does not:** hand off
+  to `/qrspi-update`'s existing no-marker gate. Do NOT invent a second
+  competing vscode/askQuestions from this skill -- `/qrspi-update` owns that
+  gate. Re-enter `/qrspi-update` on the main loop as a slash command (not
+  as a subagent spawn) so its vscode/askQuestions gate fires normally.
+  Set the session flag and return.
+
+## Step 4 -- SemVer compare and branch
+
+Parse both A and B as `(major, minor, patch)` integer tuples. Compare
+left-to-right numerically -- the same algorithm documented in the
+`qrspi-update` skill's walk algorithm section (numeric-tuple ordering, NOT
+string/lexicographic comparison). This is load-bearing: `0.10.0 > 0.9.0`
+must be true, which a lexicographic sort would get wrong.
+
+Algorithm: split on `.`, coerce each field to an integer, compare
+`(major, minor, patch)` tuples left-to-right. Lower `major` wins; on a
+tie, lower `minor`; on a tie, lower `patch`. Equal tuples are up-to-date.
+
+Branch on the result:
+
+### A == B -- up-to-date (silent)
+
+Produce no visible output. Set the in-context session flag and return. The
+stage continues normally. No banner, no confirmation line.
+
+### A < B -- behind (vscode/askQuestions gate)
+
+The repo marker is behind the installed kit. Issue exactly one
+`vscode/askQuestions`:
+
+- **question text:** must name both A and B and convey the gap explicitly.
+  Example wording: `This repo is on QRSPI <A>; installed kit is <B>
+  (<delta> version(s) behind). Update now?`
+- **choices (exactly these two, in this order):**
+  - `Run /qrspi-update now`
+  - `Continue on the current version`
+
+**If the user chooses "Run /qrspi-update now":**
+Re-enter `/qrspi-update` as a slash command on the main loop (NOT as a
+subagent spawn -- a subagent cannot issue vscode/askQuestions, which the update
+walk requires). The current stage is not advanced. Do NOT set the session
+flag in this path (the update flow will run a new context after re-entry).
+
+**If the user chooses "Continue on the current version":**
+Set the in-context session flag and return. The stage proceeds normally
+without running `/qrspi-update`.
+
+### A > B -- downgrade (one-line warning, no gate)
+
+The repo marker is ahead of the installed kit -- the plugin may have been
+rolled back. Print a one-line warning naming both versions:
+
+> `Installed kit <B> is older than this repo's marker <A> -- you may be running a stale plugin`
+
+Do NOT issue an vscode/askQuestions. Set the in-context session flag and return.
+The stage proceeds normally.
+
+## End of check -- set the session flag
+
+In every path that reaches step 4 (up-to-date, behind-continue, and
+downgrade), record the in-context "version-checked this session" flag before
+returning so subsequent stage commands in the same orchestrator context skip
+immediately at step 1.
+
+The behind-update-now path is the sole exception: the session context is
+effectively handed off to `/qrspi-update`, so the flag is not set on that
+path.

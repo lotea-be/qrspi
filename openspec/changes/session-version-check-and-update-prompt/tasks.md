@@ -45,12 +45,12 @@
 
 **Model:** sonnet — mechanical addition of a new check following the existing pattern (Check 8 is the template); no algorithmic complexity, no novel reasoning.
 
-- [ ] 4.1 Add `checkVersionCheckEmbed` to `scripts/lint.mjs` after the existing Check 8, hardcoding the nine-command stem list and asserting the inline embed form is present in each. (D11)
-- [ ] 4.2 Add `qrspi-version-check` to the skills list in `README.md` with a one-line description. (D12)
-- [ ] 4.3 Run `node scripts/lint.mjs` — all checks including the new Check 9 must report `OK`. (D11)
+- [x] 4.1 Add `checkVersionCheckEmbed` to `scripts/lint.mjs` after the existing Check 8, hardcoding the nine-command stem list and asserting the inline embed form is present in each. (D11)
+- [x] 4.2 Add `qrspi-version-check` to the skills list in `README.md` with a one-line description. (D12)
+- [x] 4.3 Run `node scripts/lint.mjs` — all checks including the new Check 9 must report `OK`. (D11)
 - [ ] 4.4 (human) Temporarily remove the embed line from one command body (e.g. `claude/commands/plan.md`), re-run `node scripts/lint.mjs` — Check 9 must name the violation and exit non-zero. Restore the line. (D11)
-- [ ] 4.5 Run `node sync-copilot.mjs` to regenerate `copilot/` from the updated `claude/` sources. (D11, D12)
-- [ ] 4.6 Run `node sync-copilot.mjs --check` — must exit 0 (zero drift). (D11)
+- [x] 4.5 Run `node sync-copilot.mjs` to regenerate `copilot/` from the updated `claude/` sources. (D11, D12)
+- [x] 4.6 Run `node sync-copilot.mjs --check` — must exit 0 (zero drift). (D11)
 - [ ] 4.7 (human) Confirm `copilot/instructions/qrspi-version-check.instructions.md` exists after the sync. (D12)
 - [ ] 4.8 (human) Confirm `README.md` lists `qrspi-version-check` in the skills section. (D12)
-- [ ] 4.9 Flip the `session-version-check-and-update-prompt` row in `openspec/backlog.md` from `proposed` to `in-progress` and move it under `## In progress`, with a completed-stages note (Q through P done). Commit this alongside the Slice 4 artifact changes.
+- [x] 4.9 Flip the `session-version-check-and-update-prompt` row in `openspec/backlog.md` from `proposed` to `in-progress` and move it under `## In progress`, with a completed-stages note (Q through P done). Commit this alongside the Slice 4 artifact changes.

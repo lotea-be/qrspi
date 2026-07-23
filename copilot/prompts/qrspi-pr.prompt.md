@@ -8,8 +8,12 @@ You are running QRSPI stage **PR (Pull Request)** for the current project.
 
 Change id: ${input}
 
-Read or establish the run-mode by following the **Run-mode** procedure in
-skill `workflow` before doing any other work.
+1. **Version check.** Consult the **qrspi-version-check** instructions (`qrspi-version-check.instructions.md`) and follow its
+   instructions exactly. This is the first step -- before the run-mode
+   establishment and before any other work.
+
+2. Read or establish the run-mode by following the **Run-mode** procedure in
+   skill `workflow` before doing any other work.
 
 Precondition: `openspec/changes/<id>/tasks.md` exists and the working
 tree is clean (no uncommitted changes outside of the change folder

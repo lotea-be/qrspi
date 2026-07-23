@@ -71,6 +71,11 @@ entries and update the repo's `openspec/` layout to a newer kit version),
 `/qrspi:archive <id>` (archive a change after its PR merges),
 `/qrspi:retro <id> <stage>` (retrospective that improves the prompts themselves).
 
+Skills (loaded automatically by commands, not invoked directly): `qrspi-version-check`
+(session-scoped version gate -- compares the repo marker against the installed kit
+and offers `/qrspi:update` when the repo is behind; runs once per session, silent
+when up-to-date).
+
 Each artifact follows a **canonical OpenSpec shape** — see
 [`openspec-templates/`](openspec-templates/).
 
