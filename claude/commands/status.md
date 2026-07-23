@@ -7,8 +7,10 @@ the QRSPI workflow.
 
 Steps:
 
-1. **Version check.** Load skill `qrspi-version-check` and follow its
-   instructions exactly. This is the first step -- before the onboarding
+1. **Session version check — run silently.** Load skill `qrspi-version-check` and follow its
+   instructions exactly. Follow its
+   Silence discipline: do not announce or narrate this step, and print nothing
+   unless the check itself must prompt or warn. This is the first step -- before the onboarding
    check and before any other work.
 
 2. **Onboarding check (the two per-repo setup commands).**

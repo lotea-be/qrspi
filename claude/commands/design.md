@@ -6,8 +6,10 @@ You are running QRSPI stage **D (Design)** for the current project.
 
 Arguments: $ARGUMENTS
 
-1. **Version check.** Load skill `qrspi-version-check` and follow its
-   instructions exactly. This is the first step -- before the run-mode
+1. **Session version check — run silently.** Load skill `qrspi-version-check` and follow its
+   instructions exactly. Follow its
+   Silence discipline: do not announce or narrate this step, and print nothing
+   unless the check itself must prompt or warn. This is the first step -- before the run-mode
    establishment and before any other work.
 
 2. Read or establish the run-mode by following the **Run-mode** procedure in

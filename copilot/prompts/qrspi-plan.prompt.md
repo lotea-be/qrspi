@@ -8,8 +8,10 @@ You are running QRSPI stage **P (Plan)** for the current project.
 
 Change id: ${input}
 
-1. **Version check.** Consult the **qrspi-version-check** instructions (`qrspi-version-check.instructions.md`) and follow its
-   instructions exactly. This is the first step -- before the run-mode
+1. **Session version check — run silently.** Consult the **qrspi-version-check** instructions (`qrspi-version-check.instructions.md`) and follow its
+   instructions exactly. Follow its
+   Silence discipline: do not announce or narrate this step, and print nothing
+   unless the check itself must prompt or warn. This is the first step -- before the run-mode
    establishment and before any other work.
 
 2. Read or establish the run-mode by following the **Run-mode** procedure in

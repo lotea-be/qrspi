@@ -16,6 +16,29 @@ skip the check entirely.
 > (not `.github/instructions/`). It auto-registers from the `skills: ./claude/skills`
 > directory and requires no `plugin.json` edit.
 
+## Silence discipline (mandatory — read before every branch)
+
+This check speaks to the user on **exactly three** paths: **behind**
+(vscode/askQuestions), **downgrade** (one-line warning), and **unreadable-B / config
+missing** (one-line notice). On **every other path** — already-checked-this-
+session, **up-to-date**, `openspec/` absent, and no-marker-delegate — the check
+is **completely invisible**. That means, on those paths:
+
+- Do **not** announce that you are running, loading, or performing a version
+  check (no "I'll run the version check", no "checking version…").
+- Do **not** report a result: no "version check passed", no "passed silently",
+  no "up to date", no `✅`, and never print A or B.
+- Do **not** narrate the transition in a way that references the check.
+- Emit **zero** user-visible tokens about the check — proceed directly to the
+  embedding command's next step as if the check had not run.
+
+A single line like `Version check passed silently (0.7.0 = 0.7.0)` on the matched
+path is the exact per-command nag D7/Q18 exists to prevent: it would repeat on
+`/qrspi-status` plus all eight stage commands. Silence is the *designed
+behaviour*, not an omission to helpfully fill in — reporting that the check
+"passed silently" is itself the failure. This holds even when you otherwise
+think out loud.
+
 ## Execution order (mandatory)
 
 Within each embedding command, execute in this exact order:
@@ -103,17 +126,10 @@ Branch on the result:
 
 ### A == B -- up-to-date (silent)
 
-Produce **no visible output whatsoever**. Set the in-context session flag and
-return. The stage continues normally.
-
-This path is completely invisible: the very next thing the user sees is the
-stage's own output (for `/qrspi-status`, the onboarding/stage map). Do **not**
-narrate that the check ran or that the versions match. In particular, do NOT
-print a success or confirmation line such as `Version check: repo marker <A> =
-installed kit <B> -- up to date` or any `up to date`/`✅` acknowledgement --
-emitting one on the matched path is the exact per-command nag D7/Q18 forbids,
-and it would repeat on `/qrspi-status` plus all eight stage commands. Silence is
-the designed behaviour, not an omission to be helpfully filled in.
+Set the in-context session flag and return with **no output at all** — apply the
+**Silence discipline** above in full (no announcement, no "passed", no versions,
+zero tokens about the check). The very next thing the user sees is the stage's
+own output (for `/qrspi-status`, the onboarding/stage map).
 
 ### A < B -- behind (vscode/askQuestions gate)
 
