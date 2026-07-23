@@ -7,22 +7,7 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## In progress
 
-### session-version-check-and-update-prompt — `in-progress (PR #24 open)` · **P2**
-
-**Why:** A repo initialized with QRSPI carries an `openspec/.qrspi-version`
-marker, and [[versioned-update-command]] shipped `/qrspi:update` to migrate it
-forward — but nothing surfaces that a newer kit version exists. A consumer can
-run stage after stage on a stale kit without ever being told, and the burden is
-entirely on them to remember to check. During each QRSPI session (e.g. at the
-start of a stage command, or in `/qrspi:status`), compare the repo's
-`.qrspi-version` marker against the latest released kit version and, when the
-repo is behind, **propose** running `/qrspi:update` — a prompt/offer, not a
-silent auto-migration (the update walk stays human-gated). **Likely shape:**
-a new or extended skill (`qrspi-version-check`?) loaded by `/qrspi:status`
-(and possibly stage commands), reading version from `.claude-plugin/plugin.json`;
-hook point and session-suppression mechanism TBD pending PQ2/PQ3 answers.
-Low runtime cost, high "don't silently rot" value. Relates to
-[[versioned-update-command]].
+_None._
 
 ---
 
