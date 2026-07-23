@@ -8,13 +8,13 @@
 ## ADDED Requirements
 
 ### Requirement: Each of the nine command bodies carries an inline version-check preamble as its first step
-Each of the nine QRSPI command files (`claude/commands/status.md`,
-`questions.md`, `research.md`, `design.md`, `structure.md`, `slices.md`,
-`plan.md`, `implement.md`, `pr.md`) MUST contain an inline load line for skill
+Each of the nine QRSPI command files MUST contain an inline load line for skill
 `qrspi-version-check` positioned as the **first step** in the command body —
 before run-mode establishment, before the precondition Glob, and before any
 side-effecting work. The embed MUST name the skill directly (inline form), not
-reach it solely via another shared skill or transitive include.
+reach it solely via another shared skill or transitive include. The nine files
+are `claude/commands/status.md`, `questions.md`, `research.md`, `design.md`,
+`structure.md`, `slices.md`, `plan.md`, `implement.md`, and `pr.md`.
 
 #### Scenario: status command carries version-check as first step
 - **WHEN** `claude/commands/status.md` is read

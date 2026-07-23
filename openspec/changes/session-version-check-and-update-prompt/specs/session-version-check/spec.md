@@ -125,8 +125,8 @@ stage.
   is 0.7.0 (1 version behind). Run /qrspi:update now?").
 
 ### Requirement: Downgrade branch warns once and proceeds without a gate
-When A > B (repo marker is ahead of installed kit — a rolled-back plugin), the
-skill MUST print a one-line warning notice naming both A and B, set the in-context
+The skill MUST, when A > B (repo marker is ahead of installed kit — a rolled-back
+plugin), print a one-line warning notice naming both A and B, set the in-context
 session flag, and proceed with the stage. No AskUserQuestion MUST be issued for
 a downgrade; a gate would be a dead end because there is nothing to update toward
 from a downgraded plugin.
@@ -184,11 +184,11 @@ Within the check itself, the ordering MUST be: (1) session-flag guard; (2) read 
   as its next step.
 
 ### Requirement: Check is suppressed when openspec/ is absent (onboarding wins)
-In `/qrspi:status` specifically, when `openspec/` itself is absent (the repo has
-never been initialized), the onboarding check MUST win and send the user to
-`/qrspi:init`; the version-check skill MUST do nothing in that case. The skill's
-no-marker delegation to `/qrspi:update` is reached only when `openspec/` exists
-but `openspec/.qrspi-version` does not.
+The onboarding check MUST win in `/qrspi:status` when `openspec/` itself is absent
+(the repo has never been initialized): it sends the user to `/qrspi:init` and the
+version-check skill MUST do nothing in that case. The skill's no-marker delegation
+to `/qrspi:update` is reached only when `openspec/` exists but
+`openspec/.qrspi-version` does not.
 
 #### Scenario: completely un-initialized repo — onboarding wins
 - **WHEN** a user runs `/qrspi:status` on a repo where `openspec/` does not exist
