@@ -1,6 +1,6 @@
 ---
 name: qrspi-release
-description: Cut and publish a tag-based release of the QRSPI kit. Bumps plugin.json, rolls CHANGELOG [Unreleased] into a dated version section, re-checks lint + drift, commits, and (after an explicit human gate) tags and pushes so release.yml publishes the GitHub Release. Local repo dev-tooling — not shipped in the plugin.
+description: Cut a tag-based release of the QRSPI kit. Bumps plugin.json, rolls CHANGELOG [Unreleased] into a dated version section, re-checks lint + drift, commits, and pushes main — then hands the tag push to the human, who publishes by pushing the tag (which triggers release.yml). The skill never pushes the tag itself. Local repo dev-tooling — not shipped in the plugin.
 ---
 
 # Cutting a QRSPI release
@@ -19,7 +19,8 @@ that a matching `## [X.Y.Z]` CHANGELOG section exists, then publishes the GitHub
 Release from those notes. A mismatch fails the job — tag, version, and CHANGELOG
 can never silently disagree. **Pushing the tag is the only outward-facing,
 publish-to-consumers step; it is irreversible-ish (a published release + a tag
-others may pull). Never push it without an explicit human yes.**
+others may pull). This skill never pushes the tag itself — it always hands the
+tag push to the human (see step 6), who runs it when ready.**
 
 ## Preconditions (hard-stops — verify all before changing anything)
 
@@ -93,22 +94,29 @@ git commit -m "release: vVER"
 
 (Stage only those two explicit paths — never `git add -A`.)
 
-### 6. Tag-and-push gate (mandatory human confirmation)
-Use **AskUserQuestion**: *"Publish vVER? This pushes `main`, tags `vVER`, and
-triggers release.yml to publish the GitHub Release (ships to consumers once the
-marketplace ref is bumped)."* Choices: **"Yes — tag and publish"** /
-**"No — I'll push the tag myself"**.
+### 6. Push `main`, then hand the tag push to the human (never auto-tag)
+The tag push is the only outward-facing publish step, and **this skill never
+performs it** — the human always pushes the tag themselves. Do not use
+AskUserQuestion to offer an auto-push option; there is no "yes, publish for me"
+path.
 
-- **Yes:** push the commit, then the tag:
-  ```
-  git push origin main
-  git tag vVER
-  git push origin vVER
-  ```
-  Then watch/report the `release.yml` run (`gh run list --workflow release.yml`
-  / `gh run watch`) so the human sees the publish succeed or fails fast.
-- **No:** stop after the commit and print the exact three commands above for the
-  human to run when ready. Do not push the tag.
+1. **Push the release commit to `main`.** This ships nothing — consumers install
+   from tags, so a `main` push merely parks the version bump on the integration
+   line and is safe to do automatically:
+   ```
+   git push origin main
+   ```
+2. **Stop and ask the human to push the tag.** Print the exact two commands and
+   instruct them to run these when ready — do **not** run them yourself:
+   ```
+   git tag vVER
+   git push origin vVER
+   ```
+   Tell the human what the tag push does: it triggers `release.yml`, which
+   re-runs lint + drift, asserts the tag matches `plugin.json` `version` and the
+   `## [VER]` CHANGELOG section, then publishes the GitHub Release from those
+   notes. Mention they can watch it with `gh run watch` (or
+   `gh run list --workflow release.yml`) once they push.
 
 ### 7. Remind about the external marketplace step
 The release does not reach installed users until the qrspi entry's `source` ref
