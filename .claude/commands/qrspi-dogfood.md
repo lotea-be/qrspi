@@ -31,23 +31,31 @@ Steps:
    the **Glob** tool with pattern `openspec/changes/$ARGUMENTS/specs/**/spec.md`
    to find the delta specs.)
 
-4. **Emit the runbook.** Print, in this order:
-   - The one-time setup line: launch a **fresh** session with
-     `claude --plugin-dir` pointed at this repo root, and the reminder that the
-     current session runs the cached release (confirm via `/plugin`).
-   - The throwaway fixtures the change needs (scratch consumer repo, marker
-     values, plugin-file states) — created outside this repo.
-   - A table with one row per `(human)` task: **task id · fixture state ·
-     command to run · expected observation** (map the task text + the grounding
-     from step 3 into a precise, watchable expectation).
-   - A closing note: tick each `(human)` box in `tasks.md` only on an **observed**
-     pass; a misbehaving check is pre-PR signal — fix the slice (still stage I)
-     or record it in `followups.md`, never a silent tick.
+4. **One-time setup (print once).** Scaffold a throwaway consumer repo in the
+   session scratchpad (never inside this repository) and give the human the
+   one-time launch context: a **fresh** `claude --plugin-dir` session pointed at
+   this repo root, with the reminder that the current session runs the cached
+   release (confirm via `/plugin`).
 
-5. **Offer to help run it.** Ask the user (via **AskUserQuestion**) whether they
-   want you to scaffold the scratch fixtures now (into the session scratchpad, not
-   this repo) or just keep the printed runbook. Do not create any fixture files
-   inside this repository.
+5. **Run the interactive per-check loop** (per skill `qrspi-dogfood`, "Iterate
+   one check at a time"). Do **not** dump the whole table. For each `(human)`
+   check, in order, do exactly one cycle and stop for the human:
+   - **Provision** the scratch fixture to this check's exact state yourself
+     (marker value, marker present/absent, config-dir state) — do not make the
+     human hand-edit fixture state.
+   - **Give the exact terminal commands** for this check (copy-pasteable,
+     including any per-check env prefix such as `CLAUDE_CONFIG_DIR=…`), and note
+     whether a fresh session is needed.
+   - **Say what to run in Claude and the precise expected observation** (exact
+     choices / silence / one-line notice / once-vs-per-stage), grounded in the
+     design + delta specs from step 3.
+   - **Ask via AskUserQuestion whether the actual result matches**
+     (`Matches / Doesn't match — I'll describe`). Wait for the answer.
+   - **Record:** on *Matches*, tick that box in `tasks.md`. On *Doesn't match*,
+     capture the human's description as a finding — fix the slice (still stage I)
+     or add to `followups.md`; never tick an unobserved box.
+   - **Advance** to the next check.
 
-Keep the output a runbook the human can execute in a separate terminal — you
-cannot drive an interactive `--plugin-dir` session from here.
+You cannot drive the interactive `--plugin-dir` session yourself — the human runs
+each command in their separate terminal and reports back; your job is to
+provision, instruct one check at a time, ask, and record.

@@ -76,6 +76,36 @@ Read the change's `design.md` / delta `specs/**` for the authoritative expected
 behaviour behind each observation, so you are checking against the approved
 contract, not a guess.
 
+## Iterate one check at a time (the interactive loop)
+
+Do **not** dump the whole runbook and walk away. Drive the checks **one at a
+time**, and for each one the orchestrator (main loop) performs this cycle before
+moving on:
+
+1. **Provision the fixture** for *this* check — set the scratch repo to the exact
+   state the check needs (marker value, marker present/absent, config-dir state,
+   etc.). Do it yourself with the file tools; do not make the human hand-edit
+   fixture state.
+2. **Give the exact terminal commands** the human runs in their *separate*
+   `--plugin-dir` session — copy-pasteable, including any per-check env var (e.g.
+   a `CLAUDE_CONFIG_DIR=…` prefix). Remind them a fresh session is needed only
+   when the plugin source or a launch-time env var changed.
+3. **Say what to do in Claude and what to look for** — the command to run and the
+   precise expected observation (exact choices, silence, one-line notice, prompt
+   fires once vs. per stage), grounded in the design/spec.
+4. **Ask whether the actual result matches** — via AskUserQuestion
+   (`Matches / Doesn't match — I'll describe`). Wait for the human's answer; do
+   not assume.
+5. **Record the outcome** — on *Matches*, tick that check's box in `tasks.md`
+   (Confirm-done). On *Doesn't match*, capture the human's description as a
+   finding: fix the slice (still stage I) or, if post-PR-shaped, add to
+   `followups.md`; never tick a box that did not pass.
+6. **Advance** to the next check and repeat from step 1.
+
+Keep each turn scoped to a single check — provision, instruct, ask, record — so
+the human always knows exactly what they are verifying and nothing is ticked
+unobserved.
+
 ## After the run: tick, or file a follow-up
 
 - Each `(human)` task whose expected observation you **saw** becomes a genuine
