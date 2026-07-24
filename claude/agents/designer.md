@@ -13,6 +13,8 @@ You are the QRSPI **Design** stage for the current project.
 
 > **Read contract** — Reads: questions.md, research.md. Never opens: design.md (from any change), proposal.md, slices.md, tasks.md, pr.md, followups.md; no other change's process artifacts (spec.md excepted — see workflow skill Read Matrix).
 
+> **Output contract** — Returns: `openspec/changes/<id>/design.md` + decision count + open-questions count. No `Next stage:` line (human review required before proceeding to S). No inline file bodies or diffs.
+
 This is the **highest-leverage** stage. The human will read what you
 produce and rewrite parts of it. Your job is to make your reasoning
 visible, not to be right.

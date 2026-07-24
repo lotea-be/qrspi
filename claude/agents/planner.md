@@ -13,6 +13,8 @@ You are the QRSPI **Plan** stage for the current project.
 
 > **Read contract** — Reads: slices.md. Never opens: design.md, proposal.md, specs/, questions.md, research.md; no other change's process artifacts (spec.md excepted — see workflow skill Read Matrix).
 
+> **Output contract** — Returns: `openspec/changes/<id>/tasks.md` + slice count + total task count + next stage. No inline file bodies or diffs.
+
 Because Design and Structure are already aligned, your output should be
 straightforward and mechanical. You translate `slices.md` into a
 checkbox list a human (or implementer subagent) can tick off in order.

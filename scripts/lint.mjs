@@ -63,6 +63,11 @@
 //     to be PRESENT; Check 11 requires CRUD headings to be ABSENT from fenced
 //     blocks -- disjoint heading sets AND disjoint scopes (full body vs. fences).
 //
+// 12. OUTPUT-CONTRACT BANNER PRESENCE -- each of the seven stage agents must
+//     carry a `> **Output contract**` banner line (presence-only check;
+//     the banner text is human-authored). Mirrors the scope and pattern of
+//     Check 7. Registered after Check 11.
+//
 //  Exits 0 if all checks pass, 1 if any check reports a violation.
 //  Requires only Node.js built-ins (fs, path) -- no npm dependencies.
 // ============================================================================
@@ -1489,6 +1494,54 @@ async function checkNoCrudSkeletonHeadings(errors) {
   return violations;
 }
 
+// ---- Check 12: OUTPUT-CONTRACT BANNER PRESENCE -----------------------------
+//
+// Each of the seven QRSPI stage agents carries a `> **Output contract**`
+// banner near the top of its file (adjacent to the Read contract banner).
+// This check asserts that the banner line is present -- it is a presence-only
+// check (the banner text is human-authored and not machine-parsed here).
+//
+// Regex: /^>\s*\*\*Output contract\*\*/ must match at least one line in
+// each agent's body (after stripping frontmatter).
+//
+// SCOPE: strictly the seven stage agents named in READ_CONTRACT_EXPECTED
+// (researcher, questioner, designer, architect, planner, implementer,
+// reviewer). Mirrors the scope of checkReadContracts (Check 7).
+
+async function checkOutputContracts(errors) {
+  const agentsDir = path.join(root, 'claude', 'agents');
+  let violations = 0;
+  const OUTPUT_CONTRACT_RE = /^>\s*\*\*Output contract\*\*/;
+
+  for (const stem of Object.keys(READ_CONTRACT_EXPECTED)) {
+    const rel = `claude/agents/${stem}.md`;
+    const text = await readFileOr(path.join(agentsDir, `${stem}.md`), null);
+    if (text === null) {
+      errors.push(`[output-contract] ${rel}: file not found -- expected a stage-agent output-contract banner`);
+      violations++;
+      continue;
+    }
+
+    const { body } = splitFront(text);
+    const lines = body.split('\n');
+    const hasBanner = lines.some((l) => OUTPUT_CONTRACT_RE.test(l));
+
+    if (!hasBanner) {
+      errors.push(
+        `[output-contract] ${rel}: no '> **Output contract**' banner line found`
+      );
+      violations++;
+    }
+  }
+
+  if (violations === 0) {
+    process.stdout.write(
+      `  OK: ${Object.keys(READ_CONTRACT_EXPECTED).length} stage-agent output-contract banner(s) present\n`
+    );
+  }
+  return violations;
+}
+
 // ---- main ------------------------------------------------------------------
 
 async function main() {
@@ -1531,6 +1584,9 @@ async function main() {
 
   process.stdout.write('\nCheck 11: No CRUD skeleton headings in fenced blocks\n');
   await checkNoCrudSkeletonHeadings(errors);
+
+  process.stdout.write('\nCheck 12: Output-contract banner presence\n');
+  await checkOutputContracts(errors);
 
   process.stdout.write('\n');
   if (errors.length === 0) {

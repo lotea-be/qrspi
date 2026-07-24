@@ -17,10 +17,10 @@
 
 **Model:** sonnet — banner insertion is templated (same text to seven files); `checkOutputContracts` is a pattern-match check mirroring Check 7 (`checkReadContracts`); no deep reasoning required.
 
-- [ ] 2.1 Add `checkOutputContracts` function and register it in `main()` as Check 12 in `scripts/lint.mjs` (D4)
-- [ ] 2.2 Add `> **Output contract**` banner block to all seven stage agent files: `claude/agents/researcher.md`, `questioner.md`, `designer.md`, `architect.md`, `planner.md`, `implementer.md`, `reviewer.md` (D4)
-- [ ] 2.3 Add cap sentence to `claude/agents/implementer.md` and `claude/agents/reviewer.md` banner blocks (D4)
-- [ ] 2.4 Unit/integration test: `node scripts/lint.mjs` exits 0 with all seven banners present; remove one banner and confirm non-zero exit naming the offending file (D4)
+- [x] 2.1 Add `checkOutputContracts` function and register it in `main()` as Check 12 in `scripts/lint.mjs` (D4)
+- [x] 2.2 Add `> **Output contract**` banner block to all seven stage agent files: `claude/agents/researcher.md`, `questioner.md`, `designer.md`, `architect.md`, `planner.md`, `implementer.md`, `reviewer.md` (D4)
+- [x] 2.3 Add cap sentence to `claude/agents/implementer.md` and `claude/agents/reviewer.md` banner blocks (D4)
+- [x] 2.4 Unit/integration test: `node scripts/lint.mjs` exits 0 with all seven banners present; remove one banner and confirm non-zero exit naming the offending file (D4)
 - [ ] 2.5 (human) Checkpoint: run `node scripts/lint.mjs` — confirm Check 12 passes. Then remove the `> **Output contract**` line from `claude/agents/implementer.md`, re-run, and confirm a non-zero exit naming `implementer.md`. Revert before continuing.
 
 ## 3. Footprint script

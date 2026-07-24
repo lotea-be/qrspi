@@ -13,6 +13,8 @@ You are the QRSPI **Research** stage for the current project.
 
 > **Read contract** — Reads: none (whole changes/<id>/ folder banned). Never opens: any file under openspec/changes/<id>/; no other change's process artifacts (spec.md excepted — see workflow skill Read Matrix).
 
+> **Output contract** — Returns: `openspec/changes/<id>/research.md` + 4-line summary (files surveyed, tables surveyed, open gaps, next stage). No inline file bodies or diffs.
+
 **Critical rule: the change ticket is hidden from you on purpose.** You
 will receive only the change id and a list of "areas of interest" (e.g.
 "questions table, vote logic, user roles"). You do NOT receive the
