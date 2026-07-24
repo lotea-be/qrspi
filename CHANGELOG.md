@@ -16,6 +16,34 @@ kit version.
 
 ### Added
 
+- **Per-stage skill-set lint (`checkSkillSets`, Check 2b).** A new lint check
+  in `scripts/lint.mjs` asserts each of the seven stage agents' `Load skills`
+  line matches an approved per-stage registry (`SKILL_SET_EXPECTED` in the new
+  shared module `scripts/skill-sets.mjs`). Stray or missing skill loads cause a
+  non-zero exit naming the offending agent and the unexpected/missing skills.
+  Four agents are trimmed: `openspec-workflow` removed from researcher,
+  questioner, designer, and planner (not needed per their read contracts);
+  `context-hygiene` added to researcher. The registry is exported from
+  `scripts/skill-sets.mjs` so `scripts/context-footprint.mjs` (below) can reuse
+  it without drift. Registered as Check 2b (immediately after Check 2 frontmatter
+  validation).
+
+- **Output-contract banners + Check 12 (`checkOutputContracts`).** A new lint
+  check in `scripts/lint.mjs` (Check 12) asserts each of the seven stage agents
+  carries a `> **Output contract**` banner line. The banner documents what the
+  subagent must return in its final message so the orchestrator's context stays
+  lean; implementer and reviewer banners additionally carry a cap sentence. This
+  is a presence-only check (banner text is human-authored). Mirrors the scope and
+  pattern of Check 7 (`checkReadContracts`).
+
+- **`scripts/context-footprint.mjs` -- per-stage context footprint reporter.**
+  A report-only Node ESM script (always exits 0) that prints a table with one row
+  per stage agent: agent stem, skill count, total lines, total bytes, and a rough
+  token estimate (`Math.round(bytes / 4)`). The skill list is sourced from the
+  shared `scripts/skill-sets.mjs` module (single source of truth with Check 2b).
+  Useful for spotting context-budget creep before it becomes a lint failure. Run
+  from the repo root: `node scripts/context-footprint.mjs`.
+
 - **Repo-surface-aware artifact sections (`repo-applicable-artifact-sections`).**
   Every artifact-producing QRSPI agent (questioner, designer, architect, planner,
   reviewer) now omits CRUD/web-app sections -- Data model, API, UI, Auth &

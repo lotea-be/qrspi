@@ -254,6 +254,34 @@ To bump the pin, update every `@fission-ai/openspec@<version>` occurrence in the
 hand-maintained files above. A CI lint job (`node scripts/lint.mjs`) asserts that
 all hand-maintained occurrences agree -- the lint will catch any missed location.
 
+### CI lint checks (`node scripts/lint.mjs`)
+
+The lint script runs 12 checks (Checks 1-12) on every CI run. Key checks relevant
+to context hygiene and agent contracts:
+
+- **Check 2b (`checkSkillSets`)** -- asserts each stage agent's `Load skills` line
+  matches the approved per-stage skill-set registry in `scripts/skill-sets.mjs`.
+  Stray or missing skill loads cause a non-zero exit naming the offending agent.
+- **Check 12 (`checkOutputContracts`)** -- asserts each of the seven stage agents
+  carries a `> **Output contract**` banner line (presence-only). Mirrors the scope
+  and pattern of Check 7 (`checkReadContracts`).
+
+All other checks (pin agreement, frontmatter, heading alignment, README command
+coverage, gate-tool/executor agreement, migration manifests, read-contract banners,
+PR reconciliation passes, version-check embed, triage path anchors, no CRUD skeleton
+headings) are enumerated in the header comment of `scripts/lint.mjs`.
+
+### Developer scripts
+
+- **`scripts/skill-sets.mjs`** -- shared module exporting `SKILL_SET_EXPECTED`, the
+  per-stage skill-set registry. Imported by `scripts/lint.mjs` (Check 2b) and
+  `scripts/context-footprint.mjs` -- a single source of truth so the two consumers
+  never drift.
+- **`scripts/context-footprint.mjs`** -- report-only script (always exits 0) that
+  prints a per-stage table: agent stem, skill count, total lines, total bytes, and
+  rough token estimate (bytes / 4). Useful for spotting context-budget creep before
+  it becomes a CI failure. Run from the repo root: `node scripts/context-footprint.mjs`.
+
 ---
 
 ## Conventions for contributors

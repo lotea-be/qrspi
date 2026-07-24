@@ -37,7 +37,7 @@
 
 **Model:** sonnet — pure documentation edits; no algorithmic reasoning; all three files have a settled structure and the additions are one-liner or bullet-list inserts.
 
-- [ ] 4.1 Add enforcement pointer to `claude/skills/context-hygiene/SKILL.md` naming `checkSkillSets` (Check N from slice 1), Check 12 (`checkOutputContracts`), and `scripts/context-footprint.mjs` (D3, PQ6)
-- [ ] 4.2 Update `README.md` to document `checkSkillSets` and Check 12 in the helpers/checks surface and `scripts/context-footprint.mjs` in the scripts table (PQ6)
-- [ ] 4.3 Add `## [Unreleased]` entries to `CHANGELOG.md` for `checkSkillSets`, Check 12 (`checkOutputContracts`), and `scripts/context-footprint.mjs` (PQ6)
-- [ ] 4.4 Checkpoint: `node scripts/lint.mjs` exits 0 with Check 4 (README command coverage) passing; confirm `README.md` contains entries for `checkSkillSets`, Check 12, and `context-footprint.mjs`
+- [x] 4.1 Add enforcement pointer to `claude/skills/context-hygiene/SKILL.md` naming `checkSkillSets` (Check N from slice 1), Check 12 (`checkOutputContracts`), and `scripts/context-footprint.mjs` (D3, PQ6)
+- [x] 4.2 Update `README.md` to document `checkSkillSets` and Check 12 in the helpers/checks surface and `scripts/context-footprint.mjs` in the scripts table (PQ6)
+- [x] 4.3 Add `## [Unreleased]` entries to `CHANGELOG.md` for `checkSkillSets`, Check 12 (`checkOutputContracts`), and `scripts/context-footprint.mjs` (PQ6)
+- [x] 4.4 Checkpoint: `node scripts/lint.mjs` exits 0 with Check 4 (README command coverage) passing; confirm `README.md` contains entries for `checkSkillSets`, Check 12, and `context-footprint.mjs`

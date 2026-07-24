@@ -63,6 +63,22 @@ When delegating to a subagent:
 - [ ] Hidden inputs (e.g., the change ticket during Research) stay hidden.
 - [ ] Specify the return format explicitly.
 
+## Mechanism backing the 40%/60% principle
+
+The under-40%/reset-at-60% targets are backed by three lint/tooling mechanisms:
+
+- **`checkSkillSets` (Check 2b in `scripts/lint.mjs`)** -- asserts each stage
+  agent's `Load skills` line matches the approved per-stage registry
+  (`scripts/skill-sets.mjs`). Stray or missing skill loads fail CI.
+- **`checkOutputContracts` (Check 12 in `scripts/lint.mjs`)** -- asserts that
+  every stage agent carries a `> **Output contract**` banner. The banner caps
+  what the subagent returns so the orchestrator's context stays lean.
+- **`scripts/context-footprint.mjs`** -- a report-only script (always exits 0)
+  that prints a per-stage table (agent + declared skills) with line count,
+  byte count, and a rough token estimate. Run it to spot which stages are
+  growing heaviest. The skill list is sourced from the same
+  `scripts/skill-sets.mjs` module as Check 2b -- no drift.
+
 ## Why "plans that read well do not build well"
 
 LLMs are trained to produce text that reads as authoritative. A plan

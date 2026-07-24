@@ -7,18 +7,12 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## In progress
 
-_None._
-
----
-
-## Proposed
-
-The two rows below are the input + output halves of one in-flight change,
+The two rows below are the input + output halves of one change,
 `context-budget` (branch `features/context-budget`), which bundles them as
 complementary levers on the same per-stage context surface. They flip together
-and archive together.
+and archive together. Q, R, D, S, V, P, I complete — awaiting PR.
 
-### trim-per-stage-context-loading — `proposed (bundled into context-budget)` · **P1**
+### trim-per-stage-context-loading — `in-progress (bundled into context-budget; Q, R, D, S, V, P, I complete)` · **P1**
 
 **Why:** Per-run token burn is dominated by **input** — what each QRSPI stage
 auto-loads (the `<repo>-stack` skill + the workflow/convention skills) plus the
@@ -42,7 +36,7 @@ lever). **P1 under the recurring token/cost band:** not a correctness gap, but a
 systemic per-run cost defect that compounds on every stage of every change.
 Surfaced 2026-07-24 (token burn flagged as climbing).
 
-### bounded-subagent-return-summaries — `proposed (bundled into context-budget)` · **P2**
+### bounded-subagent-return-summaries — `in-progress (bundled into context-budget; Q, R, D, S, V, P, I complete)` · **P2**
 
 **Why:** Every QRSPI stage delegation returns its subagent's final message into
 the **main-loop** context, and nothing bounds that payload — a verbose return
@@ -54,6 +48,12 @@ always-on lever on the output side (complements input-side
 [[trim-per-stage-context-loading]], its bundle partner). Could ride each agent
 file's output-contract section, with a lint asserting the return-contract wording
 is present. Surfaced 2026-07-24 (token burn flagged as climbing).
+
+---
+
+## Proposed
+
+_None._
 
 ---
 
