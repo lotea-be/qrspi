@@ -10,7 +10,7 @@
 - [x] 1.2 Add the D4 `AskUserQuestion` with three verbatim choice labels ("P1 — implement directly", "P2 — addendum", "P3 — defer") immediately after the self-assessment block (D4)
 - [x] 1.3 Wire the P1 branch: on P1 selection proceed to the existing FIX MODE implementer spawn with no extra annotation on `followups.md` (D5)
 - [x] 1.4 Stub the P2 and P3 branches with a clear "path not yet wired" error message so a human who selects P2 or P3 is told to wait rather than crashing (D5)
-- [ ] 1.5 (human) Checkpoint: dev-install the plugin (`claude --plugin-dir <repo-root>`); run `/qrspi:followup <id>` targeting a clearly small fix; confirm (1) the triage `AskUserQuestion` appears before any implementer spawn, (2) selecting P1 causes the implementer to launch in FIX MODE, and (3) selecting P2 or P3 displays the stub message rather than crashing
+- [x] 1.5 (human) Checkpoint: dev-install the plugin (`claude --plugin-dir <repo-root>`); run `/qrspi:followup <id>` targeting a clearly small fix; confirm (1) the triage `AskUserQuestion` appears before any implementer spawn, (2) selecting P1 causes the implementer to launch in FIX MODE, and (3) selecting P2 or P3 displays the stub message rather than crashing
 
 ## 2. P3 defer path
 
@@ -21,7 +21,7 @@
 - [x] 2.3 Tick the `followups.md` entry with `(deferred to backlog — <slug>)` (D10, D11)
 - [x] 2.4 Stage both `openspec/backlog.md` and `openspec/changes/<id>/followups.md` in one atomic commit; end the turn with a confirmation message naming the slug and the ticked item (D11)
 - [x] 2.5 Remove the P3 stub wired in task 1.4 (replace with the real P3 block)
-- [ ] 2.6 (human) Checkpoint: dev-install the plugin; run `/qrspi:followup <id>` targeting a genuinely out-of-scope item; select P3; confirm (1) no implementer spawns, (2) `openspec/backlog.md` contains a new `idea` row with `· **P3**` and a `**Why:**` paragraph, (3) the `followups.md` entry reads `- [x] <text> (deferred to backlog — <slug>)`, and (4) `git diff --staged` shows both files staged together
+- [x] 2.6 (human) Checkpoint: dev-install the plugin; run `/qrspi:followup <id>` targeting a genuinely out-of-scope item; select P3; confirm (1) no implementer spawns, (2) `openspec/backlog.md` contains a new `idea` row with `· **P3**` and a `**Why:**` paragraph, (3) the `followups.md` entry reads `- [x] <text> (deferred to backlog — <slug>)`, and (4) `git diff --staged` shows both files staged together
 
 ## 3. P2 addendum path (dogfood checkpoint)
 
@@ -34,7 +34,7 @@
 - [x] 3.5 Tick `openspec/changes/<id>/followups.md` with `(routed to addendum <addendum-id>)` (D10)
 - [x] 3.6 Stage both the new sibling folder marker and `followups.md` in one commit; end the turn with the handoff instruction `/qrspi:<stage> <addendum-id>` (D10)
 - [x] 3.7 Remove the P2 stub wired in task 1.4 (replace with the real P2 block)
-- [ ] 3.8 (human) Checkpoint (dogfood — satisfies OQ1): dev-install the plugin; identify a real multi-capability follow-up for `right-size-followup-handling` (e.g. one touching both `followup.md` and `workflow/SKILL.md`); run `/qrspi:followup right-size-followup-handling`; confirm the triage proposes P2 (signals 2+3 fire); select P2; confirm (1) the entry-stage question appears with a suggested stage in the text, (2) the branch question appears with the correct steer, (3) `ls openspec/changes/right-size-followup-handling-addendum-1/` succeeds, (4) `followups.md` reads `- [x] <text> (routed to addendum right-size-followup-handling-addendum-1)`, and (5) the turn ends with the handoff instruction naming the correct `/qrspi:<stage>` command
+- [x] 3.8 (human) Checkpoint (dogfood — satisfies OQ1): dev-install the plugin; identify a real multi-capability follow-up for `right-size-followup-handling` (e.g. one touching both `followup.md` and `workflow/SKILL.md`); run `/qrspi:followup right-size-followup-handling`; confirm the triage proposes P2 (signals 2+3 fire); select P2; confirm (1) the entry-stage question appears with a suggested stage in the text, (2) the branch question appears with the correct steer, (3) `ls openspec/changes/right-size-followup-handling-addendum-1/` succeeds, (4) `followups.md` reads `- [x] <text> (routed to addendum right-size-followup-handling-addendum-1)`, and (5) the turn ends with the handoff instruction naming the correct `/qrspi:<stage>` command
 
 ## 4. Workflow summary + copilot resync + lint Check 10
 
@@ -47,4 +47,4 @@
 - [x] 4.5 Run `node sync-copilot.mjs` (do NOT hand-edit any file under `copilot/`) to regenerate `copilot/prompts/qrspi-followup.prompt.md` and any other copilot artifacts touched by the new `followup.md` + workflow prose (D12)
 - [x] 4.6 Run `node scripts/lint.mjs` and confirm all checks including Check 10 report `OK` and exit code is zero
 - [x] 4.7 Run `node sync-copilot.mjs --check` and confirm zero drift reported
-- [ ] 4.8 (human) Checkpoint: from the repo root confirm `node scripts/lint.mjs` exits zero with Check 10 `OK`; confirm `node sync-copilot.mjs --check` exits zero; open `copilot/prompts/qrspi-followup.prompt.md` and confirm it reflects the triage gate prose added in Slices 1–3
+- [x] 4.8 (human) Checkpoint: from the repo root confirm `node scripts/lint.mjs` exits zero with Check 10 `OK`; confirm `node sync-copilot.mjs --check` exits zero; open `copilot/prompts/qrspi-followup.prompt.md` and confirm it reflects the triage gate prose added in Slices 1–3
