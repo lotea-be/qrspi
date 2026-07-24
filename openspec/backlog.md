@@ -7,36 +7,7 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## In progress
 
-### repo-applicable-artifact-sections — `in-progress (draft PR #29 open)` · **P1**
-
-In progress 2026-07-24 (branch `features/repo-applicable-artifact-sections`; all
-slices 1–4 committed; all 5 `(human)` dogfood tasks verified live; reviewer draft
-complete; draft PR [#29](https://github.com/lotea-be/qrspi/pull/29) open). Archive
-with `/qrspi:archive` after merge. See
-`openspec/changes/repo-applicable-artifact-sections/`.
-
-**Why:** QRSPI artifact-producing stages (Q/D/S/P/PR) stamp a fixed CRUD/web
-section & checklist skeleton (Data model, API surface, Migrations, Auth, "no raw
-SQL", "endpoints use authorization policies", …) into **every** generated
-artifact regardless of the repo's actual surface — a highly visible, ugly defect
-that lands in every document a human reads. Make each artifact carry only the
-sections/checks applicable to the repo (and the change), driven off the
-`<repo>-stack` cheatsheet as the source of truth for the repo's tech surface.
-
-**Scope (settled at Q):** never emit "Not applicable" sections at all — a section
-appears only when it applies, at **both** the repo level and the change level
-(PQ1/PQ2); this fully retires the "keep N/A headings so S doesn't re-litigate"
-rule. No-cheatsheet repos get the full menu + a warning pointing to `/qrspi:stack`
-(PQ3). Ships as **one big change** spanning the pipeline including Part B skill
-framing (PQ4): the (A) skeleton sources — `claude/agents/{questioner,designer,
-architect,planner,reviewer}.md` + `openspec-templates/{questions,design,proposal,
-tasks}.template.md` — and (B) framing in `claude/skills/{vertical-slice,workflow}/
-SKILL.md`. The filter convention lives in a shared skill loaded by all five agents
-(PQ6), a new `scripts/lint.mjs` check (scoped to fenced skeleton blocks) guards
-against regressions (PQ5), and the change also establishes a `qrspi-stack`
-cheatsheet for the kit itself so it dogfoods its own fix (PQ7). Surfaced
-2026-07-23 reviewing `right-size-followup-handling`. Relates to
-[[init-conductor-plus-overview]].
+_None._
 
 ---
 
