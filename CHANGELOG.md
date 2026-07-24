@@ -16,6 +16,8 @@ kit version.
 
 ### Added
 
+- **Triage gate for post-PR follow-ups (`right-size-followup-handling`).** `/qrspi:followup` now runs a never-suppressed triage gate before spawning the implementer, routing each follow-up to one of three paths: P1 (implement directly -- today's path), P2 (addendum -- create a sibling `openspec/changes/<id>-addendum-N/` folder and re-enter the QRSPI pipeline at an earlier stage), or P3 (defer -- append an `idea` row to `openspec/backlog.md`). The agent proposes a path from a four-signal heuristic rubric; the human confirms or overrides. The `workflow` skill's "After PR" section is updated to summarise the three paths. Adds lint Check 10 (`checkTriagePaths`) asserting the P1/P2/P3 choice-label anchors in `claude/commands/followup.md`.
+
 - **Session-start version check (`session-version-check-and-update-prompt`).**
   A new shipped skill `qrspi-version-check`, loaded as the first step of
   `/qrspi:status` and all eight stage commands, compares the repo's
