@@ -6,10 +6,10 @@
 
 **Model:** sonnet — the triage gate is a new prose block but its structure is fully specified by D1–D5; no novel reasoning required, templating against the spec suffices
 
-- [ ] 1.1 Author the self-assessment block in `claude/commands/followup.md`: four heuristic signals evaluated in prose, yielding a proposed path + one-line rationale (D1, D2, D3)
-- [ ] 1.2 Add the D4 `AskUserQuestion` with three verbatim choice labels ("P1 — implement directly", "P2 — addendum", "P3 — defer") immediately after the self-assessment block (D4)
-- [ ] 1.3 Wire the P1 branch: on P1 selection proceed to the existing FIX MODE implementer spawn with no extra annotation on `followups.md` (D5)
-- [ ] 1.4 Stub the P2 and P3 branches with a clear "path not yet wired" error message so a human who selects P2 or P3 is told to wait rather than crashing (D5)
+- [x] 1.1 Author the self-assessment block in `claude/commands/followup.md`: four heuristic signals evaluated in prose, yielding a proposed path + one-line rationale (D1, D2, D3)
+- [x] 1.2 Add the D4 `AskUserQuestion` with three verbatim choice labels ("P1 — implement directly", "P2 — addendum", "P3 — defer") immediately after the self-assessment block (D4)
+- [x] 1.3 Wire the P1 branch: on P1 selection proceed to the existing FIX MODE implementer spawn with no extra annotation on `followups.md` (D5)
+- [x] 1.4 Stub the P2 and P3 branches with a clear "path not yet wired" error message so a human who selects P2 or P3 is told to wait rather than crashing (D5)
 - [ ] 1.5 (human) Checkpoint: dev-install the plugin (`claude --plugin-dir <repo-root>`); run `/qrspi:followup <id>` targeting a clearly small fix; confirm (1) the triage `AskUserQuestion` appears before any implementer spawn, (2) selecting P1 causes the implementer to launch in FIX MODE, and (3) selecting P2 or P3 displays the stub message rather than crashing
 
 ## 2. P3 defer path

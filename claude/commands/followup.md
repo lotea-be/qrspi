@@ -23,7 +23,65 @@ Preconditions (verify with the **Glob** tool — no shell preamble):
    If absent and the user named a specific fix, the implementer creates it
    and adds the item before resolving it (per skill `postpr-fix`).
 
-**Model.** Default the implementer to **sonnet** — post-PR follow-ups are
+**Triage gate (never suppressed -- fires in Full auto, Semi-auto, and Manual).**
+
+Before spawning the implementer, self-assess the targeted follow-up item
+(the named fix, or the next un-ticked entry in `followups.md`) against four
+heuristic signals:
+
+1. **Contract change?** Does the fix alter a route, status, DTO, auth, or
+   validation contract beyond a purely internal change? A contract change
+   alone is still P1; it is a nudge toward P2 only when combined with
+   signal 2 or 3.
+2. **Multi-capability?** Does it touch more than one `specs/<capability>/`
+   subdir the change owns? -- nudges P2.
+3. **Design re-alignment?** Does resolving it require revising a `design.md`
+   Dn decision (not merely amending a delta scenario)? -- strong P2 signal.
+4. **New scope?** Is it not covered by the change's delta spec at all
+   (genuinely a different change)? -- strong P3 signal.
+
+Evaluate each signal in prose. Then derive a proposed path using this rubric:
+- **Propose P1** when none of signals 2, 3, or 4 fire (atomic, single-
+  capability, expressible as a delta amendment or internal fix).
+- **Propose P2** when signal 3 fires, or when signals 1 and 2 fire together
+  (re-alignment needed but still this change's scope).
+- **Propose P3** when signal 4 fires (new scope -- genuinely a different
+  change).
+
+Write one line of rationale citing which signals fired and why they point to
+the proposed path.
+
+Then present the triage decision using the **AskUserQuestion** tool:
+- question: "Triage follow-up `<short title>` -- `<brief excerpt>`.
+  Proposed: **<P1|P2|P3>** because <one-line rationale>.
+  How should this be handled?"
+- choices:
+  - "P1 — implement directly (small in-scope fix)"
+  - "P2 — addendum (re-enter QRSPI at an earlier stage)"
+  - "P3 — defer to backlog idea (new scope)"
+
+The proposed path is named in the question text (not as a fourth choice) so
+the recommendation is visible but the human picks explicitly. There is no
+"unsure" escape hatch -- an unsure human picks P2 (re-align) or stops.
+
+**On P1 -- proceed to the implementer spawn below** (the existing FIX MODE
+flow, unchanged). The triage adds no new annotation to the P1 `followups.md`
+entry -- the standard `-- fixed in <short-sha>` tick at completion remains
+the sole record.
+
+**On P2 -- this path is not yet wired.** Stop and tell the human:
+> "P2 (addendum) routing is not yet implemented. No addendum folder has been
+> created and no implementer has been spawned. Please wait for the P2 path to
+> be wired (Slice 3 of right-size-followup-handling) or manually create the
+> addendum change folder and re-enter the QRSPI pipeline."
+
+**On P3 -- this path is not yet wired.** Stop and tell the human:
+> "P3 (defer to backlog) routing is not yet implemented. No backlog row has
+> been appended and no followups.md entry has been ticked. Please wait for
+> the P3 path to be wired (Slice 2 of right-size-followup-handling) or
+> manually add an idea row to openspec/backlog.md."
+
+**Model.** Default the implementer to **sonnet** -- post-PR follow-ups are
 typically small and contained. Use **opus** only when the fix touches
 design-level logic or spans several files; say so when you invoke.
 
