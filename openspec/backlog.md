@@ -7,12 +7,12 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## In progress
 
-### repo-applicable-artifact-sections — `in-progress (Q, R, D, S, V, P, I complete)` · **P1**
+### repo-applicable-artifact-sections — `in-progress (draft PR #29 open)` · **P1**
 
 In progress 2026-07-24 (branch `features/repo-applicable-artifact-sections`; all
-slices 1–4 committed; all 5 `(human)` dogfood tasks verified live and ticked;
-reviewer draft complete. PR creation pending a transient GitHub PR-create
-incident — run the prepared `gh pr create` and then record `pr.md`). See
+slices 1–4 committed; all 5 `(human)` dogfood tasks verified live; reviewer draft
+complete; draft PR [#29](https://github.com/lotea-be/qrspi/pull/29) open). Archive
+with `/qrspi:archive` after merge. See
 `openspec/changes/repo-applicable-artifact-sections/`.
 
 **Why:** QRSPI artifact-producing stages (Q/D/S/P/PR) stamp a fixed CRUD/web
