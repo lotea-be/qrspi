@@ -1,6 +1,6 @@
 ---
 name: qrspi-release
-description: Cut a tag-based release of the QRSPI kit. Bumps plugin.json, rolls CHANGELOG [Unreleased] into a dated version section, re-checks lint, commits, and pushes main — then hands the tag push to the human, who publishes by pushing the tag (which triggers release.yml). The skill never pushes the tag itself. Local repo dev-tooling — not shipped in the plugin.
+description: Cut a tag-based release of the QRSPI kit. Bumps plugin.json, rolls CHANGELOG [Unreleased] into a dated version section, re-checks lint, commits, and pushes main — then creates the tag and, after an explicit human confirmation, pushes it to publish (which triggers release.yml). The skill never pushes the tag without that confirmation. Local repo dev-tooling — not shipped in the plugin.
 ---
 
 # Cutting a QRSPI release
@@ -19,8 +19,10 @@ that a matching `## [X.Y.Z]` CHANGELOG section exists, then publishes the GitHub
 Release from those notes. A mismatch fails the job — tag, version, and CHANGELOG
 can never silently disagree. **Pushing the tag is the only outward-facing,
 publish-to-consumers step; it is irreversible-ish (a published release + a tag
-others may pull). This skill never pushes the tag itself — it always hands the
-tag push to the human (see step 6), who runs it when ready.**
+others may pull). The skill creates the tag and pushes it, but only after an
+explicit human confirmation gate (see step 6) — never a silent auto-publish. If
+the human declines, the tag stays local and unpushed and the skill prints the
+manual push command.**
 
 ## Preconditions (hard-stops — verify all before changing anything)
 
@@ -93,11 +95,9 @@ git commit -m "release: vVER"
 
 (Stage only those two explicit paths — never `git add -A`.)
 
-### 6. Push `main`, then hand the tag push to the human (never auto-tag)
-The tag push is the only outward-facing publish step, and **this skill never
-performs it** — the human always pushes the tag themselves. Do not use
-AskUserQuestion to offer an auto-push option; there is no "yes, publish for me"
-path.
+### 6. Push `main`, create the tag, and push it behind a confirmation gate
+The tag push is the only outward-facing publish step. The skill performs it, but
+**only after an explicit human confirmation** — never silently.
 
 1. **Push the release commit to `main`.** This ships nothing — consumers install
    from tags, so a `main` push merely parks the version bump on the integration
@@ -105,17 +105,30 @@ path.
    ```
    git push origin main
    ```
-2. **Stop and ask the human to push the tag.** Print the exact two commands and
-   instruct them to run these when ready — do **not** run them yourself:
+2. **Create the tag locally.** Annotate it at the release commit:
    ```
    git tag vVER
-   git push origin vVER
    ```
-   Tell the human what the tag push does: it triggers `release.yml`, which
-   re-runs lint, asserts the tag matches `plugin.json` `version` and the
-   `## [VER]` CHANGELOG section, then publishes the GitHub Release from those
-   notes. Mention they can watch it with `gh run watch` (or
-   `gh run list --workflow release.yml`) once they push.
+3. **Ask the human to confirm the publish, via AskUserQuestion.** This gate is
+   mandatory — the tag push is outward-facing and irreversible-ish. Phrase it as,
+   e.g. *"Push tag vVER now to publish the GitHub Release?"* with two choices:
+   - **Push vVER now — publish the release** → run the push:
+     ```
+     git push origin vVER
+     ```
+     This triggers `release.yml`, which re-runs lint, asserts the tag matches
+     `plugin.json` `version` and the `## [VER]` CHANGELOG section, then publishes
+     the GitHub Release from those notes. Tell the human they can watch it with
+     `gh run watch` (or `gh run list --workflow release.yml`).
+   - **Don't push yet — I'll publish later** → do **not** push. The tag stays
+     local at the release commit. Print the exact command for them to run when
+     ready, and note they can delete the local tag with `git tag -d vVER` if they
+     want to redo it:
+     ```
+     git push origin vVER
+     ```
+
+   Never push the tag without an affirmative answer to this gate.
 
 ### 7. Remind about the external marketplace step
 The release does not reach installed users until the qrspi entry's `source` ref
