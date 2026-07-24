@@ -75,11 +75,45 @@ the sole record.
 > be wired (Slice 3 of right-size-followup-handling) or manually create the
 > addendum change folder and re-enter the QRSPI pipeline."
 
-**On P3 -- this path is not yet wired.** Stop and tell the human:
-> "P3 (defer to backlog) routing is not yet implemented. No backlog row has
-> been appended and no followups.md entry has been ticked. Please wait for
-> the P3 path to be wired (Slice 2 of right-size-followup-handling) or
-> manually add an idea row to openspec/backlog.md."
+**On P3 -- defer to backlog idea.**
+
+Derive a kebab-slug from the follow-up title: lowercase the title, replace
+spaces and punctuation with hyphens, collapse consecutive hyphens, strip
+leading/trailing hyphens. Example: "Rate-limit the new endpoint" becomes
+`rate-limit-the-new-endpoint`.
+
+Open `openspec/backlog.md` and append one new `idea` row under the
+`## Ideas` section (create the section if it does not exist). The row
+format mirrors `pr.md`'s "Promote to backlog idea" mechanic exactly:
+
+```markdown
+### <slug> -- `idea` · **P3**
+
+**Why:** <one-sentence reason drawn from the follow-up text explaining
+why this warrants a future change rather than being fixed here.>
+```
+
+Use `idea` as the status and `· **P3**` as the priority band. Write the
+`**Why:**` paragraph in one sentence drawing from the follow-up content.
+Do NOT flip the parent change's existing backlog status line -- only the
+new `idea` row is added.
+
+Tick the targeted `followups.md` entry by changing `- [ ]` to `- [x]`
+and appending the disposition note:
+
+`- [x] <original text> (deferred to backlog -- <slug>)`
+
+Stage both files together in one atomic commit (backlog atomicity rule --
+never as separate commits):
+
+```
+git add openspec/backlog.md openspec/changes/<id>/followups.md
+git commit -m "docs(<id>): defer <slug> to backlog (P3)"
+```
+
+End the turn with a confirmation message naming the slug and the ticked
+item. Do NOT spawn the implementer -- P3 disposes of this follow-up and
+terminates the invocation.
 
 **Model.** Default the implementer to **sonnet** -- post-PR follow-ups are
 typically small and contained. Use **opus** only when the fix touches

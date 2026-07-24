@@ -16,11 +16,11 @@
 
 **Model:** sonnet — P3 mechanics mirror the existing `pr.md` "Promote to backlog idea" pattern precisely; the backlog row format is fully specified in D11; no novel reasoning required
 
-- [ ] 2.1 Author the P3 execution block in `claude/commands/followup.md`: derive a kebab slug from the follow-up title (D10)
-- [ ] 2.2 Append an `idea` row under `## Ideas` in `openspec/backlog.md` with status `idea`, `· **P3**` priority marker, and a `**Why:**` paragraph (D10, D11)
-- [ ] 2.3 Tick the `followups.md` entry with `(deferred to backlog — <slug>)` (D10, D11)
-- [ ] 2.4 Stage both `openspec/backlog.md` and `openspec/changes/<id>/followups.md` in one atomic commit; end the turn with a confirmation message naming the slug and the ticked item (D11)
-- [ ] 2.5 Remove the P3 stub wired in task 1.4 (replace with the real P3 block)
+- [x] 2.1 Author the P3 execution block in `claude/commands/followup.md`: derive a kebab slug from the follow-up title (D10)
+- [x] 2.2 Append an `idea` row under `## Ideas` in `openspec/backlog.md` with status `idea`, `· **P3**` priority marker, and a `**Why:**` paragraph (D10, D11)
+- [x] 2.3 Tick the `followups.md` entry with `(deferred to backlog — <slug>)` (D10, D11)
+- [x] 2.4 Stage both `openspec/backlog.md` and `openspec/changes/<id>/followups.md` in one atomic commit; end the turn with a confirmation message naming the slug and the ticked item (D11)
+- [x] 2.5 Remove the P3 stub wired in task 1.4 (replace with the real P3 block)
 - [ ] 2.6 (human) Checkpoint: dev-install the plugin; run `/qrspi:followup <id>` targeting a genuinely out-of-scope item; select P3; confirm (1) no implementer spawns, (2) `openspec/backlog.md` contains a new `idea` row with `· **P3**` and a `**Why:**` paragraph, (3) the `followups.md` entry reads `- [x] <text> (deferred to backlog — <slug>)`, and (4) `git diff --staged` shows both files staged together
 
 ## 3. P2 addendum path (dogfood checkpoint)
