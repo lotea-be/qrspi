@@ -250,9 +250,15 @@ skill's spawn — plus a new `claude/agents/spec-syncer.md`, its Read-Matrix row
 lint Check 7 banner, and the regenerated `copilot/` tree. Least-privilege +
 convention-consistency (every other QRSPI stage has a named agent), not a live-
 workflow correctness gap — hence P3. Surfaced 2026-07-16 while archiving
-`progressive-task-ticking`. Relates to [[standardize-recurring-ops-scripts]] and
-[[retro-as-extension-plugin]] (both concern the consumer/maintainer + generated-
-artifact boundary).
+`progressive-task-ticking`. **Second motivation (2026-07-24, archiving
+`right-size-followup-handling`):** command-owns-sync would also let
+`/qrspi:archive` drop the near-redundant "Sync now / Archive without syncing"
+prompt on the happy path — reserving a prompt for the escape-hatch cases only (a
+malformed delta that would corrupt the main specs, or an abandoned/superseded
+change) — since that prompt currently lives in the same un-editable generated
+`openspec-archive-change` skill. Relates to
+[[standardize-recurring-ops-scripts]] and [[retro-as-extension-plugin]] (both
+concern the consumer/maintainer + generated-artifact boundary).
 
 ### pr-human-task-loop-stop-option — `idea` · **P3**
 
