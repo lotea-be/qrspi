@@ -14,9 +14,9 @@ install the in-development plugin (`claude --plugin-dir <repo-root>`) and
 verify the slice's checkpoint without the next slice being written.
 
 The four slices follow the design's preview (which is already vertically
-structured): triage gate + P1 (Slice 1), P3 defer path (Slice 2), P2 addendum
-path (Slice 3), and cross-cutting finishers — workflow summary, copilot resync,
-and lint Check 10 (Slice 4). Each slice is an independently demoable kit path;
+structured): triage gate + P1 (Slice 1), P3 defer path (Slice 2), P2 in-place
+scope-amendment path (Slice 3), and cross-cutting finishers — least-friction
+offers, workflow summary, copilot resync, and lint Check 10 (Slice 4). Each slice is an independently demoable kit path;
 Slice 4 is the infrastructure finisher that gives CI the mechanical floor.
 
 Because this is a prompt-engineering / docs kit (no mock-API or DB tier), the
@@ -93,83 +93,93 @@ spawned. This slice replaces the P3 stub from Slice 1.
   `- [x] <text> (deferred to backlog — <slug>)`, and (4) `git diff --staged`
   shows both files staged together
 
-### Slice 3 — P2 addendum path (dogfood checkpoint)
+### Slice 3 — P2 in-place scope-amendment path (dogfood checkpoint)
 
-A human running `/qrspi:followup <id>` on a large but still-in-scope follow-up
-item can now select P2 and see the command: ask for the entry stage (D/S/V/P/I,
-with a suggested value from the heuristic signals, no pre-selection); create the
-sibling folder `openspec/changes/<id>-addendum-1/` **on the parent's branch**
-(no branch question — a P2 addendum always extends the parent's open PR); tick
-`followups.md` with `(routed to addendum <id>-addendum-1)`; and end the turn
-with a handoff instruction to run `/qrspi:<stage> <addendum-id>`. This slice
-replaces the P2 stub from Slice 1. The slice's checkpoint is the dogfood run
-that satisfies OQ1: create a real multi-capability follow-up for this very
-change, run `/qrspi:followup right-size-followup-handling`, confirm it routes to
-P2 and produces the sibling folder + handoff.
+A human running `/qrspi:followup <id>` on a design-re-alignment follow-up that
+still belongs to this change can now select P2 and see the command **amend the
+parent change in place** — no separate folder, same branch, same open PR. The
+command edits the affected `design.md` decision and/or delta `specs/**` in place,
+appends a matching `## N.` vertical-slice group to both `slices.md` and
+`tasks.md`, ticks `followups.md` with `(re-aligned in place -- slice N)`, commits
+as `docs(<id>): amend scope -- <desc>`, and then **offers** (via
+`AskUserQuestion`, not a printed command) to run `/qrspi:implement <id>` now.
+This mirrors `implement.md`'s existing "Adding scope after stage I has started"
+flow, applied post-PR. This slice replaces the P2 stub from Slice 1. The slice's
+checkpoint is the dogfood run that satisfies OQ1: create a real
+design-re-alignment follow-up for this very change, run
+`/qrspi:followup right-size-followup-handling`, confirm it routes to P2 and
+amends the parent in place + offers to build the slice.
 
-- M: author the full P2 execution block in `claude/commands/followup.md`:
-  Glob to determine N (max existing addendum + 1, defaulting to 1); ask entry
-  stage (AskUserQuestion offering D/S/V/P/I, agent suggestion but no
-  pre-selection); stay on the parent's branch (no branch question, no
-  `git checkout -b` / `push -u`); mkdir the sibling folder; tick `followups.md`
-  with `(routed to addendum <addendum-id>)`; end turn with handoff instruction
-  `/qrspi:<stage> <addendum-id>` (D6, D7, D8, D8a, D9, D10)
-- F: `/qrspi:followup <id>` — on P2 selection, one `AskUserQuestion` for the
-  entry stage (no branch question); then the sibling folder appears on disk on
-  the parent's branch, the `followups.md` entry is ticked, and the turn ends
-  with the handoff instruction; no implementer spawns (D5, D6, D7, D8, D9, D10)
-- D: `openspec/changes/<id>-addendum-1/` created as a flat sibling folder;
-  `openspec/changes/<id>/followups.md` ticked with addendum note; both in the
-  same commit (D6, D7, D10)
-- T: manual dogfood checkpoint (see below); the sibling folder and ticked entry
-  are verifiable with `ls openspec/changes/` and `cat
-  openspec/changes/<id>/followups.md`
-- **Model:** opus — P2 is the most novel mechanics in this change: Glob-based
-  N computation, the entry-stage `AskUserQuestion`, sibling-folder creation on
-  the parent's branch, and a handoff that must preserve the re-entered stage's
-  gates; this is a first-of-kind pattern with cross-cutting edge cases
-  (D9's stage-I watch-item, N increment logic, the same-branch/open-PR rule per
-  D8/D8a)
+- M: author the full in-place P2 execution block in
+  `claude/commands/followup.md`: amend the approved `design.md`/delta `specs/**`
+  in place (MAY spawn a `qrspi:designer` to draft, MUST NOT re-run
+  `/qrspi:design`); load skill `vertical-slice` (+ stack-cheatsheet) then add a
+  `## N.` slice group to `slices.md` AND `tasks.md` with a `**Model:**`
+  annotation; tick `followups.md` with `(re-aligned in place -- slice N)`; commit
+  staging the edited artifacts explicitly; then OFFER `/qrspi:implement <id>` via
+  `AskUserQuestion`; also change the triage P2 choice label to
+  `P2 — amend this change in place (extend the open PR)` (D4, D5, D5a, D5b, D6, D7)
+- F: `/qrspi:followup <id>` — on P2 selection, no folder/entry-stage/branch
+  question; the `design.md`/delta specs are edited in place, a `## N.` slice
+  group appears in both `slices.md` and `tasks.md`, `followups.md` is ticked, the
+  amendment commits on the parent's branch, and the turn offers to run
+  `/qrspi:implement <id>` now; no implementer spawns to triage (D5, D5b, D6, D7)
+- D: `design.md` and/or delta `specs/**` edited in place; a `## N.` group added to
+  `slices.md` and `tasks.md`; `openspec/changes/<id>/followups.md` ticked
+  `(re-aligned in place -- slice N)`; all in one `docs(<id>): amend scope` commit
+  on the parent's branch (D5b, D7)
+- T: manual dogfood checkpoint (see below); the in-place edits and ticked entry
+  are verifiable with `git diff` and by reading `followups.md`
+- **Model:** opus — P2 is the most novel mechanics in this change: it reuses
+  `implement.md`'s "Adding scope after stage I" flow post-PR, editing the approved
+  `design.md`/delta specs in place and appending a matching `## N.` slice group to
+  both `slices.md` and `tasks.md`, with the cross-cutting rule that P2 never
+  re-runs a stage command and never creates a folder/branch/PR (D5b, D5a)
 - Checkpoint (dogfood — satisfies OQ1): dev-install the plugin; identify a
-  real multi-capability follow-up for `right-size-followup-handling` (e.g., one
-  that touches both `followup.md` and `workflow/SKILL.md` and requires a design
-  decision revision); run `/qrspi:followup right-size-followup-handling`;
-  confirm the triage proposes P2 (signal 2+3 fire); select P2; confirm (1) the
-  entry-stage question appears offering D/S/V/P/I with a suggested stage and no
-  pre-selection, (2) NO branch question appears and the addendum stays on the
-  parent's branch, (3) `ls
-  openspec/changes/right-size-followup-handling-addendum-1/` succeeds, (4)
-  `followups.md` reads `- [x] <text> (routed to addendum
-  right-size-followup-handling-addendum-1)`, (5) the turn ends with the handoff
-  instruction naming the correct `/qrspi:<stage>` command
+  real design-re-alignment follow-up for `right-size-followup-handling` (e.g.,
+  one that touches both `followup.md` and a `design.md` decision); run
+  `/qrspi:followup right-size-followup-handling`; confirm the triage proposes P2
+  (signal 3 fires); select P2; confirm (1) NO folder is created and NO
+  entry-stage/branch question appears, (2) `design.md` and/or the delta specs are
+  edited in place and a new `## N.` slice group appears in both `slices.md` and
+  `tasks.md`, (3) `followups.md` reads `- [x] <text> (re-aligned in place --
+  slice N)`, (4) the turn offers `/qrspi:implement right-size-followup-handling`
+  via `AskUserQuestion` (not a printed command), (5) accepting the offer builds
+  the new slice on the same branch through the normal slice/checkpoint machinery
 
 ### Slice 4 — Workflow summary + copilot resync + lint Check 10
 
-All cross-cutting finishers land together: the `workflow` skill's "After PR —
-the fix loop" section is updated to summarize the triage and three paths; the
-copilot artifacts are resynced to parity; Check 10 is added to `lint.mjs`;
-`node scripts/lint.mjs` exits zero. A human can run `node scripts/lint.mjs`
-from the repo root and see all checks green including the new Check 10. This is
-the infrastructure finisher slice; it has no standalone user-facing behavior
-beyond "CI is green" and is the only legitimate horizontal-ish slice in this
-change, because its constituent parts (workflow prose, copilot sync, lint check)
-have no meaningful ordering relative to each other and share a single
-verifiable outcome.
+All cross-cutting finishers land together: the least-friction "next follow-up"
+offer (D6) is wired into all three paths; the `workflow` skill's "After PR —
+the fix loop" section is updated to summarize the triage and three paths (with
+P2 described as the **in-place scope amendment**, not a separate addendum
+folder); the copilot artifacts are resynced to parity; Check 10 is added to
+`lint.mjs` pinning the **new** P2 label; `node scripts/lint.mjs` exits zero. A
+human can run `node scripts/lint.mjs` from the repo root and see all checks green
+including the new Check 10. This is the infrastructure finisher slice; it has no
+standalone user-facing behavior beyond "CI is green" and the chaining offer, and
+is the only legitimate horizontal-ish slice in this change, because its
+constituent parts (offer wiring, workflow prose, copilot sync, lint check) have
+no meaningful ordering relative to each other and share a single verifiable
+outcome.
 
-- M: (a) update `claude/skills/workflow/SKILL.md`'s "After PR — the fix loop"
-  section to summarize the triage gate and P1/P2/P3 paths (D12); (b) add
-  `checkTriagePaths` async function and `main()` call to `scripts/lint.mjs`
-  asserting the three choice-label prefixes (`"P1 — implement directly`,
-  `"P2 — addendum`, `"P3 — defer`) exist in `claude/commands/followup.md`,
-  following the Check 8 pattern (D13); (c) add one line to `CHANGELOG.md`
-  under `## [Unreleased]`
-- F: `node scripts/lint.mjs` — Check 10 reports `OK`; all other checks
-  unchanged; `node sync-copilot.mjs --check` reports zero drift after
-  `node sync-copilot.mjs` is run (D12, D13)
+- M: (a) wire the least-friction "next follow-up" offer (D6) into
+  `claude/commands/followup.md` so it fires at the end of P1/P2/P3 when un-ticked
+  follow-ups remain (`AskUserQuestion`, not a printed command); (b) update
+  `claude/skills/workflow/SKILL.md`'s "After PR — the fix loop" section to
+  summarize the triage gate and P1/P2/P3 paths, describing P2 as the in-place
+  scope amendment (D10); (c) add `checkTriagePaths` async function and `main()`
+  call to `scripts/lint.mjs` asserting the three choice-label prefixes
+  (`"P1 — implement directly`, `"P2 — amend this change in place`,
+  `"P3 — defer`) exist in `claude/commands/followup.md`, following the Check 8
+  pattern (D8); (d) add one line to `CHANGELOG.md` under `## [Unreleased]`
+- F: `node scripts/lint.mjs` — Check 10 reports `OK` (pinning the new P2 label);
+  all other checks unchanged; `node sync-copilot.mjs --check` reports zero drift
+  after `node sync-copilot.mjs` is run (D6, D8, D10)
 - D: `copilot/prompts/qrspi-followup.prompt.md` regenerated (and any other
   copilot artifacts touched by the new followup.md + workflow prose);
   `copilot/` changes are written by running `node sync-copilot.mjs`, never
-  hand-edited (D12)
+  hand-edited (D10)
 - T: `node scripts/lint.mjs` exits zero with Check 10 `OK`; `node
   sync-copilot.mjs --check` exits zero (zero drift); `CHANGELOG.md` has the
   new line
@@ -177,7 +187,8 @@ verifiable outcome.
   decisions already made; lint check follows the Check 8 pattern exactly;
   copilot resync is a script invocation; no novel reasoning
 - Checkpoint: from the repo root run `node scripts/lint.mjs`; confirm all
-  checks including Check 10 report `OK` and exit code is zero; run `node
-  sync-copilot.mjs --check`; confirm zero drift reported; open
-  `copilot/prompts/qrspi-followup.prompt.md` and confirm it reflects the triage
-  gate prose added in Slices 1–3
+  checks including Check 10 report `OK` (pinning the `P2 — amend this change in
+  place` label) and exit code is zero; run `node sync-copilot.mjs --check`;
+  confirm zero drift reported; open `copilot/prompts/qrspi-followup.prompt.md`
+  and confirm it reflects the in-place P2 prose and the least-friction offers
+  added in Slices 3–4

@@ -11,7 +11,7 @@
 
 The CI `lint` job MUST include a Check 10 (`checkTriagePaths`) that reads
 `claude/commands/followup.md` and asserts the file contains all three triage
-choice-label prefixes: `"P1 — implement directly`, `"P2 — addendum`, and
+choice-label prefixes: `"P1 — implement directly`, `"P2 — amend this change in place`, and
 `"P3 — defer`. A missing label MUST cause the check to report a violation and
 exit non-zero. Check 10 MUST be registered in `scripts/lint.mjs` after Check 9
 using the same dependency-free ESM pattern (async function pushing to `errors[]`,
@@ -19,13 +19,13 @@ using the same dependency-free ESM pattern (async function pushing to `errors[]`
 
 #### Scenario: followup.md carrying all three choice labels passes Check 10
 - **WHEN** `claude/commands/followup.md` contains the strings
-  `"P1 — implement directly`, `"P2 — addendum`, and `"P3 — defer`, and
+  `"P1 — implement directly`, `"P2 — amend this change in place`, and `"P3 — defer`, and
   `node scripts/lint.mjs` is run
 - **THEN** Check 10 reports `OK` and does not contribute a non-zero exit.
 
 #### Scenario: a triage choice label removed from followup.md is caught
 - **WHEN** a contributor edits `claude/commands/followup.md` and removes the
-  P2 choice label (e.g., deletes the `"P2 — addendum` line), and
+  P2 choice label (e.g., deletes the `"P2 — amend this change in place` line), and
   `node scripts/lint.mjs` is run
 - **THEN** Check 10 reports a violation naming the missing anchor and
   `node scripts/lint.mjs` exits non-zero.

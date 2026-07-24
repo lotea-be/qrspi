@@ -187,14 +187,19 @@ one of three paths:
   and the change's **delta** spec are kept in sync; the `followups.md` box is
   ticked `-- fixed in <sha>` on commit. This is the original path and the
   common case.
-- **P2 — addendum.** The fix needs design re-alignment or spans multiple
-  capabilities. A flat sibling change folder
-  `openspec/changes/<id>-addendum-N/` is created and the follow-up is ticked
-  `(routed to addendum <id>-addendum-N)`. The human then runs
-  `/qrspi:<stage> <id>-addendum-N` to re-enter the QRSPI pipeline at the
-  appropriate stage (Q/R/D/S/V/P/I). No implementer is spawned.
-- **P3 — defer to backlog.** The fix is genuinely new scope. An `idea` row is
-  appended to `openspec/backlog.md` and the follow-up is ticked
+- **P2 — amend this change in place.** The fix needs design re-alignment or
+  spans multiple capabilities but still belongs to *this* change and its **open
+  PR**. The orchestrator amends the parent change in place (reusing
+  `implement.md`'s "Adding scope after stage I" flow): edit the affected
+  `design.md` decision / delta `specs/**`, add a `## N.` vertical-slice group to
+  `slices.md` + `tasks.md`, commit on the same branch, tick the follow-up
+  `(re-aligned in place -- slice N)`, then **offer** `/qrspi:implement <id>`. No
+  separate folder, branch, or PR; no implementer is spawned to triage. If the
+  parent PR has already merged, or the work needs its own branch/PR, it is P3
+  instead.
+- **P3 — defer to backlog.** The fix is genuinely new scope (or needs its own
+  branch/PR, or the parent PR has merged). An `idea` row is appended to
+  `openspec/backlog.md` and the follow-up is ticked
   `(deferred to backlog -- <slug>)`. No implementer is spawned.
 
 The agent proposes a path from a four-signal heuristic rubric (contract
@@ -204,7 +209,8 @@ auto-advanced in Full or Semi-auto mode.
 
 The change is ready to archive only when `followups.md` has no un-ticked
 boxes. P2 and P3 tick the box at disposition time, so they count as resolved
-for archival purposes even though work continues in the addendum or backlog.
+for archival purposes even though work continues in the added slice (P2) or
+the backlog (P3).
 
 ## Rules of the road
 
@@ -220,7 +226,7 @@ for archival purposes even though work continues in the addendum or backlog.
 - **Least friction: prefer `AskUserQuestion` over emitting a command to run.**
   The kit's goal is the least friction for the user. When a step ends with an
   obvious next action — advance to the next stage, re-enter the follow-up loop,
-  open a routed addendum, retry after a fix — offer it as an `AskUserQuestion`
+  build a just-added slice, retry after a fix — offer it as an `AskUserQuestion`
   choice and act on the pick, rather than printing a `/qrspi:…` line for the
   user to copy and run. Emitting a command is the *fallback* for when no
   interactive choice is possible; a bare "now run X" is a friction smell worth

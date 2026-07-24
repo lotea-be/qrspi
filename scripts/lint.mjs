@@ -1190,7 +1190,7 @@ async function checkVersionCheckEmbed(errors) {
 //
 // Required anchors (prefix of each AskUserQuestion choice label):
 //   "P1 — implement directly"
-//   "P2 — addendum"
+//   "P2 — amend this change in place"
 //   "P3 — defer"
 //
 // Reports a violation if any anchor is absent from the file.
@@ -1209,7 +1209,7 @@ async function checkTriagePaths(errors) {
 
   const triageAnchors = [
     { label: 'P1 choice label', anchor: 'P1 — implement directly' },
-    { label: 'P2 choice label', anchor: 'P2 — addendum' },
+    { label: 'P2 choice label', anchor: 'P2 — amend this change in place' },
     { label: 'P3 choice label', anchor: 'P3 — defer' },
   ];
 
