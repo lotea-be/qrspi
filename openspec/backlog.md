@@ -13,7 +13,33 @@ _None._
 
 ## Proposed
 
-_None._
+### repo-applicable-artifact-sections — `proposed` · **P1**
+
+Proposed 2026-07-24 (branch `features/repo-applicable-artifact-sections`; stage
+Q done — see `openspec/changes/repo-applicable-artifact-sections/questions.md`).
+
+**Why:** QRSPI artifact-producing stages (Q/D/S/P/PR) stamp a fixed CRUD/web
+section & checklist skeleton (Data model, API surface, Migrations, Auth, "no raw
+SQL", "endpoints use authorization policies", …) into **every** generated
+artifact regardless of the repo's actual surface — a highly visible, ugly defect
+that lands in every document a human reads. Make each artifact carry only the
+sections/checks applicable to the repo (and the change), driven off the
+`<repo>-stack` cheatsheet as the source of truth for the repo's tech surface.
+
+**Scope (settled at Q):** never emit "Not applicable" sections at all — a section
+appears only when it applies, at **both** the repo level and the change level
+(PQ1/PQ2); this fully retires the "keep N/A headings so S doesn't re-litigate"
+rule. No-cheatsheet repos get the full menu + a warning pointing to `/qrspi:stack`
+(PQ3). Ships as **one big change** spanning the pipeline including Part B skill
+framing (PQ4): the (A) skeleton sources — `claude/agents/{questioner,designer,
+architect,planner,reviewer}.md` + `openspec-templates/{questions,design,proposal,
+tasks}.template.md` — and (B) framing in `claude/skills/{vertical-slice,workflow}/
+SKILL.md`. The filter convention lives in a shared skill loaded by all five agents
+(PQ6), a new `scripts/lint.mjs` check (scoped to fenced skeleton blocks) guards
+against regressions (PQ5), and the change also establishes a `qrspi-stack`
+cheatsheet for the kit itself so it dogfoods its own fix (PQ7). Surfaced
+2026-07-23 reviewing `right-size-followup-handling`. Relates to
+[[init-conductor-plus-overview]].
 
 ---
 
@@ -26,80 +52,6 @@ every generated artifact — do next;
 **P3** = strategic bets or items sequenced behind another change. Re-evaluate
 this ordering whenever an item is added, modified, or archived (see
 [[backlog-prioritization]]).
-
-### repo-applicable-artifact-sections — `idea` · **P1**
-
-**Why:** QRSPI artifacts should carry **only sections and checks applicable to
-the repository (and the change)** — not a fixed CRUD/web skeleton that every
-document reproduces regardless of what the repo is. The boilerplate assumes a
-data-store + HTTP + web-UI app, so on a docs/prompt project like this kit it
-emits content that has nothing to do with the change or the repo. **This is a
-highly visible, ugly defect** — it lands in *every* generated artifact a human
-reads (questions, design, proposal, tasks, and the PR body itself), so despite
-being artifact-quality rather than a live-workflow correctness gap, it is P1 to
-fix. A sweep (2026-07-23) found it baked in across **most of the pipeline**, in
-two kinds:
-
-**(A) Fixed section/checklist skeletons emitted verbatim into artifacts** — the
-core problem. The same CRUD/web section list is reproduced by every artifact-
-producing stage:
-- **Q — `claude/agents/questioner.md` + `openspec-templates/questions.template.md`.**
-  Fixed list (Data model, Indexing & query performance, API surface, State,
-  Migrations & seed data, Auth) stamped `Not applicable` per section — seven
-  near-identical stanzas in `right-size-followup-handling`'s `questions.md`,
-  several just restating the label ("No entities, tables, or DTOs. Not
-  applicable to this repo.").
-- **D — `claude/agents/designer.md` + `openspec-templates/design.template.md`.**
-  Mirrors it with `## Data model changes` / `## API surface` / `## UI surface`
-  / `## Authorization` sections.
-- **S — `claude/agents/architect.md` + `openspec-templates/proposal.template.md`.**
-  `Impact — Migrations: <yes/no>` line.
-- **P — `claude/agents/planner.md` + `openspec-templates/tasks.template.md`.**
-  Seeds a "Generate the data-store migration (D6)" task line.
-- **PR — `claude/agents/reviewer.md`.** Hard-codes a `## Migrations` section and
-  checklist items — "No raw SQL in feature code", "No nullable suppression
-  (`!`) without justification comment", "All new endpoints use authorization
-  policies", "Migration is reversible" — none of which can apply to a repo with
-  no SQL/DB/endpoints.
-
-**(B) CRUD/web-shaped *illustrative framing*** — softer, not emitted boilerplate
-but web-app-shaped examples/vocabulary that bias the agent and read oddly for a
-non-web repo: `claude/skills/vertical-slice/SKILL.md` (the whole mock-API →
-entity → migration → DTO slice example set), the architect's slice examples
-(`entity + migration + seed`, "all the endpoints"), and
-`claude/skills/workflow/SKILL.md` ("touches the data model, an API surface, or
-auth" as the full-pipeline trigger; the researcher "maps the data model"). Fix
-this more lightly — examples need *some* concrete domain — but at least flag
-that these are illustrative, not a required shape.
-
-**The tension to resolve:** the questions template deliberately keeps N/A
-headings "so stage S doesn't re-litigate whether they were considered"
-(`openspec-templates/questions.template.md`). That rule guards the wrong
-scope — it makes sense **per change** (a dimension a given change skipped could
-apply to the next one), but not **per repo** (a dimension the repo can never
-have). Separate the two levels: dimensions permanently absent at the **repo**
-level are simply not sections/checks anywhere, while "considered but N/A for
-*this* change" keeps its explicit heading. The natural source of truth for
-"does this repo have a data-store / HTTP / web-UI surface at all" is the
-`<repo>-stack` cheatsheet, which already declares the tech surface — every
-stage that emits a fixed section/checklist list should filter it against that.
-
-**Shape:** Take the whole thing up as **one big change** spanning the pipeline
-rather than per-stage patches — the fix is a single shared convention (a
-section/checklist list is a *starting menu filtered by repo surface*, not a
-fixed skeleton every artifact reproduces) applied consistently at Q/D/S/P/PR.
-Touches the (A) skeleton sources — `claude/agents/questioner.md`,
-`claude/agents/designer.md`, `claude/agents/architect.md`,
-`claude/agents/planner.md`, `claude/agents/reviewer.md` and the four templates
-`openspec-templates/{questions,design,proposal,tasks}.template.md` — and,
-lightly, the (B) framing sources (`claude/skills/vertical-slice/SKILL.md`,
-`claude/skills/workflow/SKILL.md`). The `<repo>-stack` cheatsheet is the
-filter's source of truth. Highly visible artifact-quality defect in every
-generated artifact — hence P1 despite not being a live-workflow correctness
-gap. Surfaced 2026-07-23 reviewing `right-size-followup-handling` (questions.md
-N/A stanzas; irrelevant PR-checklist items). Relates to
-[[init-conductor-plus-overview]] (the overview/stack skills are where "what
-surface does this repo have" would live).
 
 ### spec-anchored-code-comments — `idea` · **P1**
 
