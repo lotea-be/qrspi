@@ -3,31 +3,44 @@
 > Stage D of QRSPI. Generated 2026-07-24.
 > **Implementation is BLOCKED until a human approves this file.**
 
+## Revision note
+
+This design has been revised mid-PR. The **P2 path is redesigned**: it no
+longer creates a separate sibling `<id>-addendum-N` change folder with an
+entry-stage pick and a branch decision. **P2 is now an in-place scope
+amendment of the parent change** — it reuses `implement.md`'s existing
+"Adding scope after stage I has started" flow, edits the parent's `design.md`
+/ delta `specs/**` in place, appends a `## N.` vertical-slice group to
+`slices.md` + `tasks.md`, and extends the same open PR. All folder /
+entry-stage / branch machinery from the earlier draft is **removed**. This
+revision supersedes the folder-based P2 decisions and their associated risks
+and open questions; the decisions below are renumbered cleanly. The triage
+gate (D1–D5) and P1/P3 are substantively unchanged.
+
 ## Context
 
 `/qrspi:followup <id>` is today a single-path loop: it verifies the PR is
 open, spawns `qrspi:implementer` in FIX MODE, and lets the `postpr-fix`
-skill's seven-step checklist resolve one item from `followups.md`. That
-path assumes every follow-up is small, atomic, and in-scope. The skill's
-guardrails tell the implementer to *stop* when a follow-up turns out to be
-design-level, cross-capability, or new scope — but by then the orchestrator
-has already committed to the small-fix path, and "stop" is a dead end with
-no sanctioned next move.
+skill's checklist resolve one item from `followups.md`. That path assumes
+every follow-up is small, atomic, and in-scope. The skill's guardrails tell
+the implementer to *stop* when a follow-up turns out to be design-level,
+cross-capability, or new scope — but by then the orchestrator has already
+committed to the small-fix path, and "stop" is a dead end with no sanctioned
+next move.
 
 This change adds an **upfront triage gate** to `followup.md` (the
 orchestrator) that right-sizes each follow-up *before* the implementer is
 spawned, and routes it to one of three paths: **P1 implement directly**
-(today's flow), **P2 addendum** (re-enter the QRSPI pipeline at an earlier
-stage under a sibling change folder), or **P3 defer** (drop to
+(today's flow), **P2 amend the parent change in place** (extend this change
+and its open PR without a separate folder), or **P3 defer** (drop to
 `openspec/backlog.md` as an idea). The triage is a human-in-the-loop
-size/scope judgment, never suppressed, added so a large follow-up is never
-silently pushed through the small-fix path. The `postpr-fix` skill (the
-implementer's checklist) is unchanged — the three-path model lives entirely
-in the orchestrator. This is a prose-only kit-behavior change to
+size/scope judgment, never suppressed, so a large follow-up is never silently
+pushed through the small-fix path. The `postpr-fix` skill (the implementer's
+checklist) is unchanged — the three-path model lives entirely in the
+orchestrator. This is a prose-only kit-behavior change to
 `claude/commands/followup.md` plus a summary edit to
 `claude/skills/workflow/SKILL.md`, regenerated into `copilot/` via
-`sync-copilot.mjs`, and (recommended) a new `scripts/lint.mjs` structural
-check.
+`sync-copilot.mjs`, and a new `scripts/lint.mjs` structural check.
 
 ## Goals / Non-Goals
 
@@ -35,12 +48,16 @@ check.
 - Add a never-suppressed triage gate to `followup.md` that classifies each
   follow-up (agent proposes from heuristics, human confirms/overrides — PQ1,
   PQ2) and routes to one of three wired paths.
-- Define the addendum (P2) mechanics end-to-end: sibling folder model, id
-  naming, same-branch/open-PR rule, backlog treatment, `followups.md` annotation, and
-  QRSPI pipeline re-entry — reusing existing choreography, adding no ninth
-  stage.
+- Define the P2 in-place amendment mechanics end-to-end by **reusing the
+  scope-amendment flow already in `implement.md`**: edit the affected
+  `design.md` decision and/or delta `specs/**` in place, add a `## N.`
+  vertical-slice group to `slices.md` + `tasks.md`, commit, and extend the
+  same open PR — adding no ninth stage and no new folder.
 - Define P3 (defer) to reuse `pr.md`'s existing "Promote to backlog idea"
   mechanics (P3 priority default — PQ7).
+- Apply the `workflow` **least-friction principle** ("prefer
+  `AskUserQuestion` over emitting a command"): after each disposition, offer
+  the obvious next action as a choice rather than printing a command to copy.
 - Keep `postpr-fix` path-1-only (PQ8); update `workflow`'s "After PR — the
   fix loop" (PQ9); keep `copilot/` in parity.
 
@@ -50,14 +67,18 @@ check.
   explicitly out of scope per questions.md scope guard).
 - Building a Node helper to parse `followups.md` — that is the
   `standardize-recurring-ops-scripts` backlog item; the agent reads prose.
-- Auto-executing the addendum's pipeline stages from within `followup.md` —
-  triage hands off; it does not run Q→PR itself.
+- Re-running `/qrspi:design` (or any stage command) on the parent to draft
+  the P2 edit. A P2 amendment **edits the approved artifacts in place** (an
+  optional `qrspi:designer` spawn may *draft* the edit); it never re-runs the
+  stage command, which would overwrite the approved design.
+- Any separate branch or separate PR for a follow-up. Anything that would
+  need its own branch/PR — or whose parent PR has merged — is **P3**, not P2.
 
 ## Decisions
 
 ### D1 — Triage runs once per invocation, per targeted item, before the implementer is spawned
 
-`/qrspi:followup` keeps its **one-follow-up-per-invocation** contract
+`/qrspi:followup` keeps its **one-follow-up-per-invocation** default
 (research §Implicit-contracts 1). The triage classifies the *single* item
 this invocation targets (the named fix, or the next un-ticked
 `followups.md` item), then routes it. It is **not** a batch classifier over
@@ -65,6 +86,11 @@ the whole queue — different items route differently, so each is triaged on
 its own invocation (answers Q4, Q22). The gate is inserted **after** the
 Glob preconditions (folder + `pr.md` exist) and **before** the implementer
 is spawned, so P2/P3 never reach FIX MODE.
+
+Per the least-friction principle (D6), "one per invocation" becomes an
+**opt-in-chainable default**: after any disposition, if un-ticked follow-ups
+remain, the orchestrator *offers* to handle the next one (re-entering
+`/qrspi:followup <id>`) rather than forcing the human to re-invoke manually.
 
 **Rejected:** batch-triage-the-whole-queue (one path for all items) — loses
 per-item routing, which is the entire point.
@@ -91,9 +117,9 @@ Rubric (agent's default proposal): **P1** when none of 2/3/4 fire (atomic,
 single-capability, expressible as a delta amendment or internal fix);
 **P2** when 3 fires, or 1+2 fire together (re-alignment needed but still this
 change's scope) **and the parent PR is still open**; **P3** when 4 fires (new
-scope), when the parent PR has already merged, or when the work would otherwise
-need its own branch/PR (D8a). The signals are **agent-assessed, all advisory** —
-the human's override is final (PQ1/PQ2).
+scope), when the parent PR has already merged, or when the work would
+otherwise need its own branch/PR (D5a). The signals are **agent-assessed, all
+advisory** — the human's override is final (PQ1/PQ2).
 
 **Rejected:** open-ended "how big is this?" (Q2 option) — not reproducible;
 human-sole-judge with no proposal (PQ1 option c) — the whole point is to
@@ -119,13 +145,15 @@ After the preconditions and self-assessment, before any implementer spawn:
 > How should this be handled?"
 > choices:
 > - "P1 — implement directly (small in-scope fix)"
-> - "P2 — addendum (re-enter QRSPI at an earlier stage)"
+> - "P2 — amend this change in place (extend the open PR)"
 > - "P3 — defer to backlog idea (new scope)"
 
 The agent's proposed path is named in the question text (not a fourth
 choice) so the recommendation is visible but the human picks explicitly
 (PQ1). No "I'm unsure" escape hatch is added — the three paths plus the
-override are sufficient; an unsure human picks P2 (re-align) or stops.
+override are sufficient; an unsure human picks P2 (re-align) or stops. The
+three choice-label prefixes (`P1 — implement directly`, `P2 — amend this
+change in place`, `P3 — defer`) are the anchors lint Check 10 pins (D8).
 
 ### D5 — Path routing is wired inline in `followup.md`; only P1 spawns the implementer
 
@@ -135,161 +163,155 @@ override are sufficient; an unsure human picks P2 (re-align) or stops.
   (answers Q6) and records **no new annotation** on the P1 `followups.md`
   entry — the existing `— fixed in <short-sha>` tick is the record (Q7,
   keeps the happy path thin and avoids a new `followups.md` shape).
-- **P2** — the orchestrator does **not** spawn the implementer. It performs
-  the addendum-creation mechanics (D6–D9), annotates `followups.md` (D10),
-  and **ends the turn** instructing the human to run `/qrspi:<stage>
-  <addendum-id>`.
+- **P2** — the orchestrator does **not** spawn the implementer to triage. It
+  performs the in-place amendment mechanics (D5b), annotates `followups.md`
+  (D7), commits, then per least-friction **offers** to run
+  `/qrspi:implement <id>` now (D6). Same branch, same PR.
 - **P3** — the orchestrator does **not** spawn the implementer. It reuses
-  the "Promote to backlog idea" mechanics (D11), annotates `followups.md`
-  (D10), and ends the turn.
+  the "Promote to backlog idea" mechanics (D9), annotates `followups.md`
+  (D7), and ends the turn (offering the next follow-up if any remain, D6).
 
-The "one follow-up per invocation" constraint holds across all three
-(Q22): P1 resolves one item; P2/P3 dispose of one item and terminate.
+The "one follow-up per invocation" default holds across all three (Q22):
+P1 resolves one item; P2/P3 dispose of one item and terminate (with the
+opt-in chaining offer of D6).
 
-### D6 — Addendum folder model: a flat sibling change folder (PQ3)
+### D5a — P2 requires an open parent PR; a merged parent (or need-own-branch/PR) routes to P3
 
-An addendum is a **new, flat sibling change folder**
-`openspec/changes/<original-id>-addendum-N/` — a first-class QRSPI change,
-not a subdirectory of the parent and not mixed into the parent's artifacts
-(answers PQ3 option a, Q8). This is the model consistent with the
-conventions research documented: change folders are **flat** and one-per-id
-(research §Change-folder), the id is kebab-case (D7 satisfies verb-first
-because the parent id already leads with a verb), and every `/qrspi:<stage>`
-command already expects `openspec/changes/<id>/` at the top level. A nested
-`<id>/addendum-1/` (option b) would break that flat convention and every
-stage command's Glob precondition path; reusing the parent folder (option c)
-would collide artifact names (two `design.md`s). The sibling model also keeps
-the addendum's artifacts cleanly namespaced from the parent's on the shared
-branch (D8).
+`/qrspi:followup` only requires `pr.md` to exist, and `pr.md` persists after
+the PR merges — so the parent PR may already be merged when a follow-up
+lands. A P2 amendment is **inherently same-branch / same-PR**: it extends the
+parent change's open PR by adding slices to it. Therefore:
 
-**Rejected:** nested subdir (breaks flat convention + stage Globs); reuse
-parent folder (artifact-name collisions).
+- If the parent PR has already merged, there is no open PR to extend → **P3**.
+- If the work would need its own branch or its own PR (genuinely divergent,
+  or the human wants it isolated) → **P3**.
 
-### D7 — Addendum id naming: `<original-id>-addendum-N`, numbered (PQ5)
+"Needs its own branch/PR" is exactly the P2↔P3 boundary. The triage rubric
+(D2) proposes P2 only when there is an open PR to extend; a P3 idea created
+this way relates back to the parent change.
 
-The addendum change id is `<original-id>-addendum-N`, `N` starting at 1 and
-incrementing per addendum on the same parent (PQ5 option b). The
-orchestrator finds the next `N` by Globbing
-`openspec/changes/<original-id>-addendum-*/` and taking `max+1` (Q24). This
-supports multiple addenda per change and lets the orchestrator locate the
-folder programmatically. Verb-first is satisfied transitively (the parent id
-leads with a verb).
+### D5b — P2 mechanics: reuse `implement.md`'s "Adding scope after stage I" flow, in place
 
-### D8 — Addendum stays on the parent's branch; no new branch or PR (revises PQ4)
+A P2 follow-up is re-alignment work that still belongs to **this** change and
+extends the **open** PR. It is resolved by **amending the parent change in
+place** — there is NO separate folder. The mechanics are exactly
+`implement.md`'s existing "Adding scope after stage I has started"
+scope-amendment flow, applied post-PR:
 
-A P2 addendum always extends the **parent's open PR on its current branch** —
-the orchestrator never creates a branch or a separate PR and never asks a branch
-question. The justification for P2 over P3 is that the work still belongs to
-*this* change and extends the work in flight; if it cannot live on the open PR
-it is not extending anything — it is a separate change, which is P3 (D11). This
-**revises PQ4** (originally "branch by entry stage; Q/R → new branch"): the
-new-branch / follow-on-PR variant is removed, because "needs its own branch/PR"
-is exactly the P2↔P3 boundary. Consequences: the branch `AskUserQuestion` and
-the `git checkout -b` / `push -u` machinery are gone, and P2 is only meaningful
-while the parent PR is open (D8a).
+1. **Amend the approved artifacts in place.** Edit the affected `design.md`
+   `Dn` decision and/or the change's delta `specs/**` (move the item in
+   scope; add/adjust the requirement + scenarios). The orchestrator may spawn
+   a `qrspi:designer` subagent to **draft** the edit for a design-level
+   re-alignment, but it does **NOT** re-run `/qrspi:design` — that would
+   overwrite the approved artifact (Non-Goal above).
+2. **Add a `## N.` vertical-slice group** to `slices.md` **and** a matching
+   `## N.` group to `tasks.md`, each carrying a `**Model:**` annotation
+   (loading `vertical-slice` + the stack-cheatsheet skill first, as
+   `implement.md` step 2 requires — so the new slice honours documented
+   conventions).
+3. **Commit** as `docs(<id>): amend scope — <desc>`, carrying any matching
+   `openspec/backlog.md` heading edit atomically (only if the amendment
+   changes the parent row's status/note — normally it does not).
+4. **Then, per least-friction, OFFER to run `/qrspi:implement <id>` now**
+   (D6) — same branch, same PR, through the normal slice/checkpoint/commit
+   machinery.
 
-### D8a — P2 requires an open parent PR; a merged parent routes to P3
+**Why no folder (key rationale).** Entering a *separate* `<id>-addendum-N`
+folder at a late stage requires the prior stages' artifacts, so the
+orchestrator would have to **copy** the parent's `questions.md` /
+`research.md` / `design.md` into it — making the folder a near-duplicate of
+the parent, which is pointless. Separate folders also force **dual-tracking**:
+the PR reviewer, the `pr.md` tasks pass, the follow-ups pass, and `archive.md`
+would each have to enumerate `<id>` **plus** every `<id>-addendum-*`. In-place
+amendment avoids all of it and reuses machinery that already ships in
+`implement.md`. This supersedes the earlier folder-based P2 decisions.
 
-`/qrspi:followup` only requires `pr.md` to exist, and `pr.md` persists after the
-PR merges — so the parent PR may already be merged when a follow-up lands. With
-no open PR to extend, a same-branch addendum is impossible, so a merged parent
-(or any otherwise-divergent, question-/research-shaped follow-up) routes to
-**P3**, not P2. The triage rubric (D2) proposes P2 only when there is an open PR
-to extend; a P3 idea created this way relates back to the parent change.
+### D6 — Least-friction end-of-turn offers (applies the workflow principle)
 
-### D9 — Pipeline re-entry: human picks the entry stage (D/S/V/P/I); orchestrator hands off, does not auto-run (Q9, Q23, Q25)
+Applying the `workflow` "Rules of the road" principle — *prefer
+`AskUserQuestion` over emitting a command to run* — the orchestrator **offers**
+next actions as choices rather than printing a `/qrspi:…` line to copy:
 
-The valid entry stages are **D, S, V, P, I** — the design-or-later stages that
-extend an open PR. Q and R are dropped from the original Q..I list: re-opening
-questions or fresh research is early-pipeline divergence, i.e. a new change,
-which is P3 (D8/D8a). The orchestrator asks the human to pick the entry stage
-(one `AskUserQuestion`; the agent may *suggest* one from the signals — e.g.
-"reopens a design decision → D"; "reshapes a delta scenario → S"; OQ3:
-suggest-only, no pre-selection), then **instructs the human to run
-`/qrspi:<stage> <addendum-id>`** rather than invoking it itself (answers Q9).
-Handing off (not auto-running) preserves every re-entered stage's own gates and
-run-mode establishment.
+- **After P2:** offer to run `/qrspi:implement <id>` now.
+  > question: "Scope amended (slice N added). Implement it now?"
+  > choices: ["Run `/qrspi:implement <id>` now", "Not now"]
+  On "Run … now", re-enter `/qrspi:implement <id>` as a slash command.
+- **After any path (P1/P2/P3),** if un-ticked follow-ups remain, offer:
+  > question: "Follow-up handled. N un-ticked follow-up(s) remain. Continue?"
+  > choices: ["Handle the next follow-up", "Stop here"]
+  On "Handle the next follow-up", re-enter `/qrspi:followup <id>`.
 
-**Note (feasibility, verified in dogfood):** `/qrspi:<stage> <addendum-id>`
-works unmodified on a sibling id — the stage commands are id-parametric and Glob
-`openspec/changes/<id>/`; nothing hard-codes a single change. The dogfood
-confirmed only `/qrspi:questions` self-bootstraps its folder; every late
-entry-stage command (D/S/V/P/I) Globs a precondition artifact and refuses if the
-folder is missing. So `followup.md` creates the empty sibling folder itself
-(with a `.gitkeep`) before the handoff, guaranteeing the entry-stage command
-finds a valid `openspec/changes/<addendum-id>/` path on disk.
+This makes "one follow-up per invocation" (D1) the **default** with **opt-in
+chaining** — the human is never handed a bare "now run X" for an obvious next
+step. Emitting a command is the fallback only where no interactive choice is
+possible.
 
-### D10 — `followups.md` annotation for P2 and P3: tick-with-note, mirroring pr.md precedent (PQ6)
+### D7 — `followups.md` annotation per path: tick-with-note, mirroring pr.md (PQ6)
 
-Both P2 and P3 **tick** the `followups.md` entry with an annotation, rather
-than leaving it un-ticked (resolves PQ6):
+All three paths **tick** the `followups.md` entry (research established the
+archival un-ticked check in `archive.md` is inform-only, non-blocking —
+§Implicit-contracts 6 — but ticking mirrors the pr.md idiom and keeps the
+audit trail honest: the box closes *here* because this item's disposition is
+decided *here*). Note: the repo uses **ASCII `--`** in these parentheticals.
 
-- **P2:** `- [ ] <text>` → `- [x] <text> (routed to addendum <addendum-id>)`
-- **P3:** `- [ ] <text>` → `- [x] <text> (deferred to backlog — <slug>)`
+- **P1:** no new annotation — the standard `— fixed in <short-sha>` tick from
+  the fix checklist is the record.
+- **P2:** `- [ ] <text>` → `- [x] <text> (re-aligned in place -- slice N)`.
+- **P3:** `- [ ] <text>` → `- [x] <text> (deferred to backlog -- <slug>)`.
 
-Rationale: research established the archival un-ticked check in `archive.md`
-is **inform-only, non-blocking** (§Implicit-contracts 6) — so ticking is not
-strictly required to unblock archive, but it *is* the right choice for two
-reasons. (1) It mirrors the **existing pr.md precedent exactly**: that gate
-already writes `- [x] <text> (promoted to backlog)` and `- [x] <text>
-(dropped — ...)` — tick-with-parenthetical-note is the established
-`followups.md` disposition idiom, so P2/P3 reuse it rather than inventing a
-new leave-un-ticked-but-annotated shape. (2) It keeps the audit trail
-honest: the box is closed *here* because this item's disposition is decided
-*here* (routed onward / deferred); the follow-on work is tracked by the
-addendum folder (P2) or the backlog row (P3), not by a dangling parent
-checkbox. This satisfies the "every box ticked before archival" advisory
-without leaving a box that blocks nothing but reads as unfinished.
+The follow-on work is tracked by the new parent slice (P2) or the backlog row
+(P3), not by a dangling checkbox. This mirrors pr.md's existing
+`(promoted to backlog)` / `(dropped -- ...)` tick-with-parenthetical exactly.
 
-**Rejected:** leave-un-ticked (Q12b/Q15b) — reads as unfinished, blocks
-nothing, and diverges from the pr.md idiom; delete-the-entry (Q12c/Q15c) —
-loses the audit trail of why the item left the queue.
+**Rejected:** leave-un-ticked — reads as unfinished, blocks nothing, diverges
+from the pr.md idiom; delete-the-entry — loses the audit trail.
 
-### D11 — P3 defer reuses pr.md's "Promote to backlog idea" mechanics, P3 default priority (PQ7, Q14, Q16)
+### D8 — Recommended: a `scripts/lint.mjs` structural check for the triage choices (Q29, OQ2)
+
+Add **Check 10** asserting `claude/commands/followup.md` contains the three
+triage choice anchors — the P1/P2/P3 choice-label prefixes from D4 (e.g.
+`"P1 — implement directly`, `"P2 — amend this change in place`,
+`"P3 — defer`). This mirrors Check 8 (`checkPrReconciliationPasses`), which
+already pins the follow-ups pass choice labels in `pr.md`, so the triage gate
+gets the same mechanical floor and a future rename can't silently drop a path.
+Follow the documented add-a-check pattern (new
+`async function checkTriagePaths(errors)` + a `main()` call + header-comment
+update).
+
+### D9 — P3 defer reuses pr.md's "Promote to backlog idea" mechanics, P3 default priority (PQ7, Q14, Q16)
 
 Path 3 appends **one `idea` row** to `openspec/backlog.md` under `## Ideas`,
 using the exact mechanics research documented for `pr.md`'s follow-ups pass:
 level-3 heading with kebab-slug + `idea` status + `· **P3**` priority band,
 followed by a `**Why:**` paragraph; slug derived from the follow-up title.
 The orchestrator writes the row itself (answers Q14 — agent writes it, does
-not merely instruct). Priority defaults to **P3** (PQ7), matching the pr.md
-convention. This does **not** violate `followup.md`'s "a post-PR fix does
-not change the backlog *status line*" rule (Q31): adding a new `idea` row is
-distinct from flipping the parent change's `in-progress` status — the parent
-row is untouched. Both the backlog row and the `followups.md` tick (D10) are
-staged in the same commit (backlog atomicity).
+not merely instruct). Priority defaults to **P3** (PQ7). This does **not**
+violate `followup.md`'s "a post-PR fix does not change the backlog *status
+line*" rule (Q31): adding a new `idea` row is distinct from flipping the
+parent change's `in-progress` status — the parent row is untouched. Both the
+backlog row and the `followups.md` tick (D7) are staged in the same commit
+(backlog atomicity). Commit: `docs(<id>): defer <slug> to backlog (P3)`.
 
-### D12 — Files that change; postpr-fix stays path-1-only (PQ8); workflow gets the summary (PQ9)
+### D10 — Files that change; postpr-fix stays path-1-only (PQ8); workflow gets the summary (PQ9)
 
-- `claude/commands/followup.md` — the triage gate (D1–D5), P2 mechanics
-  (D6–D10), P3 mechanics (D10–D11). The bulk of the change.
+- `claude/commands/followup.md` — the triage gate (D1–D5), the in-place P2
+  mechanics (D5b), P3 mechanics (D7, D9), and the least-friction offers (D6).
+  The bulk of the change. All folder/entry-stage/branch machinery from the
+  earlier draft is removed.
 - `claude/skills/postpr-fix/SKILL.md` — **unchanged** (PQ8): the implementer
   does not triage; the three-path model lives only in the orchestrator.
-- `claude/skills/workflow/SKILL.md` — update "After PR — the fix loop" to
-  summarize the triage and the three paths (PQ9), so stage-command authors
-  get the full picture from `workflow`.
+- `claude/skills/workflow/SKILL.md` — "After PR — the fix loop" already
+  summarizes the triage and three paths; update it so the **P2 description is
+  the in-place amendment** (not the folder model), and confirm the
+  least-friction principle in "Rules of the road" covers the P2/next-follow-up
+  offers (PQ9).
 - `copilot/prompts/qrspi-followup.prompt.md` and any touched
   `copilot/instructions/*` — **regenerated** by `node sync-copilot.mjs`,
   never hand-edited (research §Copilot; house rule). The existing
   `AskUserQuestion → #tool:vscode/askQuestions` and skill-load rewrites apply
-  to the new triage prose automatically; no new fidelity gap is expected
-  (Q26, Q27).
+  automatically; no new fidelity gap expected (Q26, Q27).
 - `CHANGELOG.md` — one line under `## [Unreleased]` (Q32); no version bump.
-- `scripts/lint.mjs` — recommended new Check 10 (D13).
-
-### D13 — Recommended: a `scripts/lint.mjs` structural check for the triage choices (Q29)
-
-Add **Check 10** asserting `claude/commands/followup.md` contains the three
-triage choice anchors — the P1/P2/P3 choice-label prefixes from D4 (e.g.
-`"P1 — implement directly`, `"P2 — addendum`, `"P3 — defer`). This mirrors
-Check 8 (`checkPrReconciliationPasses`), which already pins the follow-ups
-pass choice labels in `pr.md`, so the triage gate gets the same mechanical
-floor and a future rename can't silently drop a path. Follow the documented
-add-a-check pattern (new `async function checkTriagePaths(errors)` + a
-`main()` call + header-comment update). The acceptance bar (Q28) is code
-review of the prose diff **plus** this lint anchor; a full dogfood run
-(create a multi-capability follow-up, watch it route to P2) is the
-higher-confidence option and is offered as an open question below.
+- `scripts/lint.mjs` — new Check 10 (D8). `postpr-fix` stays path-1-only.
 
 ## Vertical slices (preview)
 
@@ -299,16 +321,19 @@ Prose-only kit change; slices are thin but still user-facing end-to-end:
   the D4 `AskUserQuestion`, and wire P1 to today's implementer spawn
   (P2/P3 stubbed to "not yet"). Demoable: running `/qrspi:followup`
   surfaces the triage and, on P1, resolves a fix exactly as before.
-- **Slice 2 — P3 defer path:** wire P3 to the backlog-idea append + D10
+- **Slice 2 — P3 defer path:** wire P3 to the backlog-idea append + D7
   tick. Demoable: a new-scope follow-up lands as a `P3` idea row and the
-  box is ticked `(deferred to backlog — <slug>)`.
-- **Slice 3 — P2 addendum path:** wire folder/id/entry-stage mechanics (same
-  branch, no branch question) + D10 tick + handoff. Demoable: a large follow-up
-  produces a `<id>-addendum-1` folder on the parent branch and a handoff
-  instruction.
-- **Slice 4 — workflow summary + copilot resync + lint Check 10:** update
-  `workflow`, run `sync-copilot.mjs`, add the lint check; `node
-  scripts/lint.mjs` green.
+  box is ticked `(deferred to backlog -- <slug>)`.
+- **Slice 3 — P2 in-place scope-amendment path:** wire P2 to the
+  `implement.md` scope-amendment flow — edit `design.md`/delta specs in
+  place, append a `## N.` slice to `slices.md` + `tasks.md`, commit, tick
+  `(re-aligned in place -- slice N)`, and offer `/qrspi:implement <id>` now.
+  Demoable: a design-re-alignment follow-up adds a slice to the parent change
+  on the same branch and offers to build it — no new folder.
+- **Slice 4 — least-friction offers + workflow summary + copilot resync + lint
+  Check 10:** wire the "next follow-up?" offer (D6), align `workflow`'s "After
+  PR" P2 text to the in-place model, run `sync-copilot.mjs`, add the lint
+  check; `node scripts/lint.mjs` green.
 
 ## Risks / Trade-offs
 
@@ -316,18 +341,19 @@ Prose-only kit change; slices are thin but still user-facing end-to-end:
   the wrong path. Mitigated: the human always confirms/overrides (PQ1) and
   the gate is never suppressed (D3). The rubric is a nudge, not an
   auto-router.
-- **Addendum folder proliferation.** Sibling folders `-addendum-1/-2/...`
-  accumulate under `openspec/changes/`. Accepted: they archive with (or
-  alongside) the parent like any change; the flat model is the cost of a
-  clean per-change QRSPI shape.
-- **Same-branch addendum grows the PR.** A P2 addendum always lands on the
-  parent's branch (D8), so a large one can bloat the open PR. Accepted: the
-  triage gate is the control — genuinely divergent or post-merge work is P3
-  (D8a), so only work that legitimately belongs in this PR lands here.
-- **Stage-command folder bootstrapping for late entry stages (S/V/P/I).**
-  If a late entry-stage command does *not* create a missing sibling folder,
-  the handoff fails. Flagged as the D9 stage-I watch-item with a `mkdir`
-  fallback in `followup.md`.
+- **In-place P2 grows the open PR.** A P2 amendment always adds slices to the
+  parent's open PR (D5b), so a large one can bloat the PR. Accepted: the
+  triage gate is the control — genuinely divergent, isolate-worthy, or
+  post-merge work is P3 (D5a), so only work that legitimately belongs in this
+  PR lands here. This is the same trade-off `implement.md`'s existing
+  scope-amendment flow already makes.
+- **Amend-in-place vs. re-running the stage.** A P2 edit touches the approved
+  `design.md`/specs directly rather than re-running `/qrspi:design`. Risk: a
+  hand-edit can diverge from the artifact's conventions. Mitigated by reusing
+  `implement.md`'s documented flow (load `vertical-slice` + stack-cheatsheet
+  first) and, for design-level edits, an optional `qrspi:designer` draft. The
+  alternative (re-run the stage) would overwrite the approved artifact and is
+  explicitly a Non-Goal.
 - **Lint anchor brittleness.** Check 10 pins the exact choice-label prefixes;
   a wording change to D4's choices must update the lint (same property as
   Check 8). Accepted — that is the point of the anchor.
@@ -335,16 +361,18 @@ Prose-only kit change; slices are thin but still user-facing end-to-end:
 ## Open questions for the human
 
 - [x] **OQ1 — Acceptance bar (Q28).** **Resolved: dogfood the P2 path once.**
-  Acceptance = code review of the prose diff **+** lint Check 10 **+** one real
-  dogfood run of the P2 addendum path (create a multi-capability follow-up,
-  run `/qrspi:followup`, confirm it routes to P2 and produces the sibling
-  folder + handoff). P2 is the most novel mechanics, so it gets the
-  higher-confidence bar.
+  Acceptance = code review of the prose diff **+** lint Check 10 **+** one
+  real dogfood run of the **in-place P2** path end to end: create a
+  design-re-alignment follow-up, run `/qrspi:followup`, confirm it routes to
+  P2, amends `design.md`/`slices.md`/`tasks.md` in place, ticks
+  `(re-aligned in place -- slice N)`, and offers `/qrspi:implement <id>`; then
+  accept the offer and confirm the new slice implements on the same branch.
+  P2 is the most novel mechanics, so it gets the higher-confidence bar.
 - [x] **OQ2 — Is lint Check 10 worth its brittleness?** **Resolved: yes, add
   Check 10.** Parity with Check 8; the mechanical floor against a silently
-  dropped path is worth the wording-brittleness cost (D13 proceeds).
-- [x] **OQ3 — Entry-stage suggestion strength (D9).** **Resolved: suggest
-  only.** The agent names a suggested entry stage in the question text but
-  pre-selects nothing; the human picks explicitly — entry-stage choice stays a
-  deliberate human pick. (The branch question this once compared against is now
-  gone — D8: the addendum always uses the parent's branch.)
+  dropped path is worth the wording-brittleness cost (D8 proceeds).
+- [x] **OQ3 — Entry-stage suggestion strength.** **Resolved: obsolete.** The
+  earlier folder-based P2 asked the human to pick an entry stage (D/S/V/P/I)
+  for an addendum folder. The in-place model has **no entry stage** — P2 edits
+  the parent artifacts directly and, if building is wanted, offers
+  `/qrspi:implement <id>`. This question no longer applies.
