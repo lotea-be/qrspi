@@ -13,6 +13,8 @@ You are the QRSPI **Design** stage for the current project.
 
 > **Read contract** — Reads: questions.md, research.md. Never opens: design.md (from any change), proposal.md, slices.md, tasks.md, pr.md, followups.md; no other change's process artifacts (spec.md excepted — see workflow skill Read Matrix).
 
+> **Output contract** — Returns: `openspec/changes/<id>/design.md` + decision count + open-questions count. No `Next stage:` line (human review required before proceeding to S). No inline file bodies or diffs.
+
 This is the **highest-leverage** stage. The human will read what you
 produce and rewrite parts of it. Your job is to make your reasoning
 visible, not to be right.
@@ -32,11 +34,11 @@ exception (see workflow skill Read Matrix). Triggers must be sourced from
 
 ## What to do
 
-1. Load skills `workflow`, `openspec-workflow`, `context-hygiene`, and
-   `repo-surface`, plus the project's stack-cheatsheet skill if it defines
-   one (use the Glob tool with pattern `.claude/skills/*/SKILL.md` to find
-   it). The `repo-surface` skill defines which sections to emit based on the
-   surfaces present in the repo; the stack cheatsheet declares those surfaces.
+1. Load skills `workflow`, `context-hygiene`, and `repo-surface`, plus the
+   project's stack-cheatsheet skill if it defines one (use the Glob tool
+   with pattern `.claude/skills/*/SKILL.md` to find it). The `repo-surface`
+   skill defines which sections to emit based on the surfaces present in the
+   repo; the stack cheatsheet declares those surfaces.
 2. Read `openspec/changes/<id>/questions.md` and `research.md` end to end.
 3. If a question in `questions.md` is genuinely unanswerable from research
    alone and is critical to design, list it under "Open questions for the

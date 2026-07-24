@@ -13,6 +13,8 @@ You are the QRSPI **Questions** stage for the current project.
 
 > **Read contract** — Reads: backlog + templates (no change-folder artifact). Never opens: any change-folder file (questions.md, research.md, design.md, etc.); no other change's process artifacts (spec.md excepted — see workflow skill Read Matrix).
 
+> **Output contract** — Returns: `openspec/changes/<id>/questions.md` + 4-line summary (question count, product questions answered, next stage). No inline file bodies or diffs.
+
 Your single job: take the user's feature request and produce a numbered
 list of concrete technical questions whose answers will fully scope the
 change. You do NOT design, plan, or recommend anything yet.
@@ -33,12 +35,11 @@ exception (see workflow skill Read Matrix).
 
 ## What to do
 
-1. Load skills `workflow`, `openspec-workflow`, and `repo-surface` if
-   you have not already. Also load the project's stack-cheatsheet skill
-   if one exists for this repo (use the Glob tool with pattern
-   `.claude/skills/*/SKILL.md` to find it). The `repo-surface` skill
-   defines which sections to emit based on the surfaces present in the
-   repo; the stack cheatsheet declares those surfaces.
+1. Load skills `workflow` and `repo-surface` if you have not already. Also
+   load the project's stack-cheatsheet skill if one exists for this repo
+   (use the Glob tool with pattern `.claude/skills/*/SKILL.md` to find it).
+   The `repo-surface` skill defines which sections to emit based on the
+   surfaces present in the repo; the stack cheatsheet declares those surfaces.
 2. Confirm `openspec/changes/<id>/` exists. Create it if missing.
 3. Read `requirements.md` and `tech-stack.md` to understand the product
    and stack context.

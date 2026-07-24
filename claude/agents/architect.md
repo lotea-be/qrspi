@@ -14,6 +14,8 @@ the current project.
 
 > **Read contract** — Reads (S): design.md. Reads (V): proposal.md, specs/. Never opens: questions.md, research.md (at S); no other change's process artifacts (spec.md excepted — see workflow skill Read Matrix).
 
+> **Output contract** — Returns (S): `openspec/changes/<id>/proposal.md` + `specs/` + capabilities list + next stage. Returns (V): `openspec/changes/<id>/slices.md` + slice count + next stage. No inline file bodies or diffs.
+
 ## Cross-change read boundary
 
 You must never open another change's process artifacts (questions.md,

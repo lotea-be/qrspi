@@ -63,6 +63,11 @@
 //     to be PRESENT; Check 11 requires CRUD headings to be ABSENT from fenced
 //     blocks -- disjoint heading sets AND disjoint scopes (full body vs. fences).
 //
+// 12. OUTPUT-CONTRACT BANNER PRESENCE -- each of the seven stage agents must
+//     carry a `> **Output contract**` banner line (presence-only check;
+//     the banner text is human-authored). Mirrors the scope and pattern of
+//     Check 7. Registered after Check 11.
+//
 //  Exits 0 if all checks pass, 1 if any check reports a violation.
 //  Requires only Node.js built-ins (fs, path) -- no npm dependencies.
 // ============================================================================
@@ -979,6 +984,114 @@ async function checkMigrationManifests(errors) {
 // read-contract banner. The expected-map keys ARE the scope: no other file is
 // ever opened by this check.
 
+// ---- Check N (skill-sets): SKILL-SET REGISTRY ------------------------------
+//
+// Registry of the fixed, unconditional kit skills each stage agent is allowed
+// to load. The <repo>-stack cheatsheet name is Glob-discovered per-repo and
+// is explicitly excluded -- it must NOT appear here (neither required nor
+// forbidden). Mirrors the shape / placement of READ_CONTRACT_EXPECTED.
+//
+// Derived from the approved design (D2, D5, D6) -- imported from the shared
+// module scripts/skill-sets.mjs (single source of truth, D7) so that
+// scripts/context-footprint.mjs can reuse it without drift.
+import { SKILL_SET_EXPECTED } from './skill-sets.mjs';
+
+// ---- Check N (skill-sets): checkSkillSets -----------------------------------
+//
+// For each of the seven stage agents, harvest the backtick-wrapped skill names
+// from the "Load skills" line (reusing the same extraction logic as
+// checkSkillRefs in Check 2), FILTER OUT any name ending in "-stack" (the
+// <repo>-stack cheatsheet is Glob-discovered per-repo -- it is neither required
+// nor forbidden, per D6), then assert the remaining sorted set equals
+// SKILL_SET_EXPECTED[stem].
+//
+// On mismatch, reports the added and missing skills and contributes to the
+// non-zero exit code (D5).
+//
+// SCOPE: strictly the seven stage agents named in SKILL_SET_EXPECTED.
+
+async function checkSkillSets(errors) {
+  const agentsDir = path.join(root, 'claude', 'agents');
+  let violations = 0;
+
+  for (const stem of Object.keys(SKILL_SET_EXPECTED)) {
+    const rel = `claude/agents/${stem}.md`;
+    const text = await readFileOr(path.join(agentsDir, `${stem}.md`), null);
+    if (text === null) {
+      errors.push(`[skill-sets] ${rel}: file not found`);
+      violations++;
+      continue;
+    }
+
+    const { body } = splitFront(text);
+
+    // Harvest backtick-wrapped skill names from "Load skill(s)" lines.
+    // A Load skills line may wrap across multiple source lines -- join each
+    // "Load skills?" line with all immediately following indented lines to
+    // capture continuation lines like:
+    //   "Load skills `a`, `b`, and\n   `c`, plus the project's..."
+    // Harvest backtick-wrapped skill names from the main step-1 "Load skills"
+    // instruction line. We match lines that begin with a numbered step prefix
+    // ("1." or "1 ") and contain "Load skill(s)". A Load skills line may wrap
+    // across multiple source lines -- join each such line with all immediately
+    // following indented continuation lines to capture the full skill list.
+    //
+    // Deliberate exclusions:
+    //   - Bullet-list items (lines starting with "-") such as Fix-mode's
+    //     "- Load skill `postpr-fix`..." are NOT step-1 loads and are excluded.
+    //   - Prose references to skills elsewhere in the body are excluded.
+    const harvested = new Set();
+    const backtickRe = /`([A-Za-z0-9_-]+)`/g;
+    const lines = body.split('\n');
+    for (let i = 0; i < lines.length; i++) {
+      // Match only numbered-step lines that contain "Load skill(s)" -- the
+      // canonical step-1 form is "1. Load skills `...`" or "1. Load skill `...`".
+      if (/^\s*\d+\.\s[^\n]*Load skills?\s/i.test(lines[i])) {
+        // Gather the starting line plus any immediately following continuation
+        // lines (lines that start with whitespace and do not start a new list
+        // item or a new numbered step).
+        let segment = lines[i];
+        for (let j = i + 1; j < lines.length; j++) {
+          const next = lines[j];
+          // Continuation: indented and does not start a new step (^\d+\.) or
+          // a new list item (^[-*]) at the same indent level as the step marker.
+          if (/^\s+/.test(next) && !/^\s*\d+\.\s/.test(next) && !/^\s*[-*]\s/.test(next)) {
+            segment += ' ' + next;
+          } else {
+            break;
+          }
+        }
+        backtickRe.lastIndex = 0;
+        let bm;
+        while ((bm = backtickRe.exec(segment)) !== null) {
+          harvested.add(bm[1]);
+        }
+      }
+    }
+    // Filter out the <repo>-stack cheatsheet name (ends with "-stack") -- D6.
+    const filtered = [...harvested].filter((name) => !name.endsWith('-stack')).sort();
+    const expected = [...SKILL_SET_EXPECTED[stem]].sort();
+
+    const added   = filtered.filter((n) => !expected.includes(n));
+    const missing = expected.filter((n) => !filtered.includes(n));
+
+    if (added.length > 0 || missing.length > 0) {
+      const parts = [];
+      if (added.length > 0)   parts.push(`unexpected: ${added.map((n) => '`' + n + '`').join(', ')}`);
+      if (missing.length > 0) parts.push(`missing: ${missing.map((n) => '`' + n + '`').join(', ')}`);
+      errors.push(`[skill-sets] ${rel}: skill-set mismatch -- ${parts.join('; ')}`);
+      violations++;
+    }
+  }
+
+  if (violations === 0) {
+    process.stdout.write(
+      `  OK: ${Object.keys(SKILL_SET_EXPECTED).length} stage-agent skill-set(s) match the registry\n`
+    );
+  }
+  return violations;
+}
+
 // Expected `Reads:` field per stage agent -- the exact text that must appear
 // between the banner's em-dash separator and its `Never opens:` clause, after
 // whitespace normalisation. Derived mechanically from the read matrix; the
@@ -1368,6 +1481,54 @@ async function checkNoCrudSkeletonHeadings(errors) {
   return violations;
 }
 
+// ---- Check 12: OUTPUT-CONTRACT BANNER PRESENCE -----------------------------
+//
+// Each of the seven QRSPI stage agents carries a `> **Output contract**`
+// banner near the top of its file (adjacent to the Read contract banner).
+// This check asserts that the banner line is present -- it is a presence-only
+// check (the banner text is human-authored and not machine-parsed here).
+//
+// Regex: /^>\s*\*\*Output contract\*\*/ must match at least one line in
+// each agent's body (after stripping frontmatter).
+//
+// SCOPE: strictly the seven stage agents named in READ_CONTRACT_EXPECTED
+// (researcher, questioner, designer, architect, planner, implementer,
+// reviewer). Mirrors the scope of checkReadContracts (Check 7).
+
+async function checkOutputContracts(errors) {
+  const agentsDir = path.join(root, 'claude', 'agents');
+  let violations = 0;
+  const OUTPUT_CONTRACT_RE = /^>\s*\*\*Output contract\*\*/;
+
+  for (const stem of Object.keys(READ_CONTRACT_EXPECTED)) {
+    const rel = `claude/agents/${stem}.md`;
+    const text = await readFileOr(path.join(agentsDir, `${stem}.md`), null);
+    if (text === null) {
+      errors.push(`[output-contract] ${rel}: file not found -- expected a stage-agent output-contract banner`);
+      violations++;
+      continue;
+    }
+
+    const { body } = splitFront(text);
+    const lines = body.split('\n');
+    const hasBanner = lines.some((l) => OUTPUT_CONTRACT_RE.test(l));
+
+    if (!hasBanner) {
+      errors.push(
+        `[output-contract] ${rel}: no '> **Output contract**' banner line found`
+      );
+      violations++;
+    }
+  }
+
+  if (violations === 0) {
+    process.stdout.write(
+      `  OK: ${Object.keys(READ_CONTRACT_EXPECTED).length} stage-agent output-contract banner(s) present\n`
+    );
+  }
+  return violations;
+}
+
 // ---- main ------------------------------------------------------------------
 
 async function main() {
@@ -1380,6 +1541,9 @@ async function main() {
 
   process.stdout.write('\nCheck 2: Frontmatter / name resolution\n');
   await checkFrontmatter(errors);
+
+  process.stdout.write('\nCheck 2b: Skill-set registry\n');
+  await checkSkillSets(errors);
 
   process.stdout.write('\nCheck 3: Heading alignment\n');
   await checkHeadingAlignment(errors);
@@ -1407,6 +1571,9 @@ async function main() {
 
   process.stdout.write('\nCheck 11: No CRUD skeleton headings in fenced blocks\n');
   await checkNoCrudSkeletonHeadings(errors);
+
+  process.stdout.write('\nCheck 12: Output-contract banner presence\n');
+  await checkOutputContracts(errors);
 
   process.stdout.write('\n');
   if (errors.length === 0) {
