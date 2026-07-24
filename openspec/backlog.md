@@ -7,47 +7,7 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## In progress
 
-The two rows below are the input + output halves of one change,
-`context-budget` (branch `features/context-budget`), which bundles them as
-complementary levers on the same per-stage context surface. They flip together
-and archive together. Q, R, D, S, V, P, I complete — awaiting PR.
-
-### trim-per-stage-context-loading — `in-progress (bundled into context-budget; PR #31 open)` · **P1**
-
-**Why:** Per-run token burn is dominated by **input** — what each QRSPI stage
-auto-loads (the `<repo>-stack` skill + the workflow/convention skills) plus the
-files its subagent reads — yet nothing audits or caps that surface.
-`context-hygiene` states the principle (keep windows under 40%, subagents as
-context firewalls) but enforces nothing, so the per-stage load creeps silently as
-skills, agents, and templates accrete, and every stage of every change pays it.
-This is the single biggest lever on the runaway token cost.
-
-**Shape:** Audit the per-stage load surface — which skills each stage
-command/agent auto-loads, and the typical read footprint — and trim each stage to
-only what it needs (not every stage needs every skill; scope reads by stage). Add
-a lightweight visibility signal (e.g. log context% at stage entry) so regressions
-are noticeable, and consider a `scripts/lint.mjs`-style check that a stage loads
-only its declared skill set. Relates to `context-hygiene` (the standing principle
-this makes measurable/enforced), [[enforce-research-ticket-hiding]] (the same
-"guard, don't just ask nicely" move applied to a reader's inputs),
-[[bounded-subagent-return-summaries]] (the complementary output-side lever, its
-bundle partner), and [[configurable-effort-and-thinking]] (the compute-side
-lever). **P1 under the recurring token/cost band:** not a correctness gap, but a
-systemic per-run cost defect that compounds on every stage of every change.
-Surfaced 2026-07-24 (token burn flagged as climbing).
-
-### bounded-subagent-return-summaries — `in-progress (bundled into context-budget; PR #31 open)` · **P2**
-
-**Why:** Every QRSPI stage delegation returns its subagent's final message into
-the **main-loop** context, and nothing bounds that payload — a verbose return
-re-inflates exactly the context the subagent firewall exists to protect, undoing
-part of the delegation's token benefit. Establish a convention that each stage
-subagent hands back a **bounded, structured** result — the artifact path, a short
-N-line summary, and the next command — not free-form prose. Small, low-cost,
-always-on lever on the output side (complements input-side
-[[trim-per-stage-context-loading]], its bundle partner). Could ride each agent
-file's output-contract section, with a lint asserting the return-contract wording
-is present. Surfaced 2026-07-24 (token burn flagged as climbing).
+_None._
 
 ---
 
@@ -70,8 +30,8 @@ this ordering whenever an item is added, modified, or archived (see
 
 **Token/cost levers** (the recurring cost band, salient with burn climbing) are
 kept adjacent near the top so the cost story reads at a glance: the **input** and
-**output** levers are now in flight together as [[context-budget]] (see
-`## Proposed` above); [[simplify-per-slice-model-selection]] (model),
+**output** levers shipped together as `context-budget` (merged and archived
+2026-07-24); [[simplify-per-slice-model-selection]] (model),
 [[configurable-effort-and-thinking]] (compute), and
 [[standardize-recurring-ops-scripts]] (reasoning/exploration) remain here. The
 **surface-taxonomy family** spun off [[repo-applicable-artifact-sections]] —
@@ -142,9 +102,8 @@ That has two costs. (1) **Consistency** — the re-derivation risks drift, so th
 same op runs slightly differently run-to-run. (2) **Token/exploration cost** —
 computing a deterministic fact by reading files and reasoning through an approach
 spends tokens each run that a single `node scripts/foo.mjs` call could return in
-one tool result; this is the fourth token lever alongside input load
-([[trim-per-stage-context-loading]]), output payload
-([[bounded-subagent-return-summaries]]), and compute
+one tool result; this is the fourth token lever alongside the input-load and
+output-payload levers (both shipped in `context-budget`) and compute
 ([[configurable-effort-and-thinking]]) — it targets the **reasoning/exploration**
 axis. The kit already proves the fix — [`scripts/lint.mjs`](scripts/lint.mjs) is a
 recurring mechanical task extracted to a Node script. Extend that pattern to the
