@@ -13,7 +13,35 @@ _None._
 
 ## Proposed
 
-_None._
+### simplify-per-slice-model-selection — `proposed (change folder created 2026-07-24, bundled into per-slice-compute-knobs)` · **P2**
+
+**Why:** Per-slice model intent is endorsed by the source, but the mechanism (the
+architect writes a markdown `**Model:**` annotation; the implementer self-halts and
+asks to be re-invoked when on the wrong model) is fragile.
+Consider a simpler lever or a single implement-stage model. **Reprioritized
+P3→P2 (2026-07-24):** running mechanical slices on a cheaper model is a direct
+token/cost lever, now salient with burn climbing — and it's the mechanism
+[[configurable-effort-and-thinking]] wants to ride, so it sequences first.
+**Bundled into `per-slice-compute-knobs`** — co-designed with
+[[configurable-effort-and-thinking]] as one unified compute-declaration mechanism.
+
+### configurable-effort-and-thinking — `proposed (change folder created 2026-07-24, bundled into per-slice-compute-knobs)` · **P2**
+
+**Why:** A change can already set a per-slice **model** (the architect writes a
+`**Model:**` annotation the implementer honors), but reasoning **effort** and
+**thinking budget** are not similarly configurable — they inherit whatever the
+invoking session defaults to. That leaves tokens on the table in both
+directions: mechanical slices could run at low effort with no extended thinking,
+while the design-adjacent "brain surgery" work wants high effort and a large
+thinking budget. Consider making effort and thinking declarable alongside model
+(per-slice, or as a stage-level knob) and have the stage command/agent pass them
+through on delegation. Weigh against [[simplify-per-slice-model-selection]],
+which argues the existing `**Model:**` annotation is already too fragile — any
+effort/thinking lever should ride the same (simpler) mechanism rather than
+bolting on a third fragile markdown knob. **Reprioritized P3→P2 (2026-07-24):**
+effort/thinking is a direct token lever and token burn is now the pressing
+concern. **Bundled into `per-slice-compute-knobs`** — co-designed with
+[[simplify-per-slice-model-selection]] as one unified compute-declaration mechanism.
 
 ---
 
@@ -31,8 +59,9 @@ this ordering whenever an item is added, modified, or archived (see
 **Token/cost levers** (the recurring cost band, salient with burn climbing) are
 kept adjacent near the top so the cost story reads at a glance: the **input** and
 **output** levers shipped together as `context-budget` (merged and archived
-2026-07-24); [[simplify-per-slice-model-selection]] (model),
-[[configurable-effort-and-thinking]] (compute), and
+2026-07-24); [[simplify-per-slice-model-selection]] and
+[[configurable-effort-and-thinking]] (bundled into `per-slice-compute-knobs`,
+now proposed), and
 [[standardize-recurring-ops-scripts]] (reasoning/exploration) remain here. The
 **surface-taxonomy family** spun off [[repo-applicable-artifact-sections]] —
 [[enforce-artifact-surface-applicability]], [[kit-self-surfaces]],
@@ -66,33 +95,6 @@ two-source-of-truth caution in [[optional-technology-specs]]. **P1 like
 [[repo-applicable-artifact-sections]]:** a highly visible artifact-quality defect
 (ugly process references baked into shipped code) rather than a live-workflow
 correctness gap. Surfaced 2026-07-24.
-
-### simplify-per-slice-model-selection — `idea` · **P2**
-
-**Why:** Per-slice model intent is endorsed by the source, but the mechanism (the
-architect writes a markdown `**Model:**` annotation; the implementer self-halts and
-asks to be re-invoked when on the wrong model) is fragile.
-Consider a simpler lever or a single implement-stage model. **Reprioritized
-P3→P2 (2026-07-24):** running mechanical slices on a cheaper model is a direct
-token/cost lever, now salient with burn climbing — and it's the mechanism
-[[configurable-effort-and-thinking]] wants to ride, so it sequences first.
-
-### configurable-effort-and-thinking — `idea` · **P2**
-
-**Why:** A change can already set a per-slice **model** (the architect writes a
-`**Model:**` annotation the implementer honors), but reasoning **effort** and
-**thinking budget** are not similarly configurable — they inherit whatever the
-invoking session defaults to. That leaves tokens on the table in both
-directions: mechanical slices could run at low effort with no extended thinking,
-while the design-adjacent "brain surgery" work wants high effort and a large
-thinking budget. Consider making effort and thinking declarable alongside model
-(per-slice, or as a stage-level knob) and have the stage command/agent pass them
-through on delegation. Weigh against [[simplify-per-slice-model-selection]],
-which argues the existing `**Model:**` annotation is already too fragile — any
-effort/thinking lever should ride the same (simpler) mechanism rather than
-bolting on a third fragile markdown knob. **Reprioritized P3→P2 (2026-07-24):**
-effort/thinking is a direct token lever and token burn is now the pressing
-concern.
 
 ### standardize-recurring-ops-scripts — `idea` · **P2**
 
