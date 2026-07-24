@@ -166,9 +166,9 @@ be able to override either steer.
 
 ### Requirement: P2 path hands off to the human, does not auto-run the addendum pipeline
 
-On P2, after the folder is created and the branch is established, the system
-MUST end the turn by instructing the human to run
-`/qrspi:<chosen-entry-stage> <addendum-id>` — it MUST NOT auto-invoke the
+On P2, the system MUST end the turn — after the folder is created and the
+branch is established — by instructing the human to run
+`/qrspi:<chosen-entry-stage> <addendum-id>`; it MUST NOT auto-invoke the
 entry-stage command itself. This preserves the re-entered stage's own gates
 (including the ticket-blind Research invariant when the entry stage is R) and
 keeps the followup orchestrator from bypassing run-mode establishment.
