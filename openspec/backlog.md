@@ -94,8 +94,7 @@ Touches the (A) skeleton sources — `claude/agents/questioner.md`,
 `openspec-templates/{questions,design,proposal,tasks}.template.md` — and,
 lightly, the (B) framing sources (`claude/skills/vertical-slice/SKILL.md`,
 `claude/skills/workflow/SKILL.md`). The `<repo>-stack` cheatsheet is the
-filter's source of truth. Regenerate the `copilot/` tree via
-`sync-copilot.mjs` at the end. Highly visible artifact-quality defect in every
+filter's source of truth. Highly visible artifact-quality defect in every
 generated artifact — hence P1 despite not being a live-workflow correctness
 gap. Surfaced 2026-07-23 reviewing `right-size-followup-handling` (questions.md
 N/A stanzas; irrelevant PR-checklist items). Relates to
@@ -132,8 +131,7 @@ later change can refresh just one:
 Re-running `/qrspi:init` must **detect and offer to refresh** each of the three
 (the way `/qrspi:stack` already does "Read it first — this is a refresh"), never
 clobber. README's install/onboarding section and the stage table would need
-updating (per the CLAUDE.md "keep the README current" rule), plus the regenerated
-`copilot/` tree. Relates to [[multi-repo-central-specs]] (a central spec repo
+updating (per the CLAUDE.md "keep the README current" rule). Relates to [[multi-repo-central-specs]] (a central spec repo
 would want a shared overview too) and [[optional-technology-specs]].
 
 ### backlog-prioritization — `idea` · **P2**
@@ -186,9 +184,9 @@ you to skip, so they misrepresent why the alignment stages matter. Reuses the
 
 **Why:** Several QRSPI operations recur across changes, and today the agent
 re-derives "the best method" each run (which risks drift and costs re-exploration).
-The kit already proves the fix — [`scripts/lint.mjs`](scripts/lint.mjs) and
-[`sync-copilot.mjs`](sync-copilot.mjs) are recurring mechanical tasks extracted to
-Node scripts. Extend that pattern to the **deterministic** recurring ops so stage
+The kit already proves the fix — [`scripts/lint.mjs`](scripts/lint.mjs) is a
+recurring mechanical task extracted to a Node script. Extend that pattern to the
+**deterministic** recurring ops so stage
 commands call a helper instead of reinventing it: "does the linked PR show
 `merged`?", "create the PR from this title/body template", "flip a backlog entry's
 status", "list open items in `tasks.md`/`followups.md`". Direct enabler for
@@ -200,9 +198,9 @@ those first and the first one or two helpers worth extracting fall out naturally
 answer; leave decisions (finish/defer/drop a task, reprioritize, approve a design)
 to the human/agent. The script supplies the *fact*; the caller makes the *call*.
 Two constraints: (1) **Node, not shell** — per CLAUDE.md the permission checker
-rejects shell-injection in slash commands, so helpers follow the lint/sync
+rejects shell-injection in slash commands, so helpers follow the lint
 precedent. (2) **A shipped runtime helper is a bigger commitment than a CI-only
-script** — lint/sync run in this repo's CI, but a helper a stage command invokes
+script** — lint runs in this repo's CI, but a helper a stage command invokes
 at runtime ships into consumer repos and inherits their `gh`/auth availability and
 cross-platform concerns; be deliberate about that split.
 
@@ -247,7 +245,7 @@ run. The catch is *where* the fix lands: since the generated skill owns the
 **command** (which the kit owns, in `claude/commands/`) perform the sync
 delegation itself with the dedicated agent instead of deferring to the generated
 skill's spawn — plus a new `claude/agents/spec-syncer.md`, its Read-Matrix row,
-lint Check 7 banner, and the regenerated `copilot/` tree. Least-privilege +
+and lint Check 7 banner. Least-privilege +
 convention-consistency (every other QRSPI stage has a named agent), not a live-
 workflow correctness gap — hence P3. Surfaced 2026-07-16 while archiving
 `progressive-task-ticking`. **Second motivation (2026-07-24, archiving
@@ -271,8 +269,8 @@ dev-install verifications before deciding, rather than clicking `Leave-for-now`
 through every remaining item) has no clean exit. Add a `Pause/Stop the review`
 choice to the `(human)`-task loop that reuses the regular-task loop's early-exit
 commit (commit any edits already made, end the turn with a "re-run `/qrspi:pr`
-when ready" message). Mirror the change into the generated `copilot/` PR prompt
-and the workflow-skill choreography if the loop wording lives there. Surfaced
+when ready" message). Mirror the change into the workflow-skill choreography if
+the loop wording lives there. Surfaced
 2026-07-23 during the PR stage of [[session-version-check-and-update-prompt]],
 whose change embeds many `(human)` live-session checks that made the missing
 exit obvious.
@@ -348,16 +346,9 @@ run) and maintainers opt into the retro tooling. Open questions: does Claude Cod
 plugin model support plugin-to-plugin dependency/extension (or just a standalone
 sibling plugin sharing the marketplace)? Does the same argument extend to other
 kit-only meta-tooling — audit whether anything else in the base plugin is
-maintainer-only (note `readme-audit` / `sync-copilot` are already `.claude/`
+maintainer-only (note `readme-audit` is already `.claude/`
 dev-tooling, not plugin-shipped, so likely already on the right side). Surfaced
 during `add-auto-mode`'s stage-I/PR retro.
-
-### reassess-copilot-port — `idea` · **P3**
-
-**Why:** The Copilot half drops the core QRSPI mechanisms (subagent orchestration,
-per-slice model, skill auto-load) the source calls the whole point, leaving a
-checklist. Weigh relabeling it a "lite" companion against the ongoing
-sync/maintenance tax.
 
 ### reassess-openspec-dependency — `idea` · **P3**
 
@@ -372,7 +363,7 @@ mind.)
 
 **Why:** Per-slice model intent is endorsed by the source, but the mechanism (the
 architect writes a markdown `**Model:**` annotation; the implementer self-halts and
-asks to be re-invoked when on the wrong model) is fragile and breaks on Copilot.
+asks to be re-invoked when on the wrong model) is fragile.
 Consider a simpler lever or a single implement-stage model.
 
 ### configurable-effort-and-thinking — `idea` · **P3**
@@ -389,15 +380,6 @@ through on delegation. Weigh against [[simplify-per-slice-model-selection]],
 which argues the existing `**Model:**` annotation is already too fragile — any
 effort/thinking lever should ride the same (simpler) mechanism rather than
 bolting on a third fragile markdown knob.
-
-### agentFor-frontmatter-crosscheck — `idea` · **P3**
-
-**Why:** `sync-copilot.mjs`'s hardcoded `agentFor` table and the Claude command's
-declared subagent are parallel representations of the same delegation with no
-automated cross-check (research open gap #3). Deferred from
-`verify-stage-gate-execution` (Non-Goal). Note the framing shifts after that
-change lands: it drops `agent:` from the stage commands, so the cross-check becomes
-`agentFor` vs the subagent named in each command **body**, not its frontmatter.
 
 ### tutorial-mode-coaching-overlay — `idea` · **P3**
 
@@ -451,7 +433,7 @@ must first bake a crouton."*
 `/qrnchi:*` command namespace, three stage re-letters (Design→**Nail** N,
 Structure→**Chart** C, Slices→**Hew** H; the command files rename but the
 artifacts keep their descriptive names — `design.md`, `proposal.md`, `slices.md`
-all stay), agents/skills/templates, `sync-copilot.mjs` + `copilot/` regen,
+all stay), agents/skills/templates,
 `scripts/lint.mjs`, and README/CONTRIBUTING/CLAUDE.md. Because it's a *published*
 plugin, it is **breaking**: ship as a `migrations/<v>.yaml` entry (rename only the
 `openspec/.qrspi-version` marker → `.qrnchi-version`) with the
@@ -460,5 +442,4 @@ deprecation-shim release and a marketplace slug change (maintainer hand-offs).
 Recommend cutting it as **v1.0.0** (breaking namespace change). Full design,
 acronym mapping, migration bridge, and ordered file inventory:
 [openspec/backlog/rename-qrspi-to-qrnchi.md](backlog/rename-qrspi-to-qrnchi.md).
-Relates to [[reassess-copilot-port]] (copilot regen) and
-[[retro-as-extension-plugin]] (consumer/maintainer boundary).
+Relates to [[retro-as-extension-plugin]] (consumer/maintainer boundary).

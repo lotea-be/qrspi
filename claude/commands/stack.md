@@ -31,7 +31,7 @@ Steps:
    - **Exact versions:** the matching lockfiles (`package-lock.json`,
      `pnpm-lock.yaml`, `yarn.lock`, `Cargo.lock`, `poetry.lock`, `go.sum`, …).
    - **Tooling / conventions already written down:** `Dockerfile`,
-     `.github/workflows/*`, `.github/copilot-instructions.md`, `.editorconfig`,
+     `.github/workflows/*`, `.editorconfig`,
      linter/formatter configs, an existing `README`.
    - **Tests:** infer the framework and how it is run (xUnit/NUnit, Jest/Vitest,
      pytest, `go test`, …).

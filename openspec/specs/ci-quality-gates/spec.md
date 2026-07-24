@@ -6,28 +6,15 @@ TBD - created by archiving change kit-quality-hardening. Update Purpose after ar
 ### Requirement: CI workflow file exists and triggers correctly
 The system MUST provide a `.github/workflows/ci.yml` GitHub Actions workflow
 that triggers on `pull_request` targeting `main`, `push` to `main` (post-merge
-drift detection), and `workflow_dispatch` (manual re-check).
+re-check), and `workflow_dispatch` (manual re-check).
 
 #### Scenario: PR opened against main
 - **WHEN** a pull request is opened or updated targeting the `main` branch
-- **THEN** the CI workflow runs all three parallel jobs automatically.
+- **THEN** the CI workflow runs all parallel jobs automatically.
 
 #### Scenario: direct push to main
 - **WHEN** a commit is pushed directly to `main`
-- **THEN** the CI workflow runs all three parallel jobs to detect post-merge drift.
-
-### Requirement: Drift job fails on sync divergence
-The CI workflow MUST include a `drift` job that runs `node sync-copilot.mjs --check`
-on `ubuntu-latest` and fails the check if the committed `copilot/` tree diverges
-from what `sync-copilot.mjs` would generate.
-
-#### Scenario: copilot/ is out of sync with claude/
-- **WHEN** the drift CI job runs and `node sync-copilot.mjs --check` exits non-zero
-- **THEN** the drift job fails with a non-zero exit code, blocking the PR.
-
-#### Scenario: copilot/ is in sync
-- **WHEN** the drift CI job runs and `node sync-copilot.mjs --check` exits 0
-- **THEN** the drift job passes.
+- **THEN** the CI workflow runs all parallel jobs to re-check the merged state.
 
 ### Requirement: Lint job validates pin agreement
 The CI `lint` job MUST assert that every hand-maintained occurrence of the
@@ -98,12 +85,12 @@ authoring stages therefore validate locally with `openspec validate <id>
 - **THEN** `openspec validate --all` exits non-zero and the job fails.
 
 ### Requirement: CI jobs run in parallel on ubuntu-latest
-The three CI jobs (`drift`, `lint`, `validate`) MUST run in parallel (no
+The two CI jobs (`lint`, `validate`) MUST run in parallel (no
 `needs:` dependency between them) on the `ubuntu-latest` runner. No OS matrix
 is required.
 
-#### Scenario: lint failure does not mask drift failure
-- **WHEN** both the lint and drift jobs fail in the same CI run
+#### Scenario: lint failure does not mask validate failure
+- **WHEN** both the lint and validate jobs fail in the same CI run
 - **THEN** both failures are reported independently and visible in the GitHub
   Actions summary.
 

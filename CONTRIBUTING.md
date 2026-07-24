@@ -2,13 +2,8 @@
 
 ## Quick orientation
 
-- **Source of truth for Claude:** `claude/` (agents, commands, skills)
-- **Source of truth for Copilot:** `copilot/` -- generated, never hand-edited
-- **Generator:** `sync-copilot.mjs` (Node.js ES module, no build step)
+- **Source of truth:** `claude/` (agents, commands, skills)
 - **Kit version authority:** `plugin.json` `version` field
-
-Never edit files under `copilot/` directly. The entire tree is wiped and
-rebuilt by the generator. Any manual edit there is lost on the next sync run.
 
 ---
 
@@ -19,7 +14,7 @@ is declared stable.
 
 | Change type | Version component | Example |
 |-------------|-------------------|---------|
-| Breaking change (e.g. generator interface, removed command) | **minor** | `0.2.0` -> `0.3.0` |
+| Breaking change (e.g. removed command) | **minor** | `0.2.0` -> `0.3.0` |
 | New feature (new command, new skill, new CI gate) | **minor** | `0.2.0` -> `0.3.0` |
 | Bug fix, prompt-text edit, documentation-only change | **patch** | `0.2.0` -> `0.2.1` |
 
@@ -50,7 +45,7 @@ and several merged PRs batch into one release.
    checks presence on every PR, so this step must be done before pushing.
 4. Move the `## [Unreleased]` items into a new `## [X.Y.Z] - <date>` section,
    leaving `## [Unreleased]` with its "No unreleased changes" placeholder.
-5. Run `node scripts/lint.mjs` and `node sync-copilot.mjs --check` (both exit 0).
+5. Run `node scripts/lint.mjs` (exit 0).
 6. Commit, then tag and push:
 
    ```
@@ -66,40 +61,15 @@ and several merged PRs batch into one release.
 > **Shortcut:** `/qrspi-release [X.Y.Z]` (local dev-tooling — the `qrspi-release`
 > command + skill under `.claude/`) runs steps 1–6 for you: it checks the
 > preconditions, bumps `plugin.json`, writes/validates the migration manifest
-> entry, rolls the CHANGELOG, re-verifies lint + drift, and makes the
+> entry, rolls the CHANGELOG, re-verifies lint, and makes the
 > `release: vX.Y.Z` commit — then **gates the tag-push (the publish) behind an
 > explicit confirmation**. Step 7 (the marketplace ref) stays manual.
 
 The `.github/workflows/release.yml` job runs on the `v*` tag push: it re-runs
-lint + drift, asserts the tag matches `plugin.json` `version` and that a
+lint, asserts the tag matches `plugin.json` `version` and that a
 matching `CHANGELOG.md` section exists, then publishes a GitHub Release with
 those notes. A mismatch fails the release — so the tag, the `version`, and the
 CHANGELOG can never silently disagree.
-
----
-
-## Sync workflow
-
-When you edit anything under `claude/agents/`, `claude/commands/`, or
-`claude/skills/`:
-
-1. Make your changes in the `claude/` source files.
-2. Run the generator to rebuild `copilot/`:
-
-   ```
-   node sync-copilot.mjs
-   ```
-
-3. Verify no uncommitted drift remains:
-
-   ```
-   node sync-copilot.mjs --check
-   ```
-
-4. Commit **both** the `claude/` source changes and the regenerated `copilot/`
-   files in the same commit. Never split them across separate commits.
-
-The CI drift job (`node sync-copilot.mjs --check`) enforces this on every PR.
 
 ---
 
@@ -120,7 +90,6 @@ When bumping `plugin.json` `version`:
   NOT require an OpenSpec pin reassessment.
 - [ ] Run `node scripts/lint.mjs` and confirm exit 0 (pin-agreement check will
   catch any occurrence that disagrees after the pin change).
-- [ ] Run `node sync-copilot.mjs --check` and confirm exit 0.
 
 ### Pin-coupling rule in detail
 
@@ -135,20 +104,18 @@ version string, so any consistent value passes. This means:
 
 ---
 
-## Lint / drift / validate gates
+## Lint / validate gates
 
-Three CI gates run on every PR:
+Two CI gates run on every PR:
 
 | Gate | Command | What it checks |
 |------|---------|---------------|
-| Drift | `node sync-copilot.mjs --check` | `copilot/` matches what the generator would produce from `claude/` |
 | Lint | `node scripts/lint.mjs` | Pin agreement, frontmatter validity, heading alignment |
 | Validate | `npx --yes @fission-ai/openspec@1.4.1 validate --all` | All `openspec/specs/` and any active change are well-formed |
 
-Run all three locally before pushing:
+Run both locally before pushing:
 
 ```
-node sync-copilot.mjs --check
 node scripts/lint.mjs
 npx --yes @fission-ai/openspec@1.4.1 validate --all
 ```
@@ -178,7 +145,6 @@ required.
 `CLAUDE.md` is Claude Code-specific and is the authoritative source. The
 following rules from it apply equally to human contributors:
 
-- **Never hand-edit `copilot/`.** Always edit `claude/` and run the generator.
 - **No shell-injection in command/skill files.** Do not use an exclamation mark
   followed by a backtick-delimited shell expression in any `.md` file under
   `claude/` or `.claude/`. The permission checker parses these statically and

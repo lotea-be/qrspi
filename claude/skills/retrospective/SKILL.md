@@ -47,18 +47,14 @@ on the next change.
 
 For stage `Q`:
 
-| Role | Claude source (edit here) | Copilot mirror (generated) |
-|------|---------------------------|----------------------------|
-| Command | `claude/commands/questions.md` | `copilot/prompts/qrspi-questions.prompt.md` |
-| Agent | `claude/agents/questioner.md` | `copilot/agents/copilot-questioner.agent.md` |
-| Skill (workflow) | `claude/skills/workflow/SKILL.md` | `copilot/instructions/workflow.instructions.md` |
-| Skill (openspec) | `claude/skills/openspec-workflow/SKILL.md` | `copilot/instructions/openspec-workflow.instructions.md` |
-| Template (kit) | `openspec-templates/questions.template.md` | — |
-| Artifact written this stage | `openspec/changes/<id>/questions.md` | — |
-
-The Copilot mirror is **generated** from the Claude source by
-`sync-copilot.mjs` — never hand-edit it. Apply your edit to the Claude
-source, then regenerate (see step 5).
+| Role | Claude source (edit here) |
+|------|---------------------------|
+| Command | `claude/commands/questions.md` |
+| Agent | `claude/agents/questioner.md` |
+| Skill (workflow) | `claude/skills/workflow/SKILL.md` |
+| Skill (openspec) | `claude/skills/openspec-workflow/SKILL.md` |
+| Template (kit) | `openspec-templates/questions.template.md` |
+| Artifact written this stage | `openspec/changes/<id>/questions.md` |
 
 The same table applies stage by stage — substitute the role name
 (researcher, designer, architect, planner, implementer, reviewer) and
@@ -161,13 +157,7 @@ for edits to the prompts/skills/templates.
 For each row in "Proposed edits", ask the human (one at a time via
 the **AskUserQuestion** tool) whether to apply, defer, or skip. Apply the
 approved edits to the corresponding **Claude source** file (under `claude/`,
-`openspec-templates/`, or the project's contributor-guidance file). The
-`copilot/` mirror is generated — do **not** hand-edit it. After applying the
-Claude-side edits, regenerate the mirror with `node sync-copilot.mjs` and
-confirm zero drift with `node sync-copilot.mjs --check` so the human sees the
-mirror is clean. (Template and contributor-guidance edits have no `copilot/`
-mirror; only `claude/agents`, `claude/commands`, and `claude/skills` edits
-propagate.)
+`openspec-templates/`, or the project's contributor-guidance file).
 
 ### 6. Commit
 

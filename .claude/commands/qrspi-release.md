@@ -1,5 +1,5 @@
 ---
-description: Cut a tag-based release of the QRSPI kit. Bumps plugin.json, rolls CHANGELOG [Unreleased] into a dated version section, re-checks lint + drift, commits, and pushes main — then hands the tag push to you, who publishes by pushing the tag (which triggers release.yml). The command never pushes the tag itself. Local repo dev-tooling, not shipped in the plugin.
+description: Cut a tag-based release of the QRSPI kit. Bumps plugin.json, rolls CHANGELOG [Unreleased] into a dated version section, re-checks lint, commits, and pushes main — then hands the tag push to you, who publishes by pushing the tag (which triggers release.yml). The command never pushes the tag itself. Local repo dev-tooling, not shipped in the plugin.
 agent: build
 ---
 
@@ -21,8 +21,8 @@ Summary of what happens (the skill is the source of truth):
 
 1. **Verify preconditions** — on `main`, clean tree, level with `origin/main`;
    `## [Unreleased]` is non-empty; the target version is valid and forward; the
-   `vX.Y.Z` tag does not already exist; `node scripts/lint.mjs` and
-   `node sync-copilot.mjs --check` both exit 0. Stop on any failure.
+   `vX.Y.Z` tag does not already exist; `node scripts/lint.mjs` exits 0. Stop on
+   any failure.
 2. **Determine the version** — from the argument, or propose minor/patch from the
    `[Unreleased]` contents and confirm via **AskUserQuestion** (semver is your
    call).
@@ -30,7 +30,7 @@ Summary of what happens (the skill is the source of truth):
 4. **Roll the CHANGELOG** — move `## [Unreleased]` into `## [X.Y.Z] - <today>`,
    leaving a fresh `## [Unreleased]` with the `_No unreleased changes._`
    placeholder.
-5. **Re-check** lint + drift (both exit 0), then **commit** the two files:
+5. **Re-check** lint (exits 0), then **commit** the two files:
 
    ```
    git add .claude-plugin/plugin.json CHANGELOG.md

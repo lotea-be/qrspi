@@ -1,6 +1,6 @@
 ---
 name: qrspi-release
-description: Cut a tag-based release of the QRSPI kit. Bumps plugin.json, rolls CHANGELOG [Unreleased] into a dated version section, re-checks lint + drift, commits, and pushes main — then hands the tag push to the human, who publishes by pushing the tag (which triggers release.yml). The skill never pushes the tag itself. Local repo dev-tooling — not shipped in the plugin.
+description: Cut a tag-based release of the QRSPI kit. Bumps plugin.json, rolls CHANGELOG [Unreleased] into a dated version section, re-checks lint, commits, and pushes main — then hands the tag push to the human, who publishes by pushing the tag (which triggers release.yml). The skill never pushes the tag itself. Local repo dev-tooling — not shipped in the plugin.
 ---
 
 # Cutting a QRSPI release
@@ -13,8 +13,8 @@ authoritative policy; this skill encodes its steps.
 **Release model (why the gate matters).** Merging to `main` ships nothing.
 Consumers install from **tags**: the `lotea-be/ai-agent-marketplace` entry pins
 the qrspi `source` to a release tag. Pushing a `vX.Y.Z` tag triggers
-[`release.yml`](../../../.github/workflows/release.yml), which re-runs lint +
-drift, asserts the tag matches `.claude-plugin/plugin.json` `version` **and**
+[`release.yml`](../../../.github/workflows/release.yml), which re-runs lint,
+asserts the tag matches `.claude-plugin/plugin.json` `version` **and**
 that a matching `## [X.Y.Z]` CHANGELOG section exists, then publishes the GitHub
 Release from those notes. A mismatch fails the job — tag, version, and CHANGELOG
 can never silently disagree. **Pushing the tag is the only outward-facing,
@@ -46,9 +46,8 @@ Stop and surface the problem if any fail; do not proceed:
 5. **Tag is free.** `vX.Y.Z` does not already exist locally
    (`git tag --list vX.Y.Z`) or on origin
    (`git ls-remote --tags origin vX.Y.Z`).
-6. **Gates are green.** `node scripts/lint.mjs` exits 0 and
-   `node sync-copilot.mjs --check` exits 0 (release.yml re-runs both — catching it
-   here avoids a failed publish).
+6. **Gates are green.** `node scripts/lint.mjs` exits 0 (release.yml re-runs it —
+   catching it here avoids a failed publish).
 
 ## Steps
 
@@ -79,8 +78,8 @@ Keep the moved bullets verbatim — release.yml publishes exactly the text under
 `## [VER]` as the release notes, so what you write here is what consumers read.
 
 ### 4. Re-verify the gates
-Run `node scripts/lint.mjs` and `node sync-copilot.mjs --check` again (both must
-exit 0 after the edits). If either fails, stop and surface it — do not commit.
+Run `node scripts/lint.mjs` again (it must
+exit 0 after the edits). If it fails, stop and surface it — do not commit.
 
 ### 5. Show the human what will publish, then commit
 Print (a) the release commit's diff (`plugin.json` + `CHANGELOG.md`), and (b) the
@@ -113,7 +112,7 @@ path.
    git push origin vVER
    ```
    Tell the human what the tag push does: it triggers `release.yml`, which
-   re-runs lint + drift, asserts the tag matches `plugin.json` `version` and the
+   re-runs lint, asserts the tag matches `plugin.json` `version` and the
    `## [VER]` CHANGELOG section, then publishes the GitHub Release from those
    notes. Mention they can watch it with `gh run watch` (or
    `gh run list --workflow release.yml`) once they push.
@@ -125,12 +124,12 @@ skill cannot do that (different repo) — print the reminder as the final line.
 
 ## Notes
 - **Local dev-tooling.** This command/skill lives under `.claude/` and is **not**
-  part of the shipped plugin — no `copilot/` mirror, no plugin README entry, no
+  part of the shipped plugin — no plugin README entry, no
   CHANGELOG entry for itself.
 - **Markdown safety (CLAUDE.md).** In this file and the command, never place an
   exclamation mark immediately before a backticked span, and do not use
   shell-injection command lines; the release commands run as ordinary Bash task
   steps, shown in fenced blocks.
-- **If lint/drift is red at precondition 5,** the fix is a normal change through
-  the usual flow (or `/qrspi-sync-copilot` for drift) landed on `main` first —
+- **If lint is red at precondition 5,** the fix is a normal change through
+  the usual flow landed on `main` first —
   the release command does not paper over a red gate.

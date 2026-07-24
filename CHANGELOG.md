@@ -28,8 +28,8 @@ kit version.
   silent migration). Up-to-date is silent, a downgrade warns once, and an
   unreadable version degrades to a warn-and-proceed notice; the check is
   suppressed to once per session via an in-context flag. Adds lint Check 9
-  (`checkVersionCheckEmbed`) asserting the embed in all nine command bodies, a
-  README skills-list entry, and regenerated `copilot/` artifacts.
+  (`checkVersionCheckEmbed`) asserting the embed in all nine command bodies and
+  a README skills-list entry.
 - **`/qrspi-dogfood` dev-tooling** (under `.claude/`, not shipped to consumers):
   provisions a throwaway consumer fixture and walks an in-flight change's
   `(human)` verification tasks one at a time against a live `--plugin-dir`
@@ -44,6 +44,19 @@ kit version.
   parser reads the first physical line as the requirement statement. Plain
   `openspec validate <id>` skips this rule, so a spec could pass locally yet fail
   CI's `openspec validate --all` (strict); aligning the local gate closes that gap.
+
+### Removed
+
+- **Dropped GitHub Copilot support entirely.** QRSPI is now Claude Code-only.
+  Removed the generated `copilot/` artifact tree, the `sync-copilot.mjs`
+  generator, the `install.{sh,ps1}` / `uninstall.{sh,ps1}` Copilot install
+  scripts, the `qrspi-sync-copilot` dev command + skill, and the CI/release
+  `drift` gate that verified `copilot/` was in sync with `claude/`. `claude/`
+  is now the sole source of truth; the kit installs only as a Claude Code
+  plugin via the marketplace. README, CONTRIBUTING, CLAUDE.md, and the base
+  specs (`qrspi-command-surface`, `ci-quality-gates`, `kit-governance`;
+  `copilot-sync` removed) were updated to drop the two-tool framing. Existing
+  Copilot users can delete `~/.copilot/` by hand; no migration is provided.
 
 ## [0.7.0] - 2026-07-22
 

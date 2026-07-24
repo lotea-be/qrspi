@@ -1,31 +1,5 @@
 # Claude instructions for the QRSPI kit repo
 
-## Never hand-edit `copilot/`
-
-`copilot/` is **generated**, not authored. The source of truth is `claude/`
-(plus `openspec-templates/`). The entire `copilot/` tree is wiped and rebuilt
-by [`sync-copilot.mjs`](sync-copilot.mjs), so any manual edit there is lost on
-the next sync.
-
-**Do not edit, create, or delete files under `copilot/` directly.** If a change
-needs to reach the Copilot artifacts:
-
-1. Make the change in the corresponding `claude/` source file (or, for a
-   systematic mapping gap, in `sync-copilot.mjs` itself — never in the output).
-2. Propose running the sync script and let the user run/approve it (it is a
-   plain Node script — needs only `node`, no `pwsh`):
-
-   ```bash
-   node sync-copilot.mjs             # regenerate copilot/ from claude/
-   node sync-copilot.mjs --check     # verify zero drift (CI-style check)
-   ```
-
-   For a reviewed pass, `/qrspi-sync-copilot` runs the script and improves the
-   script when it finds a gap.
-
-If you catch yourself about to use Edit/Write on a path under `copilot/`, stop
-and propose the sync instead.
-
 ## Don't shell out in slash commands — use Glob
 
 In slash-command files (`claude/commands/*.md` and the dev-tooling
@@ -46,20 +20,18 @@ The same static scanner that powers shell-injection also fires on
 `.claude/**`), an exclamation mark placed immediately before a backticked span is
 read as a real auto-run directive — there is no "this is just an example" escape.
 If the span holds a placeholder like `<shell>`, its leading `<` parses as an
-input redirect and the whole file fails to load ("Unrecognized redirect shape"),
-which is what broke `/qrspi-sync-copilot`.
+input redirect and the whole file fails to load ("Unrecognized redirect shape").
 
 When you need to *describe* that syntax, never put `!` directly against a
 backtick. Split it — keep the `!` in its own code span or spell it out in words
-(e.g. "an exclamation-prefixed shell-injection line"), the way this very file and
-[`SKILL.md`](.claude/skills/qrspi-sync-copilot/SKILL.md) do.
+(e.g. "an exclamation-prefixed shell-injection line"), the way this very file does.
 
 ## Keep the README current
 
 [`README.md`](README.md) is the kit's user-facing surface (install/update flow,
 the eight stages + command list, repo layout, requirements incl. the pinned
-OpenSpec version, the two-tool mapping, and contributor conventions). It drifts
-silently when the source changes and the doc doesn't.
+OpenSpec version, and contributor conventions). It drifts silently when the
+source changes and the doc doesn't.
 
 **In the same change that touches any of the following, update the matching
 README section** — do not leave it for "later":
@@ -70,9 +42,9 @@ README section** — do not leave it for "later":
   documented and every `/qrspi:*` the README mentions must resolve. A rename
   that misses the README will fail CI.
 - **Agents / skills** — renaming or re-scoping them (e.g. the agent-name
-  references and the two-tool table). Not lint-covered — this one is on you.
-- **Install / update flow** — changes to `install.*`, the plugin/marketplace
-  steps, or how users pull updates.
+  references). Not lint-covered — this one is on you.
+- **Install / update flow** — changes to the plugin/marketplace steps, or how
+  users pull updates.
 - **The OpenSpec pin** — see "Updating the pinned OpenSpec version" in the
   README; the pin lint (Check 1) asserts the README agrees.
 - **Repo layout** — adding/removing a top-level dir shown in the layout tree.
@@ -97,7 +69,7 @@ In day-to-day work:
 
 A release is a deliberate, tagged event — see **"Releases (tag-based)"** in
 [`CONTRIBUTING.md`](CONTRIBUTING.md). Pushing a `vX.Y.Z` tag triggers
-[`release.yml`](.github/workflows/release.yml), which re-checks lint + drift,
+[`release.yml`](.github/workflows/release.yml), which re-checks lint,
 asserts the tag matches `plugin.json` `version` and a matching `CHANGELOG.md`
 section, and publishes the GitHub Release. So a version bump that isn't part of
 cutting a release will fail the release job if tagged, and is just noise if not.
