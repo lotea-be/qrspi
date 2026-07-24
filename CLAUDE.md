@@ -101,3 +101,30 @@ A release is a deliberate, tagged event — see **"Releases (tag-based)"** in
 asserts the tag matches `plugin.json` `version` and a matching `CHANGELOG.md`
 section, and publishes the GitHub Release. So a version bump that isn't part of
 cutting a release will fail the release job if tagged, and is just noise if not.
+
+## Dogfood `(human)` checkpoints with `/qrspi-dogfood` — don't improvise
+
+QRSPI changes carry `(human)` verification tasks in `tasks.md` — runtime
+observations no static check can make (an `AskUserQuestion` shows the right
+choices, a chain fires once, an up-to-date repo stays silent). When you run the
+QRSPI flow on a change **in this repo** and reach un-ticked `(human)` tasks —
+the stage-I slice checkpoints or the PR reconciliation gate — **load the
+[`qrspi-dogfood`](.claude/skills/qrspi-dogfood/SKILL.md) skill and drive it**
+before offering Confirm-done / Leave-for-now. Do not silently fall through to
+Leave-for-now, and do not invent your own verification.
+
+Two hard rules the skill encodes:
+
+- A running session loads the **installed release**, not this working tree, so a
+  new or edited command body is invisible until you relaunch with
+  `claude --plugin-dir /workspaces/git/qrspi`. Never "dogfood" by paraphrasing
+  the command prose yourself in the current session — that exercises nothing the
+  change actually altered.
+- Build throwaway consumer fixtures **outside** this repo (the scratchpad or
+  `/tmp`), never inside `openspec/changes/`. Drive one check at a time:
+  provision the fixture, hand the human the exact terminal + `/qrspi:*` commands
+  for a fresh `--plugin-dir` session, state the expected observation (grounded in
+  the change's `design.md` / delta `specs/**`), and ask (AskUserQuestion) whether
+  it matched — ticking Confirm-done only on an observed pass.
+
+Only fall back to Leave-for-now when the human genuinely cannot run the session.

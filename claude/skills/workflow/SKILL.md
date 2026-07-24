@@ -172,14 +172,45 @@ skill Read Matrix)`) rather than restating it.
 
 ## After PR — the fix loop
 
-QRSPI ends at PR, but small follow-ups always surface afterwards: the
-reviewer's "Open issues" list and code-level retrospective flags. These are
-tracked as checkboxes in `openspec/changes/<id>/followups.md` and resolved
-with `/qrspi:followup <id>` — a loop that hangs off the PR stage, not a ninth
-stage. Each fix keeps code, tests, and the change's **delta** spec in sync,
-ticks the follow-up, and commits `fix(<id>): ...` on the PR branch. See
-skill `postpr-fix`. The change is ready to archive only when
-`followups.md` has no un-ticked boxes.
+QRSPI ends at PR, but follow-ups always surface afterwards: the reviewer's
+"Open issues" list and code-level retrospective flags. These are tracked as
+checkboxes in `openspec/changes/<id>/followups.md` and resolved with
+`/qrspi:followup <id>` — a loop that hangs off the PR stage, not a ninth
+stage.
+
+Before resolving each follow-up, `/qrspi:followup` runs a **triage gate**
+(never suppressed in any run-mode) that right-sizes the item and routes it to
+one of three paths:
+
+- **P1 — implement directly.** The fix is small, atomic, and in-scope. The
+  implementer is spawned in FIX MODE (see skill `postpr-fix`); code, tests,
+  and the change's **delta** spec are kept in sync; the `followups.md` box is
+  ticked `-- fixed in <sha>` on commit. This is the original path and the
+  common case.
+- **P2 — amend this change in place.** The fix needs design re-alignment or
+  spans multiple capabilities but still belongs to *this* change and its **open
+  PR**. The orchestrator amends the parent change in place (reusing
+  `implement.md`'s "Adding scope after stage I" flow): edit the affected
+  `design.md` decision / delta `specs/**`, add a `## N.` vertical-slice group to
+  `slices.md` + `tasks.md`, commit on the same branch, tick the follow-up
+  `(re-aligned in place -- slice N)`, then **offer** `/qrspi:implement <id>`. No
+  separate folder, branch, or PR; no implementer is spawned to triage. If the
+  parent PR has already merged, or the work needs its own branch/PR, it is P3
+  instead.
+- **P3 — defer to backlog.** The fix is genuinely new scope (or needs its own
+  branch/PR, or the parent PR has merged). An `idea` row is appended to
+  `openspec/backlog.md` and the follow-up is ticked
+  `(deferred to backlog -- <slug>)`. No implementer is spawned.
+
+The agent proposes a path from a four-signal heuristic rubric (contract
+change? multi-capability? design re-alignment? new scope?); the human
+confirms or overrides. The triage gate is always shown -- it cannot be
+auto-advanced in Full or Semi-auto mode.
+
+The change is ready to archive only when `followups.md` has no un-ticked
+boxes. P2 and P3 tick the box at disposition time, so they count as resolved
+for archival purposes even though work continues in the added slice (P2) or
+the backlog (P3).
 
 ## Rules of the road
 
@@ -192,6 +223,15 @@ skill `postpr-fix`. The change is ready to archive only when
   `vertical-slice`.
 - "Looks plausible" is the failure mode. Plans that read well do not
   necessarily build well. Verification must go deeper than reading.
+- **Least friction: prefer `AskUserQuestion` over emitting a command to run.**
+  The kit's goal is the least friction for the user. When a step ends with an
+  obvious next action — advance to the next stage, re-enter the follow-up loop,
+  build a just-added slice, retry after a fix — offer it as an `AskUserQuestion`
+  choice and act on the pick, rather than printing a `/qrspi:…` line for the
+  user to copy and run. Emitting a command is the *fallback* for when no
+  interactive choice is possible; a bare "now run X" is a friction smell worth
+  designing out. (The Run-mode auto-advance rules are this principle applied to
+  stage chaining; extend the same instinct to every hand-off.)
 
 ## When you can skip stages
 

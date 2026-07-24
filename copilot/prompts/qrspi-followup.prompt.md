@@ -25,7 +25,173 @@ Preconditions (verify with the **Glob** tool — no shell preamble):
    If absent and the user named a specific fix, the implementer creates it
    and adds the item before resolving it (per skill `postpr-fix`).
 
-**Model.** Default the implementer to **sonnet** — post-PR follow-ups are
+**Triage gate (never suppressed -- fires in Full auto, Semi-auto, and Manual).**
+
+Before spawning the implementer, self-assess the targeted follow-up item
+(the named fix, or the next un-ticked entry in `followups.md`) against four
+heuristic signals:
+
+1. **Contract change?** Does the fix alter a route, status, DTO, auth, or
+   validation contract beyond a purely internal change? A contract change
+   alone is still P1; it is a nudge toward P2 only when combined with
+   signal 2 or 3.
+2. **Multi-capability?** Does it touch more than one `specs/<capability>/`
+   subdir the change owns? -- nudges P2.
+3. **Design re-alignment?** Does resolving it require revising a `design.md`
+   Dn decision (not merely amending a delta scenario)? -- strong P2 signal.
+4. **New scope?** Is it not covered by the change's delta spec at all
+   (genuinely a different change)? -- strong P3 signal.
+
+Evaluate each signal in prose. Then derive a proposed path using this rubric:
+- **Propose P1** when none of signals 2, 3, or 4 fire (atomic, single-
+  capability, expressible as a delta amendment or internal fix).
+- **Propose P2** when signal 3 fires, or when signals 1 and 2 fire together
+  (re-alignment needed but still this change's scope) -- **but only when the
+  parent PR is still open**, since a P2 amendment extends that open PR on its
+  branch (see "On P2" below).
+- **Propose P3** when signal 4 fires (new scope -- genuinely a different
+  change), when the parent PR has already merged, or when the work would
+  otherwise need its own branch or PR (there is no open PR for an in-place
+  amendment to extend).
+
+Write one line of rationale citing which signals fired and why they point to
+the proposed path.
+
+Then present the triage decision using the #tool:vscode/askQuestions:
+- question: "Triage follow-up `<short title>` -- `<brief excerpt>`.
+  Proposed: **<P1|P2|P3>** because <one-line rationale>.
+  How should this be handled?"
+- choices:
+  - "P1 — implement directly (small in-scope fix)"
+  - "P2 — amend this change in place (extend the open PR)"
+  - "P3 — defer to backlog idea (new scope)"
+
+The proposed path is named in the question text (not as a fourth choice) so
+the recommendation is visible but the human picks explicitly. There is no
+"unsure" escape hatch -- an unsure human picks P2 (re-align) or stops.
+
+**On P1 -- proceed to the implementer spawn below** (the existing FIX MODE
+flow, unchanged). The triage adds no new annotation to the P1 `followups.md`
+entry -- the standard `-- fixed in <short-sha>` tick at completion remains
+the sole record.
+
+**On P2 -- amend this change in place.** The orchestrator does NOT spawn the
+implementer to triage. It **amends the parent change in place** -- no separate
+folder, the same branch, the same open PR. A P2 follow-up is re-alignment work
+that still belongs to *this* change and extends the *open* PR by adding slices
+to it. If the parent PR is not open (already merged, or the work needs its own
+branch or PR), do NOT use P2 -- route the follow-up to P3 instead. Do all of
+this here in the orchestrator (vscode/askQuestions is not available inside a
+subagent).
+
+The mechanics mirror `implement.md`'s "Adding scope after stage I has started"
+scope-amendment flow, applied post-PR:
+
+*Step P2.1 -- amend the approved artifacts in place.* Edit the affected
+`design.md` `Dn` decision and/or the change's delta `specs/**` (move the item
+in scope; add or adjust the requirement + scenarios). The orchestrator MAY spawn
+a `qrspi:designer` subagent to **draft** a design-level edit, but it MUST NOT
+re-run `/qrspi-design` (or any stage command) on the parent -- that overwrites
+the approved artifact. The edit lands directly on the approved files.
+
+*Step P2.2 -- add a `## N.` slice group to `slices.md` and `tasks.md`.* Load
+skill `vertical-slice` plus the project's stack-cheatsheet skill (if any), then
+add a new `## N.` vertical-slice group to `slices.md` **and** a matching `## N.`
+group to `tasks.md`, each carrying a `**Model:**` annotation. Loading the
+convention skills is what the architect (V) and planner (P) normally do before
+writing slice/task specs -- do not skip it, or the new slice will contradict
+documented conventions.
+
+*Step P2.3 -- tick `followups.md`.* Tick the targeted entry by changing
+`- [ ]` to `- [x]` and appending the disposition note (mirroring the pr.md
+tick-with-parenthetical idiom, ASCII `--`):
+
+`- [x] <original text> (re-aligned in place -- slice N)`
+
+*Step P2.4 -- commit.* Stay on the parent's current branch. Stage the edited
+`design.md` / delta `specs/**` / `slices.md` / `tasks.md` / `followups.md`
+explicitly (never `git add -A`), carrying any matching `openspec/backlog.md`
+heading edit atomically **only if** the amendment changes the parent row's
+status or note (normally it does not):
+
+```
+git commit -m "docs(<id>): amend scope -- <desc>"
+```
+
+Push per the normal flow so the commit lands on the parent's open PR.
+
+*Step P2.5 -- offer to build it now (least-friction, D6).* Do NOT merely print
+a `/qrspi-implement` command for the human to copy. Use the #tool:vscode/askQuestions:
+- question: "Scope amended (slice N added). Implement it now?"
+- choices:
+  - "Run `/qrspi-implement <id>` now"
+  - "Not now"
+
+On "Run ... now", re-enter `/qrspi-implement <id>` as a slash command in the
+main loop -- P2 does not spawn the implementer directly here. On "Not now",
+leave the slice for the human to build later. Either way, P2 disposes of this
+follow-up; then apply the next-follow-up offer below.
+
+**On P3 -- defer to backlog idea.**
+
+Derive a kebab-slug from the follow-up title: lowercase the title, replace
+spaces and punctuation with hyphens, collapse consecutive hyphens, strip
+leading/trailing hyphens. Example: "Rate-limit the new endpoint" becomes
+`rate-limit-the-new-endpoint`.
+
+Open `openspec/backlog.md` and append one new `idea` row under the
+`## Ideas` section (create the section if it does not exist). The row
+format mirrors `pr.md`'s "Promote to backlog idea" mechanic exactly:
+
+```markdown
+### <slug> -- `idea` · **P3**
+
+**Why:** <one-sentence reason drawn from the follow-up text explaining
+why this warrants a future change rather than being fixed here.>
+```
+
+Use `idea` as the status and `· **P3**` as the priority band. Write the
+`**Why:**` paragraph in one sentence drawing from the follow-up content.
+Do NOT flip the parent change's existing backlog status line -- only the
+new `idea` row is added.
+
+Tick the targeted `followups.md` entry by changing `- [ ]` to `- [x]`
+and appending the disposition note:
+
+`- [x] <original text> (deferred to backlog -- <slug>)`
+
+Stage both files together in one atomic commit (backlog atomicity rule --
+never as separate commits):
+
+```
+git add openspec/backlog.md openspec/changes/<id>/followups.md
+git commit -m "docs(<id>): defer <slug> to backlog (P3)"
+```
+
+End the turn with a confirmation message naming the slug and the ticked
+item. Do NOT spawn the implementer -- P3 disposes of this follow-up; then
+apply the next-follow-up offer below.
+
+**Next-follow-up offer (least-friction, D6 -- applies to P1, P2, and P3).**
+After a path's disposition completes, check whether any un-ticked (`- [ ]`)
+entries remain in `openspec/changes/<id>/followups.md`. Read the file with the
+**Read** tool (or list it with the **Glob** tool) -- do NOT shell out to grep
+or count, per the house rule. If one or more un-ticked entries remain, do NOT
+merely print a `/qrspi-followup` command for the human to copy. Use the
+#tool:vscode/askQuestions:
+- question: "Follow-up handled. `<N>` un-ticked follow-up(s) remain. Continue?"
+- choices:
+  - "Handle the next follow-up"
+  - "Stop here"
+
+On "Handle the next follow-up", re-enter `/qrspi-followup <id>` as a slash
+command in the main loop (which re-triages the next un-ticked item). On "Stop
+here", end the turn. If no un-ticked entries remain, skip the offer and end the
+turn. Wire this offer at the end of P1 (after the fix commit step), at the end
+of P2 (after the implement offer resolves, including "Not now"), and at the end
+of P3 (after the backlog commit).
+
+**Model.** Default the implementer to **sonnet** -- post-PR follow-ups are
 typically small and contained. Use **opus** only when the fix touches
 design-level logic or spans several files; say so when you invoke.
 
@@ -58,6 +224,11 @@ Push only if the user approved pushing.
 is already open). The only exception: if this fix empties `followups.md`,
 say so — the change is then clean for merge/archive.
 
-One follow-up per invocation. Re-running `/qrspi-followup <id>` picks up the
-next un-ticked item. Return only what the skill's "Final message format
-(per fix)" specifies.
+After the P1 fix commit resolves, apply the **next-follow-up offer** (D6,
+defined in the P3 section above) -- if un-ticked follow-ups remain, offer to
+handle the next one rather than making the human re-invoke manually.
+
+One follow-up per invocation is the **default**, with opt-in chaining via the
+next-follow-up offer (D6): re-running `/qrspi-followup <id>` -- or accepting the
+offer -- picks up the next un-ticked item. Return only what the skill's "Final
+message format (per fix)" specifies.
