@@ -229,9 +229,17 @@ you to skip, so they misrepresent why the alignment stages matter. Reuses the
 
 ### standardize-recurring-ops-scripts — `idea` · **P2**
 
-**Why:** Several QRSPI operations recur across changes, and today the agent
-re-derives "the best method" each run (which risks drift and costs re-exploration).
-The kit already proves the fix — [`scripts/lint.mjs`](scripts/lint.mjs) is a
+**Why (two payoffs — consistency *and* token cost):** Several QRSPI operations
+recur across changes, and today the agent re-derives "the best method" each run.
+That has two costs. (1) **Consistency** — the re-derivation risks drift, so the
+same op runs slightly differently run-to-run. (2) **Token/exploration cost** —
+computing a deterministic fact by reading files and reasoning through an approach
+spends tokens each run that a single `node scripts/foo.mjs` call could return in
+one tool result; this is the fourth token lever alongside input load
+([[trim-per-stage-context-loading]]), output payload
+([[bounded-subagent-return-summaries]]), and compute
+([[configurable-effort-and-thinking]]) — it targets the **reasoning/exploration**
+axis. The kit already proves the fix — [`scripts/lint.mjs`](scripts/lint.mjs) is a
 recurring mechanical task extracted to a Node script. Extend that pattern to the
 **deterministic** recurring ops so stage
 commands call a helper instead of reinventing it: "does the linked PR show
