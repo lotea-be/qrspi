@@ -48,8 +48,9 @@ _None._
 ## Ideas
 
 Listed in priority order (highest first). Each carries a `P1`–`P3` band:
-**P1** = correctness/safety of the live workflow, or a highly visible defect in
-every generated artifact — do next;
+**P1** = correctness/safety of the live workflow, a highly visible defect in
+every generated artifact, or a systemic token/cost regression that recurs on
+every live run — do next;
 **P2** = high-value enhancements, larger or lightly dependent;
 **P3** = strategic bets or items sequenced behind another change. Re-evaluate
 this ordering whenever an item is added, modified, or archived (see
@@ -82,6 +83,70 @@ two-source-of-truth caution in [[optional-technology-specs]]. **P1 like
 [[repo-applicable-artifact-sections]]:** a highly visible artifact-quality defect
 (ugly process references baked into shipped code) rather than a live-workflow
 correctness gap. Surfaced 2026-07-24.
+
+### trim-per-stage-context-loading — `idea` · **P1**
+
+**Why:** Per-run token burn is dominated by **input** — what each QRSPI stage
+auto-loads (the `<repo>-stack` skill + the workflow/convention skills) plus the
+files its subagent reads — yet nothing audits or caps that surface.
+`context-hygiene` states the principle (keep windows under 40%, subagents as
+context firewalls) but enforces nothing, so the per-stage load creeps silently as
+skills, agents, and templates accrete, and every stage of every change pays it.
+This is the single biggest lever on the runaway token cost.
+
+**Shape:** Audit the per-stage load surface — which skills each stage
+command/agent auto-loads, and the typical read footprint — and trim each stage to
+only what it needs (not every stage needs every skill; scope reads by stage). Add
+a lightweight visibility signal (e.g. log context% at stage entry) so regressions
+are noticeable, and consider a `scripts/lint.mjs`-style check that a stage loads
+only its declared skill set. Relates to `context-hygiene` (the standing principle
+this makes measurable/enforced), [[enforce-research-ticket-hiding]] (the same
+"guard, don't just ask nicely" move applied to a reader's inputs),
+[[bounded-subagent-return-summaries]] (the complementary output-side lever), and
+[[configurable-effort-and-thinking]] (the compute-side lever). **P1 under the
+recurring token/cost band:** not a correctness gap, but a systemic per-run cost
+defect that compounds on every stage of every change. Surfaced 2026-07-24 (token
+burn flagged as climbing).
+
+### bounded-subagent-return-summaries — `idea` · **P2**
+
+**Why:** Every QRSPI stage delegation returns its subagent's final message into
+the **main-loop** context, and nothing bounds that payload — a verbose return
+re-inflates exactly the context the subagent firewall exists to protect, undoing
+part of the delegation's token benefit. Establish a convention that each stage
+subagent hands back a **bounded, structured** result — the artifact path, a short
+N-line summary, and the next command — not free-form prose. Small, low-cost,
+always-on lever on the output side (complements input-side
+[[trim-per-stage-context-loading]]). Could ride each agent file's output-contract
+section, with a lint asserting the return-contract wording is present. Surfaced
+2026-07-24 (token burn flagged as climbing).
+
+### simplify-per-slice-model-selection — `idea` · **P2**
+
+**Why:** Per-slice model intent is endorsed by the source, but the mechanism (the
+architect writes a markdown `**Model:**` annotation; the implementer self-halts and
+asks to be re-invoked when on the wrong model) is fragile.
+Consider a simpler lever or a single implement-stage model. **Reprioritized
+P3→P2 (2026-07-24):** running mechanical slices on a cheaper model is a direct
+token/cost lever, now salient with burn climbing — and it's the mechanism
+[[configurable-effort-and-thinking]] wants to ride, so it sequences first.
+
+### configurable-effort-and-thinking — `idea` · **P2**
+
+**Why:** A change can already set a per-slice **model** (the architect writes a
+`**Model:**` annotation the implementer honors), but reasoning **effort** and
+**thinking budget** are not similarly configurable — they inherit whatever the
+invoking session defaults to. That leaves tokens on the table in both
+directions: mechanical slices could run at low effort with no extended thinking,
+while the design-adjacent "brain surgery" work wants high effort and a large
+thinking budget. Consider making effort and thinking declarable alongside model
+(per-slice, or as a stage-level knob) and have the stage command/agent pass them
+through on delegation. Weigh against [[simplify-per-slice-model-selection]],
+which argues the existing `**Model:**` annotation is already too fragile — any
+effort/thinking lever should ride the same (simpler) mechanism rather than
+bolting on a third fragile markdown knob. **Reprioritized P3→P2 (2026-07-24):**
+effort/thinking is a direct token lever and token burn is now the pressing
+concern.
 
 ### init-conductor-plus-overview — `idea` · **P2**
 
@@ -413,28 +478,6 @@ gain `openspec validate` on the delta specs. (`openspec/specs/` is now populated
 as of the 2026-06-19 archives, so the validated surface is real — re-weigh the
 dependency against a vendored folder convention + a small validator with that in
 mind.)
-
-### simplify-per-slice-model-selection — `idea` · **P3**
-
-**Why:** Per-slice model intent is endorsed by the source, but the mechanism (the
-architect writes a markdown `**Model:**` annotation; the implementer self-halts and
-asks to be re-invoked when on the wrong model) is fragile.
-Consider a simpler lever or a single implement-stage model.
-
-### configurable-effort-and-thinking — `idea` · **P3**
-
-**Why:** A change can already set a per-slice **model** (the architect writes a
-`**Model:**` annotation the implementer honors), but reasoning **effort** and
-**thinking budget** are not similarly configurable — they inherit whatever the
-invoking session defaults to. That leaves tokens on the table in both
-directions: mechanical slices could run at low effort with no extended thinking,
-while the design-adjacent "brain surgery" work wants high effort and a large
-thinking budget. Consider making effort and thinking declarable alongside model
-(per-slice, or as a stage-level knob) and have the stage command/agent pass them
-through on delegation. Weigh against [[simplify-per-slice-model-selection]],
-which argues the existing `**Model:**` annotation is already too fragile — any
-effort/thinking lever should ride the same (simpler) mechanism rather than
-bolting on a third fragile markdown knob.
 
 ### tutorial-mode-coaching-overlay — `idea` · **P3**
 
