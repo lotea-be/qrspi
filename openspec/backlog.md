@@ -101,6 +101,34 @@ N/A stanzas; irrelevant PR-checklist items). Relates to
 [[init-conductor-plus-overview]] (the overview/stack skills are where "what
 surface does this repo have" would live).
 
+### spec-anchored-code-comments — `idea` · **P1**
+
+**Why:** Implementation code comments sometimes reference the *process* artifacts
+that produced the code — a `design.md` decision ("per D4"), a `slices.md`/
+`tasks.md` item, or a change/PR id. **This shouldn't happen, and it's a highly
+visible, ugly defect** — it lands directly in shipped code every reader sees, and
+it *rots*: those artifacts are transient (they archive) and mutable, so the
+reference outlives or diverges from the thing it names, and whoever chases it hits
+stale or moved content. The only durable, human-review surface a comment should
+lean on is the **spec** (`openspec/specs/**`), which persists past archive as the
+kit's standing contract. So the rule should be: **a shipped code comment may
+reference a spec and nothing else** — no `design.md` / `slices.md` / `tasks.md` /
+PR references in code.
+
+**Shape:** Give specs a stable **identifier** (a short requirement/scenario id) that
+a comment can cite (e.g. `// see spec AUTH-3`), and have the spec grammar carry/emit
+those ids. Then establish the convention in the implementer's guidance — and ideally
+a `scripts/lint.mjs`-style check over changed code — that comments cite a spec id
+only. Keep the comment **terse: the id, not a paraphrase.** A descriptive
+restatement of the spec inside the comment is itself a second source of truth that
+drifts from the spec it quotes; the id *points*, the spec *says*. Relates to
+[[enforce-d-number-tags-in-slices]] (the inverse traceability link — `(D<n>)` tags
+bind slices back to design; this binds code forward to specs) and to the
+two-source-of-truth caution in [[optional-technology-specs]]. **P1 like
+[[repo-applicable-artifact-sections]]:** a highly visible artifact-quality defect
+(ugly process references baked into shipped code) rather than a live-workflow
+correctness gap. Surfaced 2026-07-24.
+
 ### init-conductor-plus-overview — `idea` · **P2**
 
 **Why:** Onboarding a repo currently means discovering two separate commands —
