@@ -6,9 +6,9 @@
 
 **Model:** sonnet — both files are new standalone markdown files with well-defined content (taxonomy table + inference rules + kit description). No novel patterns; the spec fully constrains the shape.
 
-- [ ] 1.1 Write `claude/skills/repo-surface/SKILL.md` with the five named surfaces (`data-store`, `http-api`, `ui`, `auth`, `typed-nullable`), a section→surface mapping table, the omit mechanic (no heading, no "Not applicable"), the inference rule (explicit block > prose inference > full-menu + warning), and the always-emitted sections list (D1, D2, D3, D4)
-- [ ] 1.2 Write `.claude/skills/qrspi-stack/SKILL.md` with the kit stack description (markdown files + Node lint at `scripts/lint.mjs`) and a `## Repo surface` block listing all five surfaces as absent (D9)
-- [ ] 1.3 Run `node scripts/lint.mjs` — confirm Checks 1–10 pass; Check 2 must resolve the new `repo-surface` skill reference (D5, D6)
+- [x] 1.1 Write `claude/skills/repo-surface/SKILL.md` with the five named surfaces (`data-store`, `http-api`, `ui`, `auth`, `typed-nullable`), a section→surface mapping table, the omit mechanic (no heading, no "Not applicable"), the inference rule (explicit block > prose inference > full-menu + warning), and the always-emitted sections list (D1, D2, D3, D4)
+- [x] 1.2 Write `.claude/skills/qrspi-stack/SKILL.md` with the kit stack description (markdown files + Node lint at `scripts/lint.mjs`) and a `## Repo surface` block listing all five surfaces as absent (D9)
+- [x] 1.3 Run `node scripts/lint.mjs` — confirm Checks 1–10 pass; Check 2 must resolve the new `repo-surface` skill reference (D5, D6)
 - [ ] 1.4 (human) In a fresh `claude --plugin-dir /workspaces/git/qrspi` session, load the `repo-surface` skill and confirm the body lists all five surfaces and the omit rule (no "Not applicable"). Also confirm `.claude/skills/qrspi-stack/SKILL.md` contains a `## Repo surface` section listing all five surfaces as absent.
 
 ## 2. Questioner emits repo-applicable sections
