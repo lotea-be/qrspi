@@ -11,7 +11,7 @@
 - [x] 1.3 Remove `openspec-workflow` from the `Load skills` line in `claude/agents/researcher.md`, `claude/agents/questioner.md`, `claude/agents/designer.md`, and `claude/agents/planner.md` (D1)
 - [x] 1.4 Add `context-hygiene` to the `Load skills` line in `claude/agents/researcher.md` (D3)
 - [x] 1.5 Unit/integration test: `node scripts/lint.mjs` exits 0 with all four agents trimmed; mutate one agent to add a stray skill load and confirm non-zero exit naming the violation (D5)
-- [ ] 1.6 (human) Checkpoint: run `node scripts/lint.mjs` in the repo — confirm it exits 0 and reports no `checkSkillSets` errors. Then manually add `openspec-workflow` to `claude/agents/planner.md`, re-run lint, and confirm a non-zero exit with a message naming the stray skill. Revert before continuing.
+- [x] 1.6 (human) Checkpoint: run `node scripts/lint.mjs` in the repo — confirm it exits 0 and reports no `checkSkillSets` errors. Then manually add `openspec-workflow` to `claude/agents/planner.md`, re-run lint, and confirm a non-zero exit with a message naming the stray skill. Revert before continuing.
 
 ## 2. Output-contract banners + Check 12
 
@@ -21,7 +21,7 @@
 - [x] 2.2 Add `> **Output contract**` banner block to all seven stage agent files: `claude/agents/researcher.md`, `questioner.md`, `designer.md`, `architect.md`, `planner.md`, `implementer.md`, `reviewer.md` (D4)
 - [x] 2.3 Add cap sentence to `claude/agents/implementer.md` and `claude/agents/reviewer.md` banner blocks (D4)
 - [x] 2.4 Unit/integration test: `node scripts/lint.mjs` exits 0 with all seven banners present; remove one banner and confirm non-zero exit naming the offending file (D4)
-- [ ] 2.5 (human) Checkpoint: run `node scripts/lint.mjs` — confirm Check 12 passes. Then remove the `> **Output contract**` line from `claude/agents/implementer.md`, re-run, and confirm a non-zero exit naming `implementer.md`. Revert before continuing.
+- [x] 2.5 (human) Checkpoint: run `node scripts/lint.mjs` — confirm Check 12 passes. Then remove the `> **Output contract**` line from `claude/agents/implementer.md`, re-run, and confirm a non-zero exit naming `implementer.md`. Revert before continuing.
 
 ## 3. Footprint script
 
@@ -31,7 +31,7 @@
 - [x] 3.2 Implement table output: seven rows × five columns (agent stem, skill count, total lines, total bytes, rough tokens via `Math.round(bytes / 4)`) printed to stdout (D7)
 - [x] 3.3 Ensure the script exits unconditionally with `process.exit(0)` — no ceiling gate (D7)
 - [x] 3.4 Unit/integration test: `node scripts/context-footprint.mjs` runs to completion, exits 0, and prints exactly seven data rows
-- [ ] 3.5 (human) Checkpoint: run `node scripts/context-footprint.mjs` from the repo root — confirm it prints a table with seven rows (one per stage) and exits 0. Spot-check that the token column is present and numeric.
+- [x] 3.5 (human) Checkpoint: run `node scripts/context-footprint.mjs` from the repo root — confirm it prints a table with seven rows (one per stage) and exits 0. Spot-check that the token column is present and numeric.
 
 ## 4. context-hygiene pointer + README + CHANGELOG
 
