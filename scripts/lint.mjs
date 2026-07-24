@@ -450,17 +450,16 @@ function checkSkillRefs(body, rel, knownSkills, errors) {
 // Both proposal and spec-delta map to architect -- it writes both.
 
 const TEMPLATE_CANONICAL_HEADINGS = {
-  // questions.template.md: the section structure in the skeleton is canonical
+  // questions.template.md: only the three surface-independent headings are
+  // required in the questioner skeleton. The seven CRUD headings (Data model,
+  // Indexing & query performance, API, UI, Front-end state, Auth & authorization,
+  // Migrations & data) are surface-gated and governed by the repo-surface filter;
+  // their presence/absence in a skeleton is guarded by Check 11 (added in
+  // Slice 4), not by this check. Disjoint-set invariant: no heading is
+  // simultaneously required-present (Check 3) and forbidden (Check 11).
   'questions.template.md': {
     agent: 'questioner',
     headings: [
-      '## Data model',
-      '## Indexing & query performance',
-      '## API',
-      '## UI',
-      '## Front-end state',
-      '## Auth & authorization',
-      '## Migrations & data',
       '## Testing',
       '## Sequencing & scope',
       '## Open product questions (for the human)',

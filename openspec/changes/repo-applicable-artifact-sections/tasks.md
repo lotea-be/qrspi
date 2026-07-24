@@ -15,9 +15,9 @@
 
 **Model:** sonnet — the questioner wiring follows a clear spec-prescribed pattern (add preamble step + swap skeleton lines + update template). No novel architecture; the change is templated once the pattern from Slice 1 is set.
 
-- [ ] 2.1 Edit `claude/agents/questioner.md` — add `Load skill repo-surface` and stack-cheatsheet load to the preamble; replace the CRUD-heading lines in the fenced skeleton with a conditional placeholder; remove the "Not applicable" instruction (D4, D7, D8)
-- [ ] 2.2 Edit `openspec-templates/questions.template.md` — replace the N/A instruction under CRUD headings with a surface-gate omit rule (emit only when surface is present; omit entirely otherwise) (D8)
-- [ ] 2.3 Run `node scripts/lint.mjs` — confirm Check 3 passes with the reduced 3-heading set and Check 2 resolves the new `repo-surface` load; grep confirms no CRUD-denylist heading appears inside a fenced block in `questioner.md` (D5, D6)
+- [x] 2.1 Edit `claude/agents/questioner.md` — add `Load skill repo-surface` and stack-cheatsheet load to the preamble; replace the CRUD-heading lines in the fenced skeleton with a conditional placeholder; remove the "Not applicable" instruction (D4, D7, D8)
+- [x] 2.2 Edit `openspec-templates/questions.template.md` — replace the N/A instruction under CRUD headings with a surface-gate omit rule (emit only when surface is present; omit entirely otherwise) (D8)
+- [x] 2.3 Run `node scripts/lint.mjs` — confirm Check 3 passes with the reduced 3-heading set and Check 2 resolves the new `repo-surface` load; grep confirms no CRUD-denylist heading appears inside a fenced block in `questioner.md` (D5, D6)
 - [ ] 2.4 (human) In a `claude --plugin-dir /workspaces/git/qrspi` session on this kit, run `/qrspi:questions` on a throwaway change — confirm the produced `questions.md` contains no `## Data model`, `## API`, `## Migrations & data`, `## UI`, `## Auth & authorization`, `## Front-end state`, or `## Indexing & query performance` headings, and no "Not applicable" text under any surface-gated heading.
 - [ ] 2.5 (human) Build a throwaway web-app fixture outside this repo (in the scratchpad), run `/qrspi:questions` in a `--plugin-dir` session — confirm CRUD sections appear in the output (prose inference fires).
 

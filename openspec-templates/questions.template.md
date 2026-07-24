@@ -18,34 +18,38 @@
     Example: a change that touches a list page AND a detail page
     should have BOTH "UI — list page" and "UI — detail page" sections
     instead of a single "UI" section.
-  - For sections that don't apply, keep the heading and write
-    `*Not applicable.*` plus a one-line rationale — do NOT silently
-    drop them, so stage S doesn't re-litigate whether they were
-    considered. Only omit a heading that could not apply to any change.
+  - Surface-gated sections (Data model, Indexing & query performance,
+    API, UI, Front-end state, Auth & authorization, Migrations & data):
+    emit a section only when its controlling surface is present in this
+    repo (per the repo-surface skill mapping) AND it carries content for
+    this change. When the surface is absent, omit the section entirely
+    (no heading, no "Not applicable" text, no empty block).
+  - Always-emitted sections (Testing, Sequencing & scope, Open product
+    questions): emit regardless of surface presence.
   - Add sections that aren't here when the change has dimensions this
     template doesn't anticipate (e.g., "Background jobs", "Real-time
     contracts"). Note the new section in `openspec/templates/` so the
     next change benefits.
-  - Not every change is a CRUD data feature. For a cross-cutting or
-    reusable-component change (e.g. a rendering pipeline, a shared UI
-    component, a formatting/sanitization service), the Data
-    model / Indexing / API / Migrations / state sections are usually
-    *Not applicable* — keep them and say so (see the bullet above) —
-    and add the sections that actually fit the change shape, such as
-    "Rendering pipeline", "Sanitization / security", "Component API
-    surface", or "Styling ownership".
+  - For a cross-cutting or reusable-component change (e.g. a rendering
+    pipeline, a shared UI component, a formatting/sanitization service),
+    add the sections that fit the change shape (e.g. "Rendering
+    pipeline", "Sanitization / security", "Component API surface", or
+    "Styling ownership") alongside any surface-gated sections from the
+    repo-surface mapping that apply.
   - Number questions consecutively across the whole document (1, 2, 3
-    …) — do NOT reset numbering at each section. Code-touching questions
-    are answerable by the agent during stage R; only the human can
-    answer the "Open product questions" block.
+    ...) -- do NOT reset numbering at each section. Code-touching
+    questions are answerable by the agent during stage R; only the human
+    can answer the "Open product questions" block.
   - Keep questions narrow and code-grounded. "Should the body be
     `text` or `varchar(N)`?" is good. "What should the UX feel like?"
-    is design — drop it.
+    is design -- drop it.
 
   Worked example: read the most recent archived `questions.md` under
   `openspec/changes/archive/<date>-<id>/questions.md` before drafting.
 -->
 
+<!-- SURFACE-GATED: data-store surface. Omit this section entirely (no heading,
+     no "Not applicable") when the repo has no data-store surface. -->
 ## Data model
 
 <!-- Entities, properties, relations, FK delete behaviour, soft-delete,
@@ -53,14 +57,17 @@
 
 1. ...
 
+<!-- SURFACE-GATED: data-store surface. Omit this section entirely when the
+     repo has no data-store surface. -->
 ## Indexing & query performance
 
 <!-- Which indexes are mandatory at table creation, pagination strategy,
-     N+1 risks, expected payload sizes. Drop this section if the change
-     adds no new tables or queries. -->
+     N+1 risks, expected payload sizes. -->
 
 ...
 
+<!-- SURFACE-GATED: http-api surface. Omit this section entirely when the
+     repo has no http-api surface. -->
 ## API
 
 <!-- API endpoints added or changed. For each: route, verb, auth,
@@ -69,23 +76,28 @@
 
 ...
 
+<!-- SURFACE-GATED: ui surface. Omit this section entirely when the
+     repo has no ui surface. -->
 ## UI
 
 <!-- Pages and components. Routes, layout integration, and the UI
-     primitives/components used. Split into "UI — list page", "UI —
-     detail page", "UI — form" etc. when the change touches multiple
+     primitives/components used. Split into "UI -- list page", "UI --
+     detail page", "UI -- form" etc. when the change touches multiple
      routes. -->
 
 ...
 
+<!-- SURFACE-GATED: ui surface. Omit this section entirely when the
+     repo has no ui surface. -->
 ## Front-end state
 
 <!-- Does this change introduce new front-end state (a store slice:
-     actions, reducers, effects)? If yes, describe it. If no, say so
-     explicitly so stage S doesn't re-litigate. -->
+     actions, reducers, effects)? If yes, describe it. -->
 
 ...
 
+<!-- SURFACE-GATED: auth surface. Omit this section entirely when the
+     repo has no auth surface. -->
 ## Auth & authorization
 
 <!-- New policies, role checks, ownership rules. Reference the project's
@@ -93,6 +105,8 @@
 
 ...
 
+<!-- SURFACE-GATED: data-store surface. Omit this section entirely when the
+     repo has no data-store surface. -->
 ## Migrations & data
 
 <!-- Data-store migration name, schema changes, FK constraints, seed
