@@ -13,7 +13,47 @@ _None._
 
 ## Proposed
 
-_None._
+The two rows below are the input + output halves of one in-flight change,
+`context-budget` (branch `features/context-budget`), which bundles them as
+complementary levers on the same per-stage context surface. They flip together
+and archive together.
+
+### trim-per-stage-context-loading — `proposed (bundled into context-budget)` · **P1**
+
+**Why:** Per-run token burn is dominated by **input** — what each QRSPI stage
+auto-loads (the `<repo>-stack` skill + the workflow/convention skills) plus the
+files its subagent reads — yet nothing audits or caps that surface.
+`context-hygiene` states the principle (keep windows under 40%, subagents as
+context firewalls) but enforces nothing, so the per-stage load creeps silently as
+skills, agents, and templates accrete, and every stage of every change pays it.
+This is the single biggest lever on the runaway token cost.
+
+**Shape:** Audit the per-stage load surface — which skills each stage
+command/agent auto-loads, and the typical read footprint — and trim each stage to
+only what it needs (not every stage needs every skill; scope reads by stage). Add
+a lightweight visibility signal (e.g. log context% at stage entry) so regressions
+are noticeable, and consider a `scripts/lint.mjs`-style check that a stage loads
+only its declared skill set. Relates to `context-hygiene` (the standing principle
+this makes measurable/enforced), [[enforce-research-ticket-hiding]] (the same
+"guard, don't just ask nicely" move applied to a reader's inputs),
+[[bounded-subagent-return-summaries]] (the complementary output-side lever, its
+bundle partner), and [[configurable-effort-and-thinking]] (the compute-side
+lever). **P1 under the recurring token/cost band:** not a correctness gap, but a
+systemic per-run cost defect that compounds on every stage of every change.
+Surfaced 2026-07-24 (token burn flagged as climbing).
+
+### bounded-subagent-return-summaries — `proposed (bundled into context-budget)` · **P2**
+
+**Why:** Every QRSPI stage delegation returns its subagent's final message into
+the **main-loop** context, and nothing bounds that payload — a verbose return
+re-inflates exactly the context the subagent firewall exists to protect, undoing
+part of the delegation's token benefit. Establish a convention that each stage
+subagent hands back a **bounded, structured** result — the artifact path, a short
+N-line summary, and the next command — not free-form prose. Small, low-cost,
+always-on lever on the output side (complements input-side
+[[trim-per-stage-context-loading]], its bundle partner). Could ride each agent
+file's output-contract section, with a lint asserting the return-contract wording
+is present. Surfaced 2026-07-24 (token burn flagged as climbing).
 
 ---
 
@@ -29,11 +69,11 @@ this ordering whenever an item is added, modified, or archived (see
 [[backlog-prioritization]]).
 
 **Token/cost levers** (the recurring cost band, salient with burn climbing) are
-kept adjacent near the top so the cost story reads at a glance:
-[[trim-per-stage-context-loading]] (input, P1), [[bounded-subagent-return-summaries]]
-(output), [[simplify-per-slice-model-selection]] (model),
+kept adjacent near the top so the cost story reads at a glance: the **input** and
+**output** levers are now in flight together as [[context-budget]] (see
+`## Proposed` above); [[simplify-per-slice-model-selection]] (model),
 [[configurable-effort-and-thinking]] (compute), and
-[[standardize-recurring-ops-scripts]] (reasoning/exploration). The
+[[standardize-recurring-ops-scripts]] (reasoning/exploration) remain here. The
 **surface-taxonomy family** spun off [[repo-applicable-artifact-sections]] —
 [[enforce-artifact-surface-applicability]], [[kit-self-surfaces]],
 [[structured-surface-schema]], [[extend-surface-taxonomy]] — is likewise kept
@@ -66,43 +106,6 @@ two-source-of-truth caution in [[optional-technology-specs]]. **P1 like
 [[repo-applicable-artifact-sections]]:** a highly visible artifact-quality defect
 (ugly process references baked into shipped code) rather than a live-workflow
 correctness gap. Surfaced 2026-07-24.
-
-### trim-per-stage-context-loading — `idea` · **P1**
-
-**Why:** Per-run token burn is dominated by **input** — what each QRSPI stage
-auto-loads (the `<repo>-stack` skill + the workflow/convention skills) plus the
-files its subagent reads — yet nothing audits or caps that surface.
-`context-hygiene` states the principle (keep windows under 40%, subagents as
-context firewalls) but enforces nothing, so the per-stage load creeps silently as
-skills, agents, and templates accrete, and every stage of every change pays it.
-This is the single biggest lever on the runaway token cost.
-
-**Shape:** Audit the per-stage load surface — which skills each stage
-command/agent auto-loads, and the typical read footprint — and trim each stage to
-only what it needs (not every stage needs every skill; scope reads by stage). Add
-a lightweight visibility signal (e.g. log context% at stage entry) so regressions
-are noticeable, and consider a `scripts/lint.mjs`-style check that a stage loads
-only its declared skill set. Relates to `context-hygiene` (the standing principle
-this makes measurable/enforced), [[enforce-research-ticket-hiding]] (the same
-"guard, don't just ask nicely" move applied to a reader's inputs),
-[[bounded-subagent-return-summaries]] (the complementary output-side lever), and
-[[configurable-effort-and-thinking]] (the compute-side lever). **P1 under the
-recurring token/cost band:** not a correctness gap, but a systemic per-run cost
-defect that compounds on every stage of every change. Surfaced 2026-07-24 (token
-burn flagged as climbing).
-
-### bounded-subagent-return-summaries — `idea` · **P2**
-
-**Why:** Every QRSPI stage delegation returns its subagent's final message into
-the **main-loop** context, and nothing bounds that payload — a verbose return
-re-inflates exactly the context the subagent firewall exists to protect, undoing
-part of the delegation's token benefit. Establish a convention that each stage
-subagent hands back a **bounded, structured** result — the artifact path, a short
-N-line summary, and the next command — not free-form prose. Small, low-cost,
-always-on lever on the output side (complements input-side
-[[trim-per-stage-context-loading]]). Could ride each agent file's output-contract
-section, with a lint asserting the return-contract wording is present. Surfaced
-2026-07-24 (token burn flagged as climbing).
 
 ### simplify-per-slice-model-selection — `idea` · **P2**
 
@@ -212,6 +215,24 @@ in [[archive-requires-merged-pr]] (which already updates the backlog entry on
 archive) — that's a natural trigger point to offer the reprioritization pass.
 (The `P1`–`P3` bands + priority ordering now used in this file are a first,
 hand-maintained cut of this convention.)
+
+### propose-bundling-ideas — `idea` · **P3**
+
+**Why:** When a flow starts — or when the user asks "what should we take up
+next?" — the agent tends to pick a *single* backlog item, but several ideas
+often share a theme, a mechanism, or a sequencing dependency and are cheaper to
+design and ship as **one QRSPI flow** (the eight-stage ceremony amortizes across
+the bundle, and co-designing coupled items avoids building a fragile mechanism
+twice). Today nothing prompts the agent to *look for* those bundles; it happens
+ad hoc. Add a convention: at run-start / "what next?" time, scan the backlog for
+bundle-worthy clusters (shared mechanism, complementary levers, explicit
+"must be co-designed" cross-references) and **propose** a bundle to the user —
+offer, never auto-bundle; the human picks the scope. Pairs with
+[[backlog-prioritization]] — that item ranks *what's next*; this one decides
+*how much* to take at once — and is itself dogfooded by the `context-budget`
+change (which bundled the input + output token levers into one flow). Kept
+adjacent to [[backlog-prioritization]] despite the band gap, per the
+"keep families contiguous" convention above. Surfaced 2026-07-24.
 
 ### enforce-research-ticket-hiding — `idea` · **P2**
 
