@@ -230,6 +230,34 @@ can drift. Relates to [[optional-technology-specs]] (formal machine-validatable
 artifacts) and [[reassess-openspec-dependency]]. Surfaced 2026-07-24 as a
 Non-Goal of `repo-applicable-artifact-sections` (stage D).
 
+### extend-surface-taxonomy — `idea` · **P3**
+
+**Why:** [[repo-applicable-artifact-sections]] ships a closed 5-surface taxonomy
+(`data-store`, `http-api`, `ui`, `auth`, `typed-nullable`) in the `repo-surface`
+skill. The list is closed *by construction* — a surface exists only to gate a
+cluster of the artifact **sections** the agents emit, and today those sections are
+the CRUD/web set. To serve more repo types, grow the taxonomy — but each new
+surface must be added **together with** the section(s) it gates (a surface that
+gates no emitted section is inert). Candidate surface + section clusters to design
+(each is a potential standalone change, or bundle a few):
+
+- **`cli`** — command/flag surface, subcommand structure, exit codes, help/usage output.
+- **`message-queue` / async-messaging** — topics/queues, delivery & ordering semantics, idempotency, dead-letter handling.
+- **`background-jobs` / scheduling** — scheduled/worker tasks, retries, concurrency limits.
+- **`object-storage` / filesystem** — blob/object stores, path layout, retention/lifecycle.
+- **`caching`** — cache keys, invalidation strategy, TTL/staleness.
+- **`observability`** — logging, metrics, tracing, alerting surfaces.
+- **`infra` / IaC** — provisioned resources, deployment topology, environments.
+- **`ml-model`** — model artifacts, training data provenance, evaluation metrics, versioning.
+- **`realtime` / streaming** — websockets/SSE/streaming endpoints, backpressure.
+
+Each cluster needs the same treatment as the original five: a mapping row in
+`repo-surface`, the gated section(s) in the relevant agent skeleton(s)/template(s),
+and (if it introduces a heading a fenced skeleton must not hardcode) a Check 11
+denylist entry. Surfaced 2026-07-24 during stage-I dogfooding of
+`repo-applicable-artifact-sections` (the "could the surface list be bigger?"
+question). Relates to [[structured-surface-schema]].
+
 ### assert-openspec-version-pin-coupling — `idea` · **P3**
 
 **Why:** `openspec/config.yaml` carries an `openspec_version` field recording the

@@ -22,9 +22,10 @@ deterministic `## Repo surface` block.
   closed surface taxonomy, section→surface mapping, and omit/warn rules (D1, D2,
   D3, D4).
 - New project-scoped cheatsheet `.claude/skills/qrspi-stack/SKILL.md` for this
-  kit, with an explicit `## Repo surface` block declaring all taxonomy surfaces
-  absent (D9). `/qrspi:stack` (`claude/commands/stack.md` and/or its skill)
-  extended to emit a `## Repo surface` block going forward (D3, OQ2).
+  kit, with an explicit `## Repo surface` allowlist block declaring no present
+  surfaces (D9). `/qrspi:stack` (`claude/commands/stack.md` and/or its skill)
+  extended to emit a present-only `## Repo surface` allowlist block going forward
+  (D3, OQ2).
 - Five agent files updated: questioner and planner gain a `repo-surface` +
   stack-cheatsheet load step; designer, architect, and reviewer gain the
   `repo-surface` load only (D7). All five have their fenced skeleton's
@@ -53,7 +54,7 @@ deterministic `## Repo surface` block.
   mapping, and the omit/warn rules. Loaded by all five artifact-producing agents.
   Creates `specs/repo-surface/spec.md`.
 - `qrspi-stack`: The project-scoped cheatsheet for this kit, with a
-  `## Repo surface` block declaring all five taxonomy surfaces absent. Includes
+  `## Repo surface` allowlist block declaring no present surfaces. Includes
   the `/qrspi:stack` extension to emit that block for new cheatsheets.
   Creates `specs/qrspi-stack/spec.md`.
 

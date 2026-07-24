@@ -11,8 +11,18 @@ before writing a single section heading.
 
 ## Surface taxonomy (closed vocabulary)
 
-There are exactly five named surfaces. Adding a sixth requires an explicit edit to
-this file -- the vocabulary is intentionally closed.
+There are exactly five named surfaces today. The vocabulary is closed **by
+construction, not by arbitrary choice**: a surface exists only to gate a cluster
+of the surface-gated *sections* the QRSPI agents actually emit (see the
+section-to-surface mapping below). The agents emit a fixed set of sections, so the
+surfaces that gate them are a correspondingly fixed set. A surface name that gates
+no emitted section would filter nothing -- it would be inert.
+
+**To extend the taxonomy** (add a sixth surface), you must add it here **together
+with** the section(s) it gates: add the row to the mapping below AND add the
+matching section(s) to the relevant agent skeleton(s)/template(s). Adding a surface
+alone, with no gated section, has no effect. This is why the list is short and
+maintained in one place -- it mirrors the emitted sections one-to-one.
 
 | Surface | Meaning |
 |---------|---------|
@@ -84,27 +94,40 @@ When an agent loads this skill it SHALL read the project's stack-cheatsheet skil
 (if present) and determine which surfaces are present or absent using the following
 priority order:
 
-### Rule A -- explicit `## Repo surface` block (deterministic)
+### Rule A -- explicit `## Repo surface` block (authoritative allowlist)
 
-If the loaded stack cheatsheet contains a `## Repo surface` section, read each
-surface's status directly from that block. This is the deterministic path -- no
-prose inference is performed.
+If the loaded stack cheatsheet contains a `## Repo surface` section, that block is
+the **authoritative, complete allowlist of the surfaces that are present**. Read it
+directly and do NOT perform prose inference (Rule B is skipped entirely):
 
-Example block that signals all surfaces absent:
+- A surface **listed** in the block is present.
+- A surface **not listed** is absent.
+
+List only the surfaces that ARE present -- do not enumerate absent ones; their
+absence is implied by omission (listing "data-store: absent" is redundant with
+simply leaving it out). A repo with no present surfaces declares that explicitly so
+the block reads as "present but empty" rather than "forgotten".
+
+Example -- a repo with a database and an HTTP API but no UI/auth:
 
 ```
 ## Repo surface
 
-- data-store: absent
-- http-api: absent
-- ui: absent
-- auth: absent
-- typed-nullable: absent
+- data-store
+- http-api
 ```
 
-When this block is present, its declarations are taken as-is. A surface listed as
-`present` is treated as present; one listed as `absent` (or not listed at all) is
-treated as absent.
+Example -- a docs/plugin repo with no present surfaces:
+
+```
+## Repo surface
+
+_No present surfaces._
+```
+
+Because the block is authoritative, a stray prose mention of an unlisted surface
+(e.g. the word "database" appearing incidentally elsewhere) does NOT make that
+surface present -- only the block's allowlist counts.
 
 ### Rule B -- prose inference (fallback when no `## Repo surface` block exists)
 

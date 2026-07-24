@@ -91,6 +91,16 @@ are **always emitted** — they are surface-independent. The taxonomy is a close
 list, not open-ended: a new surface is a deliberate skill edit, which keeps the
 mapping auditable and keeps the new lint check (D6) tractable.
 
+> **Refined during stage-I dogfooding (2026-07-24):** the closed list is closed
+> *by construction*, not arbitrarily — a surface exists only to gate a cluster of
+> the surface-gated *sections* the agents actually emit, so the surface set
+> mirrors the emitted-section set one-to-one. A surface that gates no emitted
+> section would be inert. **To extend**, add the surface here *together with* the
+> section(s) it gates (in the agent skeletons/templates); adding a surface alone
+> has no effect. The `repo-surface` skill states this rationale so the list does
+> not read as arbitrary hardcoding. Candidate future surface+section clusters are
+> captured as a backlog idea (`extend-surface-taxonomy`).
+
 ### D3 — The cheatsheet stays prose; `repo-surface` reads it by a documented convention, not a schema parser
 
 Q14/PQ7 surfaced the tension: today's `<repo>-stack` cheatsheet is *prose* under
@@ -120,6 +130,17 @@ strip inapplicable sections; a repo that has a database will mention it (ORM
 dep, migrations dir, SQL). Defaulting silence to "present" would keep the CRUD
 menu on exactly the docs repos this change targets. The explicit `## Repo
 surface` block (C) exists for repos that want to remove any doubt.
+
+> **Block format refined during stage-I dogfooding (2026-07-24):** the `## Repo
+> surface` block is an **authoritative allowlist of the surfaces that are
+> PRESENT**, not an enumeration of every surface as present/absent. A surface
+> listed is present; a surface not listed is absent; when the block is present it
+> is authoritative and prose inference (B) is skipped entirely. Enumerating
+> surfaces as `absent` was redundant with silence=absent and read as noise
+> (surfaced when a human reviewed the kit's own all-`absent` block). A repo with
+> no present surfaces declares that explicitly (`_No present surfaces._`) so the
+> block reads as present-but-empty rather than forgotten. This makes the block
+> both cleaner and robust to a stray prose mention of an unlisted surface.
 
 ### D4 — "Omit the section" concretely = the agent skips emitting the heading and its body; the fenced skeleton is annotated, not hard-coded
 

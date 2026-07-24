@@ -64,19 +64,28 @@ canonical OpenSpec headers (`## Context`, `## Why`, `## What Changes`,
 
 ### Requirement: repo-surface skill specifies the surface-inference rule from the stack cheatsheet
 The skill MUST document that an agent loading it SHALL read the project's
-stack-cheatsheet skill (if present) and infer each surface flag using the
+stack-cheatsheet skill (if present) and determine each surface flag using the
 following rules: (a) if the cheatsheet contains an explicit `## Repo surface`
-block, read the surface list from that block (deterministic path, D3-C);
-(b) otherwise, infer each flag by LLM judgment from the cheatsheet prose —
-absence of any mention of a surface means that surface is absent (silence =
-absent, D3-B); (c) if no cheatsheet is loaded, emit the full section menu plus
-a visible warning directing the user to run `/qrspi:stack`.
+block, that block is the authoritative allowlist of PRESENT surfaces — a surface
+listed is present, a surface not listed is absent, and prose inference is NOT
+performed (deterministic path, D3-C); (b) otherwise, infer each flag by LLM
+judgment from the cheatsheet prose — absence of any mention of a surface means
+that surface is absent (silence = absent, D3-B); (c) if no cheatsheet is loaded,
+emit the full section menu plus a visible warning directing the user to run
+`/qrspi:stack`.
 
-#### Scenario: explicit block takes precedence
-- **WHEN** the loaded cheatsheet contains `## Repo surface` listing
-  `data-store: absent, http-api: absent`
-- **THEN** the agent treats those surfaces as absent without performing prose
-  inference, producing a deterministic result.
+#### Scenario: explicit block is an authoritative allowlist
+- **WHEN** the loaded cheatsheet contains a `## Repo surface` block listing only
+  `data-store` and `http-api` (a present-only allowlist)
+- **THEN** the agent treats `data-store` and `http-api` as present and every
+  unlisted surface (`ui`, `auth`, `typed-nullable`) as absent, without performing
+  prose inference — a deterministic result.
+
+#### Scenario: empty allowlist means all surfaces absent
+- **WHEN** the loaded cheatsheet contains a `## Repo surface` block that lists no
+  present surfaces (e.g. `_No present surfaces._`)
+- **THEN** the agent treats all five surfaces as absent and omits every
+  surface-gated section, without performing prose inference.
 
 #### Scenario: prose inference fires when no block is present
 - **WHEN** the loaded cheatsheet is prose-only with no mention of a database,

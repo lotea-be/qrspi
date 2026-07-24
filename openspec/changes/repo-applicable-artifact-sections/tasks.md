@@ -7,9 +7,9 @@
 **Model:** sonnet — both files are new standalone markdown files with well-defined content (taxonomy table + inference rules + kit description). No novel patterns; the spec fully constrains the shape.
 
 - [x] 1.1 Write `claude/skills/repo-surface/SKILL.md` with the five named surfaces (`data-store`, `http-api`, `ui`, `auth`, `typed-nullable`), a section→surface mapping table, the omit mechanic (no heading, no "Not applicable"), the inference rule (explicit block > prose inference > full-menu + warning), and the always-emitted sections list (D1, D2, D3, D4)
-- [x] 1.2 Write `.claude/skills/qrspi-stack/SKILL.md` with the kit stack description (markdown files + Node lint at `scripts/lint.mjs`) and a `## Repo surface` block listing all five surfaces as absent (D9)
+- [x] 1.2 Write `.claude/skills/qrspi-stack/SKILL.md` with the kit stack description (markdown files + Node lint at `scripts/lint.mjs`) and a `## Repo surface` allowlist block declaring no present surfaces (D9)
 - [x] 1.3 Run `node scripts/lint.mjs` — confirm Checks 1–10 pass; Check 2 must resolve the new `repo-surface` skill reference (D5, D6)
-- [ ] 1.4 (human) In a fresh `claude --plugin-dir /workspaces/git/qrspi` session, load the `repo-surface` skill and confirm the body lists all five surfaces and the omit rule (no "Not applicable"). Also confirm `.claude/skills/qrspi-stack/SKILL.md` contains a `## Repo surface` section listing all five surfaces as absent.
+- [ ] 1.4 (human) In a fresh `claude --plugin-dir /workspaces/git/qrspi` session, load the `repo-surface` skill and confirm the body lists all five surfaces and the omit rule (no "Not applicable"), and describes the `## Repo surface` block as an authoritative present-only allowlist. Also confirm `.claude/skills/qrspi-stack/SKILL.md` contains a `## Repo surface` allowlist block declaring no present surfaces (not an enumeration of all five as absent).
 
 ## 2. Questioner emits repo-applicable sections
 
@@ -40,11 +40,11 @@
 **Model:** sonnet — Check 11 mirrors the dependency-free ESM pattern of existing checks in `scripts/lint.mjs`; the stack command extension and Part B edits are prose additions; README/CHANGELOG are mechanical doc updates. No novel logic.
 
 - [x] 4.1 Add `checkNoCrudSkeletonHeadings` to `scripts/lint.mjs` — async function, twelve-heading denylist, scoped to lines inside fenced blocks of the five agent files, `process.stdout.write('Check 11: ...')` label, disjoint-set invariant comment, registered after Check 10 (D6)
-- [x] 4.2 Extend `claude/commands/stack.md` (and/or `claude/skills/qrspi-stack/SKILL.md` if the command delegates to it) to emit a `## Repo surface` block assessing each of the five taxonomy surfaces as present or absent in the generated cheatsheet (D3)
+- [x] 4.2 Extend `claude/commands/stack.md` (and/or `claude/skills/qrspi-stack/SKILL.md` if the command delegates to it) to emit a `## Repo surface` allowlist block listing only the repo's present surfaces (absent surfaces omitted; declare none present when the repo has none) in the generated cheatsheet (D3)
 - [x] 4.3 Edit `claude/skills/vertical-slice/SKILL.md` — add the one-line note directing readers to `repo-surface` for which slice shapes apply to their repo (D10)
 - [x] 4.4 Edit `claude/skills/workflow/SKILL.md` — add the parenthetical on the "data model, API surface, or auth" sentence clarifying these are web-app examples and pointing to the stack cheatsheet for other repos (D10)
 - [x] 4.5 Edit `README.md` — add `repo-surface` skill entry to the kit's skill/command table or list (D9)
 - [x] 4.6 Edit `CHANGELOG.md` — add `## [Unreleased]` entry describing the four-slice change (D9)
 - [x] 4.7 Run `node scripts/lint.mjs` — confirm all 11 checks pass, including Check 11 `OK` for all five agent files (D6)
 - [x] 4.8 Regression-injection test: deliberately inject `## Migrations` as a literal heading line inside a fenced block in one agent file, run `node scripts/lint.mjs`, confirm Check 11 exits non-zero and names the file and offending heading; revert before committing (D6)
-- [ ] 4.9 (human) In a `claude --plugin-dir /workspaces/git/qrspi` session, run `/qrspi:stack` on a fresh throwaway repo outside this kit — confirm the generated cheatsheet contains a `## Repo surface` section listing each of the five taxonomy surfaces as present or absent.
+- [ ] 4.9 (human) In a `claude --plugin-dir /workspaces/git/qrspi` session, run `/qrspi:stack` on a fresh throwaway repo outside this kit — confirm the generated cheatsheet contains a `## Repo surface` allowlist block listing only the repo's present surfaces (or declaring none present), not an enumeration of every surface as present/absent.
