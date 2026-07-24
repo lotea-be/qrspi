@@ -27,10 +27,10 @@
 
 **Model:** sonnet — a report-only script with no decision logic; file-reading + arithmetic + table formatting, all in Node built-ins; pattern similar to existing `scripts/*.mjs` files.
 
-- [ ] 3.1 Add `scripts/context-footprint.mjs` as a Node ESM script using built-ins only; import or re-declare `SKILL_SET_EXPECTED` from `scripts/lint.mjs` or a shared module so the two sources never drift (D7)
-- [ ] 3.2 Implement table output: seven rows × five columns (agent stem, skill count, total lines, total bytes, rough tokens via `Math.round(bytes / 4)`) printed to stdout (D7)
-- [ ] 3.3 Ensure the script exits unconditionally with `process.exit(0)` — no ceiling gate (D7)
-- [ ] 3.4 Unit/integration test: `node scripts/context-footprint.mjs` runs to completion, exits 0, and prints exactly seven data rows
+- [x] 3.1 Add `scripts/context-footprint.mjs` as a Node ESM script using built-ins only; import or re-declare `SKILL_SET_EXPECTED` from `scripts/lint.mjs` or a shared module so the two sources never drift (D7)
+- [x] 3.2 Implement table output: seven rows × five columns (agent stem, skill count, total lines, total bytes, rough tokens via `Math.round(bytes / 4)`) printed to stdout (D7)
+- [x] 3.3 Ensure the script exits unconditionally with `process.exit(0)` — no ceiling gate (D7)
+- [x] 3.4 Unit/integration test: `node scripts/context-footprint.mjs` runs to completion, exits 0, and prints exactly seven data rows
 - [ ] 3.5 (human) Checkpoint: run `node scripts/context-footprint.mjs` from the repo root — confirm it prints a table with seven rows (one per stage) and exits 0. Spot-check that the token column is present and numeric.
 
 ## 4. context-hygiene pointer + README + CHANGELOG

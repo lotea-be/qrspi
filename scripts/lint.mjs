@@ -991,23 +991,10 @@ async function checkMigrationManifests(errors) {
 // is explicitly excluded -- it must NOT appear here (neither required nor
 // forbidden). Mirrors the shape / placement of READ_CONTRACT_EXPECTED.
 //
-// Derived from the approved design (D2, D5, D6):
-//   researcher  -- trimmed: removed openspec-workflow (D1), added context-hygiene (D3)
-//   questioner  -- trimmed: removed openspec-workflow (D1), removed repo-surface (D1)
-//   designer    -- trimmed: removed openspec-workflow (D1)
-//   architect   -- unchanged: keeps openspec-workflow (spec-delta + validate)
-//   planner     -- trimmed: removed openspec-workflow (D1)
-//   implementer -- unchanged
-//   reviewer    -- unchanged: keeps openspec-workflow (archive / sync steps)
-const SKILL_SET_EXPECTED = {
-  researcher:  ['context-hygiene', 'workflow'],
-  questioner:  ['repo-surface', 'workflow'],
-  designer:    ['context-hygiene', 'repo-surface', 'workflow'],
-  architect:   ['openspec-workflow', 'repo-surface', 'vertical-slice', 'workflow'],
-  planner:     ['repo-surface', 'vertical-slice', 'workflow'],
-  implementer: ['context-hygiene', 'vertical-slice', 'workflow'],
-  reviewer:    ['openspec-workflow', 'repo-surface', 'workflow'],
-};
+// Derived from the approved design (D2, D5, D6) -- imported from the shared
+// module scripts/skill-sets.mjs (single source of truth, D7) so that
+// scripts/context-footprint.mjs can reuse it without drift.
+import { SKILL_SET_EXPECTED } from './skill-sets.mjs';
 
 // ---- Check N (skill-sets): checkSkillSets -----------------------------------
 //
