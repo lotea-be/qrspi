@@ -168,6 +168,33 @@ script** — lint runs in this repo's CI, but a helper a stage command invokes
 at runtime ships into consumer repos and inherits their `gh`/auth availability and
 cross-platform concerns; be deliberate about that split.
 
+### decompose-tasks-md-per-slice — `idea` · **P2**
+
+**Why:** The implementer (stage I) reads the whole `tasks.md` on **every** slice,
+so a change with N slices re-reads the same growing file N times — an input-side
+read-footprint cost on one of the two heaviest stages. This is the same lever as
+[[context-budget]] (input read footprint) but at the *artifact-structure* level
+rather than skill loads, so it is deliberately out of that change's scope (which
+holds a "no artifact-structure change" contract). Two related decompositions:
+
+1. **One file per slice** (e.g. `tasks/slice-<n>.md`) so each implementer
+   invocation reads only its own slice, not the full checklist.
+2. **Separate the `(human)` checkpoint tasks** out of the per-slice implementer
+   files into their own surface (e.g. `checkpoints.md`), so the per-slice files
+   stay purely machine-actionable (code + tests the implementer acts on) and the
+   runtime-verification checkpoints collect in one place for the PR reconciliation
+   gate and the dogfood flow. The implementer never reads tasks it cannot action.
+
+**Coupling / design tension (needs Q/R/D):** touches the planner (writes the split
+files), the implementer Read-Matrix row, the reviewer (reads the full folder),
+progressive task-ticking + the per-slice commit flow, the PR human-task
+reconciliation gate in `claude/commands/pr.md`, the `qrspi-dogfood` skill,
+`scripts/lint.mjs` checks that parse `tasks.md`, and `openspec-templates/`. Note
+the countervailing pull: `tasks.md` doubles as the single-glance progress view for
+the human and the reviewer, so a naive split fragments that — likely wants a
+top-level index + per-slice detail, and the `(human)` checkpoints still need a
+slice association. Surfaced 2026-07-24 during the `context-budget` flow.
+
 ### init-conductor-plus-overview — `idea` · **P2**
 
 **Why:** Onboarding a repo currently means discovering two separate commands —
