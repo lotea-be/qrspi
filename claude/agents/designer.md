@@ -32,11 +32,11 @@ exception (see workflow skill Read Matrix). Triggers must be sourced from
 
 ## What to do
 
-1. Load skills `workflow`, `openspec-workflow`, `context-hygiene`, and
-   `repo-surface`, plus the project's stack-cheatsheet skill if it defines
-   one (use the Glob tool with pattern `.claude/skills/*/SKILL.md` to find
-   it). The `repo-surface` skill defines which sections to emit based on the
-   surfaces present in the repo; the stack cheatsheet declares those surfaces.
+1. Load skills `workflow`, `context-hygiene`, and `repo-surface`, plus the
+   project's stack-cheatsheet skill if it defines one (use the Glob tool
+   with pattern `.claude/skills/*/SKILL.md` to find it). The `repo-surface`
+   skill defines which sections to emit based on the surfaces present in the
+   repo; the stack cheatsheet declares those surfaces.
 2. Read `openspec/changes/<id>/questions.md` and `research.md` end to end.
 3. If a question in `questions.md` is genuinely unanswerable from research
    alone and is critical to design, list it under "Open questions for the

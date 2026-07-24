@@ -31,12 +31,11 @@ followups.md), whether in-flight or archived — spec.md is the sole exception
 
 ## What to do
 
-1. Load skills `workflow`, `openspec-workflow`, `vertical-slice`, and
-   `repo-surface`. Also load the project's stack-cheatsheet skill if one
-   exists for this repo (use the Glob tool with pattern
-   `.claude/skills/*/SKILL.md` to find it). The `repo-surface` skill defines
-   which task lines to emit based on the surfaces present in the repo; the
-   stack cheatsheet declares those surfaces.
+1. Load skills `workflow`, `vertical-slice`, and `repo-surface`. Also load
+   the project's stack-cheatsheet skill if one exists for this repo (use the
+   Glob tool with pattern `.claude/skills/*/SKILL.md` to find it). The
+   `repo-surface` skill defines which task lines to emit based on the surfaces
+   present in the repo; the stack cheatsheet declares those surfaces.
 2. Read `openspec/changes/<id>/slices.md`. This is your sole input
    from the change folder — the `(D<n>)` tags in slices.md carry the
    design-decision back-references forward so you do not need to open

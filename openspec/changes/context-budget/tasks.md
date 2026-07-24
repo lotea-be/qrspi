@@ -6,11 +6,11 @@
 
 **Model:** sonnet — mechanical trim of four load lines + a new lint check that mirrors the existing `READ_CONTRACT_EXPECTED` / `checkReadContracts` pattern; no novel architectural reasoning required.
 
-- [ ] 1.1 Add `SKILL_SET_EXPECTED` registry constant to `scripts/lint.mjs` (D2, D5)
-- [ ] 1.2 Add `checkSkillSets` function and register it in `main()` after Check 2 (D5, D6)
-- [ ] 1.3 Remove `openspec-workflow` from the `Load skills` line in `claude/agents/researcher.md`, `claude/agents/questioner.md`, `claude/agents/designer.md`, and `claude/agents/planner.md` (D1)
-- [ ] 1.4 Add `context-hygiene` to the `Load skills` line in `claude/agents/researcher.md` (D3)
-- [ ] 1.5 Unit/integration test: `node scripts/lint.mjs` exits 0 with all four agents trimmed; mutate one agent to add a stray skill load and confirm non-zero exit naming the violation (D5)
+- [x] 1.1 Add `SKILL_SET_EXPECTED` registry constant to `scripts/lint.mjs` (D2, D5)
+- [x] 1.2 Add `checkSkillSets` function and register it in `main()` after Check 2 (D5, D6)
+- [x] 1.3 Remove `openspec-workflow` from the `Load skills` line in `claude/agents/researcher.md`, `claude/agents/questioner.md`, `claude/agents/designer.md`, and `claude/agents/planner.md` (D1)
+- [x] 1.4 Add `context-hygiene` to the `Load skills` line in `claude/agents/researcher.md` (D3)
+- [x] 1.5 Unit/integration test: `node scripts/lint.mjs` exits 0 with all four agents trimmed; mutate one agent to add a stray skill load and confirm non-zero exit naming the violation (D5)
 - [ ] 1.6 (human) Checkpoint: run `node scripts/lint.mjs` in the repo — confirm it exits 0 and reports no `checkSkillSets` errors. Then manually add `openspec-workflow` to `claude/agents/planner.md`, re-run lint, and confirm a non-zero exit with a message naming the stray skill. Revert before continuing.
 
 ## 2. Output-contract banners + Check 12
