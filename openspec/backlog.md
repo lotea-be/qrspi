@@ -10,8 +10,9 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 ### repo-applicable-artifact-sections — `in-progress (Q, R, D, S, V, P, I complete)` · **P1**
 
 In progress 2026-07-24 (branch `features/repo-applicable-artifact-sections`; all
-implementation slices 1–4 committed; 9 `(human)` dogfood tasks in `tasks.md`
-pending; next stage `/qrspi:pr`). See
+slices 1–4 committed; all 5 `(human)` dogfood tasks verified live and ticked;
+reviewer draft complete. PR creation pending a transient GitHub PR-create
+incident — run the prepared `gh pr create` and then record `pr.md`). See
 `openspec/changes/repo-applicable-artifact-sections/`.
 
 **Why:** QRSPI artifact-producing stages (Q/D/S/P/PR) stamp a fixed CRUD/web
