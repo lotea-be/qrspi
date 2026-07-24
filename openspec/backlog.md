@@ -7,7 +7,7 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## In progress
 
-### right-size-followup-handling — `in-progress (Q, R, D, S, V, P, I complete)` · **P2**
+### right-size-followup-handling — `in-progress (PR #26 open)` · **P2**
 
 **Why:** `/qrspi:followup` (the `postpr-fix` skill) has a single hard-coded
 path — delegate to the implementer in FIX MODE for a small, atomic post-PR fix
