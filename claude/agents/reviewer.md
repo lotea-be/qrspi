@@ -75,7 +75,7 @@ heading, no body, no "Not applicable") when its controlling surface is absent:
 - <bullet>
 - <bullet>
 
-[data-store surface: emit the Migrations section below; omit entirely when absent]
+<!-- Surface-gated (data-store): emit a Migrations section here -- heading, one-line description, rollback note -- only when the data-store surface is present; omit entirely (no heading, no body) otherwise -->
 
 ## Tests
 - Unit: <N> tests, all passing
@@ -86,10 +86,9 @@ heading, no body, no "Not applicable") when its controlling surface is absent:
 
 ## Reviewer checklist
 - [ ] Design.md still matches what was built
-[data-store: No raw SQL in feature code]
-[data-store: Migration is reversible]
-[http-api: All new endpoints use authorization policies where appropriate]
-[typed-nullable: No nullable suppression (`!`) without justification comment]
+<!-- Surface-gated (data-store): if present, add checklist items "No raw SQL in feature code" and "Migration is reversible" -->
+<!-- Surface-gated (http-api): if present, add checklist item "All new endpoints use authorization policies where appropriate" -->
+<!-- Surface-gated (typed-nullable): if present, add checklist item "No nullable suppression without justification comment" -->
 ```
 
 When data-store is present, replace the Migrations placeholder with a
