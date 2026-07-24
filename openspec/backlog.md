@@ -251,6 +251,18 @@ gates no emitted section is inert). Candidate surface + section clusters to desi
 - **`ml-model`** — model artifacts, training data provenance, evaluation metrics, versioning.
 - **`realtime` / streaming** — websockets/SSE/streaming endpoints, backpressure.
 
+**Kit-specific self-surfaces (a distinct flavor, surfaced 2026-07-24).** The five
+web surfaces leave *this* kit repo with **no present surfaces**, so its own QRSPI
+artifacts fall to the always-emitted minimum. But the kit has real surfaces of its
+own that could gate genuinely useful sections for kit changes — e.g.
+**`slash-command`** (a change adds/renames a `/qrspi:*` command → a command-surface
++ README-sync section), **`stage-agent`** (touches an agent read-contract / the
+Read Matrix), **`skill`**, **`template`**, **`lint-gate`** (`scripts/lint.mjs`
+checks), **`migration-manifest`** (`migrations/<v>.yaml` needed for a release).
+Adding these would let the kit dogfood richer self-surfaces (its `qrspi-stack`
+`## Repo surface` block would then list present surfaces instead of none). Same
+add-surface-with-its-sections mechanism as above.
+
 Each cluster needs the same treatment as the original five: a mapping row in
 `repo-surface`, the gated section(s) in the relevant agent skeleton(s)/template(s),
 and (if it introduces a heading a fenced skeleton must not hardcode) a Check 11
