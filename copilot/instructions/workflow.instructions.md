@@ -213,6 +213,15 @@ for archival purposes even though work continues in the addendum or backlog.
   `vertical-slice`.
 - "Looks plausible" is the failure mode. Plans that read well do not
   necessarily build well. Verification must go deeper than reading.
+- **Least friction: prefer `vscode/askQuestions` over emitting a command to run.**
+  The kit's goal is the least friction for the user. When a step ends with an
+  obvious next action — advance to the next stage, re-enter the follow-up loop,
+  open a routed addendum, retry after a fix — offer it as an `vscode/askQuestions`
+  choice and act on the pick, rather than printing a `/qrspi:…` line for the
+  user to copy and run. Emitting a command is the *fallback* for when no
+  interactive choice is possible; a bare "now run X" is a friction smell worth
+  designing out. (The Run-mode auto-advance rules are this principle applied to
+  stage chaining; extend the same instinct to every hand-off.)
 
 ## When you can skip stages
 
