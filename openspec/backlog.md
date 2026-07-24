@@ -437,3 +437,28 @@ silently breaks the design→task traceability chain with nothing to catch it. A
 structural `scripts/lint.mjs` check (or heading assertion) that every slice bullet
 which implements a decision carries its tag, mechanically enforcing D3. Flagged in
 that change's design Risks section as "not this change".
+
+### rename-qrspi-to-qrnchi — `idea` · **P3**
+
+**Why:** The plugin name `qrspi` is the acronym of its own stages (Q-R-S-P-I,
+pronounced "crispy", from RPI lineage). Rebrand to **`qrnchi`** (pronounced
+"crunchy"), preserving that property by re-lettering three stages so the initials
+still spell the name — plus friendlier vocabulary: a workflow run becomes a
+**"crouton"**, with the tagline *"If you wish to make a bread from scratch, you
+must first bake a crouton."*
+
+**Shape:** One big change spanning the whole surface — plugin manifest, the
+`/qrnchi:*` command namespace, three stage re-letters (Design→**Nail** N,
+Structure→**Chart** C, Slices→**Hew** H; the command files rename but the
+artifacts keep their descriptive names — `design.md`, `proposal.md`, `slices.md`
+all stay), agents/skills/templates, `sync-copilot.mjs` + `copilot/` regen,
+`scripts/lint.mjs`, and README/CONTRIBUTING/CLAUDE.md. Because it's a *published*
+plugin, it is **breaking**: ship as a `migrations/<v>.yaml` entry (rename only the
+`openspec/.qrspi-version` marker → `.qrnchi-version`) with the
+`qrnchi-version-check` bridged to detect the legacy marker, plus a final `qrspi`
+deprecation-shim release and a marketplace slug change (maintainer hand-offs).
+Recommend cutting it as **v1.0.0** (breaking namespace change). Full design,
+acronym mapping, migration bridge, and ordered file inventory:
+[openspec/backlog/rename-qrspi-to-qrnchi.md](backlog/rename-qrspi-to-qrnchi.md).
+Relates to [[reassess-copilot-port]] (copilot regen) and
+[[retro-as-extension-plugin]] (consumer/maintainer boundary).
