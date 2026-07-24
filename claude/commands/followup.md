@@ -44,9 +44,13 @@ Evaluate each signal in prose. Then derive a proposed path using this rubric:
 - **Propose P1** when none of signals 2, 3, or 4 fire (atomic, single-
   capability, expressible as a delta amendment or internal fix).
 - **Propose P2** when signal 3 fires, or when signals 1 and 2 fire together
-  (re-alignment needed but still this change's scope).
+  (re-alignment needed but still this change's scope) -- **but only when the
+  parent PR is still open**, since a P2 addendum extends that open PR on its
+  branch (see "On P2" below).
 - **Propose P3** when signal 4 fires (new scope -- genuinely a different
-  change).
+  change), when the parent PR has already merged, or when the work would
+  otherwise need its own branch or PR (there is no open PR for an addendum to
+  extend).
 
 Write one line of rationale citing which signals fired and why they point to
 the proposed path.
@@ -70,9 +74,13 @@ entry -- the standard `-- fixed in <short-sha>` tick at completion remains
 the sole record.
 
 **On P2 -- route to an addendum change.** The orchestrator does NOT spawn the
-implementer. It creates a flat sibling change folder, asks the human for the
-entry stage and branch, ticks `followups.md`, and hands off. Do all of this
-here in the orchestrator (AskUserQuestion is not available inside a subagent).
+implementer. It creates a flat sibling change folder **on the parent's current
+branch** -- a P2 addendum always extends the parent's open PR and never creates
+a branch or a separate PR -- asks the human for the entry stage, ticks
+`followups.md`, and hands off. Do all of this here in the orchestrator
+(AskUserQuestion is not available inside a subagent). If the parent PR is not
+open (already merged, or otherwise no open PR to extend), do NOT use P2 -- route
+the follow-up to P3 instead.
 
 *Step P2.1 -- compute the addendum id.* Use the **Glob** tool with pattern
 `openspec/changes/<id>-addendum-*/` to list existing addenda for this parent
@@ -82,81 +90,57 @@ add 1; if Glob returns nothing, `N` is 1. The addendum id is
 requirements and works on every platform.
 
 *Step P2.2 -- ask the human for the entry stage.* The valid entry stages are
-Q, R, D, S, V, P, I. From the four heuristic signals above, name a **suggested**
-stage in the question text -- but do NOT pre-select it, the human picks
-explicitly (an entry stage has no obvious default the way the branch steer
-does). Suggest by signal: a follow-up that needs fresh investigation of the
-codebase points at R; one that reopens a `design.md` `Dn` decision points at D;
-one that only reshapes a delta scenario or the proposal points at S; one whose
-design is settled and just needs building points at I. Use the
-**AskUserQuestion** tool:
+D, S, V, P, I -- the design-or-later stages that extend an open PR. (Q and R are
+intentionally excluded: re-opening questions or fresh research is early-pipeline
+divergence, i.e. a new change -- route that to P3, not P2.) From the four
+heuristic signals above, name a **suggested** stage in the question text -- but
+do NOT pre-select it, the human picks explicitly. Suggest by signal: a follow-up
+that reopens a `design.md` `Dn` decision points at D; one that only reshapes a
+delta scenario or the proposal points at S; one whose design is settled and just
+needs building points at I. Use the **AskUserQuestion** tool:
 - question: "Addendum `<id>-addendum-N` for follow-up `<short title>`. Which
   QRSPI stage should it enter at? Suggested: **<stage>** because <one-line
   reason from the signals>."
 - choices:
-  - "Q -- Questions"
-  - "R -- Research"
   - "D -- Design"
   - "S -- Structure"
   - "V -- Slices"
   - "P -- Plan"
   - "I -- Implement"
 
-*Step P2.3 -- ask the human for the branch.* The branch default is steered by
-the chosen entry stage; the human can override either way. Steer toward the
-**same PR branch** as the parent when the chosen stage is D, S, V, P, or I (the
-design is mostly settled and the work extends the existing PR); steer toward a
-**new branch** `features/<id>-addendum-N` when the chosen stage is Q or R (the
-work diverges enough to warrant its own follow-on PR). Use the
-**AskUserQuestion** tool, naming the steer-appropriate default in the question
-text:
-- question: "Branch for `<id>-addendum-N` (entry stage <stage>). Suggested:
-  **<same PR branch | new branch `features/<id>-addendum-N`>** because
-  <stage>-entry <settles-on-this-PR | diverges>. Which branch?"
-- choices:
-  - "Same PR branch as the parent"
-  - "New branch `features/<id>-addendum-N`"
-
-If the human picks a new branch, create and switch to it before staging
-(`git checkout -b features/<id>-addendum-N`); if they pick the same branch,
-stay on the current branch. Push a newly created branch to origin so it exists
-remotely (`git push -u origin features/<id>-addendum-N`).
-
-*Step P2.4 -- create the sibling folder.* Create the flat sibling change
-folder `openspec/changes/<id>-addendum-N/` as an empty directory
+*Step P2.3 -- create the sibling folder (on the parent's branch).* Stay on the
+parent change's current branch. Create the flat sibling change folder
+`openspec/changes/<id>-addendum-N/` as an empty directory
 (`mkdir -p openspec/changes/<id>-addendum-N`). Create it here, before the
 handoff: only `/qrspi:questions` self-bootstraps its change folder; every
-late entry-stage command (D, S, V, P, I -- and R, which derives areas from
-`questions.md`) Globs a precondition artifact inside
+late entry-stage command (D, S, V, P, I) Globs a precondition artifact inside
 `openspec/changes/<addendum-id>/` and refuses if the folder or that artifact
 is missing. Creating the folder now guarantees the handed-off stage command
 finds a valid `openspec/changes/<id>-addendum-N/` path on disk. (The entry
 stage still supplies its own input artifact when the human runs it; the empty
 folder is the on-disk anchor the addendum is bootstrapped into.)
 
-*Step P2.5 -- tick `followups.md`.* Tick the targeted entry by changing
+*Step P2.4 -- tick `followups.md`.* Tick the targeted entry by changing
 `- [ ]` to `- [x]` and appending the disposition note (mirroring the pr.md
 tick-with-parenthetical idiom):
 
 `- [x] <original text> (routed to addendum <id>-addendum-N)`
 
-*Step P2.6 -- commit and hand off.* Stage the new sibling folder and the
-ticked `followups.md` together in one commit. Because `git add` does not track
-an empty directory, add a `.gitkeep` marker inside the addendum folder so the
-folder is committed:
+*Step P2.5 -- commit and hand off.* Stay on the parent's current branch. Stage
+the new sibling folder and the ticked `followups.md` together in one commit.
+Because `git add` does not track an empty directory, add a `.gitkeep` marker
+inside the addendum folder so the folder is committed:
 
 ```
 git add openspec/changes/<id>-addendum-N/.gitkeep openspec/changes/<id>/followups.md
 git commit -m "docs(<id>): route follow-up to addendum <id>-addendum-N (P2)"
 ```
 
-Push only if the human approved pushing (or if you created a new branch above,
-whose initial push already ran).
+Push per the normal flow so the commit lands on the parent's open PR.
 
 Then **end the turn** with a handoff instruction -- do NOT auto-invoke the
 entry-stage command, and do NOT spawn the implementer. Handing off (rather than
-auto-running) preserves the re-entered stage's own gates, including the
-ticket-blind Research invariant when the entry stage is R, and keeps
+auto-running) preserves the re-entered stage's own gates and keeps
 `followup.md` from bypassing the re-entered stage's run-mode establishment.
 Print, verbatim with the chosen values filled in:
 
@@ -164,10 +148,9 @@ Print, verbatim with the chosen values filled in:
 > created and `followups.md` is ticked. To continue, run:
 > `/qrspi:<stage> <id>-addendum-N`
 
-where `<stage>` is the lowercase entry-stage command name (`questions`,
-`research`, `design`, `structure`, `slices`, `plan`, or `implement`)
-corresponding to the stage the human picked. P2 disposes of this follow-up and
-terminates the invocation.
+where `<stage>` is the lowercase entry-stage command name (`design`,
+`structure`, `slices`, `plan`, or `implement`) corresponding to the stage the
+human picked. P2 disposes of this follow-up and terminates the invocation.
 
 **On P3 -- defer to backlog idea.**
 

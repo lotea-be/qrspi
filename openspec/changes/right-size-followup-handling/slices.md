@@ -95,29 +95,29 @@ spawned. This slice replaces the P3 stub from Slice 1.
 
 ### Slice 3 — P2 addendum path (dogfood checkpoint)
 
-A human running `/qrspi:followup <id>` on a large or out-of-scope-but-related
-follow-up item can now select P2 and see the command: ask for the entry stage
-(with a suggested value from the heuristic signals); ask for the branch (with
-the stage-steered default); create the sibling folder
-`openspec/changes/<id>-addendum-1/`; tick `followups.md` with
-`(routed to addendum <id>-addendum-1)`; and end the turn with a handoff
-instruction to run `/qrspi:<stage> <addendum-id>`. This slice replaces the P2
-stub from Slice 1. The slice's checkpoint is the dogfood run that satisfies
-OQ1: create a real multi-capability follow-up for this very change, run
-`/qrspi:followup right-size-followup-handling`, confirm it routes to P2 and
-produces the sibling folder + handoff.
+A human running `/qrspi:followup <id>` on a large but still-in-scope follow-up
+item can now select P2 and see the command: ask for the entry stage (D/S/V/P/I,
+with a suggested value from the heuristic signals, no pre-selection); create the
+sibling folder `openspec/changes/<id>-addendum-1/` **on the parent's branch**
+(no branch question — a P2 addendum always extends the parent's open PR); tick
+`followups.md` with `(routed to addendum <id>-addendum-1)`; and end the turn
+with a handoff instruction to run `/qrspi:<stage> <addendum-id>`. This slice
+replaces the P2 stub from Slice 1. The slice's checkpoint is the dogfood run
+that satisfies OQ1: create a real multi-capability follow-up for this very
+change, run `/qrspi:followup right-size-followup-handling`, confirm it routes to
+P2 and produces the sibling folder + handoff.
 
 - M: author the full P2 execution block in `claude/commands/followup.md`:
   Glob to determine N (max existing addendum + 1, defaulting to 1); ask entry
-  stage (AskUserQuestion with agent suggestion but no pre-selection); ask branch
-  (AskUserQuestion with D/S/V/P/I → same-branch steer or Q/R → new-branch
-  steer, human-overridable); mkdir the sibling folder; tick `followups.md`
+  stage (AskUserQuestion offering D/S/V/P/I, agent suggestion but no
+  pre-selection); stay on the parent's branch (no branch question, no
+  `git checkout -b` / `push -u`); mkdir the sibling folder; tick `followups.md`
   with `(routed to addendum <addendum-id>)`; end turn with handoff instruction
-  `/qrspi:<stage> <addendum-id>` (D6, D7, D8, D9, D10)
-- F: `/qrspi:followup <id>` — on P2 selection, two `AskUserQuestion`s for
-  entry stage and branch; then the sibling folder appears on disk, the
-  `followups.md` entry is ticked, and the turn ends with the handoff
-  instruction; no implementer spawns (D5, D6, D7, D8, D9, D10)
+  `/qrspi:<stage> <addendum-id>` (D6, D7, D8, D8a, D9, D10)
+- F: `/qrspi:followup <id>` — on P2 selection, one `AskUserQuestion` for the
+  entry stage (no branch question); then the sibling folder appears on disk on
+  the parent's branch, the `followups.md` entry is ticked, and the turn ends
+  with the handoff instruction; no implementer spawns (D5, D6, D7, D8, D9, D10)
 - D: `openspec/changes/<id>-addendum-1/` created as a flat sibling folder;
   `openspec/changes/<id>/followups.md` ticked with addendum note; both in the
   same commit (D6, D7, D10)
@@ -125,17 +125,19 @@ produces the sibling folder + handoff.
   are verifiable with `ls openspec/changes/` and `cat
   openspec/changes/<id>/followups.md`
 - **Model:** opus — P2 is the most novel mechanics in this change: Glob-based
-  N computation, two new `AskUserQuestion`s with non-trivial steering logic,
-  folder creation, and a handoff that must preserve the ticket-blind Research
-  invariant; this is a first-of-kind pattern with cross-cutting edge cases
-  (D9's stage-I watch-item, N increment logic, branch steer overrides)
+  N computation, the entry-stage `AskUserQuestion`, sibling-folder creation on
+  the parent's branch, and a handoff that must preserve the re-entered stage's
+  gates; this is a first-of-kind pattern with cross-cutting edge cases
+  (D9's stage-I watch-item, N increment logic, the same-branch/open-PR rule per
+  D8/D8a)
 - Checkpoint (dogfood — satisfies OQ1): dev-install the plugin; identify a
   real multi-capability follow-up for `right-size-followup-handling` (e.g., one
   that touches both `followup.md` and `workflow/SKILL.md` and requires a design
   decision revision); run `/qrspi:followup right-size-followup-handling`;
   confirm the triage proposes P2 (signal 2+3 fire); select P2; confirm (1) the
-  entry-stage question appears with a suggested stage in the text, (2) the
-  branch question appears with the correct steer, (3) `ls
+  entry-stage question appears offering D/S/V/P/I with a suggested stage and no
+  pre-selection, (2) NO branch question appears and the addendum stays on the
+  parent's branch, (3) `ls
   openspec/changes/right-size-followup-handling-addendum-1/` succeeds, (4)
   `followups.md` reads `- [x] <text> (routed to addendum
   right-size-followup-handling-addendum-1)`, (5) the turn ends with the handoff

@@ -140,44 +140,59 @@ finds a valid `openspec/changes/<addendum-id>/` path on disk.
 - **WHEN** the orchestrator Globs existing addendum folders and takes max+1
 - **THEN** it creates `openspec/changes/<original-id>-addendum-2/`.
 
-### Requirement: P2 path asks the human for entry stage and branch
+### Requirement: P2 path asks the human for the entry stage; the addendum stays on the parent's branch
 
 On P2, the system MUST ask the human to select the addendum's entry stage
-(valid values: Q, R, D, S, V, P, I) via `AskUserQuestion`. The agent MUST
-suggest an entry stage in the question text based on the heuristic signals (e.g.
-"needs fresh investigation → R"; "touches a delta scenario → D") but MUST NOT
-pre-select it — the human picks explicitly. The system MUST then ask the human
-to confirm the branch the addendum lands on, with a default steer: D/S/V/P/I
-entry stages steer toward the same PR branch as the parent; Q/R entry stages
-steer toward a new branch `features/<original-id>-addendum-N`. The human MUST
-be able to override either steer.
+(valid values: D, S, V, P, I) via `AskUserQuestion`. The agent MUST suggest an
+entry stage in the question text based on the heuristic signals (e.g. "reopens a
+design decision → D"; "reshapes a delta scenario → S") but MUST NOT pre-select
+it — the human picks explicitly. The addendum MUST stay on the parent change's
+current branch and extend the open PR; the system MUST NOT create a new branch,
+MUST NOT open a separate PR, and MUST NOT ask a branch question. Work that would
+need its own branch or PR is outside P2's scope and routes to P3 (see "P2 is
+only available while the parent PR is open").
 
-#### Scenario: Q entry stage steers toward a new branch
-- **GIVEN** the human picks Q as the entry stage for an addendum
-- **WHEN** the orchestrator presents the branch AskUserQuestion
-- **THEN** the default steer is a new branch
-  `features/<original-id>-addendum-N`, because Q entry implies divergent scope.
+#### Scenario: entry stage limited to D/S/V/P/I
+- **GIVEN** P2 is chosen
+- **WHEN** the orchestrator presents the entry-stage AskUserQuestion
+- **THEN** the offered stages are D, S, V, P, I (not Q or R), a suggested stage
+  is named in the question text, and none is pre-selected.
 
-#### Scenario: D entry stage steers toward the same PR branch
-- **GIVEN** the human picks D as the entry stage for an addendum
-- **WHEN** the orchestrator presents the branch AskUserQuestion
-- **THEN** the default steer is the same PR branch as the parent change, because
-  D entry means the design is mostly settled and work extends the existing PR.
+#### Scenario: addendum extends the open PR on the parent branch
+- **GIVEN** the human picks an entry stage for the addendum
+- **WHEN** the orchestrator creates the sibling folder and ticks `followups.md`
+- **THEN** it stays on the parent change's current branch — no `git checkout -b`
+  and no new PR — so the addendum's commits extend the open PR.
+
+### Requirement: P2 is only available while the parent PR is open
+
+The system MUST route a follow-up to P2 only when the parent PR is still open —
+there must be an open PR for the addendum to extend. When the parent PR has
+already merged, or the work would otherwise require its own branch or PR (e.g.
+divergent, question- or research-shaped scope), the system MUST propose P3
+(defer to backlog) instead of P2. A backlog idea created this way SHOULD relate
+back to the parent change.
+
+#### Scenario: merged parent PR routes re-alignment to P3
+- **GIVEN** a follow-up that needs design re-alignment but the parent PR has
+  already merged
+- **WHEN** the triage gate proposes a path
+- **THEN** it proposes P3 (defer to backlog), because there is no open PR for a
+  P2 addendum to extend.
 
 ### Requirement: P2 path hands off to the human, does not auto-run the addendum pipeline
 
-On P2, the system MUST end the turn — after the folder is created and the
-branch is established — by instructing the human to run
+On P2, the system MUST end the turn — after the sibling folder is created on the
+parent's branch — by instructing the human to run
 `/qrspi:<chosen-entry-stage> <addendum-id>`; it MUST NOT auto-invoke the
-entry-stage command itself. This preserves the re-entered stage's own gates
-(including the ticket-blind Research invariant when the entry stage is R) and
+entry-stage command itself. This preserves the re-entered stage's own gates and
 keeps the followup orchestrator from bypassing run-mode establishment.
 
 #### Scenario: P2 turn ends with a handoff instruction
-- **GIVEN** the human selected P2 with entry stage R and a new branch
-- **WHEN** the orchestrator has created the sibling folder and established the branch
+- **GIVEN** the human selected P2 with entry stage D
+- **WHEN** the orchestrator has created the sibling folder on the parent branch
 - **THEN** the orchestrator's turn ends with an instruction to run
-  `/qrspi:research <addendum-id>`, not by invoking the researcher subagent directly.
+  `/qrspi:design <addendum-id>`, not by invoking the designer subagent directly.
 
 ### Requirement: P3 path appends one idea row to the backlog and ticks followups.md
 

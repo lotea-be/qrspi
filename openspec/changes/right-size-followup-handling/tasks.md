@@ -25,16 +25,16 @@
 
 ## 3. P2 addendum path (dogfood checkpoint)
 
-**Model:** opus — P2 is the most novel mechanics in this change: Glob-based N computation, two new `AskUserQuestion`s with non-trivial steering logic, folder creation, and a handoff that must preserve the ticket-blind Research invariant; this is a first-of-kind pattern with cross-cutting edge cases (D9's stage-I watch-item, N increment logic, branch steer overrides)
+**Model:** opus — P2 is the most novel mechanics in this change: Glob-based N computation, the entry-stage `AskUserQuestion`, sibling-folder creation on the parent's branch, and a handoff that must preserve the re-entered stage's gates; this is a first-of-kind pattern with cross-cutting edge cases (D9's stage-I watch-item, N increment logic, the same-branch/open-PR rule per D8/D8a)
 
 - [x] 3.1 Glob `openspec/changes/<id>-addendum-*/` to determine N (max existing addendum index + 1, defaulting to 1) inside `claude/commands/followup.md` (D6)
-- [x] 3.2 Add the entry-stage `AskUserQuestion` with the heuristic-suggested stage in the question text but no pre-selection forced (D7)
-- [x] 3.3 Add the branch `AskUserQuestion`: steer "same branch" when the chosen stage is D/S/V/P/I; steer "new branch" when the chosen stage is Q or R; make both human-overridable (D8, D9)
+- [x] 3.2 Add the entry-stage `AskUserQuestion` offering D/S/V/P/I only, with the heuristic-suggested stage in the question text but no pre-selection forced (D9)
+- [x] 3.3 Keep the addendum on the parent's current branch — no branch `AskUserQuestion`, no `git checkout -b` / `push -u`; P2 always extends the parent's open PR (D8), and work that would need its own branch/PR routes to P3 (D8a)
 - [x] 3.4 Create the sibling folder `openspec/changes/<id>-addendum-N/` as a flat sibling (mkdir, no files inside) (D6)
 - [x] 3.5 Tick `openspec/changes/<id>/followups.md` with `(routed to addendum <addendum-id>)` (D10)
 - [x] 3.6 Stage both the new sibling folder marker and `followups.md` in one commit; end the turn with the handoff instruction `/qrspi:<stage> <addendum-id>` (D10)
 - [x] 3.7 Remove the P2 stub wired in task 1.4 (replace with the real P2 block)
-- [x] 3.8 (human) Checkpoint (dogfood — satisfies OQ1): dev-install the plugin; identify a real multi-capability follow-up for `right-size-followup-handling` (e.g. one touching both `followup.md` and `workflow/SKILL.md`); run `/qrspi:followup right-size-followup-handling`; confirm the triage proposes P2 (signals 2+3 fire); select P2; confirm (1) the entry-stage question appears with a suggested stage in the text, (2) the branch question appears with the correct steer, (3) `ls openspec/changes/right-size-followup-handling-addendum-1/` succeeds, (4) `followups.md` reads `- [x] <text> (routed to addendum right-size-followup-handling-addendum-1)`, and (5) the turn ends with the handoff instruction naming the correct `/qrspi:<stage>` command
+- [x] 3.8 (human) Checkpoint (dogfood — satisfies OQ1): dev-install the plugin; identify a real multi-capability follow-up for `right-size-followup-handling` (e.g. one touching both `followup.md` and `workflow/SKILL.md`); run `/qrspi:followup right-size-followup-handling`; confirm the triage proposes P2 (signals 2+3 fire); select P2; confirm (1) the entry-stage question appears offering D/S/V/P/I with a suggested stage in the text and no pre-selection, (2) NO branch question appears and the addendum stays on the parent's branch, (3) `ls openspec/changes/right-size-followup-handling-addendum-1/` succeeds, (4) `followups.md` reads `- [x] <text> (routed to addendum right-size-followup-handling-addendum-1)`, and (5) the turn ends with the handoff instruction naming the correct `/qrspi:<stage>` command
 
 ## 4. Workflow summary + copilot resync + lint Check 10
 

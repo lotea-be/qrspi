@@ -36,7 +36,7 @@ check.
   follow-up (agent proposes from heuristics, human confirms/overrides — PQ1,
   PQ2) and routes to one of three wired paths.
 - Define the addendum (P2) mechanics end-to-end: sibling folder model, id
-  naming, branch strategy, backlog treatment, `followups.md` annotation, and
+  naming, same-branch/open-PR rule, backlog treatment, `followups.md` annotation, and
   QRSPI pipeline re-entry — reusing existing choreography, adding no ninth
   stage.
 - Define P3 (defer) to reuse `pr.md`'s existing "Promote to backlog idea"
@@ -89,9 +89,11 @@ heuristic signals (from Q1), then presents its proposed path as the
 
 Rubric (agent's default proposal): **P1** when none of 2/3/4 fire (atomic,
 single-capability, expressible as a delta amendment or internal fix);
-**P2** when 3 fires, or 1+2 fire together (re-alignment needed but still
-this change's scope); **P3** when 4 fires (new scope). The signals are
-**agent-assessed, all advisory** — the human's override is final (PQ1/PQ2).
+**P2** when 3 fires, or 1+2 fire together (re-alignment needed but still this
+change's scope) **and the parent PR is still open**; **P3** when 4 fires (new
+scope), when the parent PR has already merged, or when the work would otherwise
+need its own branch/PR (D8a). The signals are **agent-assessed, all advisory** —
+the human's override is final (PQ1/PQ2).
 
 **Rejected:** open-ended "how big is this?" (Q2 option) — not reproducible;
 human-sole-judge with no proposal (PQ1 option c) — the whole point is to
@@ -156,8 +158,9 @@ because the parent id already leads with a verb), and every `/qrspi:<stage>`
 command already expects `openspec/changes/<id>/` at the top level. A nested
 `<id>/addendum-1/` (option b) would break that flat convention and every
 stage command's Glob precondition path; reusing the parent folder (option c)
-would collide artifact names (two `design.md`s). The sibling model also
-makes PQ4's "new branch → separate PR" cleanly possible.
+would collide artifact names (two `design.md`s). The sibling model also keeps
+the addendum's artifacts cleanly namespaced from the parent's on the shared
+branch (D8).
 
 **Rejected:** nested subdir (breaks flat convention + stage Globs); reuse
 parent folder (artifact-name collisions).
@@ -172,48 +175,49 @@ supports multiple addenda per change and lets the orchestrator locate the
 folder programmatically. Verb-first is satisfied transitively (the parent id
 leads with a verb).
 
-### D8 — Addendum branch strategy: human chooses at triage, steered by entry stage (PQ4)
+### D8 — Addendum stays on the parent's branch; no new branch or PR (revises PQ4)
 
-After P2 is chosen and the entry stage is picked (D9), the orchestrator asks
-the human which branch the addendum lands on, **steered by the entry stage**
-(PQ4 option c, answers Q10):
+A P2 addendum always extends the **parent's open PR on its current branch** —
+the orchestrator never creates a branch or a separate PR and never asks a branch
+question. The justification for P2 over P3 is that the work still belongs to
+*this* change and extends the work in flight; if it cannot live on the open PR
+it is not extending anything — it is a separate change, which is P3 (D11). This
+**revises PQ4** (originally "branch by entry stage; Q/R → new branch"): the
+new-branch / follow-on-PR variant is removed, because "needs its own branch/PR"
+is exactly the P2↔P3 boundary. Consequences: the branch `AskUserQuestion` and
+the `git checkout -b` / `push -u` machinery are gone, and P2 is only meaningful
+while the parent PR is open (D8a).
 
-- **D/S/V/P/I entry → same PR branch** as the parent (default steer): the
-  design is mostly settled, work extends the existing PR.
-- **Q/R entry → new branch `features/<original-id>-addendum-N`** (default
-  steer): the work diverges enough to warrant its own PR.
+### D8a — P2 requires an open parent PR; a merged parent routes to P3
 
-The human can override either steer. This is one `AskUserQuestion` with the
-stage-appropriate default pre-named. (Answers Q10, Q13: a new-branch
-addendum becomes a **follow-on PR** — the original PR can merge, and the
-`followups.md` tick (D10) means the parent's archival check passes.)
+`/qrspi:followup` only requires `pr.md` to exist, and `pr.md` persists after the
+PR merges — so the parent PR may already be merged when a follow-up lands. With
+no open PR to extend, a same-branch addendum is impossible, so a merged parent
+(or any otherwise-divergent, question-/research-shaped follow-up) routes to
+**P3**, not P2. The triage rubric (D2) proposes P2 only when there is an open PR
+to extend; a P3 idea created this way relates back to the parent change.
 
-### D9 — Pipeline re-entry: human picks the entry stage; orchestrator hands off, does not auto-run (Q9, Q23, Q25)
+### D9 — Pipeline re-entry: human picks the entry stage (D/S/V/P/I); orchestrator hands off, does not auto-run (Q9, Q23, Q25)
 
-The valid entry stages are **Q, R, D, S, V, P, I** (the backlog
-description's list — confirmed correct, Q25). The orchestrator asks the
-human to pick the entry stage (one `AskUserQuestion`; the agent may
-*suggest* one from the signals — e.g. "touches a delta scenario → D;
-needs fresh investigation → R"), then **instructs the human to run
-`/qrspi:<stage> <addendum-id>`** rather than invoking it itself (answers
-Q9). This preserves every re-entered stage's own gates and — critically —
-the **ticket-hiding invariant**: if the addendum starts at R, the researcher
-runs ticket-blind exactly as normal; if it starts at D or later, R is simply
-never invoked, which is consistent with the invariant (Q25). Handing off
-(not auto-running) also keeps `followup.md` from bypassing the re-entered
-stage's run-mode establishment.
+The valid entry stages are **D, S, V, P, I** — the design-or-later stages that
+extend an open PR. Q and R are dropped from the original Q..I list: re-opening
+questions or fresh research is early-pipeline divergence, i.e. a new change,
+which is P3 (D8/D8a). The orchestrator asks the human to pick the entry stage
+(one `AskUserQuestion`; the agent may *suggest* one from the signals — e.g.
+"reopens a design decision → D"; "reshapes a delta scenario → S"; OQ3:
+suggest-only, no pre-selection), then **instructs the human to run
+`/qrspi:<stage> <addendum-id>`** rather than invoking it itself (answers Q9).
+Handing off (not auto-running) preserves every re-entered stage's own gates and
+run-mode establishment.
 
-**Note (feasibility, verified against conventions):** `/qrspi:<stage>
-<addendum-id>` works unmodified on a sibling id — the stage commands are
-id-parametric and Glob `openspec/changes/<id>/`; nothing hard-codes a single
-change. The addendum folder is bootstrapped the same way any change is: the
-entry-stage command creates `openspec/changes/<addendum-id>/` if absent
-(research: `questions.md` step 3 / stage bootstrapping). **Watch-item for
-stage I:** confirm the chosen entry-stage command actually creates the
-sibling folder when it does not yet exist (Q/D do; verify S/V/P/I do too, or
-have `followup.md` create the empty folder before handoff). Fallback:
-`followup.md` `mkdir`s `openspec/changes/<addendum-id>/` before instructing
-the handoff.
+**Note (feasibility, verified in dogfood):** `/qrspi:<stage> <addendum-id>`
+works unmodified on a sibling id — the stage commands are id-parametric and Glob
+`openspec/changes/<id>/`; nothing hard-codes a single change. The dogfood
+confirmed only `/qrspi:questions` self-bootstraps its folder; every late
+entry-stage command (D/S/V/P/I) Globs a precondition artifact and refuses if the
+folder is missing. So `followup.md` creates the empty sibling folder itself
+(with a `.gitkeep`) before the handoff, guaranteeing the entry-stage command
+finds a valid `openspec/changes/<addendum-id>/` path on disk.
 
 ### D10 — `followups.md` annotation for P2 and P3: tick-with-note, mirroring pr.md precedent (PQ6)
 
@@ -298,9 +302,10 @@ Prose-only kit change; slices are thin but still user-facing end-to-end:
 - **Slice 2 — P3 defer path:** wire P3 to the backlog-idea append + D10
   tick. Demoable: a new-scope follow-up lands as a `P3` idea row and the
   box is ticked `(deferred to backlog — <slug>)`.
-- **Slice 3 — P2 addendum path:** wire folder/id/branch/entry-stage
-  mechanics + D10 tick + handoff. Demoable: a large follow-up produces a
-  `<id>-addendum-1` folder and a handoff instruction.
+- **Slice 3 — P2 addendum path:** wire folder/id/entry-stage mechanics (same
+  branch, no branch question) + D10 tick + handoff. Demoable: a large follow-up
+  produces a `<id>-addendum-1` folder on the parent branch and a handoff
+  instruction.
 - **Slice 4 — workflow summary + copilot resync + lint Check 10:** update
   `workflow`, run `sync-copilot.mjs`, add the lint check; `node
   scripts/lint.mjs` green.
@@ -315,9 +320,10 @@ Prose-only kit change; slices are thin but still user-facing end-to-end:
   accumulate under `openspec/changes/`. Accepted: they archive with (or
   alongside) the parent like any change; the flat model is the cost of a
   clean per-change QRSPI shape.
-- **Same-branch addendum grows the PR.** D8's D/S/V/P/I → same-branch steer
-  can bloat the parent PR. Accepted trade-off, human-overridable at triage;
-  the Q/R → new-branch steer exists precisely for the diverging case.
+- **Same-branch addendum grows the PR.** A P2 addendum always lands on the
+  parent's branch (D8), so a large one can bloat the open PR. Accepted: the
+  triage gate is the control — genuinely divergent or post-merge work is P3
+  (D8a), so only work that legitimately belongs in this PR lands here.
 - **Stage-command folder bootstrapping for late entry stages (S/V/P/I).**
   If a late entry-stage command does *not* create a missing sibling folder,
   the handoff fails. Flagged as the D9 stage-I watch-item with a `mkdir`
@@ -339,6 +345,6 @@ Prose-only kit change; slices are thin but still user-facing end-to-end:
   dropped path is worth the wording-brittleness cost (D13 proceeds).
 - [x] **OQ3 — Entry-stage suggestion strength (D9).** **Resolved: suggest
   only.** The agent names a suggested entry stage in the question text but
-  pre-selects nothing; the human picks explicitly. Entry-stage choice has a
-  less obvious default than the branch steer (D8), so it stays a deliberate
-  human pick.
+  pre-selects nothing; the human picks explicitly — entry-stage choice stays a
+  deliberate human pick. (The branch question this once compared against is now
+  gone — D8: the addendum always uses the parent's branch.)
