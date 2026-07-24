@@ -43,8 +43,11 @@ final message. Do NOT write `slices.md` during S, and do NOT touch
 
 ## What to do — Structure (S)
 
-1. Load skills `workflow`, `openspec-workflow`, `vertical-slice`, plus
-   the project's stack-cheatsheet skill if it defines one.
+1. Load skills `workflow`, `openspec-workflow`, `vertical-slice`, and
+   `repo-surface`, plus the project's stack-cheatsheet skill if it defines
+   one (use the Glob tool with pattern `.claude/skills/*/SKILL.md` to find
+   it). The `repo-surface` skill defines which sections to emit based on the
+   surfaces present in the repo; the stack cheatsheet declares those surfaces.
 2. Read `openspec/changes/<id>/design.md`. `design.md` is the sole
    source of truth for technical decisions at this stage — it is the
    approved summary of questions, research, and design reasoning. Do
@@ -78,6 +81,9 @@ Bulleted scope: new capabilities, modifications, removals.
 - `<existing-name>`: <what requirement changes> — needs a delta spec.
 
 ## Impact
+<!-- Surface-gated: emit the Migrations line only when the data-store surface
+     is present per the repo-surface skill mapping. Omit it entirely (no line,
+     no "Not applicable") when data-store is absent. -->
 - Migrations: <yes/no, summary>
 - Breaking changes: <yes/no, summary>
 - Phases: <phase 1/2/3>, <epic numbers>

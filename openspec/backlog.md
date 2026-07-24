@@ -7,7 +7,36 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## In progress
 
-_None._
+### repo-applicable-artifact-sections — `in-progress (draft PR #29 open)` · **P1**
+
+In progress 2026-07-24 (branch `features/repo-applicable-artifact-sections`; all
+slices 1–4 committed; all 5 `(human)` dogfood tasks verified live; reviewer draft
+complete; draft PR [#29](https://github.com/lotea-be/qrspi/pull/29) open). Archive
+with `/qrspi:archive` after merge. See
+`openspec/changes/repo-applicable-artifact-sections/`.
+
+**Why:** QRSPI artifact-producing stages (Q/D/S/P/PR) stamp a fixed CRUD/web
+section & checklist skeleton (Data model, API surface, Migrations, Auth, "no raw
+SQL", "endpoints use authorization policies", …) into **every** generated
+artifact regardless of the repo's actual surface — a highly visible, ugly defect
+that lands in every document a human reads. Make each artifact carry only the
+sections/checks applicable to the repo (and the change), driven off the
+`<repo>-stack` cheatsheet as the source of truth for the repo's tech surface.
+
+**Scope (settled at Q):** never emit "Not applicable" sections at all — a section
+appears only when it applies, at **both** the repo level and the change level
+(PQ1/PQ2); this fully retires the "keep N/A headings so S doesn't re-litigate"
+rule. No-cheatsheet repos get the full menu + a warning pointing to `/qrspi:stack`
+(PQ3). Ships as **one big change** spanning the pipeline including Part B skill
+framing (PQ4): the (A) skeleton sources — `claude/agents/{questioner,designer,
+architect,planner,reviewer}.md` + `openspec-templates/{questions,design,proposal,
+tasks}.template.md` — and (B) framing in `claude/skills/{vertical-slice,workflow}/
+SKILL.md`. The filter convention lives in a shared skill loaded by all five agents
+(PQ6), a new `scripts/lint.mjs` check (scoped to fenced skeleton blocks) guards
+against regressions (PQ5), and the change also establishes a `qrspi-stack`
+cheatsheet for the kit itself so it dogfoods its own fix (PQ7). Surfaced
+2026-07-23 reviewing `right-size-followup-handling`. Relates to
+[[init-conductor-plus-overview]].
 
 ---
 
@@ -20,86 +49,13 @@ _None._
 ## Ideas
 
 Listed in priority order (highest first). Each carries a `P1`–`P3` band:
-**P1** = correctness/safety of the live workflow, or a highly visible defect in
-every generated artifact — do next;
+**P1** = correctness/safety of the live workflow, a highly visible defect in
+every generated artifact, or a systemic token/cost regression that recurs on
+every live run — do next;
 **P2** = high-value enhancements, larger or lightly dependent;
 **P3** = strategic bets or items sequenced behind another change. Re-evaluate
 this ordering whenever an item is added, modified, or archived (see
 [[backlog-prioritization]]).
-
-### repo-applicable-artifact-sections — `idea` · **P1**
-
-**Why:** QRSPI artifacts should carry **only sections and checks applicable to
-the repository (and the change)** — not a fixed CRUD/web skeleton that every
-document reproduces regardless of what the repo is. The boilerplate assumes a
-data-store + HTTP + web-UI app, so on a docs/prompt project like this kit it
-emits content that has nothing to do with the change or the repo. **This is a
-highly visible, ugly defect** — it lands in *every* generated artifact a human
-reads (questions, design, proposal, tasks, and the PR body itself), so despite
-being artifact-quality rather than a live-workflow correctness gap, it is P1 to
-fix. A sweep (2026-07-23) found it baked in across **most of the pipeline**, in
-two kinds:
-
-**(A) Fixed section/checklist skeletons emitted verbatim into artifacts** — the
-core problem. The same CRUD/web section list is reproduced by every artifact-
-producing stage:
-- **Q — `claude/agents/questioner.md` + `openspec-templates/questions.template.md`.**
-  Fixed list (Data model, Indexing & query performance, API surface, State,
-  Migrations & seed data, Auth) stamped `Not applicable` per section — seven
-  near-identical stanzas in `right-size-followup-handling`'s `questions.md`,
-  several just restating the label ("No entities, tables, or DTOs. Not
-  applicable to this repo.").
-- **D — `claude/agents/designer.md` + `openspec-templates/design.template.md`.**
-  Mirrors it with `## Data model changes` / `## API surface` / `## UI surface`
-  / `## Authorization` sections.
-- **S — `claude/agents/architect.md` + `openspec-templates/proposal.template.md`.**
-  `Impact — Migrations: <yes/no>` line.
-- **P — `claude/agents/planner.md` + `openspec-templates/tasks.template.md`.**
-  Seeds a "Generate the data-store migration (D6)" task line.
-- **PR — `claude/agents/reviewer.md`.** Hard-codes a `## Migrations` section and
-  checklist items — "No raw SQL in feature code", "No nullable suppression
-  (`!`) without justification comment", "All new endpoints use authorization
-  policies", "Migration is reversible" — none of which can apply to a repo with
-  no SQL/DB/endpoints.
-
-**(B) CRUD/web-shaped *illustrative framing*** — softer, not emitted boilerplate
-but web-app-shaped examples/vocabulary that bias the agent and read oddly for a
-non-web repo: `claude/skills/vertical-slice/SKILL.md` (the whole mock-API →
-entity → migration → DTO slice example set), the architect's slice examples
-(`entity + migration + seed`, "all the endpoints"), and
-`claude/skills/workflow/SKILL.md` ("touches the data model, an API surface, or
-auth" as the full-pipeline trigger; the researcher "maps the data model"). Fix
-this more lightly — examples need *some* concrete domain — but at least flag
-that these are illustrative, not a required shape.
-
-**The tension to resolve:** the questions template deliberately keeps N/A
-headings "so stage S doesn't re-litigate whether they were considered"
-(`openspec-templates/questions.template.md`). That rule guards the wrong
-scope — it makes sense **per change** (a dimension a given change skipped could
-apply to the next one), but not **per repo** (a dimension the repo can never
-have). Separate the two levels: dimensions permanently absent at the **repo**
-level are simply not sections/checks anywhere, while "considered but N/A for
-*this* change" keeps its explicit heading. The natural source of truth for
-"does this repo have a data-store / HTTP / web-UI surface at all" is the
-`<repo>-stack` cheatsheet, which already declares the tech surface — every
-stage that emits a fixed section/checklist list should filter it against that.
-
-**Shape:** Take the whole thing up as **one big change** spanning the pipeline
-rather than per-stage patches — the fix is a single shared convention (a
-section/checklist list is a *starting menu filtered by repo surface*, not a
-fixed skeleton every artifact reproduces) applied consistently at Q/D/S/P/PR.
-Touches the (A) skeleton sources — `claude/agents/questioner.md`,
-`claude/agents/designer.md`, `claude/agents/architect.md`,
-`claude/agents/planner.md`, `claude/agents/reviewer.md` and the four templates
-`openspec-templates/{questions,design,proposal,tasks}.template.md` — and,
-lightly, the (B) framing sources (`claude/skills/vertical-slice/SKILL.md`,
-`claude/skills/workflow/SKILL.md`). The `<repo>-stack` cheatsheet is the
-filter's source of truth. Highly visible artifact-quality defect in every
-generated artifact — hence P1 despite not being a live-workflow correctness
-gap. Surfaced 2026-07-23 reviewing `right-size-followup-handling` (questions.md
-N/A stanzas; irrelevant PR-checklist items). Relates to
-[[init-conductor-plus-overview]] (the overview/stack skills are where "what
-surface does this repo have" would live).
 
 ### spec-anchored-code-comments — `idea` · **P1**
 
@@ -128,6 +84,70 @@ two-source-of-truth caution in [[optional-technology-specs]]. **P1 like
 [[repo-applicable-artifact-sections]]:** a highly visible artifact-quality defect
 (ugly process references baked into shipped code) rather than a live-workflow
 correctness gap. Surfaced 2026-07-24.
+
+### trim-per-stage-context-loading — `idea` · **P1**
+
+**Why:** Per-run token burn is dominated by **input** — what each QRSPI stage
+auto-loads (the `<repo>-stack` skill + the workflow/convention skills) plus the
+files its subagent reads — yet nothing audits or caps that surface.
+`context-hygiene` states the principle (keep windows under 40%, subagents as
+context firewalls) but enforces nothing, so the per-stage load creeps silently as
+skills, agents, and templates accrete, and every stage of every change pays it.
+This is the single biggest lever on the runaway token cost.
+
+**Shape:** Audit the per-stage load surface — which skills each stage
+command/agent auto-loads, and the typical read footprint — and trim each stage to
+only what it needs (not every stage needs every skill; scope reads by stage). Add
+a lightweight visibility signal (e.g. log context% at stage entry) so regressions
+are noticeable, and consider a `scripts/lint.mjs`-style check that a stage loads
+only its declared skill set. Relates to `context-hygiene` (the standing principle
+this makes measurable/enforced), [[enforce-research-ticket-hiding]] (the same
+"guard, don't just ask nicely" move applied to a reader's inputs),
+[[bounded-subagent-return-summaries]] (the complementary output-side lever), and
+[[configurable-effort-and-thinking]] (the compute-side lever). **P1 under the
+recurring token/cost band:** not a correctness gap, but a systemic per-run cost
+defect that compounds on every stage of every change. Surfaced 2026-07-24 (token
+burn flagged as climbing).
+
+### bounded-subagent-return-summaries — `idea` · **P2**
+
+**Why:** Every QRSPI stage delegation returns its subagent's final message into
+the **main-loop** context, and nothing bounds that payload — a verbose return
+re-inflates exactly the context the subagent firewall exists to protect, undoing
+part of the delegation's token benefit. Establish a convention that each stage
+subagent hands back a **bounded, structured** result — the artifact path, a short
+N-line summary, and the next command — not free-form prose. Small, low-cost,
+always-on lever on the output side (complements input-side
+[[trim-per-stage-context-loading]]). Could ride each agent file's output-contract
+section, with a lint asserting the return-contract wording is present. Surfaced
+2026-07-24 (token burn flagged as climbing).
+
+### simplify-per-slice-model-selection — `idea` · **P2**
+
+**Why:** Per-slice model intent is endorsed by the source, but the mechanism (the
+architect writes a markdown `**Model:**` annotation; the implementer self-halts and
+asks to be re-invoked when on the wrong model) is fragile.
+Consider a simpler lever or a single implement-stage model. **Reprioritized
+P3→P2 (2026-07-24):** running mechanical slices on a cheaper model is a direct
+token/cost lever, now salient with burn climbing — and it's the mechanism
+[[configurable-effort-and-thinking]] wants to ride, so it sequences first.
+
+### configurable-effort-and-thinking — `idea` · **P2**
+
+**Why:** A change can already set a per-slice **model** (the architect writes a
+`**Model:**` annotation the implementer honors), but reasoning **effort** and
+**thinking budget** are not similarly configurable — they inherit whatever the
+invoking session defaults to. That leaves tokens on the table in both
+directions: mechanical slices could run at low effort with no extended thinking,
+while the design-adjacent "brain surgery" work wants high effort and a large
+thinking budget. Consider making effort and thinking declarable alongside model
+(per-slice, or as a stage-level knob) and have the stage command/agent pass them
+through on delegation. Weigh against [[simplify-per-slice-model-selection]],
+which argues the existing `**Model:**` annotation is already too fragile — any
+effort/thinking lever should ride the same (simpler) mechanism rather than
+bolting on a third fragile markdown knob. **Reprioritized P3→P2 (2026-07-24):**
+effort/thinking is a direct token lever and token burn is now the pressing
+concern.
 
 ### init-conductor-plus-overview — `idea` · **P2**
 
@@ -210,9 +230,17 @@ you to skip, so they misrepresent why the alignment stages matter. Reuses the
 
 ### standardize-recurring-ops-scripts — `idea` · **P2**
 
-**Why:** Several QRSPI operations recur across changes, and today the agent
-re-derives "the best method" each run (which risks drift and costs re-exploration).
-The kit already proves the fix — [`scripts/lint.mjs`](scripts/lint.mjs) is a
+**Why (two payoffs — consistency *and* token cost):** Several QRSPI operations
+recur across changes, and today the agent re-derives "the best method" each run.
+That has two costs. (1) **Consistency** — the re-derivation risks drift, so the
+same op runs slightly differently run-to-run. (2) **Token/exploration cost** —
+computing a deterministic fact by reading files and reasoning through an approach
+spends tokens each run that a single `node scripts/foo.mjs` call could return in
+one tool result; this is the fourth token lever alongside input load
+([[trim-per-stage-context-loading]]), output payload
+([[bounded-subagent-return-summaries]]), and compute
+([[configurable-effort-and-thinking]]) — it targets the **reasoning/exploration**
+axis. The kit already proves the fix — [`scripts/lint.mjs`](scripts/lint.mjs) is a
 recurring mechanical task extracted to a Node script. Extend that pattern to the
 **deterministic** recurring ops so stage
 commands call a helper instead of reinventing it: "does the linked PR show
@@ -242,6 +270,79 @@ per-gate auto-branch wiring stays consistent — the runtime suppression itself 
 not statically checkable. Surfaced by `add-auto-mode` stage D (offered, not built).
 Low-cost correctness guard (hence P2, not P3). Now **unblocked** — `add-auto-mode`
 merged 2026-07-06 (archived), so the convention it enforces is live.
+
+### enforce-artifact-surface-applicability — `idea` · **P2**
+
+**Why:** [[repo-applicable-artifact-sections]] ships lint Check 11, which only
+catches *hard-coded* CRUD headings sitting literally in an agent's fenced
+skeleton block (a static string denylist over the kit's source). It cannot
+validate that a *generated* artifact's emitted sections actually match the
+repo's declared surface — that needs a live parse of the `<repo>-stack`
+cheatsheet's `## Repo surface` block, which lint has no access to today. Add a
+this-repo CI check that parses the kit's own `qrspi-stack` surface block and
+asserts the kit's committed `openspec/changes/**` artifacts carry no sections
+for absent surfaces (validating OUTPUT vs declared surface). Low-cost
+correctness guard sequenced behind `repo-applicable-artifact-sections` (hence
+P2, like [[lint-auto-mode-gate-coverage]]). **Scope boundary:** this is the kit
+linting its *own* artifacts; pushing the same enforcement into *consumer* repos'
+CI is the separate shipped-runtime-helper problem tracked in
+[[standardize-recurring-ops-scripts]]. Surfaced 2026-07-24 as a Non-Goal of
+`repo-applicable-artifact-sections` (stage D).
+
+### structured-surface-schema — `idea` · **P3**
+
+**Why:** [[repo-applicable-artifact-sections]] deliberately reads a repo's tech
+surface from *prose* (LLM inference over the `<repo>-stack` cheatsheet, silence
+= absent), with only an optional `## Repo surface` block for determinism — no
+machine-readable schema (a Non-Goal of that change). If prose inference proves
+unreliable at scale, or a downstream tool wants to consume surface flags
+programmatically, promote the surface declaration to a structured,
+machine-readable schema/DSL (e.g. typed `data-store: absent` fields) with a
+validator, rather than an optional free-form block. Weigh against the
+two-source-of-truth caution — a structured block plus the prose it duplicates
+can drift. Relates to [[optional-technology-specs]] (formal machine-validatable
+artifacts) and [[reassess-openspec-dependency]]. Surfaced 2026-07-24 as a
+Non-Goal of `repo-applicable-artifact-sections` (stage D).
+
+### extend-surface-taxonomy — `idea` · **P3**
+
+**Why:** [[repo-applicable-artifact-sections]] ships a closed 5-surface taxonomy
+(`data-store`, `http-api`, `ui`, `auth`, `typed-nullable`) in the `repo-surface`
+skill. The list is closed *by construction* — a surface exists only to gate a
+cluster of the artifact **sections** the agents emit, and today those sections are
+the CRUD/web set. To serve more repo types, grow the taxonomy — but each new
+surface must be added **together with** the section(s) it gates (a surface that
+gates no emitted section is inert). Candidate surface + section clusters to design
+(each is a potential standalone change, or bundle a few):
+
+- **`cli`** — command/flag surface, subcommand structure, exit codes, help/usage output.
+- **`message-queue` / async-messaging** — topics/queues, delivery & ordering semantics, idempotency, dead-letter handling.
+- **`background-jobs` / scheduling** — scheduled/worker tasks, retries, concurrency limits.
+- **`object-storage` / filesystem** — blob/object stores, path layout, retention/lifecycle.
+- **`caching`** — cache keys, invalidation strategy, TTL/staleness.
+- **`observability`** — logging, metrics, tracing, alerting surfaces.
+- **`infra` / IaC** — provisioned resources, deployment topology, environments.
+- **`ml-model`** — model artifacts, training data provenance, evaluation metrics, versioning.
+- **`realtime` / streaming** — websockets/SSE/streaming endpoints, backpressure.
+
+**Kit-specific self-surfaces (a distinct flavor, surfaced 2026-07-24).** The five
+web surfaces leave *this* kit repo with **no present surfaces**, so its own QRSPI
+artifacts fall to the always-emitted minimum. But the kit has real surfaces of its
+own that could gate genuinely useful sections for kit changes — e.g.
+**`slash-command`** (a change adds/renames a `/qrspi:*` command → a command-surface
++ README-sync section), **`stage-agent`** (touches an agent read-contract / the
+Read Matrix), **`skill`**, **`template`**, **`lint-gate`** (`scripts/lint.mjs`
+checks), **`migration-manifest`** (`migrations/<v>.yaml` needed for a release).
+Adding these would let the kit dogfood richer self-surfaces (its `qrspi-stack`
+`## Repo surface` block would then list present surfaces instead of none). Same
+add-surface-with-its-sections mechanism as above.
+
+Each cluster needs the same treatment as the original five: a mapping row in
+`repo-surface`, the gated section(s) in the relevant agent skeleton(s)/template(s),
+and (if it introduces a heading a fenced skeleton must not hardcode) a Check 11
+denylist entry. Surfaced 2026-07-24 during stage-I dogfooding of
+`repo-applicable-artifact-sections` (the "could the surface list be bigger?"
+question). Relates to [[structured-surface-schema]].
 
 ### assert-openspec-version-pin-coupling — `idea` · **P3**
 
@@ -386,28 +487,6 @@ gain `openspec validate` on the delta specs. (`openspec/specs/` is now populated
 as of the 2026-06-19 archives, so the validated surface is real — re-weigh the
 dependency against a vendored folder convention + a small validator with that in
 mind.)
-
-### simplify-per-slice-model-selection — `idea` · **P3**
-
-**Why:** Per-slice model intent is endorsed by the source, but the mechanism (the
-architect writes a markdown `**Model:**` annotation; the implementer self-halts and
-asks to be re-invoked when on the wrong model) is fragile.
-Consider a simpler lever or a single implement-stage model.
-
-### configurable-effort-and-thinking — `idea` · **P3**
-
-**Why:** A change can already set a per-slice **model** (the architect writes a
-`**Model:**` annotation the implementer honors), but reasoning **effort** and
-**thinking budget** are not similarly configurable — they inherit whatever the
-invoking session defaults to. That leaves tokens on the table in both
-directions: mechanical slices could run at low effort with no extended thinking,
-while the design-adjacent "brain surgery" work wants high effort and a large
-thinking budget. Consider making effort and thinking declarable alongside model
-(per-slice, or as a stage-level knob) and have the stage command/agent pass them
-through on delegation. Weigh against [[simplify-per-slice-model-selection]],
-which argues the existing `**Model:**` annotation is already too fragile — any
-effort/thinking lever should ride the same (simpler) mechanism rather than
-bolting on a third fragile markdown knob.
 
 ### tutorial-mode-coaching-overlay — `idea` · **P3**
 

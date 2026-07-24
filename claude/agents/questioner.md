@@ -33,8 +33,12 @@ exception (see workflow skill Read Matrix).
 
 ## What to do
 
-1. Load skills `workflow` and `openspec-workflow` if you have not
-   already.
+1. Load skills `workflow`, `openspec-workflow`, and `repo-surface` if
+   you have not already. Also load the project's stack-cheatsheet skill
+   if one exists for this repo (use the Glob tool with pattern
+   `.claude/skills/*/SKILL.md` to find it). The `repo-surface` skill
+   defines which sections to emit based on the surfaces present in the
+   repo; the stack cheatsheet declares those surfaces.
 2. Confirm `openspec/changes/<id>/` exists. Create it if missing.
 3. Read `requirements.md` and `tech-stack.md` to understand the product
    and stack context.
@@ -54,37 +58,34 @@ exception (see workflow skill Read Matrix).
    no functional capability is lost. Do NOT open any archived `questions.md`
    from another change — that is a forbidden cross-change read (see D6 and
    the cross-change boundary below).
-6. Generate 10–60 questions covering at minimum the areas below. Split,
-   rename, or add sections when the change's shape demands it — for
-   example, a change touching list and detail UI should split "UI" into
-   "UI — list page" and "UI — detail page" rather than cramming both
-   into one section.
-   - Data model: entities, properties, relations, FK delete behaviour
-   - Indexing & query performance: which indexes, pagination strategy
-   - API surface: endpoints, request/response DTOs, auth per endpoint
-   - UI: pages, components, routing, layout integration
-   - State: a store slice or direct service access?
-   - Migrations & seed data: data-store migration, seed data
-   - Auth & authorization: policies, role checks, ownership rules.
-     For any authorization question, decompose the **actor × action**
-     matrix into separate axes — who may *create* the entity, who may
-     *apply/attach/use* it, who may *edit/delete* it — rather than
-     bundling them into one multiple-choice (a single bundled option
-     cannot express the corner where, say, admins own every action).
-     Always include the explicit "admin-only for every action" extreme
-     as an option; it is a common choice for moderation-style features.
-   - Performance: N+1 risks, expensive joins, payload size
+6. Generate 10–60 questions. Apply the **surface-gate rule** from the
+   `repo-surface` skill: emit a section only when its controlling surface
+   is present in this repo AND it carries content for this change;
+   otherwise omit it entirely (no heading, no "Not applicable" stanza).
+   Always-emitted sections (surface-independent) are:
    - Testing: endpoint tests, validator tests, component smoke tests, e2e
    - Sequencing & scope: ordering relative to other backlog items
    - Open product questions for the human (don't invent answers).
-   Not every change is a CRUD data feature. For a cross-cutting or
-   reusable-component change (e.g. a rendering pipeline, a shared UI
-   component, a formatting/sanitization service), the Data model /
-   Indexing / API surface / Migrations / State sections above are
-   usually *Not applicable* — keep the heading and say so explicitly so
-   stage S doesn't re-litigate — and add the sections that actually fit
-   the change shape, such as "Rendering pipeline", "Sanitization /
-   security", "Component API surface", or "Styling ownership".
+   Surface-gated sections (emit only when the surface is present):
+   - `data-store` surface: Data model, Indexing & query performance,
+     Migrations & data
+   - `http-api` surface: API
+   - `ui` surface: UI, Front-end state
+   - `auth` surface: Auth & authorization. When this surface is present,
+     decompose the **actor × action** matrix into separate axes — who
+     may *create* the entity, who may *apply/attach/use* it, who may
+     *edit/delete* it — rather than bundling them into one
+     multiple-choice. Always include the explicit "admin-only for every
+     action" extreme as an option.
+   Split, rename, or add sections when the change's shape demands it —
+   for example, a change touching list and detail UI should split "UI"
+   into "UI — list page" and "UI — detail page" rather than cramming
+   both into one section. For a cross-cutting or reusable-component
+   change (e.g. a rendering pipeline, a shared UI component, a
+   formatting/sanitization service), add the sections that fit the
+   change shape (e.g. "Rendering pipeline", "Sanitization / security",
+   "Component API surface", or "Styling ownership") alongside the
+   surface-gated sections from the `repo-surface` mapping.
 7. Each question must be answerable by reading code or asking the human.
    No questions like "what should the UX feel like?" — that is design.
    Before finalizing the "Open product questions", scan them for
@@ -128,27 +129,17 @@ open archived questions from another change):
 > Stage Q of QRSPI. Generated <YYYY-MM-DD>.
 > Change summary: <one sentence>
 
-## Data model
-1. ...
-2. ...
+<!-- Surface-gated sections: emit each section below only when its
+     controlling surface is present for this repo, per the repo-surface
+     skill mapping. Omit the heading entirely when the surface is absent
+     (no heading, no "Not applicable"). Surface-independent sections
+     (Testing, Sequencing & scope, Open product questions) always appear.
 
-## Indexing & query performance
-...
-
-## API
-...
-
-## UI
-...
-
-## Front-end state
-...
-
-## Auth & authorization
-...
-
-## Migrations & data
-...
+     data-store -> ## Data model, ## Indexing & query performance, ## Migrations & data
+     http-api   -> ## API
+     ui         -> ## UI, ## Front-end state
+     auth       -> ## Auth & authorization
+-->
 
 ## Testing
 ...

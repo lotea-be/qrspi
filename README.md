@@ -71,7 +71,10 @@ entries and update the repo's `openspec/` layout to a newer kit version),
 Skills (loaded automatically by commands, not invoked directly): `qrspi-version-check`
 (session-scoped version gate -- compares the repo marker against the installed kit
 and offers `/qrspi:update` when the repo is behind; runs once per session, silent
-when up-to-date).
+when up-to-date); `repo-surface` (five-surface taxonomy -- data-store, http-api,
+ui, auth, typed-nullable -- read by every artifact-producing agent to decide which
+CRUD sections to emit or omit; works with the repo's stack-cheatsheet `## Repo
+surface` block for deterministic inference, or falls back to prose inference).
 
 Each artifact follows a **canonical OpenSpec shape** — see
 [`openspec-templates/`](openspec-templates/).

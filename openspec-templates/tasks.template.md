@@ -22,14 +22,24 @@ goes in the heading text; do **not** prefix it with `Slice N —` (the canonical
 
 **Model:** sonnet|opus — <rationale carried verbatim from slices.md>
 
-- [ ] 1.1 Add the data-model entity and configuration (D1, D2)
-- [ ] 1.2 Generate the data-store migration (D6)
-- [ ] 1.3 Add service method or API endpoint hitting the real data store (D10)
-- [ ] 1.4 Wire the page/component to call the service (D11)
-- [ ] 1.5 Add the input validator for the request (D9)
-- [ ] 1.6 Unit/integration test: happy path + 1 error case
-- [ ] 1.7 e2e: <scenario>
-- [ ] 1.8 Checkpoint: <how the human verifies the slice>
+<!-- Surface-gated task lines: include or omit each category below based on
+     which surfaces are present for this repo, per the repo-surface skill mapping.
+     Omit a task category entirely (no task line, no "Not applicable") when its
+     surface is absent.
+
+     data-store -> entity + configuration task, migration-generation task
+                   (e.g., "Add the data-model entity and configuration",
+                   "Generate the data-store migration")
+     http-api   -> service method / API endpoint task, input-validator task
+                   (e.g., "Add service method or API endpoint",
+                   "Add the input validator for the request")
+     ui         -> page/component wiring task
+                   (e.g., "Wire the page/component to call the service")
+-->
+- [ ] 1.1 <first task derived from the slice's D-bullets and surfaces present>
+- [ ] 1.N Unit/integration test: happy path + 1 error case
+- [ ] 1.N+1 e2e: <scenario>
+- [ ] 1.N+2 Checkpoint: <how the human verifies the slice>
 
 ## 2. <slice name>
 
