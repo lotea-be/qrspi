@@ -28,6 +28,17 @@ every live run — do next;
 this ordering whenever an item is added, modified, or archived (see
 [[backlog-prioritization]]).
 
+**Token/cost levers** (the recurring cost band, salient with burn climbing) are
+kept adjacent near the top so the cost story reads at a glance:
+[[trim-per-stage-context-loading]] (input, P1), [[bounded-subagent-return-summaries]]
+(output), [[simplify-per-slice-model-selection]] (model),
+[[configurable-effort-and-thinking]] (compute), and
+[[standardize-recurring-ops-scripts]] (reasoning/exploration). The
+**surface-taxonomy family** spun off [[repo-applicable-artifact-sections]] —
+[[enforce-artifact-surface-applicability]], [[kit-self-surfaces]],
+[[structured-surface-schema]], [[extend-surface-taxonomy]] — is likewise kept
+contiguous across the P2/P3 boundary.
+
 ### spec-anchored-code-comments — `idea` · **P1**
 
 **Why:** Implementation code comments sometimes reference the *process* artifacts
@@ -120,6 +131,40 @@ bolting on a third fragile markdown knob. **Reprioritized P3→P2 (2026-07-24):*
 effort/thinking is a direct token lever and token burn is now the pressing
 concern.
 
+### standardize-recurring-ops-scripts — `idea` · **P2**
+
+**Why (two payoffs — consistency *and* token cost):** Several QRSPI operations
+recur across changes, and today the agent re-derives "the best method" each run.
+That has two costs. (1) **Consistency** — the re-derivation risks drift, so the
+same op runs slightly differently run-to-run. (2) **Token/exploration cost** —
+computing a deterministic fact by reading files and reasoning through an approach
+spends tokens each run that a single `node scripts/foo.mjs` call could return in
+one tool result; this is the fourth token lever alongside input load
+([[trim-per-stage-context-loading]]), output payload
+([[bounded-subagent-return-summaries]]), and compute
+([[configurable-effort-and-thinking]]) — it targets the **reasoning/exploration**
+axis. The kit already proves the fix — [`scripts/lint.mjs`](scripts/lint.mjs) is a
+recurring mechanical task extracted to a Node script. Extend that pattern to the
+**deterministic** recurring ops so stage
+commands call a helper instead of reinventing it: "does the linked PR show
+`merged`?", "create the PR from this title/body template", "flip a backlog entry's
+status", "list open items in `tasks.md`/`followups.md`". Direct enabler for
+[[archive-requires-merged-pr]] (the PR-status check) and
+[[pr-review-open-tasks-and-followups]] (PR-create + open-item enumeration). Now
+**unblocked** — both merged (archived 2026-07-15 and 2026-07-22), so the inline
+PR-status and open-item logic they introduced already exists and is ripe for
+extraction.
+
+**Scope boundary — mechanical, not judgment.** Script only ops with one correct
+answer; leave decisions (finish/defer/drop a task, reprioritize, approve a design)
+to the human/agent. The script supplies the *fact*; the caller makes the *call*.
+Two constraints: (1) **Node, not shell** — per CLAUDE.md the permission checker
+rejects shell-injection in slash commands, so helpers follow the lint
+precedent. (2) **A shipped runtime helper is a bigger commitment than a CI-only
+script** — lint runs in this repo's CI, but a helper a stage command invokes
+at runtime ships into consumer repos and inherits their `gh`/auth availability and
+cross-platform concerns; be deliberate about that split.
+
 ### init-conductor-plus-overview — `idea` · **P2**
 
 **Why:** Onboarding a repo currently means discovering two separate commands —
@@ -199,38 +244,6 @@ you to skip, so they misrepresent why the alignment stages matter. Reuses the
 `reference-example` asset already maintained. Pairs with
 `tutorial-mode-coaching-overlay` as the deeper, hands-on follow-up.
 
-### standardize-recurring-ops-scripts — `idea` · **P2**
-
-**Why (two payoffs — consistency *and* token cost):** Several QRSPI operations
-recur across changes, and today the agent re-derives "the best method" each run.
-That has two costs. (1) **Consistency** — the re-derivation risks drift, so the
-same op runs slightly differently run-to-run. (2) **Token/exploration cost** —
-computing a deterministic fact by reading files and reasoning through an approach
-spends tokens each run that a single `node scripts/foo.mjs` call could return in
-one tool result; this is the fourth token lever alongside input load
-([[trim-per-stage-context-loading]]), output payload
-([[bounded-subagent-return-summaries]]), and compute
-([[configurable-effort-and-thinking]]) — it targets the **reasoning/exploration**
-axis. The kit already proves the fix — [`scripts/lint.mjs`](scripts/lint.mjs) is a
-recurring mechanical task extracted to a Node script. Extend that pattern to the
-**deterministic** recurring ops so stage
-commands call a helper instead of reinventing it: "does the linked PR show
-`merged`?", "create the PR from this title/body template", "flip a backlog entry's
-status", "list open items in `tasks.md`/`followups.md`". Direct enabler for
-[[archive-requires-merged-pr]] (the PR-status check) and
-[[pr-review-open-tasks-and-followups]] (PR-create + open-item enumeration) — do
-those first and the first one or two helpers worth extracting fall out naturally.
-
-**Scope boundary — mechanical, not judgment.** Script only ops with one correct
-answer; leave decisions (finish/defer/drop a task, reprioritize, approve a design)
-to the human/agent. The script supplies the *fact*; the caller makes the *call*.
-Two constraints: (1) **Node, not shell** — per CLAUDE.md the permission checker
-rejects shell-injection in slash commands, so helpers follow the lint
-precedent. (2) **A shipped runtime helper is a bigger commitment than a CI-only
-script** — lint runs in this repo's CI, but a helper a stage command invokes
-at runtime ships into consumer repos and inherits their `gh`/auth availability and
-cross-platform concerns; be deliberate about that split.
-
 ### lint-auto-mode-gate-coverage — `idea` · **P2**
 
 **Why:** `add-auto-mode` introduces a convention that every stage command must
@@ -259,6 +272,28 @@ linting its *own* artifacts; pushing the same enforcement into *consumer* repos'
 CI is the separate shipped-runtime-helper problem tracked in
 [[standardize-recurring-ops-scripts]]. Surfaced 2026-07-24 as a Non-Goal of
 `repo-applicable-artifact-sections` (stage D).
+
+### kit-self-surfaces — `idea` · **P2**
+
+**Why:** The five web surfaces [[repo-applicable-artifact-sections]] ships
+(`data-store`, `http-api`, `ui`, `auth`, `typed-nullable`) leave *this* kit repo
+with **no present surfaces**, so its own QRSPI artifacts fall to the
+always-emitted minimum — which undercuts that change's "the kit dogfoods its own
+fix" goal (its `qrspi-stack` `## Repo surface` block lists nothing). But the kit
+has real surfaces of its own that could gate genuinely useful sections for kit
+changes: **`slash-command`** (a change adds/renames a `/qrspi:*` command → a
+command-surface + README-sync section), **`stage-agent`** (touches an agent
+read-contract / the Read Matrix), **`skill`**, **`template`**, **`lint-gate`**
+(`scripts/lint.mjs` checks), and **`migration-manifest`** (`migrations/<v>.yaml`
+needed for a release). Adding these lets the kit dogfood richer self-surfaces.
+Each needs the same treatment as the original five — a mapping row in
+`repo-surface`, the gated section(s) in the relevant agent skeleton(s)/template(s),
+and (if it introduces a heading a fenced skeleton must not hardcode) a Check 11
+denylist entry. **P2, not P3 like its sibling [[extend-surface-taxonomy]]:** it
+directly improves *this* repo's own dogfooding rather than serving hypothetical
+consumer repo types, and it's ready to pick up as `repo-applicable-artifact-sections`
+lands (whose taxonomy it extends). Split out from [[extend-surface-taxonomy]]
+2026-07-24; surfaced during that change's stage-I dogfooding.
 
 ### structured-surface-schema — `idea` · **P3**
 
@@ -296,24 +331,14 @@ gates no emitted section is inert). Candidate surface + section clusters to desi
 - **`ml-model`** — model artifacts, training data provenance, evaluation metrics, versioning.
 - **`realtime` / streaming** — websockets/SSE/streaming endpoints, backpressure.
 
-**Kit-specific self-surfaces (a distinct flavor, surfaced 2026-07-24).** The five
-web surfaces leave *this* kit repo with **no present surfaces**, so its own QRSPI
-artifacts fall to the always-emitted minimum. But the kit has real surfaces of its
-own that could gate genuinely useful sections for kit changes — e.g.
-**`slash-command`** (a change adds/renames a `/qrspi:*` command → a command-surface
-+ README-sync section), **`stage-agent`** (touches an agent read-contract / the
-Read Matrix), **`skill`**, **`template`**, **`lint-gate`** (`scripts/lint.mjs`
-checks), **`migration-manifest`** (`migrations/<v>.yaml` needed for a release).
-Adding these would let the kit dogfood richer self-surfaces (its `qrspi-stack`
-`## Repo surface` block would then list present surfaces instead of none). Same
-add-surface-with-its-sections mechanism as above.
-
 Each cluster needs the same treatment as the original five: a mapping row in
 `repo-surface`, the gated section(s) in the relevant agent skeleton(s)/template(s),
 and (if it introduces a heading a fenced skeleton must not hardcode) a Check 11
 denylist entry. Surfaced 2026-07-24 during stage-I dogfooding of
 `repo-applicable-artifact-sections` (the "could the surface list be bigger?"
-question). Relates to [[structured-surface-schema]].
+question). Relates to [[structured-surface-schema]]. The kit's *own* self-surfaces
+(the distinct "let this repo dogfood richer surfaces" flavor) split out into
+[[kit-self-surfaces]] as a higher-value standalone.
 
 ### assert-openspec-version-pin-coupling — `idea` · **P3**
 
