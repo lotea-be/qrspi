@@ -7,29 +7,7 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## In progress
 
-### right-size-followup-handling — `in-progress (PR #26 open)` · **P2**
-
-**Why:** `/qrspi:followup` (the `postpr-fix` skill) has a single hard-coded
-path — delegate to the implementer in FIX MODE for a small, atomic post-PR fix
-— but not every follow-up is that small, and forcing a large one through the
-small-fix path patches blind (no re-alignment, specs drift). The command should
-first **right-size** the follow-up and pick one of three paths: (1) **implement
-directly** — call the implementer and, when the fix changes behavior, adapt the
-change folder's DELTA specs in place (today's flow, correct for small fixes);
-(2) **addendum flow** — for a follow-up big enough to need re-alignment, spin up
-an addendum that re-enters the QRSPI pipeline from an earlier stage (any of
-Q/R/D/S/V/P/I) rather than patching without a plan; (3) **defer** — when it is
-really new scope, drop it here as a backlog idea instead of squeezing it into
-the current change. The triage itself is a size/scope judgment, kept
-human-in-the-loop, added up front so a large follow-up isn't silently run
-through the small-fix path. Relates to [[pr-review-open-tasks-and-followups]].
-
-**Likely shape (after Q):** Changes to `claude/commands/followup.md` (insert
-triage gate before handing off to the implementer), `claude/skills/postpr-fix/SKILL.md`
-(possibly a brief three-path overview or pointer), and the `workflow` skill's
-"After PR — the fix loop" section. Regenerated `copilot/` tree via
-`sync-copilot.mjs`. No data-model, API, or migration changes — pure
-prompt/skill/command edits.
+_None._
 
 ---
 
