@@ -10,13 +10,14 @@
 ## ADDED Requirements
 
 ### Requirement: Five artifact-producing agents load the repo-surface skill
-The five artifact-producing agent files (`claude/agents/questioner.md`,
-`designer.md`, `architect.md`, `planner.md`, `reviewer.md`) MUST each load skill
-`repo-surface` as part of their startup preamble. Additionally, `questioner.md`
-and `planner.md` MUST also load the project's stack-cheatsheet skill (if one
-exists for the repo) as part of that same preamble step, since they do not
-currently load it. The designer, architect, and reviewer already load the
-stack-cheatsheet and gain only the `repo-surface` load.
+The system MUST configure all five artifact-producing agent files
+(`claude/agents/questioner.md`, `designer.md`, `architect.md`, `planner.md`,
+`reviewer.md`) to each load skill `repo-surface` as part of their startup
+preamble. Additionally, `questioner.md` and `planner.md` MUST also load the
+project's stack-cheatsheet skill (if one exists for the repo) as part of that
+same preamble step, since they do not currently load it. The designer, architect,
+and reviewer already load the stack-cheatsheet and gain only the `repo-surface`
+load.
 
 #### Scenario: questioner startup loads both skills
 - **WHEN** `claude/agents/questioner.md` body is read
@@ -36,15 +37,15 @@ stack-cheatsheet and gain only the `repo-surface` load.
   no dangling skill references.
 
 ### Requirement: Fenced skeletons in the five agents replace CRUD headings with a conditional placeholder
-The fenced skeleton blocks (```` ```markdown ```` or bare ```` ``` ````) embedded
-in each of the five artifact-producing agent files MUST NOT contain any of the
-twelve CRUD heading lines from the Check 11 denylist as literal heading lines.
-Instead, each skeleton MUST use a single conditional placeholder (e.g. an HTML
-comment) with a prose instruction above or within the fence directing the agent
-to emit only those surface-gated sections whose surface is present per the
-`repo-surface` mapping. Always-emitted headings (`## Testing`,
-`## Sequencing & scope`, `## Open product questions`, and the four canonical
-OpenSpec headers) MUST remain as literal headings in the skeleton.
+Each of the five artifact-producing agent files MUST NOT contain any of the twelve
+CRUD heading lines from the Check 11 denylist as literal heading lines inside their
+fenced skeleton blocks (```` ```markdown ```` or bare ```` ``` ````). Instead,
+each skeleton MUST use a single conditional placeholder (e.g. an HTML comment)
+with a prose instruction above or within the fence directing the agent to emit
+only those surface-gated sections whose surface is present per the `repo-surface`
+mapping. Always-emitted headings (`## Testing`, `## Sequencing & scope`,
+`## Open product questions`, and the four canonical OpenSpec headers) MUST remain
+as literal headings in the skeleton.
 
 #### Scenario: questioner skeleton passes Check 11 after update
 - **WHEN** `claude/agents/questioner.md`'s fenced skeleton is inspected

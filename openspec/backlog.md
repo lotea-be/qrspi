@@ -7,16 +7,12 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## In progress
 
-_None._
+### repo-applicable-artifact-sections — `in-progress (Q, R, D, S, V, P, I complete)` · **P1**
 
----
-
-## Proposed
-
-### repo-applicable-artifact-sections — `proposed` · **P1**
-
-Proposed 2026-07-24 (branch `features/repo-applicable-artifact-sections`; stage
-Q done — see `openspec/changes/repo-applicable-artifact-sections/questions.md`).
+In progress 2026-07-24 (branch `features/repo-applicable-artifact-sections`; all
+implementation slices 1–4 committed; 9 `(human)` dogfood tasks in `tasks.md`
+pending; next stage `/qrspi:pr`). See
+`openspec/changes/repo-applicable-artifact-sections/`.
 
 **Why:** QRSPI artifact-producing stages (Q/D/S/P/PR) stamp a fixed CRUD/web
 section & checklist skeleton (Data model, API surface, Migrations, Auth, "no raw
@@ -40,6 +36,12 @@ against regressions (PQ5), and the change also establishes a `qrspi-stack`
 cheatsheet for the kit itself so it dogfoods its own fix (PQ7). Surfaced
 2026-07-23 reviewing `right-size-followup-handling`. Relates to
 [[init-conductor-plus-overview]].
+
+---
+
+## Proposed
+
+_None._
 
 ---
 

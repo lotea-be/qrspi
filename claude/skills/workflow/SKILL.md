@@ -238,7 +238,10 @@ the backlog (P3).
 Trivial changes (typo, lint fix, dependency bump under a patch version)
 can skip directly to `/qrspi:implement` with an inline one-paragraph plan.
 Anything that touches the data model, an API surface, or auth must go
-through the full flow.
+through the full flow. (These are web-app examples of surfaces that
+warrant the full pipeline. For other repo types, check the stack-cheatsheet
+`## Repo surface` block to identify which surfaces your repo exposes; a
+change touching any present surface benefits from the full flow.)
 
 ## Stage choreography (canonical procedures)
 

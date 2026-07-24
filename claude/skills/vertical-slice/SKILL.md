@@ -17,6 +17,10 @@ session** with a clean context window.
 
 ## How to slice a feature
 
+> Which of steps 1-4 below apply to your repo depends on which surfaces are
+> present (data-store, http-api, ui, auth). Check the `repo-surface` skill or
+> the repo's stack-cheatsheet `## Repo surface` block to see which are active.
+
 For each user-visible capability in the change, write a slice that
 contains:
 

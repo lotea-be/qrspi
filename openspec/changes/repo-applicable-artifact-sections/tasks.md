@@ -39,12 +39,12 @@
 
 **Model:** sonnet — Check 11 mirrors the dependency-free ESM pattern of existing checks in `scripts/lint.mjs`; the stack command extension and Part B edits are prose additions; README/CHANGELOG are mechanical doc updates. No novel logic.
 
-- [ ] 4.1 Add `checkNoCrudSkeletonHeadings` to `scripts/lint.mjs` — async function, twelve-heading denylist, scoped to lines inside fenced blocks of the five agent files, `process.stdout.write('Check 11: ...')` label, disjoint-set invariant comment, registered after Check 10 (D6)
-- [ ] 4.2 Extend `claude/commands/stack.md` (and/or `claude/skills/qrspi-stack/SKILL.md` if the command delegates to it) to emit a `## Repo surface` block assessing each of the five taxonomy surfaces as present or absent in the generated cheatsheet (D3)
-- [ ] 4.3 Edit `claude/skills/vertical-slice/SKILL.md` — add the one-line note directing readers to `repo-surface` for which slice shapes apply to their repo (D10)
-- [ ] 4.4 Edit `claude/skills/workflow/SKILL.md` — add the parenthetical on the "data model, API surface, or auth" sentence clarifying these are web-app examples and pointing to the stack cheatsheet for other repos (D10)
-- [ ] 4.5 Edit `README.md` — add `repo-surface` skill entry to the kit's skill/command table or list (D9)
-- [ ] 4.6 Edit `CHANGELOG.md` — add `## [Unreleased]` entry describing the four-slice change (D9)
-- [ ] 4.7 Run `node scripts/lint.mjs` — confirm all 11 checks pass, including Check 11 `OK` for all five agent files (D6)
-- [ ] 4.8 Regression-injection test: deliberately inject `## Migrations` as a literal heading line inside a fenced block in one agent file, run `node scripts/lint.mjs`, confirm Check 11 exits non-zero and names the file and offending heading; revert before committing (D6)
+- [x] 4.1 Add `checkNoCrudSkeletonHeadings` to `scripts/lint.mjs` — async function, twelve-heading denylist, scoped to lines inside fenced blocks of the five agent files, `process.stdout.write('Check 11: ...')` label, disjoint-set invariant comment, registered after Check 10 (D6)
+- [x] 4.2 Extend `claude/commands/stack.md` (and/or `claude/skills/qrspi-stack/SKILL.md` if the command delegates to it) to emit a `## Repo surface` block assessing each of the five taxonomy surfaces as present or absent in the generated cheatsheet (D3)
+- [x] 4.3 Edit `claude/skills/vertical-slice/SKILL.md` — add the one-line note directing readers to `repo-surface` for which slice shapes apply to their repo (D10)
+- [x] 4.4 Edit `claude/skills/workflow/SKILL.md` — add the parenthetical on the "data model, API surface, or auth" sentence clarifying these are web-app examples and pointing to the stack cheatsheet for other repos (D10)
+- [x] 4.5 Edit `README.md` — add `repo-surface` skill entry to the kit's skill/command table or list (D9)
+- [x] 4.6 Edit `CHANGELOG.md` — add `## [Unreleased]` entry describing the four-slice change (D9)
+- [x] 4.7 Run `node scripts/lint.mjs` — confirm all 11 checks pass, including Check 11 `OK` for all five agent files (D6)
+- [x] 4.8 Regression-injection test: deliberately inject `## Migrations` as a literal heading line inside a fenced block in one agent file, run `node scripts/lint.mjs`, confirm Check 11 exits non-zero and names the file and offending heading; revert before committing (D6)
 - [ ] 4.9 (human) In a `claude --plugin-dir /workspaces/git/qrspi` session, run `/qrspi:stack` on a fresh throwaway repo outside this kit — confirm the generated cheatsheet contains a `## Repo surface` section listing each of the five taxonomy surfaces as present or absent.

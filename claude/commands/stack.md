@@ -96,10 +96,31 @@ Steps:
    ## Gotchas / house rules
    <!-- repo-specific "always / never" rules the agents must respect; where
         the project's contributor-guidance file lives, if any -->
+
+   ## Repo surface
+   <!-- Assess each of the five taxonomy surfaces defined by the repo-surface
+        skill as present or absent for this repo. Write "present" when the
+        codebase uses that surface; "absent" when it does not. This block is
+        read by the repo-surface filter to determine which artifact sections
+        (Data model, API, UI, Auth, nullable suppression) to emit or omit
+        without relying on prose inference. All five lines are required. -->
+   - data-store: present|absent
+   - http-api: present|absent
+   - ui: present|absent
+   - auth: present|absent
+   - typed-nullable: present|absent
    ```
 
    Fill every section from detection + the interview. Leave a section out only
    if it genuinely does not apply (say so to the user rather than inventing).
+   For the `## Repo surface` block, assess each surface from the detection
+   results: a data-store surface is present when the repo uses a database,
+   ORM, or persistent file store; http-api when it exposes HTTP endpoints;
+   ui when it ships a browser or desktop UI; auth when it has user login,
+   roles, or permission checks; typed-nullable when the language has a
+   non-null type system with nullable suppression operators (e.g. C# `!`,
+   TypeScript `!`). For a pure markdown/script kit like QRSPI itself, all
+   five surfaces are absent.
 
 5. **Commit and report.** Stage and commit just the new skill file with message
    `chore(qrspi): add <repo>-stack cheatsheet skill` (or `refresh …` on a

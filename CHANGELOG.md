@@ -14,7 +14,35 @@ kit version.
 
 ## [Unreleased]
 
-_No unreleased changes._
+### Added
+
+- **Repo-surface-aware artifact sections (`repo-applicable-artifact-sections`).**
+  Every artifact-producing QRSPI agent (questioner, designer, architect, planner,
+  reviewer) now omits CRUD/web-app sections -- Data model, API, UI, Auth &
+  authorization, Migrations, and their variants -- instead of writing "Not
+  applicable" stanzas when those surfaces are absent from the repo under analysis.
+  A new shared skill `repo-surface` defines the closed five-surface taxonomy
+  (`data-store`, `http-api`, `ui`, `auth`, `typed-nullable`), the section-to-surface
+  mapping, the omit mechanic (no heading, no body, no "Not applicable"), and the
+  inference rule (explicit `## Repo surface` block in the stack cheatsheet takes
+  priority; prose inference fires as fallback; full menu + warning when inference
+  is ambiguous). The kit's own project-scoped stack cheatsheet
+  (`.claude/skills/qrspi-stack/SKILL.md`) carries an explicit `## Repo surface`
+  block declaring all five surfaces absent, so QRSPI's own artifact runs produce
+  clean outputs with no CRUD stanzas. The `/qrspi:stack` cheatsheet template is
+  extended with a `## Repo surface` section so all newly generated cheatsheets
+  include it going forward. Lint Check 3's required questioner heading set shrinks
+  from ten to three (the seven CRUD headings are no longer statically required).
+  A new lint Check 11 (`checkNoCrudSkeletonHeadings`) enforces the inverse: the
+  twelve CRUD headings must not appear as literal heading lines inside fenced
+  skeleton blocks in any of the five agent files, guarding against future
+  regressions. Check 11 carries a disjoint-set invariant comment (Check 3 requires
+  surface-independent headings present anywhere; Check 11 requires CRUD headings
+  absent from fences -- disjoint heading sets and disjoint scopes). The
+  `vertical-slice` skill gains a note pointing readers to `repo-surface` to identify
+  which slice steps apply to their repo; the `workflow` skill's skip-stage rule
+  gains a parenthetical clarifying that "data model, API, auth" are web-app examples
+  and directing non-web repos to the stack cheatsheet's `## Repo surface` block.
 
 ## [0.8.0] - 2026-07-24
 

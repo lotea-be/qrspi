@@ -2,7 +2,7 @@
 // ============================================================================
 //  scripts/lint.mjs -- CI quality gate for the QRSPI kit
 // ----------------------------------------------------------------------------
-//  Checks (run in order, all errors collected before exit):
+//  Checks (run in order, all errors collected before exit -- Checks 1-11):
 //
 //  1. PIN AGREEMENT  -- every hand-maintained OpenSpec version occurrence
 //     must agree. generatedBy: lines in openspec-generated skill files are
@@ -49,6 +49,19 @@
 // 10. TRIAGE PATH ANCHORS -- claude/commands/followup.md must contain the
 //     three triage choice-label prefixes (P1/P2/P3) so a future rename cannot
 //     silently drop a path. Mirrors the Check 8 pattern for pr.md.
+//
+// 11. NO CRUD SKELETON HEADINGS -- the twelve CRUD/web-app section headings
+//     (## Data model, ## Indexing & query performance, ## API, ## UI,
+//     ## Front-end state, ## Auth & authorization, ## Migrations & data,
+//     ## Data model changes, ## API surface, ## UI surface, ## Authorization,
+//     ## Migrations) must NOT appear as literal heading lines inside fenced
+//     code blocks in any of the five artifact-producing agent files
+//     (questioner, designer, architect, planner, reviewer). These headings are
+//     surface-gated and must only be emitted when the repo's surface declares
+//     them present; hard-coding them in skeletons defeats the repo-surface filter.
+//     Disjoint-set invariant: Check 3 requires surface-INDEPENDENT headings
+//     to be PRESENT; Check 11 requires CRUD headings to be ABSENT from fenced
+//     blocks -- disjoint heading sets AND disjoint scopes (full body vs. fences).
 //
 //  Exits 0 if all checks pass, 1 if any check reports a violation.
 //  Requires only Node.js built-ins (fs, path) -- no npm dependencies.
@@ -1223,6 +1236,138 @@ async function checkTriagePaths(errors) {
   return violations;
 }
 
+// ---- Check 11: NO CRUD SKELETON HEADINGS IN FENCED BLOCKS -----------------
+//
+// Asserts that none of the twelve CRUD/web-app heading lines appear as literal
+// heading lines INSIDE fenced code blocks in the five artifact-producing agent
+// files (questioner, designer, architect, planner, reviewer).
+//
+// Disjoint-set invariant (design requirement):
+//   Check 3 (checkHeadingAlignment) requires surface-INDEPENDENT headings
+//   (## Testing, ## Sequencing & scope, ## Open product questions) to be
+//   PRESENT anywhere in the body of the relevant agent file.
+//   Check 11 (this check) requires CRUD/web-app headings to be ABSENT from
+//   FENCED BLOCKS in the five agent files.
+//   The two checks cover DISJOINT heading sets AND disjoint scopes:
+//     - no heading is simultaneously required-present (Check 3) and
+//       forbidden-in-fences (Check 11);
+//     - Check 3 scans the full body (not limited to fenced blocks);
+//     - Check 11 scans only inside fenced blocks (not the full body).
+//
+// The twelve CRUD headings are the surface-gated headings that Slices 2-3
+// replaced with conditional placeholders in agent skeletons. Matching on
+// lines beginning with the heading marker avoids false positives on prose
+// mentions (e.g. "see ## Data model below") that appear outside fenced blocks.
+//
+// Registered after Check 10; contributes to the pass/fail aggregation and exit code.
+
+const CRUD_DENYLIST_HEADINGS = new Set([
+  '## Data model',
+  '## Indexing & query performance',
+  '## API',
+  '## UI',
+  '## Front-end state',
+  '## Auth & authorization',
+  '## Migrations & data',
+  '## Data model changes',
+  '## API surface',
+  '## UI surface',
+  '## Authorization',
+  '## Migrations',
+]);
+
+const CRUD_CHECK_AGENTS = [
+  'questioner',
+  'designer',
+  'architect',
+  'planner',
+  'reviewer',
+];
+
+async function checkNoCrudSkeletonHeadings(errors) {
+  const agentsDir = path.join(root, 'claude', 'agents');
+  let violations = 0;
+
+  for (const stem of CRUD_CHECK_AGENTS) {
+    const filePath = path.join(agentsDir, `${stem}.md`);
+    const rel = `claude/agents/${stem}.md`;
+
+    const text = await readFileOr(filePath, null);
+    if (text === null) {
+      errors.push(`[crud-skeleton] ${rel}: file not found`);
+      violations++;
+      continue;
+    }
+
+    // Strip YAML frontmatter, then scan fenced blocks only.
+    const { body } = splitFront(text);
+    const lines = body.split('\n');
+
+    let inFence = false;
+    let fenceMark = '';
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+
+      // Detect fence open/close: a line starting with ``` or ~~~
+      const fenceMatch = line.match(/^(`{3,}|~{3,})/);
+      if (fenceMatch) {
+        const mark = fenceMatch[1][0]; // ` or ~
+        const len = fenceMatch[1].length;
+
+        if (!inFence) {
+          // Opening fence
+          inFence = true;
+          fenceMark = mark.repeat(len);
+        } else if (
+          mark === fenceMark[0] &&
+          line.trimEnd() === fenceMark
+        ) {
+          // Closing fence must match exactly (same marker char, same length, nothing else)
+          inFence = false;
+          fenceMark = '';
+        }
+        // If inside a fence and line starts with fence chars but doesn't match,
+        // it is content, not a close marker -- continue.
+        continue;
+      }
+
+      if (inFence) {
+        // Check if this line is a CRUD denylist heading.
+        // Match on exact prefix: the line, after trimming trailing whitespace,
+        // must equal a denylist entry (handles both "## Foo" alone and avoids
+        // matching "## Foo bar" when only "## Foo" is denied).
+        // The denylist entries do not include trailing content, so we test
+        // whether the trimmed line starts with the denylist entry followed
+        // by end-of-string OR whitespace (prevents "## APIs" matching "## API").
+        const trimmed = line.trimEnd();
+        for (const denied of CRUD_DENYLIST_HEADINGS) {
+          if (trimmed === denied || trimmed.startsWith(denied + ' ') || trimmed.startsWith(denied + '\t')) {
+            errors.push(
+              `[crud-skeleton] ${rel}:${i + 1}: CRUD heading '${denied}' found inside a fenced block -- ` +
+              `replace with a surface-gate conditional placeholder (see repo-surface skill)`
+            );
+            violations++;
+            break; // one violation per line is enough
+          }
+        }
+      }
+    }
+
+    if (violations === 0) {
+      // Per-file OK reported only if no violations found anywhere yet;
+      // we report at the end of the loop for this file.
+    }
+  }
+
+  if (violations === 0) {
+    process.stdout.write(
+      `  OK: no CRUD skeleton headings found inside fenced blocks in any of the ${CRUD_CHECK_AGENTS.length} agent files\n`
+    );
+  }
+  return violations;
+}
+
 // ---- main ------------------------------------------------------------------
 
 async function main() {
@@ -1259,6 +1404,9 @@ async function main() {
 
   process.stdout.write('\nCheck 10: Triage path anchors\n');
   await checkTriagePaths(errors);
+
+  process.stdout.write('\nCheck 11: No CRUD skeleton headings in fenced blocks\n');
+  await checkNoCrudSkeletonHeadings(errors);
 
   process.stdout.write('\n');
   if (errors.length === 0) {
