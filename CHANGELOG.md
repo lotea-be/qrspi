@@ -14,6 +14,10 @@ kit version.
 
 ## [Unreleased]
 
+_No unreleased changes._
+
+## [0.8.0] - 2026-07-24
+
 ### Added
 
 - **Triage gate for post-PR follow-ups (`right-size-followup-handling`).** `/qrspi:followup` now runs a never-suppressed triage gate before spawning the implementer, routing each follow-up to one of three paths: P1 (implement directly -- today's path), P2 (amend this change in place -- edit the approved `design.md`/delta specs and add a `## N.` slice to `slices.md`+`tasks.md`, extending the same open PR, then offer `/qrspi:implement`), or P3 (defer -- append an `idea` row to `openspec/backlog.md`). The agent proposes a path from a four-signal heuristic rubric; the human confirms or overrides. The `workflow` skill's "After PR" section is updated to summarise the three paths. Adds lint Check 10 (`checkTriagePaths`) asserting the P1/P2/P3 choice-label anchors in `claude/commands/followup.md`.

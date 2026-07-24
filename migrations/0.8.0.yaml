@@ -1,0 +1,14 @@
+version: 0.8.0
+summary: >
+  GitHub Copilot support is dropped; QRSPI is now Claude Code-only. No changes to
+  a consumer repo's openspec/ layout are required — installing the new plugin tag
+  picks up the Claude-only kit automatically. Consumers who had also installed the
+  Copilot artifacts into ~/.copilot/ should remove them by hand; the kit no longer
+  ships or updates them.
+automated: []
+manual:
+  - >-
+    If you previously installed the QRSPI GitHub Copilot artifacts into
+    ~/.copilot/ (via the old install.sh / install.ps1), delete them by hand — the
+    kit no longer generates, ships, or updates them. Claude Code users need do
+    nothing beyond installing the new plugin tag.
