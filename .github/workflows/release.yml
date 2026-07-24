@@ -55,9 +55,6 @@ jobs:
             console.log(notes);
           '
 
-      - name: Re-check drift gate
-        run: node sync-copilot.mjs --check
-
       - name: Re-check lint
         run: node scripts/lint.mjs
 

@@ -1,18 +1,15 @@
 # QRSPI
 
-A spec-driven, multi-stage workflow for [Claude Code](https://claude.com/claude-code)
-**and [GitHub Copilot](https://github.com/features/copilot)**, built on top of
+A spec-driven, multi-stage workflow for [Claude Code](https://claude.com/claude-code),
+built on top of
 [OpenSpec](https://github.com/Fission-AI/OpenSpec). QRSPI breaks a feature from vague
 request to merged PR into eight reviewable stages, each producing one durable artifact
 under `openspec/changes/<id>/`. A human approval gate sits at the Design stage, so the
 expensive thinking is reviewed before any code is written.
 
 This repository is the **source of truth** for the QRSPI kit. The Claude Code artifacts
-under [`claude/`](claude/) are authoritative; the Copilot artifacts under
-[`copilot/`](copilot/) are **generated** from them (see
-[Two tools](#two-tools-claude--copilot)). Claude Code installs it as a **plugin** (from the
-`lotea-be/ai-agent-marketplace` marketplace); GitHub Copilot installs the generated
-artifacts into `~/.copilot/` with a script. Either way, the kit is available in every
+under [`claude/`](claude/) are authoritative. Claude Code installs it as a **plugin** (from
+the `lotea-be/ai-agent-marketplace` marketplace), so the kit is available in every
 repository on your machine.
 
 The kit is **stack-agnostic**. It references a project's "stack-cheatsheet" skill
@@ -89,35 +86,21 @@ qrspi/
     agents/                  #   7 subagent definitions (questioner … reviewer)
     commands/                #   /qrspi:* slash commands
     skills/                  #   workflow + convention skills (stack-agnostic)
-  copilot/                   # GENERATED from claude/ — GitHub Copilot artifacts (mirror ~/.copilot/)
-    agents/                  #   *.agent.md   (custom agents)
-    prompts/                 #   *.prompt.md  (slash prompts)
-    instructions/            #   *.instructions.md (referenced on demand)
-  openspec-templates/        # the 5 canonical artifact templates (tool-independent, shared)
-  sync-copilot.mjs           # deterministic claude/ -> copilot/ generator (Node.js)
-  install.ps1 / install.sh   # installs the Copilot kit into ~/.copilot (Claude = plugin)
-  uninstall.ps1 / uninstall.sh  # removes only the files this kit ships
+  openspec-templates/        # the 5 canonical artifact templates (shared)
   .claude/                   # kit-DEV tooling, project scope, NOT shipped to users:
-                             #   /qrspi-sync-copilot, /qrspi-readme-audit, /qrspi-release,
+                             #   /qrspi-readme-audit, /qrspi-release,
                              #   /qrspi-dogfood commands + skills (only useful in THIS repo)
   README.md
 ```
 
-`copilot/` mirrors `~/.copilot/`, so the **Copilot install is a straight copy**; `claude/`
-is the Claude Code **plugin** payload, delivered via the marketplace. Never hand-edit
-`copilot/` — edit `claude/` and run `/qrspi-sync-copilot` (see
-[Two tools](#two-tools-claude--copilot)).
+`claude/` is the Claude Code **plugin** payload, delivered via the marketplace.
 
 ---
 
 ## Requirements
 
-- **One of:**
-  - **[Claude Code](https://claude.com/claude-code)** — CLI, desktop, or IDE extension.
-    The `claude/{agents,commands,skills}/` formats are Claude Code's.
-  - **[GitHub Copilot](https://github.com/features/copilot)** in VS Code — uses the
-    generated `copilot/{agents,prompts,instructions}/` (`.agent.md` / `.prompt.md` /
-    `.instructions.md`).
+- **[Claude Code](https://claude.com/claude-code)** — CLI, desktop, or IDE extension.
+  The `claude/{agents,commands,skills}/` formats are Claude Code's.
 - **[Node.js](https://nodejs.org/)** (for `npx`) — the OpenSpec CLI runs via
   `npx @fission-ai/openspec@1.4.1` (pinned). Used to bootstrap `openspec/` and to
   `openspec validate` spec deltas.
@@ -131,7 +114,7 @@ is the Claude Code **plugin** payload, delivered via the marketplace. Never hand
 
 ## Install
 
-### Claude Code — via the plugin marketplace
+### Via the plugin marketplace
 
 QRSPI ships as a Claude Code plugin. Add the marketplace once, then install:
 
@@ -176,119 +159,21 @@ If a repo was initialized before the marker was introduced (pre-0.6.0), the
 command detects the absent marker, explains the situation, and offers to
 initialize it to the current version.
 
-### GitHub Copilot — via the install script
-
-Copilot can't consume a Claude Code plugin, so its artifacts install from this repo
-with a script — **PowerShell** (Windows/macOS/Linux):
-
-```powershell
-./install.ps1                  # install the Copilot kit + offer VS Code settings
-./install.ps1 -SkipSettings    # don't touch VS Code settings.json
-```
-
-…or the **Bash** equivalent (Linux/macOS, no PowerShell needed):
-
-```bash
-./install.sh                   # install the Copilot kit + offer VS Code settings
-./install.sh --skip-settings   # don't touch VS Code settings.json
-```
-
-The script merges — overwrites same-named files, leaves your other user-scope files
-untouched. It copies `copilot/{agents,instructions,prompts}` into `~/.copilot/`, then
-**offers to patch your VS Code user `settings.json`** so
-`chat.{prompt,agent,instructions}FilesLocations` point at `~/.copilot/...` (VS Code
-won't discover the prompts otherwise). It asks before writing, backs the file up first,
-edits as text so your comments survive, and skips any key you've already set. Decline
-with `-SkipSettings` / `--skip-settings` (or just answer `N`) to get the lines printed
-for hand-editing. Either way, **reload the VS Code window** afterwards.
-
 ### Verify
 
-- **Claude:** run `/qrspi:status` in any repo — it should print the stage map.
-- **Copilot:** in Copilot Chat, type `/` and confirm the `qrspi-*` prompts appear; the
-  `qrspi-*` agents appear in the agents dropdown.
+Run `/qrspi:status` in any repo — it should print the stage map.
 
 ### Uninstall
 
-- **Claude:** `/plugin uninstall qrspi` (and `/plugin marketplace remove lotea-agents`
-  to drop the catalog too).
-- **Copilot:** the inverse of the install script — removes **only the files this kit
-  ships** (it walks the repo's source trees and deletes the matching file under
-  `~/.copilot/`), leaving any other file you keep there alone. Empty folders are pruned.
-
-```powershell
-./uninstall.ps1            # remove the Copilot kit
-./uninstall.ps1 -DryRun    # list what would be removed, delete nothing
-./uninstall.ps1 -Yes       # skip the confirmation prompt
-```
-
-```bash
-./uninstall.sh             # remove the Copilot kit
-./uninstall.sh --dry-run   # list what would be removed, delete nothing
-./uninstall.sh --yes       # skip the confirmation prompt
-```
-
-The Copilot uninstall does **not** touch your VS Code `settings.json` — if you let
-install patch in the `chat.*FilesLocations` keys, remove them by hand.
-
----
-
-## Two tools (Claude + Copilot)
-
-The workflow is identical for both tools; only the file format differs. **`claude/` is
-the single source of truth**; `copilot/` is generated from it.
-
-| Claude Code (`claude/…`) | GitHub Copilot (`copilot/…`) | Installs to |
-|---|---|---|
-| `agents/<x>.md` (subagents) | `agents/<x>.agent.md` (custom agents) | `~/.copilot/agents/` |
-| `commands/<x>.md` (`/qrspi:*`) | `prompts/<x>.prompt.md` (slash prompts) | `~/.copilot/prompts/` |
-| `skills/<x>/SKILL.md` (model-invoked) | `instructions/<x>.instructions.md` (referenced on demand) | `~/.copilot/instructions/` |
-
-A Copilot prompt carries an `agent:` field so the whole prompt runs in that agent;
-the Claude command instead runs in the main loop and spawns its subagent (via the
-Agent tool) only for the bounded artifact write, keeping the human gates on the
-orchestrator.
-
-### Sync workflow
-
-```
-edit claude/…  →  node sync-copilot.mjs  →  review & commit copilot/
-```
-
-Regeneration is **deterministic and drop-and-recreate**:
-[`sync-copilot.mjs`](sync-copilot.mjs) wipes `copilot/` and rebuilds it from `claude/`
-by fixed rules — fast, free, reproducible, no Claude session needed
-(`node sync-copilot.mjs --check` proves zero drift). The generated `copilot/` tree is
-**committed** so Copilot-only users install without ever running the sync.
-
-For a higher-fidelity pass, the Claude-side **`/qrspi-sync-copilot`** runs the script,
-reviews the output against the `qrspi-sync-copilot` skill, and — when it finds a
-systematic gap — **edits the script** (a `Rewrite-All` rule or an `Apply-Fixups` entry),
-never the generated files. So fixes compound in the script and stay reproducible.
-
-> Never hand-edit `copilot/` — it's overwritten on every run. Improve `sync-copilot.mjs`
-> instead.
-
-### Copilot fidelity gaps (by design, not hidden)
-
-Copilot's model is less expressive than Claude Code's, so the port is faithful but lossy:
-
-- **Per-slice model selection.** Claude picks sonnet/opus per slice automatically;
-  Copilot can't, so the `**Model:**` annotation becomes advisory — you set the model in
-  the Copilot model picker.
-- **Subagent orchestration.** Deep delegation becomes a single `agent:` per prompt plus
-  human-driven agent switches.
-- **Skill auto-loading.** Instruction files are referenced on demand, not auto-loaded.
-- **Shell injection / file includes** in commands degrade to written steps.
+`/plugin uninstall qrspi` (and `/plugin marketplace remove lotea-agents` to drop the
+catalog too).
 
 ---
 
 ## Consuming in another repo
 
 QRSPI lives in user scope, so it's already available everywhere once installed. To use
-it on a project (paths below are Claude's `.claude/`; Copilot users substitute the
-`.github/` equivalents — e.g. `/qrspi:stack` writes
-`.github/instructions/<repo>-stack.instructions.md`):
+it on a project:
 
 1. **Bootstrap OpenSpec (once per repo):**
 
@@ -341,15 +226,8 @@ it on a project (paths below are Claude's `.claude/`; Copilot users substitute t
 The intended loop:
 
 1. Edit the source under `claude/` (+ `openspec-templates/`) **here** in your local clone.
-2. If you touched anything Copilot ships, run `node sync-copilot.mjs` to regenerate
-   `copilot/` (or `/qrspi-sync-copilot` for a reviewed pass), and review the diff.
-3. Test the **Claude** side with `claude --plugin-dir .` (loads this repo as the plugin,
-   no install). For **Copilot**, run `./install.ps1` or `./install.sh` to push `copilot/`
-   into `~/.copilot/`.
-4. Restart Claude Code / reload the VS Code window and test in a real repo.
-
-> Never edit `copilot/` by hand — it is regenerated from `claude/`. The `qrspi-sync-copilot`
-> command and skill (Claude-only) are not ported to Copilot.
+2. Test with `claude --plugin-dir .` (loads this repo as the plugin, no install).
+3. Restart Claude Code and test in a real repo.
 
 ### Keeping the templates in sync
 
@@ -369,19 +247,8 @@ hand-maintained locations:
 - `README.md` (this file) -- prose references to `@fission-ai/openspec@<version>`
 - `openspec/config.yaml` -- the `openspec_version:` sentinel field
 
-`copilot/prompts/qrspi-init.prompt.md` is **generated** from `claude/commands/init.md`
-and must not be edited by hand -- it is updated automatically by `node sync-copilot.mjs`.
-
 To bump the pin, update every `@fission-ai/openspec@<version>` occurrence in the
-hand-maintained files above, then run:
-
-```
-node sync-copilot.mjs
-```
-
-Review the diff (the generated `copilot/` tree will update automatically), commit
-both the source and generated changes, re-run `./install.ps1` or `./install.sh`,
-and reload the VS Code window. A CI lint job (`node scripts/lint.mjs`) asserts that
+hand-maintained files above. A CI lint job (`node scripts/lint.mjs`) asserts that
 all hand-maintained occurrences agree -- the lint will catch any missed location.
 
 ---

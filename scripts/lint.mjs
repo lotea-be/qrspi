@@ -238,7 +238,6 @@ async function checkPinAgreement(errors) {
   // Scan source directories
   for (const dir of [
     path.join(root, 'claude'),
-    path.join(root, 'copilot'),
     path.join(root, 'openspec'),
     path.join(root, 'openspec-templates'),
   ]) {
@@ -372,7 +371,6 @@ async function checkFrontmatter(errors) {
     const text = await readFileOr(skillFile, null);
     const rel = path.join('claude', 'skills', skillDir, 'SKILL.md');
     if (text === null) {
-      // Missing SKILL.md is warned by sync-copilot.mjs; note it here too
       errors.push(`[frontmatter] ${rel}: file not found`);
       violations++;
       continue;

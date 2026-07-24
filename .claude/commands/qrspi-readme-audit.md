@@ -26,20 +26,18 @@ tools — do not shell out; Glob works on every platform):
    command's one-line description still reflects what the command does, and that
    the human-approval gate / read-only notes are still accurate.
 
-3. **Agents & the two-tool mapping.** Glob `claude/agents/*.md`. Check that any
-   agent named in the README (and the `claude/… ↔ copilot/…` table, the "runs
-   inside the X agent" sentence, and the Verify section's dropdown/prompt names)
-   matches the current agent names and the generated `copilot/agents/*` filenames.
+3. **Agents.** Glob `claude/agents/*.md`. Check that any
+   agent named in the README (the "runs inside the X agent" sentence, and the
+   Verify section's dropdown/prompt names) matches the current agent names.
    (This is the surface a rename most easily leaves stale — the lint does not
    cover it.)
 
 4. **Skills.** Glob `claude/skills/*/SKILL.md`. Confirm any skill the README
    names still exists and is described accurately.
 
-5. **Install / update flow.** Read the `## Install` section against `install.ps1`
-   / `install.sh` (flags, what gets copied, the settings.json patch) and against
-   the documented plugin install/**update** commands. Flag any command string or
-   flag that no longer matches the scripts.
+5. **Install / update flow.** Read the `## Install` section against the
+   documented plugin install/**update** commands. Flag any command string that no
+   longer matches the current install/update flow.
 
 6. **OpenSpec pin & layout.** Confirm the README's pinned-version section lists
    the real hand-maintained pin locations, and that the repo-layout tree matches

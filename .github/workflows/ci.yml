@@ -8,17 +8,6 @@ on:
   workflow_dispatch:
 
 jobs:
-  drift:
-    name: copilot/ drift gate
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-      - name: Verify copilot/ is in sync with claude/
-        run: node sync-copilot.mjs --check
-
   lint:
     name: lint
     runs-on: ubuntu-latest

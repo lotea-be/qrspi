@@ -6,8 +6,8 @@ description: How to dogfood an in-flight QRSPI change in THIS repo before the PR
 # Dogfooding a QRSPI change before its PR
 
 This is the mechanism behind `/qrspi-dogfood`. It is **maintainer dev-tooling for
-this repo only** — it lives under `.claude/` (not `claude/`), is never shipped in
-the plugin, and is never synced into `copilot/`.
+this repo only** — it lives under `.claude/` (not `claude/`) and is never shipped
+in the plugin.
 
 ## Why this exists (the trap it closes)
 

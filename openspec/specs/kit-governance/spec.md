@@ -40,21 +40,14 @@ plugin version bump does not force an OpenSpec pin reassessment.
 
 ### Requirement: CONTRIBUTING.md documents contributor workflow
 The system MUST provide a `CONTRIBUTING.md` at the repo root containing: the
-semver discipline table (what triggers patch vs. minor), the sync workflow
-(edit `claude/`, run `node sync-copilot.mjs`, commit both `claude/` and
-`copilot/`), the version-bump checklist (including the pin-coupling rule), and
-a note that contributor prose drift on command stubs is a convention-only
-boundary documented here.
+semver discipline table (what triggers patch vs. minor), the version-bump
+checklist (including the pin-coupling rule), and a note that contributor prose
+drift on command stubs is a convention-only boundary documented here.
 
 #### Scenario: contributor checks bump requirements
 - **WHEN** a contributor adds a new feature to the kit
 - **THEN** `CONTRIBUTING.md` tells them which version component to increment
   and whether the OpenSpec pin must be reassessed.
-
-#### Scenario: contributor performs a sync
-- **WHEN** a contributor edits a `claude/` source file
-- **THEN** `CONTRIBUTING.md` describes running `node sync-copilot.mjs` and
-  committing both the source and generated changes together.
 
 ### Requirement: CHANGELOG.md follows Keep-a-Changelog format
 The system MUST provide a `CHANGELOG.md` at the repo root in Keep-a-Changelog
