@@ -12,7 +12,7 @@ The two rows below are the input + output halves of one change,
 complementary levers on the same per-stage context surface. They flip together
 and archive together. Q, R, D, S, V, P, I complete — awaiting PR.
 
-### trim-per-stage-context-loading — `in-progress (bundled into context-budget; Q, R, D, S, V, P, I complete)` · **P1**
+### trim-per-stage-context-loading — `in-progress (bundled into context-budget; PR #31 open)` · **P1**
 
 **Why:** Per-run token burn is dominated by **input** — what each QRSPI stage
 auto-loads (the `<repo>-stack` skill + the workflow/convention skills) plus the
@@ -36,7 +36,7 @@ lever). **P1 under the recurring token/cost band:** not a correctness gap, but a
 systemic per-run cost defect that compounds on every stage of every change.
 Surfaced 2026-07-24 (token burn flagged as climbing).
 
-### bounded-subagent-return-summaries — `in-progress (bundled into context-budget; Q, R, D, S, V, P, I complete)` · **P2**
+### bounded-subagent-return-summaries — `in-progress (bundled into context-budget; PR #31 open)` · **P2**
 
 **Why:** Every QRSPI stage delegation returns its subagent's final message into
 the **main-loop** context, and nothing bounds that payload — a verbose return
