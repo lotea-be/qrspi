@@ -544,6 +544,19 @@ structural `scripts/lint.mjs` check (or heading assertion) that every slice bull
 which implements a decision carries its tag, mechanically enforcing D3. Flagged in
 that change's design Risks section as "not this change".
 
+### content-lint-output-contract — `idea` · **P3**
+
+**Why:** [[context-budget]] ships an existence-only lint (Check 12) that asserts
+each stage agent carries an `> **Output contract**` banner but does **not** parse
+or enforce the banner's *content* — a banner could claim a bound (e.g. "5-line
+summary, no file bodies") while the agent's actual return drifts well past it, and
+nothing would catch it (existence-only was the settled PQ3 scope for that change).
+If that drift appears in practice, promote Check 12 to a content-level check that
+parses a machine-readable bound from the banner (e.g. `max-lines: N`) and asserts
+the declared cap is present/consistent. Weigh the brittleness PQ3 flagged: a
+parsed cap is a second source of truth that can itself drift from the real return.
+Surfaced 2026-07-24 as a Non-Goal of `context-budget` (stage D).
+
 ### rename-qrspi-to-qrnchi — `idea` · **P3**
 
 **Why:** The plugin name `qrspi` is the acronym of its own stages (Q-R-S-P-I,
