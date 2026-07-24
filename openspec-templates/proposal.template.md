@@ -46,6 +46,9 @@ existing capability in `openspec/specs/`.
 
 ## Impact
 
+<!-- Surface-gated: emit the Migrations line only when the data-store surface is
+     present per the repo-surface skill mapping. Omit it entirely (no line,
+     no "Not applicable") when data-store is absent. -->
 - Migrations: <yes/no, summary>
 - Breaking changes: <yes/no, summary>
 - Phases / epics: <phase 1/2/3>, <epic numbers>

@@ -25,14 +25,14 @@
 
 **Model:** sonnet — four files follow the identical pattern established in Slice 2 (add preamble load + swap skeleton lines + update template). Highly templated, mechanical repetition across agents.
 
-- [ ] 3.1 Edit `claude/agents/designer.md` — add `Load skill repo-surface` to preamble; replace CRUD-heading lines in fenced skeleton with conditional placeholder; remove "Not applicable" instruction (D4, D7)
-- [ ] 3.2 Edit `claude/agents/architect.md` — same treatment as designer: `repo-surface` preamble load, conditional placeholder in fenced skeleton, remove "Not applicable" instruction (D4, D7)
-- [ ] 3.3 Edit `claude/agents/planner.md` — add `Load skill repo-surface` and stack-cheatsheet load to preamble; replace CRUD-heading lines in fenced skeleton with conditional placeholder; remove "Not applicable" instruction (D4, D7)
-- [ ] 3.4 Edit `claude/agents/reviewer.md` — add `Load skill repo-surface` to preamble; retain existing stack-cheatsheet load; update fenced skeleton; remove "Not applicable" instructions (D4, D7)
-- [ ] 3.5 Edit `openspec-templates/design.template.md` — relabel the four detail sections (`## Data model changes`, `## API surface`, `## UI surface`, `## Authorization`) from "OPTIONAL" to "surface-gated (omit when the surface is absent)" (D8)
-- [ ] 3.6 Edit `openspec-templates/proposal.template.md` — flag the Migrations impact line inside `## Impact` as surface-gated (`data-store` absent → omit) (D8)
-- [ ] 3.7 Edit `openspec-templates/tasks.template.md` — flag the migration-task note as surface-gated (D8)
-- [ ] 3.8 Run `node scripts/lint.mjs` — confirm Checks 1–10 pass; Check 2 resolves all new `repo-surface` load references; grep over all five agent files confirms zero CRUD-denylist headings inside any fenced block (D5)
+- [x] 3.1 Edit `claude/agents/designer.md` — add `Load skill repo-surface` to preamble; replace CRUD-heading lines in fenced skeleton with conditional placeholder; remove "Not applicable" instruction (D4, D7)
+- [x] 3.2 Edit `claude/agents/architect.md` — same treatment as designer: `repo-surface` preamble load, conditional placeholder in fenced skeleton, remove "Not applicable" instruction (D4, D7)
+- [x] 3.3 Edit `claude/agents/planner.md` — add `Load skill repo-surface` and stack-cheatsheet load to preamble; replace CRUD-heading lines in fenced skeleton with conditional placeholder; remove "Not applicable" instruction (D4, D7)
+- [x] 3.4 Edit `claude/agents/reviewer.md` — add `Load skill repo-surface` to preamble; retain existing stack-cheatsheet load; update fenced skeleton; remove "Not applicable" instructions (D4, D7)
+- [x] 3.5 Edit `openspec-templates/design.template.md` — relabel the four detail sections (`## Data model changes`, `## API surface`, `## UI surface`, `## Authorization`) from "OPTIONAL" to "surface-gated (omit when the surface is absent)" (D8)
+- [x] 3.6 Edit `openspec-templates/proposal.template.md` — flag the Migrations impact line inside `## Impact` as surface-gated (`data-store` absent → omit) (D8)
+- [x] 3.7 Edit `openspec-templates/tasks.template.md` — flag the migration-task note as surface-gated (D8)
+- [x] 3.8 Run `node scripts/lint.mjs` — confirm Checks 1–10 pass; Check 2 resolves all new `repo-surface` load references; grep over all five agent files confirms zero CRUD-denylist headings inside any fenced block (D5)
 - [ ] 3.9 (human) In a `claude --plugin-dir /workspaces/git/qrspi` session, run `/qrspi:design`, `/qrspi:structure`, `/qrspi:plan`, and `/qrspi:pr` (or a subset) on a throwaway change in this kit — confirm each produced artifact contains no CRUD headings and no "Not applicable" text under surface-gated sections.
 
 ## 4. Lint Check 11 + /qrspi:stack block + Part B edits + README/CHANGELOG

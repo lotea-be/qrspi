@@ -45,20 +45,33 @@ while staying canonical-shaped so it round-trips through OpenSpec tooling.
 ### D1 — <decision name> (Q.., PQ..)
 <!-- Chosen: … Rejected: … Why: … -->
 
-<!-- OPTIONAL QRSPI detail sections — keep the ones that sharpen the design: -->
+<!-- Surface-gated QRSPI detail sections (omit when the surface is absent):
+     emit each section only when its controlling surface is present per the
+     repo-surface skill mapping. Omit the heading entirely when the surface
+     is absent (no heading, no body, no "Not applicable" stanza).
+
+     data-store -> ## Data model changes
+     http-api   -> ## API surface
+     ui         -> ## UI surface
+     auth       -> ## Authorization
+-->
 
 ## Data model changes
+<!-- surface-gated (omit when the surface is absent) -->
 <!-- Entities added/modified, properties, indexes, constraints, migration shape. -->
 
 ## API surface
+<!-- surface-gated (omit when the surface is absent) -->
 <!-- New/changed endpoints or service methods: request/response types,
      validation rules, auth requirement, error responses. -->
 
 ## UI surface
+<!-- surface-gated (omit when the surface is absent) -->
 <!-- Pages/components added/changed, the framework primitives used, state
      slices if any. -->
 
 ## Authorization
+<!-- surface-gated (omit when the surface is absent) -->
 <!-- Who can do what. Role checks, policies, defaults. -->
 
 ## Vertical slices (preview)

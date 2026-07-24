@@ -32,8 +32,11 @@ exception (see workflow skill Read Matrix). Triggers must be sourced from
 
 ## What to do
 
-1. Load skills `workflow`, `openspec-workflow`, `context-hygiene`, plus
-   the project's stack-cheatsheet skill if it defines one.
+1. Load skills `workflow`, `openspec-workflow`, `context-hygiene`, and
+   `repo-surface`, plus the project's stack-cheatsheet skill if it defines
+   one (use the Glob tool with pattern `.claude/skills/*/SKILL.md` to find
+   it). The `repo-surface` skill defines which sections to emit based on the
+   surfaces present in the repo; the stack cheatsheet declares those surfaces.
 2. Read `openspec/changes/<id>/questions.md` and `research.md` end to end.
 3. If a question in `questions.md` is genuinely unanswerable from research
    alone and is critical to design, list it under "Open questions for the
@@ -130,19 +133,16 @@ Examples:
 - D1 — Storage: single entity vs. denormalized counter. Chose X because …
 - D2 — Real-time: real-time push vs. polling. Chose X because …
 
-## Data model changes
-Entities added/modified, properties, indexes, constraints. Migration shape.
+<!-- Surface-gated detail sections: emit each section below only when its
+     controlling surface is present for this repo, per the repo-surface skill
+     mapping. Omit the heading entirely when the surface is absent (no heading,
+     no body, no "Not applicable" stanza).
 
-## API surface
-New/changed API endpoints or service methods. For each: request type,
-response type, input-validation rules, auth requirement, error responses.
-
-## UI surface
-UI pages/components added/changed and the framework primitives used.
-State slices if needed.
-
-## Authorization
-Who can do what. Role checks. Policies. Defaults.
+     data-store -> ## Data model changes
+     http-api   -> ## API surface
+     ui         -> ## UI surface
+     auth       -> ## Authorization
+-->
 
 ## Vertical slices (preview)
 A bullet list of the 2–5 slices the Structure stage will detail. This is

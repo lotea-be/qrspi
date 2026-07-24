@@ -30,8 +30,11 @@ changes' folders.
 
 ## What to do
 
-1. Load skills `workflow`, `openspec-workflow`, plus the project's
-   stack-cheatsheet skill if it defines one.
+1. Load skills `workflow`, `openspec-workflow`, and `repo-surface`, plus the
+   project's stack-cheatsheet skill if it defines one (use the Glob tool with
+   pattern `.claude/skills/*/SKILL.md` to find it). The `repo-surface` skill
+   defines which PR sections and checklist items to emit based on the surfaces
+   present in the repo; the stack cheatsheet declares those surfaces.
 2. Read the full `openspec/changes/<id>/` folder. (This is intentional —
    the reviewer is the only stage that reads the entire change folder by
    design, to verify end-to-end consistency across all artifacts.)
@@ -49,6 +52,16 @@ changes' folders.
 
 ## PR description template
 
+Surface-gated sections and checklist items: apply the `repo-surface` skill
+mapping when filling in this template. Omit a section or item entirely (no
+heading, no body, no "Not applicable") when its controlling surface is absent:
+
+- `data-store` absent: omit the Migrations section and the "No raw SQL" and
+  "Migration is reversible" checklist items.
+- `http-api` absent: omit the "All new endpoints use authorization policies"
+  checklist item.
+- `typed-nullable` absent: omit the "No nullable suppression" checklist item.
+
 ```markdown
 ## Summary
 <one to three bullets, why and what>
@@ -62,8 +75,7 @@ changes' folders.
 - <bullet>
 - <bullet>
 
-## Migrations
-<yes/no — if yes, brief description and rollback note>
+[data-store surface: emit the Migrations section below; omit entirely when absent]
 
 ## Tests
 - Unit: <N> tests, all passing
@@ -74,11 +86,16 @@ changes' folders.
 
 ## Reviewer checklist
 - [ ] Design.md still matches what was built
-- [ ] No raw SQL in feature code
-- [ ] No nullable suppression (`!`) without justification comment
-- [ ] All new endpoints use authorization policies where appropriate
-- [ ] Migration is reversible
+[data-store: No raw SQL in feature code]
+[data-store: Migration is reversible]
+[http-api: All new endpoints use authorization policies where appropriate]
+[typed-nullable: No nullable suppression (`!`) without justification comment]
 ```
+
+When data-store is present, replace the Migrations placeholder with a
+`## Migrations` heading and a one-line description plus rollback note.
+When a surface is present, replace its bracketed checklist placeholder
+with a real `- [ ]` item line.
 
 ## PR description size
 
