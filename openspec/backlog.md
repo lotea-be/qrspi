@@ -195,6 +195,39 @@ not statically checkable. Surfaced by `add-auto-mode` stage D (offered, not buil
 Low-cost correctness guard (hence P2, not P3). Now **unblocked** — `add-auto-mode`
 merged 2026-07-06 (archived), so the convention it enforces is live.
 
+### enforce-artifact-surface-applicability — `idea` · **P2**
+
+**Why:** [[repo-applicable-artifact-sections]] ships lint Check 11, which only
+catches *hard-coded* CRUD headings sitting literally in an agent's fenced
+skeleton block (a static string denylist over the kit's source). It cannot
+validate that a *generated* artifact's emitted sections actually match the
+repo's declared surface — that needs a live parse of the `<repo>-stack`
+cheatsheet's `## Repo surface` block, which lint has no access to today. Add a
+this-repo CI check that parses the kit's own `qrspi-stack` surface block and
+asserts the kit's committed `openspec/changes/**` artifacts carry no sections
+for absent surfaces (validating OUTPUT vs declared surface). Low-cost
+correctness guard sequenced behind `repo-applicable-artifact-sections` (hence
+P2, like [[lint-auto-mode-gate-coverage]]). **Scope boundary:** this is the kit
+linting its *own* artifacts; pushing the same enforcement into *consumer* repos'
+CI is the separate shipped-runtime-helper problem tracked in
+[[standardize-recurring-ops-scripts]]. Surfaced 2026-07-24 as a Non-Goal of
+`repo-applicable-artifact-sections` (stage D).
+
+### structured-surface-schema — `idea` · **P3**
+
+**Why:** [[repo-applicable-artifact-sections]] deliberately reads a repo's tech
+surface from *prose* (LLM inference over the `<repo>-stack` cheatsheet, silence
+= absent), with only an optional `## Repo surface` block for determinism — no
+machine-readable schema (a Non-Goal of that change). If prose inference proves
+unreliable at scale, or a downstream tool wants to consume surface flags
+programmatically, promote the surface declaration to a structured,
+machine-readable schema/DSL (e.g. typed `data-store: absent` fields) with a
+validator, rather than an optional free-form block. Weigh against the
+two-source-of-truth caution — a structured block plus the prose it duplicates
+can drift. Relates to [[optional-technology-specs]] (formal machine-validatable
+artifacts) and [[reassess-openspec-dependency]]. Surfaced 2026-07-24 as a
+Non-Goal of `repo-applicable-artifact-sections` (stage D).
+
 ### assert-openspec-version-pin-coupling — `idea` · **P3**
 
 **Why:** `openspec/config.yaml` carries an `openspec_version` field recording the
