@@ -40,11 +40,11 @@
 
 **Model:** sonnet — workflow prose update is mechanical summarization of decisions already made; lint check follows the Check 8 pattern exactly; copilot resync is a script invocation; no novel reasoning
 
-- [ ] 4.1 Update `claude/skills/workflow/SKILL.md`'s "After PR — the fix loop" section to summarize the triage gate and P1/P2/P3 paths (D12)
-- [ ] 4.2 Add `async function checkTriagePaths(errors)` to `scripts/lint.mjs` asserting the three choice-label prefixes (`"P1 — implement directly"`, `"P2 — addendum"`, `"P3 — defer"`) exist in `claude/commands/followup.md`; add one `checkTriagePaths(errors)` call in `main()`; update the numbered header-comment to include Check 10 (mirror the Check 8 `checkPrReconciliationPasses` pattern) (D13)
-- [ ] 4.3 Add one line under `## [Unreleased]` in `CHANGELOG.md` summarising the triage-gate addition; do NOT bump `plugin.json` version
-- [ ] 4.4 Verify the README needs no update: the `followup` command is already documented and no command was added, removed, or renamed; update only if the followup behavior description has drifted
-- [ ] 4.5 Run `node sync-copilot.mjs` (do NOT hand-edit any file under `copilot/`) to regenerate `copilot/prompts/qrspi-followup.prompt.md` and any other copilot artifacts touched by the new `followup.md` + workflow prose (D12)
-- [ ] 4.6 Run `node scripts/lint.mjs` and confirm all checks including Check 10 report `OK` and exit code is zero
-- [ ] 4.7 Run `node sync-copilot.mjs --check` and confirm zero drift reported
+- [x] 4.1 Update `claude/skills/workflow/SKILL.md`'s "After PR — the fix loop" section to summarize the triage gate and P1/P2/P3 paths (D12)
+- [x] 4.2 Add `async function checkTriagePaths(errors)` to `scripts/lint.mjs` asserting the three choice-label prefixes (`"P1 — implement directly"`, `"P2 — addendum"`, `"P3 — defer"`) exist in `claude/commands/followup.md`; add one `checkTriagePaths(errors)` call in `main()`; update the numbered header-comment to include Check 10 (mirror the Check 8 `checkPrReconciliationPasses` pattern) (D13)
+- [x] 4.3 Add one line under `## [Unreleased]` in `CHANGELOG.md` summarising the triage-gate addition; do NOT bump `plugin.json` version
+- [x] 4.4 Verify the README needs no update: the `followup` command is already documented and no command was added, removed, or renamed; update only if the followup behavior description has drifted
+- [x] 4.5 Run `node sync-copilot.mjs` (do NOT hand-edit any file under `copilot/`) to regenerate `copilot/prompts/qrspi-followup.prompt.md` and any other copilot artifacts touched by the new `followup.md` + workflow prose (D12)
+- [x] 4.6 Run `node scripts/lint.mjs` and confirm all checks including Check 10 report `OK` and exit code is zero
+- [x] 4.7 Run `node sync-copilot.mjs --check` and confirm zero drift reported
 - [ ] 4.8 (human) Checkpoint: from the repo root confirm `node scripts/lint.mjs` exits zero with Check 10 `OK`; confirm `node sync-copilot.mjs --check` exits zero; open `copilot/prompts/qrspi-followup.prompt.md` and confirm it reflects the triage gate prose added in Slices 1–3

@@ -7,13 +7,7 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## In progress
 
-_None._
-
----
-
-## Proposed
-
-### right-size-followup-handling — `proposed (change folder created 2026-07-23)` · **P2**
+### right-size-followup-handling — `in-progress (Q, R, D, S, V, P, I complete)` · **P2**
 
 **Why:** `/qrspi:followup` (the `postpr-fix` skill) has a single hard-coded
 path — delegate to the implementer in FIX MODE for a small, atomic post-PR fix
@@ -36,6 +30,12 @@ triage gate before handing off to the implementer), `claude/skills/postpr-fix/SK
 "After PR — the fix loop" section. Regenerated `copilot/` tree via
 `sync-copilot.mjs`. No data-model, API, or migration changes — pure
 prompt/skill/command edits.
+
+---
+
+## Proposed
+
+_None._
 
 ---
 

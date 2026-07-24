@@ -46,6 +46,10 @@
 //     questions, research, design, structure, slices, plan, implement, pr)
 //     must each contain the inline `qrspi-version-check` skill load line.
 //
+// 10. TRIAGE PATH ANCHORS -- claude/commands/followup.md must contain the
+//     three triage choice-label prefixes (P1/P2/P3) so a future rename cannot
+//     silently drop a path. Mirrors the Check 8 pattern for pr.md.
+//
 //  Exits 0 if all checks pass, 1 if any check reports a violation.
 //  Requires only Node.js built-ins (fs, path) -- no npm dependencies.
 // ============================================================================
@@ -1176,6 +1180,52 @@ async function checkVersionCheckEmbed(errors) {
   return violations;
 }
 
+// ---- Check 10: TRIAGE PATH ANCHORS -----------------------------------------
+//
+// Asserts that claude/commands/followup.md contains the three triage
+// choice-label prefixes introduced by the triage gate (D4). This mirrors
+// Check 8 (checkPrReconciliationPasses), which pins the pr.md reconciliation
+// gate labels: the same mechanical floor is applied here so a future wording
+// change cannot silently drop a triage path.
+//
+// Required anchors (prefix of each AskUserQuestion choice label):
+//   "P1 — implement directly"
+//   "P2 — addendum"
+//   "P3 — defer"
+//
+// Reports a violation if any anchor is absent from the file.
+
+async function checkTriagePaths(errors) {
+  const followupPath = path.join(root, 'claude', 'commands', 'followup.md');
+  const text = await readFileOr(followupPath, null);
+  const rel = 'claude/commands/followup.md';
+
+  if (text === null) {
+    errors.push(`[triage-paths] ${rel}: file not found`);
+    return 1;
+  }
+
+  let violations = 0;
+
+  const triageAnchors = [
+    { label: 'P1 choice label', anchor: 'P1 — implement directly' },
+    { label: 'P2 choice label', anchor: 'P2 — addendum' },
+    { label: 'P3 choice label', anchor: 'P3 — defer' },
+  ];
+
+  for (const { label, anchor } of triageAnchors) {
+    if (!text.includes(anchor)) {
+      errors.push(`[triage-paths] ${rel}: missing triage choice anchor for ${label} (expected to find: "${anchor}")`);
+      violations++;
+    }
+  }
+
+  if (violations === 0) {
+    process.stdout.write(`  OK: all three triage path anchors (P1/P2/P3) present in ${rel}\n`);
+  }
+  return violations;
+}
+
 // ---- main ------------------------------------------------------------------
 
 async function main() {
@@ -1209,6 +1259,9 @@ async function main() {
 
   process.stdout.write('\nCheck 9: Version-check embed\n');
   await checkVersionCheckEmbed(errors);
+
+  process.stdout.write('\nCheck 10: Triage path anchors\n');
+  await checkTriagePaths(errors);
 
   process.stdout.write('\n');
   if (errors.length === 0) {
