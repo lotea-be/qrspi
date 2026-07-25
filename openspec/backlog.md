@@ -7,13 +7,7 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## In progress
 
-_None._
-
----
-
-## Proposed
-
-### kit-surface-dogfooding — `proposed` · **P2**
+### kit-surface-dogfooding — `in-progress (Q, R, D, S, V, P, I complete)` · **P2**
 
 **Why:** Bundle of two co-designed surface-taxonomy ideas, both extending the
 merged `repo-applicable-artifact-sections`. (1) **kit-self-surfaces** — give the
@@ -31,6 +25,12 @@ boundary: the kit lints its OWN artifacts only — pushing enforcement into
 consumer repos stays with [[standardize-recurring-ops-scripts]]. Entered the
 QRSPI flow 2026-07-25 (stage Q). Formerly the separate `idea` rows
 `kit-self-surfaces` and `enforce-artifact-surface-applicability`.
+
+---
+
+## Proposed
+
+_None._
 
 ---
 

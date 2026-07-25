@@ -32,7 +32,7 @@ claude/
 openspec/                    -- OpenSpec workspace (config, changes, backlog)
 openspec-templates/          -- templates for OpenSpec artifacts
 scripts/
-  lint.mjs                   -- CI quality gate (Checks 1-11)
+  lint.mjs                   -- CI quality gate (Checks 1-14)
 migrations/                  -- per-version migration manifests
 CHANGELOG.md                 -- versioned release notes
 ```
@@ -51,7 +51,7 @@ CHANGELOG.md                 -- versioned release notes
 ## Testing
 
 - No unit test framework; correctness is verified by the lint script
-- Run: `node scripts/lint.mjs` (Checks 1-11; exits 0 on pass, 1 on failure)
+- Run: `node scripts/lint.mjs` (Checks 1-14; exits 0 on pass, 1 on failure)
 - No watch mode; run once per slice to gate a commit
 
 ## Build, lint & test commands

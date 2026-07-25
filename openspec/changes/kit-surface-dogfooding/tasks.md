@@ -37,11 +37,11 @@
 
 **Compute:** model=sonnet effort=high — first-of-kind lint gate with block parser, path filter, fence tracker, hardcoded heading map, and inline self-test; non-trivial logic relative to prior checks but still templated Node/ESM; sonnet is sufficient given the established Check 11 fence-tracking pattern to mirror
 
-- [ ] 4.1 Implement `checkSurfaceApplicability` in `scripts/lint.mjs`: block parser for the `## Repo surface` block from `qrspi-stack`, absent-surface set computation via hardcoded `SURFACE_GATED_HEADINGS` map, `walkMd` scan with `/archive/` path filter, fence-aware line scanner, and `[surface-applicability]` error push (D6, D7, D8, OQ2)
-- [ ] 4.2 Add the inline in-memory self-test within `checkSurfaceApplicability` (a synthetic fixture with a known absent-surface heading that asserts the detector fires) (D6, D8)
-- [ ] 4.3 Register `checkSurfaceApplicability` as Check 14 after Check 13, and update the scripts header comment to list checks 1-14 (D6)
-- [ ] 4.4 Add surface taxonomy section and Check 14 documentation to `README.md`; run `/qrspi-readme-audit` to catch any remaining drift (D9)
-- [ ] 4.5 Run `node scripts/lint.mjs` and confirm it exits 0 with Check 14 reporting OK and the inline self-test not pushing an error
+- [x] 4.1 Implement `checkSurfaceApplicability` in `scripts/lint.mjs`: block parser for the `## Repo surface` block from `qrspi-stack`, absent-surface set computation via hardcoded `SURFACE_GATED_HEADINGS` map, `walkMd` scan with `/archive/` path filter, fence-aware line scanner, and `[surface-applicability]` error push (D6, D7, D8, OQ2)
+- [x] 4.2 Add the inline in-memory self-test within `checkSurfaceApplicability` (a synthetic fixture with a known absent-surface heading that asserts the detector fires) (D6, D8)
+- [x] 4.3 Register `checkSurfaceApplicability` as Check 14 after Check 13, and update the scripts header comment to list checks 1-14 (D6)
+- [x] 4.4 Add surface taxonomy section and Check 14 documentation to `README.md`; run `/qrspi-readme-audit` to catch any remaining drift (D9)
+- [x] 4.5 Run `node scripts/lint.mjs` and confirm it exits 0 with Check 14 reporting OK and the inline self-test not pushing an error
 - [ ] 4.6 (human) Plant `## Data model` as a bare heading in a scratch file under `openspec/changes/kit-surface-dogfooding/` (a non-archive path), run `node scripts/lint.mjs`, confirm Check 14 reports a `[surface-applicability]` error naming the file, line, heading, and `data-store` surface, and exits non-zero; delete the scratch file, rerun, confirm exit 0
 - [ ] 4.7 (human) Temporarily remove the `## Repo surface` heading from `.claude/skills/qrspi-stack/SKILL.md`, run `node scripts/lint.mjs`, confirm Check 14 fails loudly (not silently); revert
-- [ ] 4.8 Checkpoint: `node scripts/lint.mjs` exits 0 and reports `Check 14: OK`; inline self-test clean; both human plant tests passed and reverted; `README.md` documents surface taxonomy and Check 14
+- [x] 4.8 Checkpoint: `node scripts/lint.mjs` exits 0 and reports `Check 14: OK`; inline self-test clean; both human plant tests passed and reverted; `README.md` documents surface taxonomy and Check 14
