@@ -79,6 +79,12 @@ exception (see workflow skill Read Matrix).
      *edit/delete* it — rather than bundling them into one
      multiple-choice. Always include the explicit "admin-only for every
      action" extreme as an option.
+   - `slash-command` surface: Slash-command surface
+   - `stage-agent` surface: Stage-agent surface
+   - `skill` surface: Skill surface
+   - `lint-gate` surface: Lint-gate surface
+   - `template` surface: Template surface
+   - `migration-manifest` surface: Migration manifest
    Split, rename, or add sections when the change's shape demands it —
    for example, a change touching list and detail UI should split "UI"
    into "UI — list page" and "UI — detail page" rather than cramming
@@ -137,10 +143,16 @@ open archived questions from another change):
      (no heading, no "Not applicable"). Surface-independent sections
      (Testing, Sequencing & scope, Open product questions) always appear.
 
-     data-store -> ## Data model, ## Indexing & query performance, ## Migrations & data
-     http-api   -> ## API
-     ui         -> ## UI, ## Front-end state
-     auth       -> ## Auth & authorization
+     data-store        -> ## Data model, ## Indexing & query performance, ## Migrations & data
+     http-api          -> ## API
+     ui                -> ## UI, ## Front-end state
+     auth              -> ## Auth & authorization
+     slash-command     -> ## Slash-command surface
+     stage-agent       -> ## Stage-agent surface
+     skill             -> ## Skill surface
+     lint-gate         -> ## Lint-gate surface
+     template          -> ## Template surface
+     migration-manifest -> ## Migration manifest
 -->
 
 ## Testing

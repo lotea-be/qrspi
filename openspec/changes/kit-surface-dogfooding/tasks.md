@@ -6,13 +6,13 @@
 
 **Compute:** model=sonnet effort=medium — extends an existing mapping table and two skeleton files; the self-collision caveat for `## Template surface` (a present heading that is also a denylist entry) requires careful conditional phrasing but is otherwise mechanical Markdown authoring
 
-- [ ] 1.1 Add six surface rows (`slash-command`, `stage-agent`, `skill`, `lint-gate`, `template`, `migration-manifest`) to the section-to-surface mapping table in `claude/skills/repo-surface/SKILL.md`, and append the `## Extending the taxonomy` checklist (D1, D3)
-- [ ] 1.2 Add gated section placeholders (as conditional gate comments, not literal headings) for the six new surfaces to `claude/agents/questioner.md` (D3)
-- [ ] 1.3 Add matching gated section placeholders to `claude/agents/designer.md` (D3)
-- [ ] 1.4 Add matching gated section placeholders to `openspec-templates/questions.template.md` and `openspec-templates/design.template.md` (D3, OQ3)
-- [ ] 1.5 Run `node scripts/lint.mjs` and confirm it exits 0 (Check 11 must not flag the newly added skeleton gate comments as literal headings)
+- [x] 1.1 Add six surface rows (`slash-command`, `stage-agent`, `skill`, `lint-gate`, `template`, `migration-manifest`) to the section-to-surface mapping table in `claude/skills/repo-surface/SKILL.md`, and append the `## Extending the taxonomy` checklist (D1, D3)
+- [x] 1.2 Add gated section placeholders (as conditional gate comments, not literal headings) for the six new surfaces to `claude/agents/questioner.md` (D3)
+- [x] 1.3 Add matching gated section placeholders to `claude/agents/designer.md` (D3)
+- [x] 1.4 Add matching gated section placeholders to `openspec-templates/questions.template.md` and `openspec-templates/design.template.md` (D3, OQ3)
+- [x] 1.5 Run `node scripts/lint.mjs` and confirm it exits 0 (Check 11 must not flag the newly added skeleton gate comments as literal headings)
 - [ ] 1.6 (human) Optionally launch `claude --plugin-dir /workspaces/git/qrspi` and run `/qrspi:questions` on a toy kit change touching a `skill` surface — verify the questioner does NOT yet emit `## Skill surface` (the surface is not declared present until slice 2)
-- [ ] 1.7 Checkpoint: read `claude/skills/repo-surface/SKILL.md` and confirm all six new surface rows appear with their gated section names listed, the `## Extending the taxonomy` section is present, and `node scripts/lint.mjs` exits 0
+- [x] 1.7 Checkpoint: read `claude/skills/repo-surface/SKILL.md` and confirm all six new surface rows appear with their gated section names listed, the `## Extending the taxonomy` section is present, and `node scripts/lint.mjs` exits 0
 
 ## 2. Declare kit present surfaces
 

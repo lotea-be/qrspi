@@ -141,10 +141,16 @@ Examples:
      mapping. Omit the heading entirely when the surface is absent (no heading,
      no body, no "Not applicable" stanza).
 
-     data-store -> ## Data model changes
-     http-api   -> ## API surface
-     ui         -> ## UI surface
-     auth       -> ## Authorization
+     data-store        -> ## Data model changes
+     http-api          -> ## API surface
+     ui                -> ## UI surface
+     auth              -> ## Authorization
+     slash-command     -> ## Command changes
+     stage-agent       -> ## Agent changes
+     skill             -> ## Skill changes
+     lint-gate         -> ## Lint changes
+     template          -> ## Template surface
+     migration-manifest -> ## Migration manifest
 -->
 
 ## Vertical slices (preview)

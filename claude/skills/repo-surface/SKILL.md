@@ -11,14 +11,14 @@ before writing a single section heading.
 
 ## Surface taxonomy (closed vocabulary)
 
-There are exactly five named surfaces today. The vocabulary is closed **by
+There are exactly eleven named surfaces today. The vocabulary is closed **by
 construction, not by arbitrary choice**: a surface exists only to gate a cluster
 of the surface-gated *sections* the QRSPI agents actually emit (see the
 section-to-surface mapping below). The agents emit a fixed set of sections, so the
 surfaces that gate them are a correspondingly fixed set. A surface name that gates
 no emitted section would filter nothing -- it would be inert.
 
-**To extend the taxonomy** (add a sixth surface), you must add it here **together
+**To extend the taxonomy** (add a new surface), you must add it here **together
 with** the section(s) it gates: add the row to the mapping below AND add the
 matching section(s) to the relevant agent skeleton(s)/template(s). Adding a surface
 alone, with no gated section, has no effect. This is why the list is short and
@@ -31,6 +31,12 @@ maintained in one place -- it mirrors the emitted sections one-to-one.
 | `ui` | The repo ships a user interface (web, native, TUI, or similar) |
 | `auth` | The repo has authentication, authorization, sessions, or identity management |
 | `typed-nullable` | The repo uses a typed language where nullable-suppression operators (`!`, `?.`, `??`, etc.) can mask null-safety violations |
+| `slash-command` | The repo ships Claude Code slash commands (claude/commands/*.md) |
+| `stage-agent` | The repo ships QRSPI stage subagents (claude/agents/*.md) |
+| `skill` | The repo ships kit skills (claude/skills/*/) or project-scoped skills (.claude/skills/*/) |
+| `lint-gate` | The repo has a lint/CI gate script that enforces structural invariants |
+| `template` | The repo ships OpenSpec artifact templates (openspec-templates/*.template.md) |
+| `migration-manifest` | The repo ships per-version migration manifests (migrations/*.yaml) |
 
 ## Section-to-surface mapping
 
@@ -70,6 +76,36 @@ surface is absent.
 ### `typed-nullable` gates
 
 - Checklist item "No nullable suppression" (in PR checklists)
+
+### `slash-command` gates
+
+- Section `## Slash-command surface` (in questions.md)
+- Section `## Command changes` (in design.md)
+
+### `stage-agent` gates
+
+- Section `## Stage-agent surface` (in questions.md)
+- Section `## Agent changes` (in design.md)
+
+### `skill` gates
+
+- Section `## Skill surface` (in questions.md)
+- Section `## Skill changes` (in design.md)
+
+### `lint-gate` gates
+
+- Section `## Lint-gate surface` (in questions.md)
+- Section `## Lint changes` (in design.md)
+
+### `template` gates
+
+- Section `## Template surface` (in questions.md)
+- Section `## Template surface` (in design.md)
+
+### `migration-manifest` gates
+
+- Section `## Migration manifest` (in questions.md)
+- Section `## Migration manifest` (in design.md)
 
 ## Omit mechanic
 
@@ -177,3 +213,41 @@ regardless of what the cheatsheet reports:
 
 These sections describe the change itself and are meaningful for every repo,
 regardless of stack.
+
+## Extending the taxonomy
+
+To add a new surface to the taxonomy, update all of the following sites in the
+same change (touching any one without the others leaves the taxonomy inconsistent):
+
+- [ ] **This mapping row** -- add a `### <surface> gates` subsection here listing
+  the section name(s) it controls, and add the new surface row to the taxonomy
+  table above.
+- [ ] **Agent skeleton gate comment** -- add a conditional gate comment (NOT a
+  literal heading line) in the `<!-- Surface-gated sections -->` block of each
+  relevant agent file (`claude/agents/questioner.md`, `claude/agents/designer.md`).
+  Use the same `<!-- SURFACE-GATED: <surface> surface. -->` comment format the
+  existing entries use. Never add a bare `## <heading>` line inside a fenced
+  block -- that would trip Check 11 (`SURFACE_GATED_DENYLIST_HEADINGS`).
+- [ ] **Template gate comment** -- add the matching gate comment to
+  `openspec-templates/questions.template.md` and
+  `openspec-templates/design.template.md` in the same style.
+- [ ] **Check 11 denylist entry** (`SURFACE_GATED_DENYLIST_HEADINGS` in
+  `scripts/lint.mjs`) -- add each new gated heading string so the fence-scan
+  guard rejects accidental literal heading lines in agent skeletons. This array
+  is the mechanical enforcement floor that keeps the gate comments honest.
+- [ ] **Check 14 heading map** (`SURFACE_GATED_HEADINGS` in `scripts/lint.mjs`)
+  -- add the `<heading> -> <surface>` mapping entry so Check 14 can flag
+  surface-inapplicable headings in artifact files.
+- [ ] **`qrspi-stack` `## Repo surface` block** (`.claude/skills/qrspi-stack/SKILL.md`)
+  -- if the new surface applies to this repo, add it to the bullet list there.
+  If not, no edit is needed (absent surfaces are implied by omission).
+
+**`## Template surface` self-collision caveat:** `## Template surface` is both a
+present section heading (it appears inside a fenced skeleton in the questioner and
+designer) AND a Check 11 denylist entry (surface-gated headings must not appear as
+literal lines inside fences). These two constraints do not conflict in practice --
+the gate comment is the only thing written inside the fence, never the literal
+`## Template surface` heading line. When adding skeleton content for the `template`
+surface, express it only as a gate comment (e.g. `<!-- SURFACE-GATED: template
+surface. Omit ... -->`), never as a bare `## Template surface` heading inside a
+fenced block.
