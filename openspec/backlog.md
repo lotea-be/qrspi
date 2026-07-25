@@ -7,7 +7,7 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## In progress
 
-### kit-surface-dogfooding — `in-progress (Q, R, D, S, V, P, I complete)` · **P2**
+### kit-surface-dogfooding — `in-progress (draft PR #33 open)` · **P2**
 
 **Why:** Bundle of two co-designed surface-taxonomy ideas, both extending the
 merged `repo-applicable-artifact-sections`. (1) **kit-self-surfaces** — give the
