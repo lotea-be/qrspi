@@ -14,7 +14,7 @@ complete — awaiting PR. **Scope corrected at stage D:** only **model** is
 enforceable per-slice; **effort** is a per-stage agent-frontmatter knob (no
 per-invocation param); **thinking** is dropped (no per-subagent control exists).
 
-### simplify-per-slice-model-selection — `in-progress (Q, R, D, S, V, P, I complete; bundled into per-slice-compute-knobs)` · **P2**
+### simplify-per-slice-model-selection — `in-progress (PR #32 open; bundled into per-slice-compute-knobs)` · **P2**
 
 **Why:** Per-slice model intent is endorsed by the source, but the mechanism (the
 architect writes a markdown `**Model:**` annotation; the implementer self-halts and
@@ -26,7 +26,7 @@ token/cost lever, now salient with burn climbing — and it's the mechanism
 **Bundled into `per-slice-compute-knobs`** — co-designed with
 [[configurable-effort-and-thinking]] as one unified compute-declaration mechanism.
 
-### configurable-effort-and-thinking — `in-progress (Q, R, D, S, V, P, I complete; bundled into per-slice-compute-knobs)` · **P2**
+### configurable-effort-and-thinking — `in-progress (PR #32 open; bundled into per-slice-compute-knobs)` · **P2**
 
 **Why:** A change can already set a per-slice **model** (the architect writes a
 `**Model:**` annotation the implementer honors), but reasoning **effort** and
