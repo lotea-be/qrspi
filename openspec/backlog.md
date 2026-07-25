@@ -427,6 +427,23 @@ the loop wording lives there. Surfaced
 whose change embeds many `(human)` live-session checks that made the missing
 exit obvious.
 
+### richer-askuserquestion-formats — `idea` · **P3**
+
+**Why:** Every QRSPI gate uses `AskUserQuestion` in its plainest single-select,
+text-only form, but the tool also supports `multiSelect` (pick N of M) and
+`preview` (side-by-side rendered markdown/mockups per option). Several gates map
+naturally onto these: the surface-subset / present-set style "which of these N?"
+questions and the **backlog-capture offers** in Q/D/S (today an *offer-per-item*
+loop) are textbook `multiSelect`; section-name choices and design decisions with
+competing concrete shapes (a heading layout, a code snippet, a table form) are
+where `preview` adds real signal over prose. Needs its own Q/R/D: `multiSelect`
+**removes** the deliberate one-at-a-time cadence that the "offer, never
+auto-append" backlog rule and the per-decision D review rely on, so it is not a
+blanket swap — the work is identifying which gates genuinely benefit, then
+updating the `workflow` skill choreography and the command bodies that prescribe
+those prompts. Relates to [[pr-human-task-loop-stop-option]] (both refine
+AskUserQuestion gate ergonomics). Surfaced 2026-07-25.
+
 ### pr-md-tracks-superseding-pr — `idea` · **P3**
 
 **Why:** When a change's PR is closed unmerged and a *new* PR is later opened for
