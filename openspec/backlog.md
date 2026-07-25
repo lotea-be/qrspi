@@ -320,6 +320,30 @@ consumer repo types, and it's ready to pick up as `repo-applicable-artifact-sect
 lands (whose taxonomy it extends). Split out from [[extend-surface-taxonomy]]
 2026-07-24; surfaced during that change's stage-I dogfooding.
 
+### automate-marketplace-source-bump — `idea` · **P2**
+
+**Why:** Cutting a release (`/qrspi-release`) publishes the GitHub Release but
+stops there — the release does not reach installed users until the qrspi entry's
+`source` ref is bumped to `vX.Y.Z` in the **separate**
+`lotea-be/ai-agent-marketplace` repo, done by hand (the release skill can only
+print the reminder). That manual, forgettable step gates every release's actual
+delivery to consumers. Automate it from
+[`release.yml`](../../.github/workflows/release.yml) after the Publish step.
+The blocker is auth: the workflow's `github.token` is scoped to *this* repo and
+cannot write to the marketplace. Preferred shape: a `repository_dispatch` firing
+a `qrspi-release` event carrying the version, handled by a workflow **in** the
+marketplace repo that opens a PR bumping its own pin — keeps qrspi ignorant of
+the marketplace manifest format and puts the write + token where they belong.
+Alternative: a fine-grained PAT / GitHub App installation token letting
+`release.yml` edit + PR the marketplace directly. Hard constraints: open a
+**PR, not a push** (the pin is every consumer's install source — no unreviewed
+auto-ship), and run as an **isolated job** (`continue-on-error`) so a bump
+failure can't red an already-published, irreversible-ish release. Needs the
+marketplace manifest's exact shape confirmed first (which file; `source: …@vX`
+vs a `ref:`/`version:` key). Pairs with [[qrspi-release-auto-stub-manifest]]
+(the other release-time automation idea) and relates to
+[[assert-openspec-version-pin-coupling]]. Surfaced 2026-07-25.
+
 ### structured-surface-schema — `idea` · **P3**
 
 **Why:** [[repo-applicable-artifact-sections]] deliberately reads a repo's tech
