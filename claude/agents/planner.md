@@ -62,7 +62,7 @@ See `vertical-slice` skill "When the Mock-API step is optional".
 
 ## 1. <slice name>
 
-**Model:** sonnet|opus — <rationale carried verbatim from slices.md>
+**Compute:** model=<alias> effort=<low|medium|high> — <rationale carried verbatim from slices.md>
 
 <!-- Surface-gated task lines: include or omit each category below based on
      which surfaces are present for this repo, per the repo-surface skill mapping.
@@ -91,11 +91,13 @@ Each task must be:
 - **Specific**: name the file or symbol when possible.
 - **Verifiable**: it is obvious when it is done.
 
-**Carry the `**Model:**` annotation from each `slices.md` slice
-into the matching tasks.md slice header verbatim.** Do NOT re-derive
-the model choice — the architect made it during Slices (V). If a slices
-entry is missing the annotation, stop and tell the user the slices file
-needs to be fixed before the plan can be written.
+**Carry the `**Compute:**` annotation from each `slices.md` slice
+into the matching tasks.md slice header verbatim**, converting it from the
+dash-bullet form (`- **Compute:** model=…`) to the bare bold paragraph form
+(`**Compute:** model=…`). Do NOT re-derive the model choice — the architect
+made it during Slices (V). If a slices entry is missing the annotation, stop
+and tell the user the slices file needs to be fixed before the plan can be
+written.
 
 **Design-decision back-references.** The architect embeds `(D<n>)` tags in
 each slice bullet in `slices.md` to record which design decision the slice
@@ -113,8 +115,8 @@ or migration generation tasks that the design decisions don't enumerate).
 - No code edits. You are read-only on code.
 - No new design decisions. If a slices entry is ambiguous, list the
   ambiguity under "Open questions" at the top of `tasks.md` and stop.
-- No re-deriving the `**Model:**` annotation. Carry it forward
-  unchanged from `slices.md`.
+- No re-deriving the `**Compute:**` annotation. Carry it forward
+  unchanged from `slices.md` (converting dash-bullet to bare bold form).
 - Do not open `design.md`, `proposal.md`, `specs/`, `questions.md`, or
   `research.md`. Your sole change-folder input is `slices.md`.
 

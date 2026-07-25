@@ -6,11 +6,11 @@
 
 **Model:** sonnet — mechanical text substitution across four files; no novel reasoning; every change is a targeted find-and-replace of a known string.
 
-- [ ] 1.1 Rewrite the `slices.md` skeleton in `claude/agents/architect.md` — replace `**Model:** sonnet|opus — <rationale>` with `**Compute:** model=<alias> effort=<low|medium|high> — <rationale>` (D1, D2, D3)
-- [ ] 1.2 Update the "Per-slice model selection" heading and all example lines in `claude/skills/vertical-slice/SKILL.md` to use `**Compute:**`; add a note documenting both structural forms (dash-bullet in `slices.md`, bare bold in `tasks.md`) (D1, D2, D3)
-- [ ] 1.3 Update the carry-forward rule in `claude/agents/planner.md` (or `claude/commands/plan.md`) so it names `**Compute:**` rather than `**Model:**` and preserves it verbatim into `tasks.md` (D1, D3)
-- [ ] 1.4 Rewrite `openspec-templates/tasks.template.md` — replace the `**Model:**` placeholder line with `**Compute:** model=<alias> effort=<low|medium|high> — <rationale>` in the bare bold form (D1, D3)
-- [ ] 1.5 Run `node scripts/lint.mjs` (green)
+- [x] 1.1 Rewrite the `slices.md` skeleton in `claude/agents/architect.md` — replace `**Model:** sonnet|opus — <rationale>` with `**Compute:** model=<alias> effort=<low|medium|high> — <rationale>` (D1, D2, D3)
+- [x] 1.2 Update the "Per-slice model selection" heading and all example lines in `claude/skills/vertical-slice/SKILL.md` to use `**Compute:**`; add a note documenting both structural forms (dash-bullet in `slices.md`, bare bold in `tasks.md`) (D1, D2, D3)
+- [x] 1.3 Update the carry-forward rule in `claude/agents/planner.md` (or `claude/commands/plan.md`) so it names `**Compute:**` rather than `**Model:**` and preserves it verbatim into `tasks.md` (D1, D3)
+- [x] 1.4 Rewrite `openspec-templates/tasks.template.md` — replace the `**Model:**` placeholder line with `**Compute:** model=<alias> effort=<low|medium|high> — <rationale>` in the bare bold form (D1, D3)
+- [x] 1.5 Run `node scripts/lint.mjs` (green)
 - [ ] 1.6 (human) In a `claude --plugin-dir /workspaces/git/qrspi` session, open `claude/agents/architect.md`, `claude/skills/vertical-slice/SKILL.md`, and `openspec-templates/tasks.template.md` — confirm every occurrence of `**Model:**` is gone and `**Compute:**` appears in the correct position with the `model=` and `effort=` token names.
 
 ## 2. Lint Check 13 + frontmatter effort

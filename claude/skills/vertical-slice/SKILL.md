@@ -85,16 +85,40 @@ Slice 3 — Read path: question detail
   D: EF Core query joining Question + User
   T: xUnit GetByIdAsync() not-found, Playwright happy path```
 
-## Per-slice model selection
+## Per-slice compute selection
 
-Each slice in `slices.md` MUST carry a one-line
-`**Model:** sonnet|opus` annotation under its header, plus a short
-rationale. The architect (Slices stage) writes it. The planner (P stage)
-carries it forward into `tasks.md` unchanged. The `/qrspi:implement`
-command reads the next un-ticked slice's annotation and runs the
-implementer subagent on that model.
+Each slice in `slices.md` MUST carry a one-line `**Compute:**` annotation
+under its header, plus a short rationale. The architect (Slices stage) writes
+it. The planner (P stage) carries it forward into `tasks.md` unchanged. The
+`/qrspi:implement` command reads the next un-ticked slice's annotation and
+runs the implementer subagent on the specified model.
 
-Choose `sonnet` when the slice is structured and templated:
+### Annotation grammar
+
+The `**Compute:**` annotation uses `key=value` tokens:
+
+- `model=` **required.** Allowed values: `sonnet`, `opus` (no `haiku`).
+- `effort=` optional. Allowed values: `low`, `medium`, `high`. Documents
+  per-stage intent honored via the implementer agent's frontmatter `effort:`
+  key; it is not a per-invocation parameter.
+
+Example: `**Compute:** model=sonnet effort=medium — boilerplate entity`
+
+### Structural forms
+
+The annotation appears in two forms depending on the file:
+
+- **`slices.md` form** — a dash-bullet line inside the slice:
+  `- **Compute:** model=<alias> effort=<low|medium|high> — <rationale>`
+- **`tasks.md` form** — a bare bold paragraph line under the slice heading:
+  `**Compute:** model=<alias> effort=<low|medium|high> — <rationale>`
+
+The architect writes the dash-bullet form in `slices.md`. The planner carries
+it forward as the bare bold form in `tasks.md` (stripping the leading `- `).
+
+### Choosing model=sonnet vs model=opus
+
+Choose `model=sonnet` when the slice is structured and templated:
 
 - A new data-model entity + configuration + migration that mirrors an
   existing one in the codebase.
@@ -104,7 +128,7 @@ Choose `sonnet` when the slice is structured and templated:
 - Wiring dependency-injection registrations.
 - Renames, moves, and mechanical refactors.
 
-Choose `opus` when deep reasoning materially changes the output:
+Choose `model=opus` when deep reasoning materially changes the output:
 
 - First-of-kind patterns (the first real-time hub, the first complex
   state-effect chain, the first feature with cross-entity FK + cascade
@@ -118,7 +142,7 @@ Choose `opus` when deep reasoning materially changes the output:
 - UI components with substantive interaction complexity (focus
   management, keyboard navigation in custom widgets, dynamic state).
 
-When in doubt, prefer `sonnet`. The implementer can escalate to opus
+When in doubt, prefer `model=sonnet`. The implementer can escalate to opus
 mid-slice by re-invoking `/qrspi:implement <id>` with an override; the
 reverse direction (recovering from a flubbed opus run) costs the same
 plus the wasted call.
