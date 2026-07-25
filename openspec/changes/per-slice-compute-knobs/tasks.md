@@ -30,11 +30,11 @@
 
 **Model:** opus — threading model across eight command files (seven non-implement + implement) requires reasoning about each file's Agent-call structure and ensuring the annotation-parsing logic in `implement.md` is correct; the self-halt removal needs careful verification that no other gate is accidentally dropped.
 
-- [ ] 3.1 Update `claude/commands/questions.md`, `research.md`, `design.md`, `structure.md`, `slices.md`, `plan.md`, and `pr.md` — each Agent call targeting a QRSPI stage subagent gains an explicit `model:` parameter sourced from that agent's frontmatter `model:` value (D4, D5)
-- [ ] 3.2 Update `claude/commands/implement.md` — parse the `model=` token from the next un-ticked `**Compute:**` line in `tasks.md` and pass it as the per-invocation `model` parameter on the Agent call (D4, D5)
-- [ ] 3.3 Remove the self-halt instruction from `claude/agents/implementer.md`; the orchestrator spawn-time `model:` parameter is the sole gate (D4, D5)
-- [ ] 3.4 Add a prose note in `claude/commands/implement.md` that `effort=` documents per-stage intent and is honored via the implementer agent's frontmatter `effort:`, not a per-invocation parameter (D4)
-- [ ] 3.5 Run `node scripts/lint.mjs` (green)
+- [x] 3.1 Update `claude/commands/questions.md`, `research.md`, `design.md`, `structure.md`, `slices.md`, `plan.md`, and `pr.md` — each Agent call targeting a QRSPI stage subagent gains an explicit `model:` parameter sourced from that agent's frontmatter `model:` value (D4, D5)
+- [x] 3.2 Update `claude/commands/implement.md` — parse the `model=` token from the next un-ticked `**Compute:**` line in `tasks.md` and pass it as the per-invocation `model` parameter on the Agent call (D4, D5)
+- [x] 3.3 Remove the self-halt instruction from `claude/agents/implementer.md`; the orchestrator spawn-time `model:` parameter is the sole gate (D4, D5)
+- [x] 3.4 Add a prose note in `claude/commands/implement.md` that `effort=` documents per-stage intent and is honored via the implementer agent's frontmatter `effort:`, not a per-invocation parameter (D4)
+- [x] 3.5 Run `node scripts/lint.mjs` (green)
 - [ ] 3.6 (human) In a `claude --plugin-dir /workspaces/git/qrspi` session, inspect the source of each stage command file — confirm the Agent call in each contains an explicit `model:` parameter and that `claude/agents/implementer.md` no longer contains the self-halt text.
 
 ## 4. FIX MODE inline spec + prose/wiring fix

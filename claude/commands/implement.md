@@ -27,15 +27,24 @@ before any edits.
 **Pick the implementer's model from the next un-ticked slice.** Read
 `openspec/changes/$ARGUMENTS/tasks.md` and locate the first slice header
 (`## N. ...`) whose tasks are not all ticked. The line directly
-under that header reads `**Model:** sonnet|opus — <rationale>`. That
-annotation is the architect's call; honor it. Invoke the implementer
-subagent via the Agent tool with `model: <annotated>` so the subagent
-runs on the right model for this slice's complexity.
+under that header reads `**Compute:** model=<alias> effort=<low|medium|high> — <rationale>`.
+Parse the `model=` token from that `**Compute:**` line — that alias is the
+architect's per-slice call; honor it. Invoke the implementer subagent via
+the Agent tool with `model: <parsed alias>` so the subagent runs on the
+right model for this slice's complexity.
 
-If a slice is missing the annotation, stop and tell the user the
-slices/tasks file needs to be fixed (the architect at stage V (Slices) is
-required to write it). Do not silently default — silent defaults
-hide planning gaps.
+`effort=` on that same `**Compute:**` line documents the per-stage compute
+intent, but it is **not** passed as a per-invocation parameter — the Task
+tool has no per-invocation effort param. Effort is honored via the
+implementer agent's frontmatter `effort:` (a per-stage knob, the same for
+every implement slice); the per-slice `effort=` token records intent and
+should match that frontmatter. Do not attempt to thread `effort` on the
+Agent call. Thinking is not shipped (no per-subagent thinking control).
+
+If a slice is missing the `**Compute:**` line or its `model=` token, stop
+and tell the user the slices/tasks file needs to be fixed (the architect at
+stage V (Slices) is required to write it). Do not silently default — silent
+defaults hide planning gaps.
 
 The implementer will:
 
@@ -82,10 +91,13 @@ skill `workflow`).** After the implementer subagent returns for Slice N:
      git commit -m "feat(<id>): implement slice N — <slice title>"
      git push
      ```
-3. Read the next un-ticked slice's `**Model:**` annotation from `tasks.md`.
-   Honor it: invoke the implementer subagent via the Agent tool with
-   `model: <annotated>` for the next slice. Auto mode does NOT bypass
-   per-slice model selection -- the annotation is the architect's call.
+3. Read the next un-ticked slice's `**Compute:**` line from `tasks.md` and
+   parse its `model=` token. Honor it: invoke the implementer subagent via
+   the Agent tool with `model: <parsed alias>` for the next slice. Auto mode
+   does NOT bypass per-slice model selection -- the annotation is the
+   architect's call. (`effort=` is honored via the implementer's frontmatter
+   `effort:`, not a per-invocation parameter -- see the model-selection note
+   above.)
 4. Repeat until all slices are done.
 5. After the final slice is committed, proceed to the next-stage handoff
    (PR stage) per the "Next-stage handoff" in skill `workflow`.
@@ -146,7 +158,7 @@ the design artifacts. Handle it like this:
    *Out of Scope* list; add the requirement + scenarios that describe it).
 2. **Load skill `vertical-slice` plus the project's stack-cheatsheet skill (if any)**, then add a new
    vertical group `## N.` to `tasks.md` **and** a matching slice to
-   `slices.md`, each carrying a `**Model:**` annotation. Loading the
+   `slices.md`, each carrying a `**Compute:**` annotation. Loading the
    convention skills is what the architect (W) and planner (P) normally do
    before writing task specs — do not skip it, or the new slice will
    contradict documented conventions (e.g. the project's chosen component

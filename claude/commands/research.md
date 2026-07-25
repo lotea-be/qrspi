@@ -35,7 +35,8 @@ without the ticket on purpose. From `$ARGUMENTS`, extract only:
    should do.
 
 Then spawn the `researcher` subagent via the **Agent tool**
-(`subagent_type: qrspi:researcher`) with only those two inputs — the
+(`subagent_type: qrspi:researcher`, `model: sonnet` — matching the
+researcher agent's frontmatter `model:`) with only those two inputs — the
 change id and the areas of interest. Tell it to produce
 `openspec/changes/<id>/research.md` and return the file path plus a
 5-bullet summary. The orchestrator (this main-loop context) does not

@@ -9,10 +9,11 @@ effort: high
 You are the QRSPI **Implement** stage for the current project.
 
 > **Recommended model: opus by default, with per-slice override.** Each
-> slice header in `tasks.md` carries a `**Model:** sonnet|opus`
-> annotation that the architect set during W. `/qrspi:implement` reads
-> the next un-ticked slice's annotation and runs me on the matching
-> model — opus for high-leverage slices, sonnet for templated ones.
+> slice header in `tasks.md` carries a `**Compute:** model=sonnet|opus …`
+> annotation that the architect set during W. `/qrspi:implement` parses
+> the next un-ticked slice's `model=` token and spawns me on that model —
+> opus for high-leverage slices, sonnet for templated ones. That spawn-time
+> `model:` parameter is the sole gate; I do not self-check the running model.
 > If invoked without an override, default to opus for safety.
 
 > **Read contract** — Reads: tasks.md. Never opens: design.md, slices.md, proposal.md, specs/, questions.md, research.md; no other change's process artifacts (spec.md excepted — see workflow skill Read Matrix).
@@ -39,17 +40,7 @@ followups.md), whether in-flight or archived — spec.md is the sole exception
 1. Load skills `workflow`, `vertical-slice`, `context-hygiene`, plus the
    project's stack-cheatsheet skill if it defines one.
 2. Read `openspec/changes/<id>/tasks.md`.
-3. **Check the current slice's `**Model:**` annotation.** Locate the next
-   un-ticked slice in tasks.md. The slice header carries a line of the
-   form `**Model:** sonnet|opus — <rationale>`. If you are not running
-   on the annotated model, stop and tell the orchestrator (or the human)
-   that this slice was scoped for `<annotated>` and either:
-   - re-invoke `/qrspi:implement <id>` so the slash command can pick
-     the right model, or
-   - confirm with the human that overriding the annotation is intentional
-     (e.g. a slice flagged for sonnet turned out to need opus reasoning).
-   Do not silently proceed on the wrong model.
-4. **Implement exactly one slice at a time**, in order:
+3. **Implement exactly one slice at a time**, in order:
    a. For each task in the slice, do the work and, once you have confirmed that task's output is correct, tick its box **immediately** — before you start the next task — so progress is visible live and `tasks.md` stays durable if the slice is interrupted. Persist each tick as its own edit; do not batch ticks to the end of the slice. Ticking is immediate; committing and the human checkpoint stay at slice granularity.
    b. Run the slice's tests locally (the project's test command — see its
       stack-cheatsheet skill) and fix until green.
@@ -62,7 +53,7 @@ followups.md), whether in-flight or archived — spec.md is the sole exception
    d. Stop at the slice checkpoint. Print a status message describing
       what to verify and wait for human go-ahead before starting the
       next slice.
-5. Never start slice N+1 before slice N's checkpoint is acknowledged.
+4. Never start slice N+1 before slice N's checkpoint is acknowledged.
 
 ## Coding rules
 
@@ -144,7 +135,7 @@ fix mode below has its own contract.)
 ## Fix mode (post-PR) — invoked by `/qrspi:followup`
 
 When the task says you are in **POST-PR FIX MODE**, the slice machinery
-above does not apply. There is no slice to pick up, no `**Model:**`
+above does not apply. There is no slice to pick up, no `**Compute:**`
 annotation to honor, no per-slice checkpoint, and the `tasks.md`
 precondition is waived (the PR is already open). Instead:
 
