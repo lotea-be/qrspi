@@ -13,7 +13,24 @@ _None._
 
 ## Proposed
 
-_None._
+### kit-surface-dogfooding — `proposed` · **P2**
+
+**Why:** Bundle of two co-designed surface-taxonomy ideas, both extending the
+merged `repo-applicable-artifact-sections`. (1) **kit-self-surfaces** — give the
+kit its own surface taxonomy (`slash-command`, `stage-agent`, `skill`,
+`template`, `lint-gate`, `migration-manifest`; all six accepted in stage Q) so
+its own QRSPI artifacts stop falling to the always-emitted minimum and the kit
+dogfoods its own fix. (2) **enforce-artifact-surface-applicability** — a new
+lint Check 14 that parses the kit's `qrspi-stack` `## Repo surface` block and
+asserts committed `openspec/changes/**` artifacts (excluding `archive/`) carry
+no sections for *absent* surfaces — validating OUTPUT vs declared surface, which
+Check 11's source-side denylist cannot do. Also renames
+`CRUD_DENYLIST_HEADINGS` → a surface-generic name (PQ9) and adds an
+`## Extending the taxonomy` checklist to the `repo-surface` skill (PQ8). Scope
+boundary: the kit lints its OWN artifacts only — pushing enforcement into
+consumer repos stays with [[standardize-recurring-ops-scripts]]. Entered the
+QRSPI flow 2026-07-25 (stage Q). Formerly the separate `idea` rows
+`kit-self-surfaces` and `enforce-artifact-surface-applicability`.
 
 ---
 
@@ -35,10 +52,11 @@ kept adjacent near the top so the cost story reads at a glance: the **input** an
 [[configurable-effort-and-thinking]] (bundled into `per-slice-compute-knobs`,
 now proposed), and
 [[standardize-recurring-ops-scripts]] (reasoning/exploration) remain here. The
-**surface-taxonomy family** spun off [[repo-applicable-artifact-sections]] —
-[[enforce-artifact-surface-applicability]], [[kit-self-surfaces]],
-[[structured-surface-schema]], [[extend-surface-taxonomy]] — is likewise kept
-contiguous across the P2/P3 boundary.
+**surface-taxonomy family** spun off [[repo-applicable-artifact-sections]]:
+`enforce-artifact-surface-applicability` and `kit-self-surfaces` are now bundled
+into `kit-surface-dogfooding` (proposed, in the QRSPI flow); the remaining
+[[structured-surface-schema]] and [[extend-surface-taxonomy]] are kept
+contiguous below across the P2/P3 boundary.
 
 ### spec-anchored-code-comments — `idea` · **P1**
 
@@ -279,46 +297,6 @@ per-gate auto-branch wiring stays consistent — the runtime suppression itself 
 not statically checkable. Surfaced by `add-auto-mode` stage D (offered, not built).
 Low-cost correctness guard (hence P2, not P3). Now **unblocked** — `add-auto-mode`
 merged 2026-07-06 (archived), so the convention it enforces is live.
-
-### enforce-artifact-surface-applicability — `idea` · **P2**
-
-**Why:** [[repo-applicable-artifact-sections]] ships lint Check 11, which only
-catches *hard-coded* CRUD headings sitting literally in an agent's fenced
-skeleton block (a static string denylist over the kit's source). It cannot
-validate that a *generated* artifact's emitted sections actually match the
-repo's declared surface — that needs a live parse of the `<repo>-stack`
-cheatsheet's `## Repo surface` block, which lint has no access to today. Add a
-this-repo CI check that parses the kit's own `qrspi-stack` surface block and
-asserts the kit's committed `openspec/changes/**` artifacts carry no sections
-for absent surfaces (validating OUTPUT vs declared surface). Low-cost
-correctness guard sequenced behind `repo-applicable-artifact-sections` (hence
-P2, like [[lint-auto-mode-gate-coverage]]). **Scope boundary:** this is the kit
-linting its *own* artifacts; pushing the same enforcement into *consumer* repos'
-CI is the separate shipped-runtime-helper problem tracked in
-[[standardize-recurring-ops-scripts]]. Surfaced 2026-07-24 as a Non-Goal of
-`repo-applicable-artifact-sections` (stage D).
-
-### kit-self-surfaces — `idea` · **P2**
-
-**Why:** The five web surfaces [[repo-applicable-artifact-sections]] ships
-(`data-store`, `http-api`, `ui`, `auth`, `typed-nullable`) leave *this* kit repo
-with **no present surfaces**, so its own QRSPI artifacts fall to the
-always-emitted minimum — which undercuts that change's "the kit dogfoods its own
-fix" goal (its `qrspi-stack` `## Repo surface` block lists nothing). But the kit
-has real surfaces of its own that could gate genuinely useful sections for kit
-changes: **`slash-command`** (a change adds/renames a `/qrspi:*` command → a
-command-surface + README-sync section), **`stage-agent`** (touches an agent
-read-contract / the Read Matrix), **`skill`**, **`template`**, **`lint-gate`**
-(`scripts/lint.mjs` checks), and **`migration-manifest`** (`migrations/<v>.yaml`
-needed for a release). Adding these lets the kit dogfood richer self-surfaces.
-Each needs the same treatment as the original five — a mapping row in
-`repo-surface`, the gated section(s) in the relevant agent skeleton(s)/template(s),
-and (if it introduces a heading a fenced skeleton must not hardcode) a Check 11
-denylist entry. **P2, not P3 like its sibling [[extend-surface-taxonomy]]:** it
-directly improves *this* repo's own dogfooding rather than serving hypothetical
-consumer repo types, and it's ready to pick up as `repo-applicable-artifact-sections`
-lands (whose taxonomy it extends). Split out from [[extend-surface-taxonomy]]
-2026-07-24; surfaced during that change's stage-I dogfooding.
 
 ### automate-marketplace-source-bump — `idea` · **P2**
 
