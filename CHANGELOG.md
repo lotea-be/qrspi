@@ -14,6 +14,10 @@ kit version.
 
 ## [Unreleased]
 
+_No unreleased changes._
+
+## [0.9.0] - 2026-07-25
+
 ### Added
 
 - **Per-slice compute annotations (`**Compute:**` grammar, replacing `**Model:**`).**
