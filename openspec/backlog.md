@@ -96,6 +96,24 @@ two-source-of-truth caution in [[optional-technology-specs]]. **P1 like
 (ugly process references baked into shipped code) rather than a live-workflow
 correctness gap. Surfaced 2026-07-24.
 
+### per-slice-effort-via-agent-variants — `idea` · **P2**
+
+**Why:** `per-slice-compute-knobs` (in flight) makes **model** per-slice-enforceable
+but only **effort** per-*stage*, because the Claude Code Task tool exposes no
+per-invocation effort parameter — effort is settable solely via an agent's static
+`effort:` frontmatter, so one implementer agent cannot vary effort slice-to-slice.
+Recover true per-slice effort by *selecting* an agent per slice: author thin-shell
+variant agents that share one `implementer-core` skill body and differ **only** in
+`model:`/`effort:` frontmatter, map each slice's `**Compute:**` line to the matching
+`subagent_type`, and add a `scripts/lint.mjs` sync check (à la `checkSkillSets`) so
+the variants can't drift from the core. Needs its own Q/R/D: the variant matrix
+(all `models × efforts`, or a few named profiles like `mechanical`/`standard`/`deep`),
+the encapsulation mechanism (shared skill vs a generator that emits variants), the
+sync check, and the `**Compute:** → subagent_type` mapping. The compute-band lever
+sequenced directly behind `per-slice-compute-knobs` (which ships the grammar +
+per-stage effort it extends). Deferred from that change's stage-D review (D5,
+2026-07-25) — folding it in would roughly double the change's surface.
+
 ### standardize-recurring-ops-scripts — `idea` · **P2**
 
 **Why (two payoffs — consistency *and* token cost):** Several QRSPI operations
@@ -531,6 +549,32 @@ silently breaks the design→task traceability chain with nothing to catch it. A
 structural `scripts/lint.mjs` check (or heading assertion) that every slice bullet
 which implements a decision carries its tag, mechanically enforcing D3. Flagged in
 that change's design Risks section as "not this change".
+
+### compute-annotation-presence-lint — `idea` · **P3**
+
+**Why:** `per-slice-compute-knobs` ships lint Check 13 as **value-validation only** —
+it checks that a `**Compute:**` line's values are valid (`model` in `{sonnet, opus}`,
+`effort` in `{low, medium, high}`) *if the line exists*, but does not assert that
+every slice actually carries one. So a slice authored with no `**Compute:**` line
+passes lint and only fails at runtime when `implement` hits it (the orchestrator
+hard-stop). Promote the check to also assert **presence on every slice** — which
+requires parsing slice boundaries (`### Slice N` in `slices.md`, `## N.` in
+`tasks.md`) and confirming each block has a `**Compute:**` line. Kept separate
+because boundary-parsing is more involved than the value scan, and the runtime
+hard-stop is a sufficient backstop for now. Deferred as a Non-Goal of
+`per-slice-compute-knobs` (stage D, D6, 2026-07-25). Sibling to
+[[content-lint-output-contract]] (the same existence→content lint-promotion move).
+
+### haiku-model-tier — `idea` · **P3**
+
+**Why:** `per-slice-compute-knobs` keeps the `model=` vocabulary at `{sonnet, opus}`
+and declines a third `haiku` tier because there is no per-slice heuristic for when a
+slice warrants haiku, and an unguided third tier invites mis-annotation (lint's
+`MODEL_ALIASES` already permits haiku for frontmatter, so the mechanical cost is
+low). Add `haiku` to the annotation `model=` vocabulary + Check 13 **together with**
+a `vertical-slice` heuristic that teaches when a slice is trivial-mechanical enough
+to warrant it — the guidance is the point, not the alias. Deferred from
+`per-slice-compute-knobs` stage D (D2 / OQ1, 2026-07-25).
 
 ### content-lint-output-contract — `idea` · **P3**
 
