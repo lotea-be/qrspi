@@ -7,42 +7,7 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## In progress
 
-The two rows below are the two halves of one change, `per-slice-compute-knobs`
-(branch `features/per-slice-compute-knobs`), co-designed as one unified
-compute-declaration mechanism. They flip and archive together. Q, R, D, S, V, P, I
-complete — awaiting PR. **Scope corrected at stage D:** only **model** is
-enforceable per-slice; **effort** is a per-stage agent-frontmatter knob (no
-per-invocation param); **thinking** is dropped (no per-subagent control exists).
-
-### simplify-per-slice-model-selection — `in-progress (PR #32 open; bundled into per-slice-compute-knobs)` · **P2**
-
-**Why:** Per-slice model intent is endorsed by the source, but the mechanism (the
-architect writes a markdown `**Model:**` annotation; the implementer self-halts and
-asks to be re-invoked when on the wrong model) is fragile.
-Consider a simpler lever or a single implement-stage model. **Reprioritized
-P3→P2 (2026-07-24):** running mechanical slices on a cheaper model is a direct
-token/cost lever, now salient with burn climbing — and it's the mechanism
-[[configurable-effort-and-thinking]] wants to ride, so it sequences first.
-**Bundled into `per-slice-compute-knobs`** — co-designed with
-[[configurable-effort-and-thinking]] as one unified compute-declaration mechanism.
-
-### configurable-effort-and-thinking — `in-progress (PR #32 open; bundled into per-slice-compute-knobs)` · **P2**
-
-**Why:** A change can already set a per-slice **model** (the architect writes a
-`**Model:**` annotation the implementer honors), but reasoning **effort** and
-**thinking budget** are not similarly configurable — they inherit whatever the
-invoking session defaults to. That leaves tokens on the table in both
-directions: mechanical slices could run at low effort with no extended thinking,
-while the design-adjacent "brain surgery" work wants high effort and a large
-thinking budget. Consider making effort and thinking declarable alongside model
-(per-slice, or as a stage-level knob) and have the stage command/agent pass them
-through on delegation. Weigh against [[simplify-per-slice-model-selection]],
-which argues the existing `**Model:**` annotation is already too fragile — any
-effort/thinking lever should ride the same (simpler) mechanism rather than
-bolting on a third fragile markdown knob. **Reprioritized P3→P2 (2026-07-24):**
-effort/thinking is a direct token lever and token burn is now the pressing
-concern. **Bundled into `per-slice-compute-knobs`** — co-designed with
-[[simplify-per-slice-model-selection]] as one unified compute-declaration mechanism.
+_None._
 
 ---
 
