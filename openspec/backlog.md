@@ -194,6 +194,32 @@ archive) — that's a natural trigger point to offer the reprioritization pass.
 (The `P1`–`P3` bands + priority ordering now used in this file are a first,
 hand-maintained cut of this convention.)
 
+### standardize-backlog-format — `idea` · **P2**
+
+**Why:** The kit's commands all *mutate* `openspec/backlog.md` — `questions`
+flips a row to `proposed`, `pr` promotes/appends an idea row under `## Ideas`,
+`archive` removes a row, `retro` may edit one — but **none define its schema**.
+The structure (the `## In progress` / `## Proposed` / `## Ideas` sections, the
+`### <id> — <status> · P<band>` heading, the `**Why:**` body, the `idea` /
+`proposed` / `in-progress` / `merged` status enum, `[[wikilink]]` cross-refs)
+lives only as prose inside *this* repo's own backlog. Nothing ships it to
+consumer repos and `scripts/lint.mjs` doesn't check it, so each repo
+reverse-engineers the shape from whatever its commands happened to write — and
+even this repo already runs a second, unspecified shape (`openspec/backlog/<id>.md`
+companion files). Contrast `openspec/changes/<id>/`, which is fully
+schema-driven (`openspec status --json`, lint, templates); the backlog is the
+one QRSPI surface with no schema behind it. Fix, cheapest first: (1) ship a
+canonical `backlog.md` template in `openspec-templates/` so `/qrspi:init` seeds
+the sections + a row-format legend; (2) add a `lint.mjs` check validating each
+row's heading shape, status enum, and required sections as the mechanical floor.
+Weigh a heavier per-file `backlog/<id>.md` model (frontmatter, mirroring
+`changes/`) against the lighter template+lint path. Pairs with
+[[backlog-prioritization]] (which standardizes the *ordering* convention this
+would encode) and [[structured-surface-schema]] (the same "give an ad-hoc
+surface a real schema" move); a natural trigger is the archive flow in
+[[archive-requires-merged-pr]], which already rewrites the backlog on archive.
+Surfaced 2026-07-25.
+
 ### propose-bundling-ideas — `idea` · **P3**
 
 **Why:** When a flow starts — or when the user asks "what should we take up
