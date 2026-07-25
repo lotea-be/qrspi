@@ -1377,17 +1377,17 @@ async function checkTriagePaths(errors) {
   return violations;
 }
 
-// ---- Check 11: NO CRUD SKELETON HEADINGS IN FENCED BLOCKS -----------------
+// ---- Check 11: NO SURFACE-GATED SKELETON HEADINGS IN FENCED BLOCKS --------
 //
-// Asserts that none of the twelve CRUD/web-app heading lines appear as literal
-// heading lines INSIDE fenced code blocks in the five artifact-producing agent
-// files (questioner, designer, architect, planner, reviewer).
+// Asserts that none of the twenty-two surface-gated heading lines appear as
+// literal heading lines INSIDE fenced code blocks in the five artifact-producing
+// agent files (questioner, designer, architect, planner, reviewer).
 //
-// Disjoint-set invariant (design requirement):
+// Disjoint-set invariant (a) -- vs Check 3:
 //   Check 3 (checkHeadingAlignment) requires surface-INDEPENDENT headings
 //   (## Testing, ## Sequencing & scope, ## Open product questions) to be
 //   PRESENT anywhere in the body of the relevant agent file.
-//   Check 11 (this check) requires CRUD/web-app headings to be ABSENT from
+//   Check 11 (this check) requires surface-GATED headings to be ABSENT from
 //   FENCED BLOCKS in the five agent files.
 //   The two checks cover DISJOINT heading sets AND disjoint scopes:
 //     - no heading is simultaneously required-present (Check 3) and
@@ -1395,14 +1395,21 @@ async function checkTriagePaths(errors) {
 //     - Check 3 scans the full body (not limited to fenced blocks);
 //     - Check 11 scans only inside fenced blocks (not the full body).
 //
-// The twelve CRUD headings are the surface-gated headings that Slices 2-3
-// replaced with conditional placeholders in agent skeletons. Matching on
-// lines beginning with the heading marker avoids false positives on prose
-// mentions (e.g. "see ## Data model below") that appear outside fenced blocks.
+// Disjoint-scope invariant (b) -- vs forthcoming Check 14:
+//   Check 11 scans agent SOURCE fenced skeletons (inside ``` blocks).
+//   Check 14 scans committed ARTIFACT bodies outside fences (e.g. questions.md,
+//   design.md files in openspec/changes/).
+//   The two checks cover DISJOINT scopes and will never fire on the same line.
+//
+// The twenty-two surface-gated headings replaced conditional placeholders in
+// agent skeletons. Matching on lines equal to (or beginning with) the heading
+// marker avoids false positives on prose mentions (e.g. "see ## Data model
+// below") that appear outside fenced blocks.
 //
 // Registered after Check 10; contributes to the pass/fail aggregation and exit code.
 
-const CRUD_DENYLIST_HEADINGS = new Set([
+const SURFACE_GATED_DENYLIST_HEADINGS = new Set([
+  // Data-store surface (original 12)
   '## Data model',
   '## Indexing & query performance',
   '## API',
@@ -1415,6 +1422,17 @@ const CRUD_DENYLIST_HEADINGS = new Set([
   '## UI surface',
   '## Authorization',
   '## Migrations',
+  // Kit surfaces (10 new -- added in kit-surface-dogfooding)
+  '## Slash-command surface',
+  '## Command changes',
+  '## Stage-agent surface',
+  '## Agent changes',
+  '## Skill surface',
+  '## Skill changes',
+  '## Lint-gate surface',
+  '## Lint changes',
+  '## Template surface',
+  '## Migration manifest',
 ]);
 
 const CRUD_CHECK_AGENTS = [
@@ -1474,7 +1492,7 @@ async function checkNoCrudSkeletonHeadings(errors) {
       }
 
       if (inFence) {
-        // Check if this line is a CRUD denylist heading.
+        // Check if this line is a surface-gated denylist heading.
         // Match on exact prefix: the line, after trimming trailing whitespace,
         // must equal a denylist entry (handles both "## Foo" alone and avoids
         // matching "## Foo bar" when only "## Foo" is denied).
@@ -1482,10 +1500,10 @@ async function checkNoCrudSkeletonHeadings(errors) {
         // whether the trimmed line starts with the denylist entry followed
         // by end-of-string OR whitespace (prevents "## APIs" matching "## API").
         const trimmed = line.trimEnd();
-        for (const denied of CRUD_DENYLIST_HEADINGS) {
+        for (const denied of SURFACE_GATED_DENYLIST_HEADINGS) {
           if (trimmed === denied || trimmed.startsWith(denied + ' ') || trimmed.startsWith(denied + '\t')) {
             errors.push(
-              `[crud-skeleton] ${rel}:${i + 1}: CRUD heading '${denied}' found inside a fenced block -- ` +
+              `[crud-skeleton] ${rel}:${i + 1}: surface-gated heading '${denied}' found inside a fenced block -- ` +
               `replace with a surface-gate conditional placeholder (see repo-surface skill)`
             );
             violations++;
@@ -1503,7 +1521,7 @@ async function checkNoCrudSkeletonHeadings(errors) {
 
   if (violations === 0) {
     process.stdout.write(
-      `  OK: no CRUD skeleton headings found inside fenced blocks in any of the ${CRUD_CHECK_AGENTS.length} agent files\n`
+      `  OK: no surface-gated skeleton headings found inside fenced blocks in any of the ${CRUD_CHECK_AGENTS.length} agent files\n`
     );
   }
   return violations;

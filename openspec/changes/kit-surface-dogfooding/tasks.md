@@ -27,11 +27,11 @@
 
 **Compute:** model=sonnet effort=low — mechanical rename, array extension, and comment rewrite; no new algorithmic logic; mirrors established Check 11 pattern
 
-- [ ] 3.1 Rename `CRUD_DENYLIST_HEADINGS` to `SURFACE_GATED_DENYLIST_HEADINGS` in `scripts/lint.mjs` and update all inline references to the old constant name (D4, D5)
-- [ ] 3.2 Extend the denylist array with the 10 new surface-gated headings (growing from 12 to 22 entries) and rewrite the Check 11 header comment block to reference "surface-gated headings" and state both disjoint-scope invariants (a and b) (D4, D5, D6)
-- [ ] 3.3 Run `node scripts/lint.mjs` and confirm it exits 0 with Check 11 reporting OK; confirm the constant is named `SURFACE_GATED_DENYLIST_HEADINGS` (grep the file)
+- [x] 3.1 Rename `CRUD_DENYLIST_HEADINGS` to `SURFACE_GATED_DENYLIST_HEADINGS` in `scripts/lint.mjs` and update all inline references to the old constant name (D4, D5)
+- [x] 3.2 Extend the denylist array with the 10 new surface-gated headings (growing from 12 to 22 entries) and rewrite the Check 11 header comment block to reference "surface-gated headings" and state both disjoint-scope invariants (a and b) (D4, D5, D6)
+- [x] 3.3 Run `node scripts/lint.mjs` and confirm it exits 0 with Check 11 reporting OK; confirm the constant is named `SURFACE_GATED_DENYLIST_HEADINGS` (grep the file)
 - [ ] 3.4 (human) Temporarily add `## Skill changes` as a bare heading line inside a fenced skeleton block in `claude/agents/questioner.md`, run `node scripts/lint.mjs`, confirm Check 11 reports a violation and exits non-zero; revert the file (D4)
-- [ ] 3.5 Checkpoint: `node scripts/lint.mjs` exits 0 with Check 11 OK; constant name confirmed by grep; human negative-case test passed and reverted
+- [x] 3.5 Checkpoint: `node scripts/lint.mjs` exits 0 with Check 11 OK; constant name confirmed by grep; human negative-case test passed and reverted
 
 ## 4. Check 14 + self-test + README
 
