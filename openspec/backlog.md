@@ -58,6 +58,31 @@ into `kit-surface-dogfooding` (proposed, in the QRSPI flow); the remaining
 [[structured-surface-schema]] and [[extend-surface-taxonomy]] are kept
 contiguous below across the P2/P3 boundary.
 
+### researcher-surface-generic — `idea` · **P1**
+
+**Why:** The `repo-applicable-artifact-sections` surface mechanism gates the
+*proposal*-producing agents (questioner, designer, architect, planner) but **left
+the researcher out** — `claude/agents/researcher.md` never loads `repo-surface`
+and carries a fixed, web-app-shaped skeleton (`## Public API surface`,
+`## Data model`, …). So `research.md` emits a `## Data model` section even for a
+repo with no data-store surface (the kit itself) — the same hardcoded-surface
+assumption the surface work set out to kill. **Make the researcher generic:**
+drive its factual-inventory sections from the repo's declared surfaces (the stack
+cheatsheet `## Repo surface` block) instead of a fixed skeleton. Two design
+wrinkles need their own Q/D: (1) **inventory-vs-proposal semantics** — the gated
+agents *omit* a proposal section for an absent surface, but documenting the
+*absence* of a surface can itself be a useful factual finding, so "omit when
+absent" is not obviously right for a factual map; (2) the researcher is
+**ticket-blind** and does not load `repo-surface` today, so this touches its Read
+contract and the R stage. Needs a surface→*inventory-heading* mapping distinct
+from the existing surface→*proposal-heading* mapping. **P1 / take up next:** it is
+the durable completion of the surface-gating work, and it retires the temporary
+`## Data model`→`## Data structures` band-aid in `kit-surface-dogfooding`'s
+`research.md` — once the researcher is surface-gated, `research.md` is legitimately
+scannable by Check 14 (which already scans all live `changes/**` artifacts).
+Sibling of `kit-self-surfaces`; surfaced 2026-07-25 during the stage-I dogfooding
+of `kit-surface-dogfooding`.
+
 ### spec-anchored-code-comments — `idea` · **P1**
 
 **Why:** Implementation code comments sometimes reference the *process* artifacts
