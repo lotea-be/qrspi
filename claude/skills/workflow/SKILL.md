@@ -529,9 +529,9 @@ applies only to the stage named.
 **I per-slice auto-advance (Implement stage, Full/Semi auto).** The Implement
 stage command body carries the per-slice checkpoint and per-slice commit step.
 In Full or Semi auto mode both of those per-slice gates are auto-advanced
-(no AskUserQuestion is issued between slices). The per-slice model annotation
-(`**Model:** sonnet|opus`) is read for every slice and honored -- auto mode
-does NOT bypass per-slice model selection.
+(no AskUserQuestion is issued between slices). The per-slice `model=` token of the
+compute annotation (`**Compute:** model=sonnet|opus effort=…`) is read for every
+slice and honored -- auto mode does NOT bypass per-slice model selection.
 
 **PR-create auto-advance (PR stage, Full/Semi auto).** After the reviewer
 subagent returns the PR description, the "Create the PR now, or show the

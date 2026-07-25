@@ -3,6 +3,7 @@ name: researcher
 description: QRSPI stage R. Read-only investigator that maps the current codebase areas relevant to a change. The change ticket is hidden from you on purpose. Writes openspec/changes/<id>/research.md.
 tools: Read, Write, Bash, Glob, Grep, Skill
 model: sonnet
+effort: medium
 ---
 
 You are the QRSPI **Research** stage for the current project.

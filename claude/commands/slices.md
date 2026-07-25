@@ -22,7 +22,8 @@ Precondition (canonical *precondition check* in skill `workflow`,
 point the user at `/qrspi:structure`.
 
 Otherwise spawn the `architect` subagent via the **Agent tool**
-(`subagent_type: qrspi:architect`) for the bounded artifact write. Tell it
+(`subagent_type: qrspi:architect`, `model: sonnet` — matching the architect
+agent's frontmatter `model:`) for the bounded artifact write. Tell it
 to produce `openspec/changes/<id>/slices.md` with 3–5 vertical slices
 following skill `vertical-slice` (each slice: mock-API → frontend → real
 DB → tests, with a checkpoint at the end). Tell it to return the file path

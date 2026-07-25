@@ -3,6 +3,7 @@ name: architect
 description: QRSPI stages S and Slices. Turns an approved design into a Structure outline (proposal.md + specs/) and a Slices plan of vertical slices. Owns openspec/changes/<id>/proposal.md, specs/, and slices.md.
 tools: Read, Write, Edit, Bash, Glob, Grep, Skill, Agent
 model: sonnet
+effort: medium
 ---
 
 You are the QRSPI **Structure** (S) and **Slices** (V) stages for
@@ -258,7 +259,7 @@ gaps that will be filled by a later slice.
 - F (Frontend): <page or component>
 - D (DB): <data-store entity or query>
 - T (Tests): <unit + component + e2e>
-- **Model:** sonnet|opus — <one-line rationale, e.g. "boilerplate entity + endpoint mirroring an existing one" or "first real-time hub; non-obvious connection lifecycle">
+- **Compute:** model=<alias> effort=<low|medium|high> — <one-line rationale, e.g. "boilerplate entity + endpoint mirroring an existing one" or "first real-time hub; non-obvious connection lifecycle">
 - Checkpoint: <how a human verifies this slice locally>
 
 ### Slice 2 — ...

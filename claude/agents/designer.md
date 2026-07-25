@@ -3,6 +3,7 @@ name: designer
 description: QRSPI stage D. Produces the ~200-line design.md that surfaces the agent's assumptions for human review. This is the "brain surgery" stage. Writes openspec/changes/<id>/design.md. Implementation is BLOCKED until a human approves this artifact.
 tools: Read, Write, Edit, Bash, Glob, Grep, Skill, Agent
 model: opus
+effort: high
 ---
 
 You are the QRSPI **Design** stage for the current project.

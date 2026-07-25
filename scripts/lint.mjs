@@ -2,7 +2,7 @@
 // ============================================================================
 //  scripts/lint.mjs -- CI quality gate for the QRSPI kit
 // ----------------------------------------------------------------------------
-//  Checks (run in order, all errors collected before exit -- Checks 1-11):
+//  Checks (run in order, all errors collected before exit -- Checks 1-13):
 //
 //  1. PIN AGREEMENT  -- every hand-maintained OpenSpec version occurrence
 //     must agree. generatedBy: lines in openspec-generated skill files are
@@ -67,6 +67,14 @@
 //     carry a `> **Output contract**` banner line (presence-only check;
 //     the banner text is human-authored). Mirrors the scope and pattern of
 //     Check 7. Registered after Check 11.
+//
+// 13. COMPUTE ANNOTATION VALUE-VALIDATION -- every `**Compute:**` line in the
+//     committed change artifacts (openspec/changes/**/slices.md and
+//     **/tasks.md) must carry a valid `model=` token (in COMPUTE_MODELS) and,
+//     if present, a valid `effort=` token (in COMPUTE_EFFORTS). Value-validation
+//     only (NOT presence-on-every-slice); tolerates both the dash-bullet and
+//     bare-bold structural forms. Scoped strictly to the committed change
+//     artifacts -- never scans skills or templates (placeholder examples there).
 //
 //  Exits 0 if all checks pass, 1 if any check reports a violation.
 //  Requires only Node.js built-ins (fs, path) -- no npm dependencies.
@@ -314,6 +322,16 @@ const MAIN_LOOP_ONLY = new Set(['AskUserQuestion']);
 // Valid model aliases
 const MODEL_ALIASES = new Set(['opus', 'sonnet', 'haiku']);
 
+// Valid effort values -- the deliberate subset of the tool's
+// low|medium|high|xhigh|max that the kit surfaces (D5). xhigh/max are rejected.
+const COMPUTE_EFFORTS = ['low', 'medium', 'high'];
+
+// Valid `model=` aliases for the `**Compute:**` annotation (D2/D6). Kept
+// separate from MODEL_ALIASES (which includes haiku for frontmatter) because
+// the annotation vocabulary is deliberately {sonnet, opus} until a per-slice
+// haiku heuristic exists.
+const COMPUTE_MODELS = ['sonnet', 'opus'];
+
 // Pattern for pinned model ids (contains a date segment YYYYMMDD or "claude-<digit>")
 const PINNED_MODEL_RE = /\d{8}|claude-\d/i;
 
@@ -352,6 +370,16 @@ async function checkFrontmatter(errors) {
         errors.push(`[frontmatter] ${rel}: 'model: ${model}' must be an alias (opus/sonnet/haiku), not a pinned id`);
         violations++;
       }
+    }
+    // effort: required on every agent, validated against COMPUTE_EFFORTS (D5/D6).
+    // The kit surfaces low|medium|high only -- xhigh/max are rejected.
+    const effort = getField(front, 'effort');
+    if (!effort) {
+      errors.push(`[frontmatter] ${rel}: missing 'effort:' in frontmatter (required: ${COMPUTE_EFFORTS.join('/')})`);
+      violations++;
+    } else if (!COMPUTE_EFFORTS.includes(effort.toLowerCase())) {
+      errors.push(`[frontmatter] ${rel}: 'effort: ${effort}' must be one of ${COMPUTE_EFFORTS.join('/')} (xhigh/max not allowed)`);
+      violations++;
     }
     // Load skill X resolution in body
     violations += checkSkillRefs(body, rel, knownSkills, errors);
@@ -1529,6 +1557,101 @@ async function checkOutputContracts(errors) {
   return violations;
 }
 
+// ---- Check 13: COMPUTE ANNOTATION VALUE-VALIDATION -------------------------
+//
+// Parses every `**Compute:**` line in the committed change artifacts
+// (openspec/changes/**/slices.md and **/tasks.md) and value-validates the
+// `model=` / `effort=` tokens against COMPUTE_MODELS / COMPUTE_EFFORTS (D6).
+//
+// This is VALUE-VALIDATION ONLY -- it does NOT assert a `**Compute:**` line is
+// present on every slice (that is a Non-Goal). It flags:
+//   - missing/empty `model=` token (model is required -- D3)
+//   - `model=` not in COMPUTE_MODELS
+//   - `effort=` present but not in COMPUTE_EFFORTS
+//
+// It tolerates BOTH structural forms (D1): the `-` dash-bullet form used in
+// slices.md (`- **Compute:** ...`) and the bare bold form used in tasks.md
+// (`**Compute:** ...`). To match on the ANNOTATION rather than a prose mention,
+// the `**Compute:**` token must be the FIRST content on the line -- optionally
+// preceded by a `- ` list bullet and whitespace, nothing else. This anchoring
+// is what separates a real annotation line from prose that merely quotes the
+// grammar (e.g. a task line "replace X with `**Compute:** model=<alias> ...`"
+// carries the token mid-line and inside backticks, so it is correctly ignored).
+//
+// SCOPE: strictly openspec/changes/**/{slices.md,tasks.md}. It does NOT scan
+// claude/skills/** or openspec-templates/**, so the placeholder example lines
+// there (e.g. `**Compute:** model=<alias> effort=<low|medium|high>`) never
+// reach this check. With the implementer self-halt gone (D6), Check 13 is the
+// only static gate catching a malformed annotation before implement.
+
+async function checkComputeAnnotations(errors) {
+  const changesDir = path.join(root, 'openspec', 'changes');
+  const allMd = await walkMd(changesDir);
+  const artifactFiles = allMd.filter((f) => {
+    const base = path.basename(f);
+    return base === 'slices.md' || base === 'tasks.md';
+  });
+
+  let violations = 0;
+  let linesChecked = 0;
+
+  // Match the `**Compute:**` token only when it is the FIRST content on the
+  // line -- optionally preceded by a `- ` dash-bullet (slices.md form) and
+  // whitespace, nothing else (D1). Anchoring at line start is what excludes
+  // prose that quotes the grammar mid-sentence or inside backticks. Capture
+  // the remainder of the line after the token for token extraction.
+  const computeRe = /^\s*(?:-\s+)?\*\*Compute:\*\*(.*)$/;
+
+  for (const file of artifactFiles) {
+    const rel = path.relative(root, file);
+    const text = await readFileOr(file, null);
+    if (text === null) continue;
+
+    const lines = text.replace(/\r\n/g, '\n').split('\n');
+    for (let i = 0; i < lines.length; i++) {
+      const m = lines[i].match(computeRe);
+      if (!m) continue;
+      linesChecked++;
+      const rest = m[1];
+
+      // Extract key=value tokens. Values are non-space runs (the `— rationale`
+      // tail begins after a space, so it is never captured as a value).
+      const modelM = rest.match(/\bmodel=(\S*)/);
+      const effortM = rest.match(/\beffort=(\S*)/);
+
+      // model= required and non-empty (D3)
+      if (!modelM || modelM[1] === '') {
+        errors.push(
+          `[compute] ${rel}:${i + 1}: **Compute:** line missing required 'model=' token`
+        );
+        violations++;
+      } else if (!COMPUTE_MODELS.includes(modelM[1])) {
+        errors.push(
+          `[compute] ${rel}:${i + 1}: 'model=${modelM[1]}' is not a valid model` +
+          ` (allowed: ${COMPUTE_MODELS.join(', ')})`
+        );
+        violations++;
+      }
+
+      // effort= optional, but valid-if-present (D3)
+      if (effortM && !COMPUTE_EFFORTS.includes(effortM[1])) {
+        errors.push(
+          `[compute] ${rel}:${i + 1}: 'effort=${effortM[1]}' is not a valid effort` +
+          ` (allowed: ${COMPUTE_EFFORTS.join(', ')})`
+        );
+        violations++;
+      }
+    }
+  }
+
+  if (violations === 0) {
+    process.stdout.write(
+      `  OK: ${linesChecked} **Compute:** annotation(s) value-valid across committed slices.md/tasks.md\n`
+    );
+  }
+  return violations;
+}
+
 // ---- main ------------------------------------------------------------------
 
 async function main() {
@@ -1574,6 +1697,9 @@ async function main() {
 
   process.stdout.write('\nCheck 12: Output-contract banner presence\n');
   await checkOutputContracts(errors);
+
+  process.stdout.write('\nCheck 13: Compute annotation value-validation\n');
+  await checkComputeAnnotations(errors);
 
   process.stdout.write('\n');
   if (errors.length === 0) {

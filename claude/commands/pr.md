@@ -208,7 +208,7 @@ Once all F entries have been resolved (or deferred), the follow-ups pass is
 complete. All Drop/Promote entries read as `- [x]`; Deferred entries remain
 `- [ ]` and will be resolved post-PR via `/qrspi:followup <id>`.
 
-Spawn the `reviewer` subagent via the **Agent tool** (`subagent_type: qrspi:reviewer`) for the bounded read and draft work. It will:
+Spawn the `reviewer` subagent via the **Agent tool** (`subagent_type: qrspi:reviewer`, `model: sonnet` — matching the reviewer agent's frontmatter `model:`) for the bounded read and draft work. It will:
 
 1. Read the full `openspec/changes/<id>/` folder.
 2. Run the project's build + lint/format + test commands to confirm green.

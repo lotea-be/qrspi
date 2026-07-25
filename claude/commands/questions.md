@@ -36,7 +36,8 @@ Otherwise:
 3. Create `openspec/changes/<id>/` if it does not already exist.
 4. Load skills `workflow` and `openspec-workflow`.
 5. Spawn the `questioner` subagent via the **Agent tool** (`subagent_type:
-   qrspi:questioner`) for the bounded artifact write. Pass the change id
+   qrspi:questioner`, `model: sonnet` — matching the questioner agent's
+   frontmatter `model:`) for the bounded artifact write. Pass the change id
    and the short description. Tell it to write
    `openspec/changes/<id>/questions.md` and return the file path plus a
    5-bullet summary. The orchestrator (this main-loop context) does not

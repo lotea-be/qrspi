@@ -7,7 +7,42 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## In progress
 
-_None._
+The two rows below are the two halves of one change, `per-slice-compute-knobs`
+(branch `features/per-slice-compute-knobs`), co-designed as one unified
+compute-declaration mechanism. They flip and archive together. Q, R, D, S, V, P, I
+complete — awaiting PR. **Scope corrected at stage D:** only **model** is
+enforceable per-slice; **effort** is a per-stage agent-frontmatter knob (no
+per-invocation param); **thinking** is dropped (no per-subagent control exists).
+
+### simplify-per-slice-model-selection — `in-progress (PR #32 open; bundled into per-slice-compute-knobs)` · **P2**
+
+**Why:** Per-slice model intent is endorsed by the source, but the mechanism (the
+architect writes a markdown `**Model:**` annotation; the implementer self-halts and
+asks to be re-invoked when on the wrong model) is fragile.
+Consider a simpler lever or a single implement-stage model. **Reprioritized
+P3→P2 (2026-07-24):** running mechanical slices on a cheaper model is a direct
+token/cost lever, now salient with burn climbing — and it's the mechanism
+[[configurable-effort-and-thinking]] wants to ride, so it sequences first.
+**Bundled into `per-slice-compute-knobs`** — co-designed with
+[[configurable-effort-and-thinking]] as one unified compute-declaration mechanism.
+
+### configurable-effort-and-thinking — `in-progress (PR #32 open; bundled into per-slice-compute-knobs)` · **P2**
+
+**Why:** A change can already set a per-slice **model** (the architect writes a
+`**Model:**` annotation the implementer honors), but reasoning **effort** and
+**thinking budget** are not similarly configurable — they inherit whatever the
+invoking session defaults to. That leaves tokens on the table in both
+directions: mechanical slices could run at low effort with no extended thinking,
+while the design-adjacent "brain surgery" work wants high effort and a large
+thinking budget. Consider making effort and thinking declarable alongside model
+(per-slice, or as a stage-level knob) and have the stage command/agent pass them
+through on delegation. Weigh against [[simplify-per-slice-model-selection]],
+which argues the existing `**Model:**` annotation is already too fragile — any
+effort/thinking lever should ride the same (simpler) mechanism rather than
+bolting on a third fragile markdown knob. **Reprioritized P3→P2 (2026-07-24):**
+effort/thinking is a direct token lever and token burn is now the pressing
+concern. **Bundled into `per-slice-compute-knobs`** — co-designed with
+[[simplify-per-slice-model-selection]] as one unified compute-declaration mechanism.
 
 ---
 
@@ -31,8 +66,9 @@ this ordering whenever an item is added, modified, or archived (see
 **Token/cost levers** (the recurring cost band, salient with burn climbing) are
 kept adjacent near the top so the cost story reads at a glance: the **input** and
 **output** levers shipped together as `context-budget` (merged and archived
-2026-07-24); [[simplify-per-slice-model-selection]] (model),
-[[configurable-effort-and-thinking]] (compute), and
+2026-07-24); [[simplify-per-slice-model-selection]] and
+[[configurable-effort-and-thinking]] (bundled into `per-slice-compute-knobs`,
+now proposed), and
 [[standardize-recurring-ops-scripts]] (reasoning/exploration) remain here. The
 **surface-taxonomy family** spun off [[repo-applicable-artifact-sections]] —
 [[enforce-artifact-surface-applicability]], [[kit-self-surfaces]],
@@ -67,32 +103,23 @@ two-source-of-truth caution in [[optional-technology-specs]]. **P1 like
 (ugly process references baked into shipped code) rather than a live-workflow
 correctness gap. Surfaced 2026-07-24.
 
-### simplify-per-slice-model-selection — `idea` · **P2**
+### per-slice-effort-via-agent-variants — `idea` · **P2**
 
-**Why:** Per-slice model intent is endorsed by the source, but the mechanism (the
-architect writes a markdown `**Model:**` annotation; the implementer self-halts and
-asks to be re-invoked when on the wrong model) is fragile.
-Consider a simpler lever or a single implement-stage model. **Reprioritized
-P3→P2 (2026-07-24):** running mechanical slices on a cheaper model is a direct
-token/cost lever, now salient with burn climbing — and it's the mechanism
-[[configurable-effort-and-thinking]] wants to ride, so it sequences first.
-
-### configurable-effort-and-thinking — `idea` · **P2**
-
-**Why:** A change can already set a per-slice **model** (the architect writes a
-`**Model:**` annotation the implementer honors), but reasoning **effort** and
-**thinking budget** are not similarly configurable — they inherit whatever the
-invoking session defaults to. That leaves tokens on the table in both
-directions: mechanical slices could run at low effort with no extended thinking,
-while the design-adjacent "brain surgery" work wants high effort and a large
-thinking budget. Consider making effort and thinking declarable alongside model
-(per-slice, or as a stage-level knob) and have the stage command/agent pass them
-through on delegation. Weigh against [[simplify-per-slice-model-selection]],
-which argues the existing `**Model:**` annotation is already too fragile — any
-effort/thinking lever should ride the same (simpler) mechanism rather than
-bolting on a third fragile markdown knob. **Reprioritized P3→P2 (2026-07-24):**
-effort/thinking is a direct token lever and token burn is now the pressing
-concern.
+**Why:** `per-slice-compute-knobs` (in flight) makes **model** per-slice-enforceable
+but only **effort** per-*stage*, because the Claude Code Task tool exposes no
+per-invocation effort parameter — effort is settable solely via an agent's static
+`effort:` frontmatter, so one implementer agent cannot vary effort slice-to-slice.
+Recover true per-slice effort by *selecting* an agent per slice: author thin-shell
+variant agents that share one `implementer-core` skill body and differ **only** in
+`model:`/`effort:` frontmatter, map each slice's `**Compute:**` line to the matching
+`subagent_type`, and add a `scripts/lint.mjs` sync check (à la `checkSkillSets`) so
+the variants can't drift from the core. Needs its own Q/R/D: the variant matrix
+(all `models × efforts`, or a few named profiles like `mechanical`/`standard`/`deep`),
+the encapsulation mechanism (shared skill vs a generator that emits variants), the
+sync check, and the `**Compute:** → subagent_type` mapping. The compute-band lever
+sequenced directly behind `per-slice-compute-knobs` (which ships the grammar +
+per-stage effort it extends). Deferred from that change's stage-D review (D5,
+2026-07-25) — folding it in would roughly double the change's surface.
 
 ### standardize-recurring-ops-scripts — `idea` · **P2**
 
@@ -529,6 +556,32 @@ silently breaks the design→task traceability chain with nothing to catch it. A
 structural `scripts/lint.mjs` check (or heading assertion) that every slice bullet
 which implements a decision carries its tag, mechanically enforcing D3. Flagged in
 that change's design Risks section as "not this change".
+
+### compute-annotation-presence-lint — `idea` · **P3**
+
+**Why:** `per-slice-compute-knobs` ships lint Check 13 as **value-validation only** —
+it checks that a `**Compute:**` line's values are valid (`model` in `{sonnet, opus}`,
+`effort` in `{low, medium, high}`) *if the line exists*, but does not assert that
+every slice actually carries one. So a slice authored with no `**Compute:**` line
+passes lint and only fails at runtime when `implement` hits it (the orchestrator
+hard-stop). Promote the check to also assert **presence on every slice** — which
+requires parsing slice boundaries (`### Slice N` in `slices.md`, `## N.` in
+`tasks.md`) and confirming each block has a `**Compute:**` line. Kept separate
+because boundary-parsing is more involved than the value scan, and the runtime
+hard-stop is a sufficient backstop for now. Deferred as a Non-Goal of
+`per-slice-compute-knobs` (stage D, D6, 2026-07-25). Sibling to
+[[content-lint-output-contract]] (the same existence→content lint-promotion move).
+
+### haiku-model-tier — `idea` · **P3**
+
+**Why:** `per-slice-compute-knobs` keeps the `model=` vocabulary at `{sonnet, opus}`
+and declines a third `haiku` tier because there is no per-slice heuristic for when a
+slice warrants haiku, and an unguided third tier invites mis-annotation (lint's
+`MODEL_ALIASES` already permits haiku for frontmatter, so the mechanical cost is
+low). Add `haiku` to the annotation `model=` vocabulary + Check 13 **together with**
+a `vertical-slice` heuristic that teaches when a slice is trivial-mechanical enough
+to warrant it — the guidance is the point, not the alias. Deferred from
+`per-slice-compute-knobs` stage D (D2 / OQ1, 2026-07-25).
 
 ### content-lint-output-contract — `idea` · **P3**
 

@@ -22,7 +22,8 @@ Precondition (canonical *precondition check* in skill `workflow`,
 not shell out.
 
 Spawn the `planner` subagent via the **Agent tool** (`subagent_type:
-qrspi:planner`) for the bounded artifact write. Pass the change id. Tell
+qrspi:planner`, `model: sonnet` — matching the planner agent's frontmatter
+`model:`) for the bounded artifact write. Pass the change id. Tell
 it to write `openspec/changes/<id>/tasks.md` and return the file path
 plus a 5-bullet summary. The orchestrator (this main-loop context) does
 not inline the planner's full conversation — only the returned summary is

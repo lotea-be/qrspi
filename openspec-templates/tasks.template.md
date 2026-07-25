@@ -4,7 +4,7 @@ Single source of truth for how the QRSPI **Plan** stage writes
 `openspec/changes/<id>/tasks.md`. The **required shape** is OpenSpec's canonical
 task list — numbered groups `## N. <name>` with `- [ ] N.M` checkbox items — do
 not use any other group-heading form. QRSPI keeps two annotations on top of the
-canonical shape: the per-group `**Model:**` line (carried verbatim from
+canonical shape: the per-group `**Compute:**` line (carried verbatim from
 `slices.md`) and the trailing `(D<n>)` design-decision back-references.
 
 Each numbered group is one vertical slice from `slices.md`. The slice's name
@@ -20,7 +20,7 @@ goes in the heading text; do **not** prefix it with `Slice N —` (the canonical
 
 ## 1. <slice name>
 
-**Model:** sonnet|opus — <rationale carried verbatim from slices.md>
+**Compute:** model=<alias> effort=<low|medium|high> — <rationale carried verbatim from slices.md>
 
 <!-- Surface-gated task lines: include or omit each category below based on
      which surfaces are present for this repo, per the repo-surface skill mapping.
@@ -43,7 +43,7 @@ goes in the heading text; do **not** prefix it with `Slice N —` (the canonical
 
 ## 2. <slice name>
 
-**Model:** sonnet|opus — <rationale>
+**Compute:** model=<alias> effort=<low|medium|high> — <rationale>
 
 - [ ] 2.1 ...
 ```
@@ -56,8 +56,10 @@ goes in the heading text; do **not** prefix it with `Slice N —` (the canonical
   No `Slice`, `A/B/C`, or other prefix.
 - Checkbox ids MUST be `N.M` and match their group number (group 2 → `2.1`,
   `2.2`, …). Number consecutively within the group.
-- Carry the `**Model:**` annotation from each `slices.md` slice into the
-  matching group header **verbatim** — do not re-derive it. The `(D<n>)` tags
+- Carry the `**Compute:**` annotation from each `slices.md` slice into the
+  matching group header **verbatim** (converting from the dash-bullet form used
+  in `slices.md` to the bare bold paragraph form used in `tasks.md`) — do not
+  re-derive it. The `(D<n>)` tags
   embedded in each `slices.md` bullet carry forward into the matching task line
   unchanged — do NOT open `design.md` to re-derive them; the tags in `slices.md`
   are the authoritative source (D3).

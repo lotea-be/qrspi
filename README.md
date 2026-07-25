@@ -26,9 +26,9 @@ workflow drives a .NET/Blazor app, a TypeScript service, or anything else.
 | 2 | Research | `/qrspi:research <id>` | `research.md` | Read-only map of the current codebase. The ticket is hidden by design. |
 | 3 | Design | `/qrspi:design <id>` | `design.md` | The "brain surgery" stage. **⛔ HUMAN APPROVAL REQUIRED before stage 4.** (Full auto pauses here -- see Run modes) |
 | 4 | Structure | `/qrspi:structure <id>` | `proposal.md` + `specs/` | Canonical proposal + OpenSpec spec deltas. |
-| 5 | Slices | `/qrspi:slices <id>` | `slices.md` | Vertical slices, not horizontal layers. |
-| 6 | Plan | `/qrspi:plan <id>` | `tasks.md` | Canonical numbered task list. |
-| 7 | Implement | `/qrspi:implement <id>` | code + tests | One slice at a time; stops at each checkpoint. |
+| 5 | Slices | `/qrspi:slices <id>` | `slices.md` | Vertical slices, not horizontal layers. Each slice carries a `**Compute:** model=sonnet\|opus effort=low\|medium\|high -- <rationale>` annotation. |
+| 6 | Plan | `/qrspi:plan <id>` | `tasks.md` | Canonical numbered task list. The `**Compute:**` annotation is carried verbatim from `slices.md`. |
+| 7 | Implement | `/qrspi:implement <id>` | code + tests | One slice at a time; stops at each checkpoint. The `model=` token from the slice's `**Compute:**` annotation is passed per-invocation. |
 | 8 | PR | `/qrspi:pr <id>` | PR description | Read-only review + final checklist. |
 
 > **Acronym lineage note.** QRSPI / "Crispy" is a lineage label from the RPI ancestry; Design, Slices, and PR sit outside the five acronym letters (Q-R-S-P-I). The kit intentionally orders Slices (V) before Plan (P) -- slices-then-tasks is the natural data flow and an intentional divergence from the RPI blog's Plan-before-Work-Tree ordering.
@@ -47,7 +47,7 @@ At the top of a fresh stage invocation the orchestrator asks one question:
 **Gates suppressed in Full auto and Semi-auto:**
 - Commit step (stage, commit, push -- without asking)
 - Structure's design-approval gate (auto-answered after the D pause in the same chain)
-- Implement's per-slice checkpoints (all slices run straight through; per-slice model re-invocation is preserved)
+- Implement's per-slice checkpoints (all slices run straight through; the per-slice `model=` from each `**Compute:**` annotation is honored)
 - PR-create (runs `gh pr create` without prompting)
 
 **Also suppressed in Full auto only:**
@@ -256,7 +256,7 @@ all hand-maintained occurrences agree -- the lint will catch any missed location
 
 ### CI lint checks (`node scripts/lint.mjs`)
 
-The lint script runs 12 checks (Checks 1-12) on every CI run. Key checks relevant
+The lint script runs 13 checks (Checks 1-13) on every CI run. Key checks relevant
 to context hygiene and agent contracts:
 
 - **Check 2b (`checkSkillSets`)** -- asserts each stage agent's `Load skills` line
@@ -265,6 +265,10 @@ to context hygiene and agent contracts:
 - **Check 12 (`checkOutputContracts`)** -- asserts each of the seven stage agents
   carries a `> **Output contract**` banner line (presence-only). Mirrors the scope
   and pattern of Check 7 (`checkReadContracts`).
+- **Check 13 (`checkComputeAnnotations`)** -- value-validates every `**Compute:**`
+  line in committed `slices.md` and `tasks.md` artifacts. Flags a missing or
+  unknown `model=` token and an unknown `effort=` token (when present). Tolerates
+  both the dash-bullet form (`slices.md`) and the bare bold form (`tasks.md`).
 
 All other checks (pin agreement, frontmatter, heading alignment, README command
 coverage, gate-tool/executor agreement, migration manifests, read-contract banners,
@@ -286,8 +290,12 @@ headings) are enumerated in the header comment of `scripts/lint.mjs`.
 
 ## Conventions for contributors
 
-- **Agent `model:` fields use aliases** (`opus` / `sonnet` / `haiku`), never pinned
-  version ids. Design/Implement default to `opus`; the turn-the-crank stages to `sonnet`.
+- **Agent `model:` and `effort:` fields use aliases**, never pinned version ids.
+  `model:` uses `opus` / `sonnet` / `haiku`; `effort:` uses `low` / `medium` / `high`
+  (the kit surface -- `xhigh`/`max` are rejected by lint). Design/Implement default
+  to `opus`/`high`; the turn-the-crank stages to `sonnet`/`medium`.
+  Per-slice compute is declared via a `**Compute:** model=<alias> effort=<level> -- <rationale>`
+  annotation in `slices.md` (dash-bullet) and carried verbatim into `tasks.md` (bare bold).
 - **Stay stack-agnostic.** Reference project helpers descriptively ("the project's
   stack-cheatsheet skill, if any"), never by a stack-specific name.
 - **Keep repo and user copies identical in shape.** When you change an artifact's

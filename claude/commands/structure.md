@@ -26,7 +26,8 @@ not explicitly confirmed approval, use the **AskUserQuestion** tool to ask:
 on explicit approval; if they say no, remind them to review and stop.
 
 Otherwise spawn the `architect` subagent via the **Agent tool**
-(`subagent_type: qrspi:architect`) for the bounded artifact write. Tell it
+(`subagent_type: qrspi:architect`, `model: sonnet` — matching the architect
+agent's frontmatter `model:`) for the bounded artifact write. Tell it
 to produce:
 - `openspec/changes/<id>/proposal.md`
 - `openspec/changes/<id>/specs/<capability>/spec.md` per touched capability
