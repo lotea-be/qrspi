@@ -17,13 +17,13 @@
 
 **Model:** opus — Check 13 requires writing a regex/token parser that handles two structural forms and three error cases; Check 2 extension adds a new required-field rule; the seven frontmatter edits are mechanical but must be consistent with D5's defaults.
 
-- [ ] 2.1 Add `COMPUTE_MODELS = ['sonnet', 'opus']` and `COMPUTE_EFFORTS = ['low', 'medium', 'high']` as adjacent consts in `scripts/lint.mjs` (D6)
-- [ ] 2.2 Add `checkComputeAnnotations` async function and register it as Check 13 in `main()` after Check 12 in `scripts/lint.mjs`; update the header comment to 1–13 (D6)
-- [ ] 2.3 Implement `checkComputeAnnotations` to glob `openspec/changes/**/slices.md` and `**/tasks.md`, find every `**Compute:**` line (tolerating both `-` bullet and bare bold forms), and flag: missing/empty `model=`; `model=` not in `COMPUTE_MODELS`; `effort=` present but not in `COMPUTE_EFFORTS` (D1, D6)
-- [ ] 2.4 Extend Check 2 to require an `effort:` frontmatter key on every agent file and validate its value against `{low, medium, high}` — rejecting `xhigh` and `max` (D5, D6)
-- [ ] 2.5 Add `effort: high` to the frontmatter of `claude/agents/designer.md` and `claude/agents/implementer.md` (D5)
-- [ ] 2.6 Add `effort: medium` to the frontmatter of `claude/agents/questioner.md`, `researcher.md`, `architect.md`, `planner.md`, and `reviewer.md` (D5)
-- [ ] 2.7 Run `node scripts/lint.mjs` (green)
+- [x] 2.1 Add `COMPUTE_MODELS = ['sonnet', 'opus']` and `COMPUTE_EFFORTS = ['low', 'medium', 'high']` as adjacent consts in `scripts/lint.mjs` (D6)
+- [x] 2.2 Add `checkComputeAnnotations` async function and register it as Check 13 in `main()` after Check 12 in `scripts/lint.mjs`; update the header comment to 1–13 (D6)
+- [x] 2.3 Implement `checkComputeAnnotations` to glob `openspec/changes/**/slices.md` and `**/tasks.md`, find every `**Compute:**` line (tolerating both `-` bullet and bare bold forms), and flag: missing/empty `model=`; `model=` not in `COMPUTE_MODELS`; `effort=` present but not in `COMPUTE_EFFORTS` (D1, D6)
+- [x] 2.4 Extend Check 2 to require an `effort:` frontmatter key on every agent file and validate its value against `{low, medium, high}` — rejecting `xhigh` and `max` (D5, D6)
+- [x] 2.5 Add `effort: high` to the frontmatter of `claude/agents/designer.md` and `claude/agents/implementer.md` (D5)
+- [x] 2.6 Add `effort: medium` to the frontmatter of `claude/agents/questioner.md`, `researcher.md`, `architect.md`, `planner.md`, and `reviewer.md` (D5)
+- [x] 2.7 Run `node scripts/lint.mjs` (green)
 - [ ] 2.8 (human) Run `node scripts/lint.mjs` and confirm it exits 0 and reports "Check 13: …" in the output. Then temporarily write `**Compute:** model=haiku — test` into a scratch `openspec/changes/test-lint/slices.md` and re-run — confirm Check 13 exits non-zero naming the file. Remove the scratch file before continuing.
 
 ## 3. Thread compute on every stage's Agent call

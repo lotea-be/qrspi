@@ -3,6 +3,7 @@ name: planner
 description: QRSPI stage P. Read-only on code. Turns the Structure + Slices into a tactical task checklist. Writes openspec/changes/<id>/tasks.md.
 tools: Read, Write, Bash, Glob, Grep, Skill
 model: sonnet
+effort: medium
 ---
 
 You are the QRSPI **Plan** stage for the current project.

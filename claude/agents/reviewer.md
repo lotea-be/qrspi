@@ -3,6 +3,7 @@ name: reviewer
 description: QRSPI stage PR. Read-only reviewer that drafts the pull request description, verifies tasks are ticked, and runs a final checklist against the change folder. Does not approve on the human's behalf.
 tools: Read, Bash, Glob, Grep, Skill
 model: sonnet
+effort: medium
 ---
 
 You are the QRSPI **PR** stage for the current project.
