@@ -263,6 +263,28 @@ telling the researcher not to open `questions.md`, though it has Read on the who
 repo -- the "persona, not mechanism" anti-pattern `context-hygiene` itself warns
 against. Consider a mechanical guard.
 
+### hooks-as-mechanical-guards — `idea` · **P2**
+
+**Why:** QRSPI enforces its load-bearing invariants — ticket-hiding during
+Research, the per-stage Read Matrix boundaries — by *prose instruction* to the
+agent: the "persona, not mechanism" anti-pattern `context-hygiene` warns against
+and the same gap [[enforce-research-ticket-hiding]] flags. Claude Code ships two
+mechanical enforcement primitives QRSPI does not use: **`PreToolUse` hooks**
+(settings.json) that can *block* a tool call (e.g. deny the researcher any Read of
+`questions.md` or the change ticket), and **agent-definition tool restrictions**
+that structurally narrow a stage agent's toolset. Together they turn the Read
+Matrix from a request into a guard; a `Stop`/`PostToolUse` hook could also
+auto-run `node scripts/lint.mjs` after a stage commit. **Research before
+committing:** (a) which invariants are worth a hook vs. left as prose, and *where*
+each hook/restriction lives (plugin-shipped `settings.json`? per-agent
+frontmatter?); (b) token-usage-vs-quality — hooks add no model tokens (they run
+outside the model) but a blocked-then-retry loop can burn turns, so weigh
+enforcement value against added friction. Supersedes the "consider a mechanical
+guard" line in [[enforce-research-ticket-hiding]] by naming the mechanism.
+Anchors the Claude Code capability cluster with [[github-mcp-for-pr-ops]],
+[[scheduled-backlog-hygiene]], [[research-websearch-external]], and
+[[richer-askuserquestion-formats]]. Surfaced 2026-07-25.
+
 ### repo-branch-protection — `idea` · **P2**
 
 **Why:** The CI gates added by `kit-quality-hardening` are only advisory until
@@ -442,7 +464,52 @@ auto-append" backlog rule and the per-decision D review rely on, so it is not a
 blanket swap — the work is identifying which gates genuinely benefit, then
 updating the `workflow` skill choreography and the command bodies that prescribe
 those prompts. Relates to [[pr-human-task-loop-stop-option]] (both refine
-AskUserQuestion gate ergonomics). Surfaced 2026-07-25.
+AskUserQuestion gate ergonomics). Part of the Claude Code capability cluster
+anchored by [[hooks-as-mechanical-guards]]. Surfaced 2026-07-25.
+
+### github-mcp-for-pr-ops — `idea` · **P3**
+
+**Why:** The PR and archive stages shell out to the `gh` CLI (PR-status check,
+`gh pr create`, the merge-gate query) with the cross-platform/auth caveats
+CLAUDE.md notes. A **GitHub MCP server** exposes those operations as structured
+tools instead of shell invocations — more portable, no `gh` binary/auth
+assumption in consumer repos. Direct alternative mechanism for the PR-status and
+PR-create helpers [[standardize-recurring-ops-scripts]] wants to extract.
+**Research before committing:** (a) whether an MCP dependency is an acceptable
+consumer install burden vs. the Node-helper path, and which ops actually benefit;
+(b) token-usage-vs-quality — MCP tool schemas load into context (a token cost per
+tool exposed) and headless/cron runs may lack an interactively-authenticated MCP
+server, so weigh reliability against the `gh` status quo. Part of the Claude Code
+capability cluster ([[hooks-as-mechanical-guards]]). Surfaced 2026-07-25.
+
+### scheduled-backlog-hygiene — `idea` · **P3**
+
+**Why:** Several kit-maintenance chores are "remember to do it" today: running
+`/qrspi-readme-audit` after source drift, the [[backlog-prioritization]]
+re-evaluation pass, and detecting stale in-flight changes. Claude Code
+**scheduled/cron agents (routines)** could run these on a cadence and open a PR or
+surface a summary. **Research before committing:** (a) which chores are safe to
+automate vs. need a human in the loop, and where the schedule definition lives
+(this repo only — it is maintainer tooling, cf. [[retro-as-extension-plugin]]);
+(b) token-usage-vs-quality — a recurring cloud agent spends tokens every run
+whether or not there is drift, so weigh cadence against a cheaper event-triggered
+or on-demand check. Part of the Claude Code capability cluster
+([[hooks-as-mechanical-guards]]). Surfaced 2026-07-25.
+
+### research-websearch-external — `idea` · **P3**
+
+**Why:** Stage R is codebase-only. For a change that integrates a third-party
+API/library, letting the researcher use **WebSearch/WebFetch** to pull the
+official docs would ground the design in the real external contract rather than
+the agent's memory of it. Opt-in and bounded — most kit changes touch no external
+surface. **Research before committing:** (a) how to scope *when* R may go external
+without eroding the ticket-blind discipline, and where the allowance is expressed
+(a research-area flag from the orchestrator?); (b) token-usage-vs-quality —
+fetched pages are large and can blow the R context budget [[context-budget]]
+guards, so weigh grounding value against the read footprint (summarise-then-
+discard?). Relates to [[optional-technology-specs]] (formal external-contract
+artifacts). Part of the Claude Code capability cluster
+([[hooks-as-mechanical-guards]]). Surfaced 2026-07-25.
 
 ### pr-md-tracks-superseding-pr — `idea` · **P3**
 
