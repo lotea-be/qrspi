@@ -114,6 +114,24 @@
 
 ...
 
+<!-- SURFACE-GATED: slash-command surface. Omit this section entirely (no
+     heading, no "Not applicable") when the repo has no slash-command surface. -->
+
+<!-- SURFACE-GATED: stage-agent surface. Omit this section entirely (no
+     heading, no "Not applicable") when the repo has no stage-agent surface. -->
+
+<!-- SURFACE-GATED: skill surface. Omit this section entirely (no heading,
+     no "Not applicable") when the repo has no skill surface. -->
+
+<!-- SURFACE-GATED: lint-gate surface. Omit this section entirely (no heading,
+     no "Not applicable") when the repo has no lint-gate surface. -->
+
+<!-- SURFACE-GATED: template surface. Omit this section entirely (no heading,
+     no "Not applicable") when the repo has no template surface. -->
+
+<!-- SURFACE-GATED: migration-manifest surface. Omit this section entirely (no
+     heading, no "Not applicable") when the repo has no migration-manifest surface. -->
+
 ## Testing
 
 <!-- Unit tests for endpoints and validators, smoke tests for components,

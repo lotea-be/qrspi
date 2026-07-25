@@ -71,13 +71,57 @@ entries and update the repo's `openspec/` layout to a newer kit version),
 Skills (loaded automatically by commands, not invoked directly): `qrspi-version-check`
 (session-scoped version gate -- compares the repo marker against the installed kit
 and offers `/qrspi:update` when the repo is behind; runs once per session, silent
-when up-to-date); `repo-surface` (five-surface taxonomy -- data-store, http-api,
-ui, auth, typed-nullable -- read by every artifact-producing agent to decide which
-CRUD sections to emit or omit; works with the repo's stack-cheatsheet `## Repo
-surface` block for deterministic inference, or falls back to prose inference).
+when up-to-date); `repo-surface` (eleven-surface taxonomy -- see [Surface taxonomy](#surface-taxonomy)
+below -- read by every artifact-producing agent to decide which surface-gated sections
+to emit or omit; works with the repo's stack-cheatsheet `## Repo surface` block for
+deterministic inference, or falls back to prose inference).
 
 Each artifact follows a **canonical OpenSpec shape** — see
 [`openspec-templates/`](openspec-templates/).
+
+---
+
+## Surface taxonomy
+
+QRSPI artifacts are filtered by **surface**: a surface is a named capability cluster
+that the repo either has (present) or does not have (absent). When a surface is absent,
+its gated sections are omitted entirely from every artifact the agents produce.
+
+There are eleven named surfaces (closed vocabulary):
+
+| Surface | Meaning | Gated sections |
+|---------|---------|----------------|
+| `data-store` | Database, ORM, SQL layer, or any persistent data store | `## Data model`, `## Indexing & query performance`, `## Migrations & data`, `## Data model changes`, `## Migrations` |
+| `http-api` | Exposes or consumes an HTTP API (REST, GraphQL, gRPC, ...) | `## API`, `## API surface` |
+| `ui` | Ships a user interface (web, native, TUI, or similar) | `## UI`, `## Front-end state`, `## UI surface` |
+| `auth` | Authentication, authorization, sessions, or identity management | `## Auth & authorization`, `## Authorization` |
+| `typed-nullable` | Typed language with nullable-suppression operators (`!`, `?.`, `??`) | PR checklist item only |
+| `slash-command` | Ships Claude Code slash commands (`claude/commands/*.md`) | `## Slash-command surface`, `## Command changes` |
+| `stage-agent` | Ships QRSPI stage subagents (`claude/agents/*.md`) | `## Stage-agent surface`, `## Agent changes` |
+| `skill` | Ships kit or project-scoped skills | `## Skill surface`, `## Skill changes` |
+| `lint-gate` | Has a lint/CI gate script enforcing structural invariants | `## Lint-gate surface`, `## Lint changes` |
+| `template` | Ships OpenSpec artifact templates | `## Template surface` |
+| `migration-manifest` | Ships per-version migration manifests (`migrations/*.yaml`) | `## Migration manifest` |
+
+**Declaring present surfaces.** A stack-cheatsheet skill (`.claude/skills/<repo>-stack/SKILL.md`,
+bootstrapped with `/qrspi:stack`) declares present surfaces via a `## Repo surface` block:
+
+```
+## Repo surface
+
+- data-store
+- http-api
+```
+
+A repo with no present surfaces uses the sentinel `_No present surfaces._`. When the
+`## Repo surface` block is absent, the agents fall back to prose inference from the
+cheatsheet; when no cheatsheet is loaded at all, all sections are emitted with a warning.
+
+**This repo's surfaces.** The QRSPI kit itself declares six present surfaces:
+`slash-command`, `stage-agent`, `skill`, `lint-gate`, `template`, `migration-manifest`.
+The five web/typed-nullable surfaces (`data-store`, `http-api`, `ui`, `auth`,
+`typed-nullable`) are absent -- no section belonging to those surfaces should appear in
+any QRSPI change artifact, and Check 14 enforces this mechanically.
 
 ---
 
@@ -256,12 +300,16 @@ all hand-maintained occurrences agree -- the lint will catch any missed location
 
 ### CI lint checks (`node scripts/lint.mjs`)
 
-The lint script runs 13 checks (Checks 1-13) on every CI run. Key checks relevant
+The lint script runs 14 checks (Checks 1-14) on every CI run. Key checks relevant
 to context hygiene and agent contracts:
 
 - **Check 2b (`checkSkillSets`)** -- asserts each stage agent's `Load skills` line
   matches the approved per-stage skill-set registry in `scripts/skill-sets.mjs`.
   Stray or missing skill loads cause a non-zero exit naming the offending agent.
+- **Check 11 (`checkNoCrudSkeletonHeadings`)** -- asserts that none of the twenty-two
+  surface-gated section headings appear as literal heading lines INSIDE fenced code
+  blocks in the five artifact-producing agent files. Surface-gated headings must appear
+  only as conditional gate comments, never hard-coded in skeletons.
 - **Check 12 (`checkOutputContracts`)** -- asserts each of the seven stage agents
   carries a `> **Output contract**` banner line (presence-only). Mirrors the scope
   and pattern of Check 7 (`checkReadContracts`).
@@ -269,11 +317,21 @@ to context hygiene and agent contracts:
   line in committed `slices.md` and `tasks.md` artifacts. Flags a missing or
   unknown `model=` token and an unknown `effort=` token (when present). Tolerates
   both the dash-bullet form (`slices.md`) and the bare bold form (`tasks.md`).
+- **Check 14 (`checkSurfaceApplicability`)** -- scans every `*.md` under
+  `openspec/changes/**` (excluding `/archive/` paths) and flags any heading line
+  belonging to an absent surface (a surface not listed in the stack-cheatsheet's
+  `## Repo surface` block). Reads the present-surface list from
+  `.claude/skills/qrspi-stack/SKILL.md`; fails loudly if the block is absent or
+  malformed (no silent skip). Includes an inline self-test: the detector is run
+  against a synthetic fixture at startup, so a broken scanner reddens CI immediately.
+  Disjoint scope with Check 11: Check 11 scans INSIDE fenced blocks in agent files;
+  Check 14 scans OUTSIDE fenced blocks in change artifacts -- they never fire on the
+  same line.
 
 All other checks (pin agreement, frontmatter, heading alignment, README command
 coverage, gate-tool/executor agreement, migration manifests, read-contract banners,
-PR reconciliation passes, version-check embed, triage path anchors, no CRUD skeleton
-headings) are enumerated in the header comment of `scripts/lint.mjs`.
+PR reconciliation passes, version-check embed, triage path anchors) are enumerated
+in the header comment of `scripts/lint.mjs`.
 
 ### Developer scripts
 

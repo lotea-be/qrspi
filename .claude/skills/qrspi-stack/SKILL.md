@@ -32,7 +32,7 @@ claude/
 openspec/                    -- OpenSpec workspace (config, changes, backlog)
 openspec-templates/          -- templates for OpenSpec artifacts
 scripts/
-  lint.mjs                   -- CI quality gate (Checks 1-11)
+  lint.mjs                   -- CI quality gate (Checks 1-14)
 migrations/                  -- per-version migration manifests
 CHANGELOG.md                 -- versioned release notes
 ```
@@ -51,7 +51,7 @@ CHANGELOG.md                 -- versioned release notes
 ## Testing
 
 - No unit test framework; correctness is verified by the lint script
-- Run: `node scripts/lint.mjs` (Checks 1-11; exits 0 on pass, 1 on failure)
+- Run: `node scripts/lint.mjs` (Checks 1-14; exits 0 on pass, 1 on failure)
 - No watch mode; run once per slice to gate a commit
 
 ## Build, lint & test commands
@@ -86,7 +86,9 @@ CHANGELOG.md                 -- versioned release notes
 
 ## Repo surface
 
-_No present surfaces._ This kit is markdown (command/agent/skill/template files)
-plus a Node lint script -- it has no data-store, http-api, ui, or auth surface, and
-no typed-nullable language. Because this block is present, it is authoritative: all
-surface-gated artifact sections are omitted for this repo.
+- slash-command
+- stage-agent
+- skill
+- lint-gate
+- template
+- migration-manifest

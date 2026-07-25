@@ -7,7 +7,24 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## In progress
 
-_None._
+### kit-surface-dogfooding — `in-progress (draft PR #33 open)` · **P2**
+
+**Why:** Bundle of two co-designed surface-taxonomy ideas, both extending the
+merged `repo-applicable-artifact-sections`. (1) **kit-self-surfaces** — give the
+kit its own surface taxonomy (`slash-command`, `stage-agent`, `skill`,
+`template`, `lint-gate`, `migration-manifest`; all six accepted in stage Q) so
+its own QRSPI artifacts stop falling to the always-emitted minimum and the kit
+dogfoods its own fix. (2) **enforce-artifact-surface-applicability** — a new
+lint Check 14 that parses the kit's `qrspi-stack` `## Repo surface` block and
+asserts committed `openspec/changes/**` artifacts (excluding `archive/`) carry
+no sections for *absent* surfaces — validating OUTPUT vs declared surface, which
+Check 11's source-side denylist cannot do. Also renames
+`CRUD_DENYLIST_HEADINGS` → a surface-generic name (PQ9) and adds an
+`## Extending the taxonomy` checklist to the `repo-surface` skill (PQ8). Scope
+boundary: the kit lints its OWN artifacts only — pushing enforcement into
+consumer repos stays with [[standardize-recurring-ops-scripts]]. Entered the
+QRSPI flow 2026-07-25 (stage Q). Formerly the separate `idea` rows
+`kit-self-surfaces` and `enforce-artifact-surface-applicability`.
 
 ---
 
@@ -35,10 +52,36 @@ kept adjacent near the top so the cost story reads at a glance: the **input** an
 [[configurable-effort-and-thinking]] (bundled into `per-slice-compute-knobs`,
 now proposed), and
 [[standardize-recurring-ops-scripts]] (reasoning/exploration) remain here. The
-**surface-taxonomy family** spun off [[repo-applicable-artifact-sections]] —
-[[enforce-artifact-surface-applicability]], [[kit-self-surfaces]],
-[[structured-surface-schema]], [[extend-surface-taxonomy]] — is likewise kept
-contiguous across the P2/P3 boundary.
+**surface-taxonomy family** spun off [[repo-applicable-artifact-sections]]:
+`enforce-artifact-surface-applicability` and `kit-self-surfaces` are now bundled
+into `kit-surface-dogfooding` (proposed, in the QRSPI flow); the remaining
+[[structured-surface-schema]] and [[extend-surface-taxonomy]] are kept
+contiguous below across the P2/P3 boundary.
+
+### researcher-surface-generic — `idea` · **P1**
+
+**Why:** The `repo-applicable-artifact-sections` surface mechanism gates the
+*proposal*-producing agents (questioner, designer, architect, planner) but **left
+the researcher out** — `claude/agents/researcher.md` never loads `repo-surface`
+and carries a fixed, web-app-shaped skeleton (`## Public API surface`,
+`## Data model`, …). So `research.md` emits a `## Data model` section even for a
+repo with no data-store surface (the kit itself) — the same hardcoded-surface
+assumption the surface work set out to kill. **Make the researcher generic:**
+drive its factual-inventory sections from the repo's declared surfaces (the stack
+cheatsheet `## Repo surface` block) instead of a fixed skeleton. Two design
+wrinkles need their own Q/D: (1) **inventory-vs-proposal semantics** — the gated
+agents *omit* a proposal section for an absent surface, but documenting the
+*absence* of a surface can itself be a useful factual finding, so "omit when
+absent" is not obviously right for a factual map; (2) the researcher is
+**ticket-blind** and does not load `repo-surface` today, so this touches its Read
+contract and the R stage. Needs a surface→*inventory-heading* mapping distinct
+from the existing surface→*proposal-heading* mapping. **P1 / take up next:** it is
+the durable completion of the surface-gating work, and it retires the temporary
+`## Data model`→`## Data structures` band-aid in `kit-surface-dogfooding`'s
+`research.md` — once the researcher is surface-gated, `research.md` is legitimately
+scannable by Check 14 (which already scans all live `changes/**` artifacts).
+Sibling of `kit-self-surfaces`; surfaced 2026-07-25 during the stage-I dogfooding
+of `kit-surface-dogfooding`.
 
 ### spec-anchored-code-comments — `idea` · **P1**
 
@@ -194,6 +237,24 @@ archive) — that's a natural trigger point to offer the reprioritization pass.
 (The `P1`–`P3` bands + priority ordering now used in this file are a first,
 hand-maintained cut of this convention.)
 
+### flow-entry-right-sizing — `idea` · **P2**
+
+**Why:** Nothing formally assesses, when a backlog idea is picked up, whether it
+needs the full eight-stage flow or a lighter path — the agent applies the
+`workflow` skill's static "When you can skip stages" prose ad hoc (trivial →
+straight to `/qrspi:implement`; data-model/API/auth → full flow). Make it an
+explicit, recorded **right-sizing gate at flow entry**: assess the chosen scope's
+surface/risk and route it to full-flow vs a trimmed path (e.g. a middle tier that
+skips R but keeps the D alignment gate), recording the decision + rationale. This
+is the entry-side sibling of the archived `right-size-followup-handling` triage
+(which right-sizes POST-PR follow-ups), and the third axis of "what to do next"
+alongside [[backlog-prioritization]] (which idea) and [[propose-bundling-ideas]]
+(how much at once) — this one decides *how heavy* a flow. **Hard constraint
+(design tension):** it must be a right-sizer, not an escape hatch — QRSPI's thesis
+is front-loading Q+R+D to beat the plan-reading illusion, so the gate MUST
+preserve "any data-model / API / auth / contract surface ⇒ full flow" and only
+trim genuinely low-surface changes. Surfaced 2026-07-25.
+
 ### standardize-backlog-format — `idea` · **P2**
 
 **Why:** The kit's commands all *mutate* `openspec/backlog.md` — `questions`
@@ -245,6 +306,28 @@ telling the researcher not to open `questions.md`, though it has Read on the who
 repo -- the "persona, not mechanism" anti-pattern `context-hygiene` itself warns
 against. Consider a mechanical guard.
 
+### hooks-as-mechanical-guards — `idea` · **P2**
+
+**Why:** QRSPI enforces its load-bearing invariants — ticket-hiding during
+Research, the per-stage Read Matrix boundaries — by *prose instruction* to the
+agent: the "persona, not mechanism" anti-pattern `context-hygiene` warns against
+and the same gap [[enforce-research-ticket-hiding]] flags. Claude Code ships two
+mechanical enforcement primitives QRSPI does not use: **`PreToolUse` hooks**
+(settings.json) that can *block* a tool call (e.g. deny the researcher any Read of
+`questions.md` or the change ticket), and **agent-definition tool restrictions**
+that structurally narrow a stage agent's toolset. Together they turn the Read
+Matrix from a request into a guard; a `Stop`/`PostToolUse` hook could also
+auto-run `node scripts/lint.mjs` after a stage commit. **Research before
+committing:** (a) which invariants are worth a hook vs. left as prose, and *where*
+each hook/restriction lives (plugin-shipped `settings.json`? per-agent
+frontmatter?); (b) token-usage-vs-quality — hooks add no model tokens (they run
+outside the model) but a blocked-then-retry loop can burn turns, so weigh
+enforcement value against added friction. Supersedes the "consider a mechanical
+guard" line in [[enforce-research-ticket-hiding]] by naming the mechanism.
+Anchors the Claude Code capability cluster with [[github-mcp-for-pr-ops]],
+[[scheduled-backlog-hygiene]], [[research-websearch-external]], and
+[[richer-askuserquestion-formats]]. Surfaced 2026-07-25.
+
 ### repo-branch-protection — `idea` · **P2**
 
 **Why:** The CI gates added by `kit-quality-hardening` are only advisory until
@@ -279,46 +362,6 @@ per-gate auto-branch wiring stays consistent — the runtime suppression itself 
 not statically checkable. Surfaced by `add-auto-mode` stage D (offered, not built).
 Low-cost correctness guard (hence P2, not P3). Now **unblocked** — `add-auto-mode`
 merged 2026-07-06 (archived), so the convention it enforces is live.
-
-### enforce-artifact-surface-applicability — `idea` · **P2**
-
-**Why:** [[repo-applicable-artifact-sections]] ships lint Check 11, which only
-catches *hard-coded* CRUD headings sitting literally in an agent's fenced
-skeleton block (a static string denylist over the kit's source). It cannot
-validate that a *generated* artifact's emitted sections actually match the
-repo's declared surface — that needs a live parse of the `<repo>-stack`
-cheatsheet's `## Repo surface` block, which lint has no access to today. Add a
-this-repo CI check that parses the kit's own `qrspi-stack` surface block and
-asserts the kit's committed `openspec/changes/**` artifacts carry no sections
-for absent surfaces (validating OUTPUT vs declared surface). Low-cost
-correctness guard sequenced behind `repo-applicable-artifact-sections` (hence
-P2, like [[lint-auto-mode-gate-coverage]]). **Scope boundary:** this is the kit
-linting its *own* artifacts; pushing the same enforcement into *consumer* repos'
-CI is the separate shipped-runtime-helper problem tracked in
-[[standardize-recurring-ops-scripts]]. Surfaced 2026-07-24 as a Non-Goal of
-`repo-applicable-artifact-sections` (stage D).
-
-### kit-self-surfaces — `idea` · **P2**
-
-**Why:** The five web surfaces [[repo-applicable-artifact-sections]] ships
-(`data-store`, `http-api`, `ui`, `auth`, `typed-nullable`) leave *this* kit repo
-with **no present surfaces**, so its own QRSPI artifacts fall to the
-always-emitted minimum — which undercuts that change's "the kit dogfoods its own
-fix" goal (its `qrspi-stack` `## Repo surface` block lists nothing). But the kit
-has real surfaces of its own that could gate genuinely useful sections for kit
-changes: **`slash-command`** (a change adds/renames a `/qrspi:*` command → a
-command-surface + README-sync section), **`stage-agent`** (touches an agent
-read-contract / the Read Matrix), **`skill`**, **`template`**, **`lint-gate`**
-(`scripts/lint.mjs` checks), and **`migration-manifest`** (`migrations/<v>.yaml`
-needed for a release). Adding these lets the kit dogfood richer self-surfaces.
-Each needs the same treatment as the original five — a mapping row in
-`repo-surface`, the gated section(s) in the relevant agent skeleton(s)/template(s),
-and (if it introduces a heading a fenced skeleton must not hardcode) a Check 11
-denylist entry. **P2, not P3 like its sibling [[extend-surface-taxonomy]]:** it
-directly improves *this* repo's own dogfooding rather than serving hypothetical
-consumer repo types, and it's ready to pick up as `repo-applicable-artifact-sections`
-lands (whose taxonomy it extends). Split out from [[extend-surface-taxonomy]]
-2026-07-24; surfaced during that change's stage-I dogfooding.
 
 ### automate-marketplace-source-bump — `idea` · **P2**
 
@@ -448,6 +491,68 @@ the loop wording lives there. Surfaced
 2026-07-23 during the PR stage of [[session-version-check-and-update-prompt]],
 whose change embeds many `(human)` live-session checks that made the missing
 exit obvious.
+
+### richer-askuserquestion-formats — `idea` · **P3**
+
+**Why:** Every QRSPI gate uses `AskUserQuestion` in its plainest single-select,
+text-only form, but the tool also supports `multiSelect` (pick N of M) and
+`preview` (side-by-side rendered markdown/mockups per option). Several gates map
+naturally onto these: the surface-subset / present-set style "which of these N?"
+questions and the **backlog-capture offers** in Q/D/S (today an *offer-per-item*
+loop) are textbook `multiSelect`; section-name choices and design decisions with
+competing concrete shapes (a heading layout, a code snippet, a table form) are
+where `preview` adds real signal over prose. Needs its own Q/R/D: `multiSelect`
+**removes** the deliberate one-at-a-time cadence that the "offer, never
+auto-append" backlog rule and the per-decision D review rely on, so it is not a
+blanket swap — the work is identifying which gates genuinely benefit, then
+updating the `workflow` skill choreography and the command bodies that prescribe
+those prompts. Relates to [[pr-human-task-loop-stop-option]] (both refine
+AskUserQuestion gate ergonomics). Part of the Claude Code capability cluster
+anchored by [[hooks-as-mechanical-guards]]. Surfaced 2026-07-25.
+
+### github-mcp-for-pr-ops — `idea` · **P3**
+
+**Why:** The PR and archive stages shell out to the `gh` CLI (PR-status check,
+`gh pr create`, the merge-gate query) with the cross-platform/auth caveats
+CLAUDE.md notes. A **GitHub MCP server** exposes those operations as structured
+tools instead of shell invocations — more portable, no `gh` binary/auth
+assumption in consumer repos. Direct alternative mechanism for the PR-status and
+PR-create helpers [[standardize-recurring-ops-scripts]] wants to extract.
+**Research before committing:** (a) whether an MCP dependency is an acceptable
+consumer install burden vs. the Node-helper path, and which ops actually benefit;
+(b) token-usage-vs-quality — MCP tool schemas load into context (a token cost per
+tool exposed) and headless/cron runs may lack an interactively-authenticated MCP
+server, so weigh reliability against the `gh` status quo. Part of the Claude Code
+capability cluster ([[hooks-as-mechanical-guards]]). Surfaced 2026-07-25.
+
+### scheduled-backlog-hygiene — `idea` · **P3**
+
+**Why:** Several kit-maintenance chores are "remember to do it" today: running
+`/qrspi-readme-audit` after source drift, the [[backlog-prioritization]]
+re-evaluation pass, and detecting stale in-flight changes. Claude Code
+**scheduled/cron agents (routines)** could run these on a cadence and open a PR or
+surface a summary. **Research before committing:** (a) which chores are safe to
+automate vs. need a human in the loop, and where the schedule definition lives
+(this repo only — it is maintainer tooling, cf. [[retro-as-extension-plugin]]);
+(b) token-usage-vs-quality — a recurring cloud agent spends tokens every run
+whether or not there is drift, so weigh cadence against a cheaper event-triggered
+or on-demand check. Part of the Claude Code capability cluster
+([[hooks-as-mechanical-guards]]). Surfaced 2026-07-25.
+
+### research-websearch-external — `idea` · **P3**
+
+**Why:** Stage R is codebase-only. For a change that integrates a third-party
+API/library, letting the researcher use **WebSearch/WebFetch** to pull the
+official docs would ground the design in the real external contract rather than
+the agent's memory of it. Opt-in and bounded — most kit changes touch no external
+surface. **Research before committing:** (a) how to scope *when* R may go external
+without eroding the ticket-blind discipline, and where the allowance is expressed
+(a research-area flag from the orchestrator?); (b) token-usage-vs-quality —
+fetched pages are large and can blow the R context budget [[context-budget]]
+guards, so weigh grounding value against the read footprint (summarise-then-
+discard?). Relates to [[optional-technology-specs]] (formal external-contract
+artifacts). Part of the Claude Code capability cluster
+([[hooks-as-mechanical-guards]]). Surfaced 2026-07-25.
 
 ### pr-md-tracks-superseding-pr — `idea` · **P3**
 

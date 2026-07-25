@@ -2,7 +2,7 @@
 // ============================================================================
 //  scripts/lint.mjs -- CI quality gate for the QRSPI kit
 // ----------------------------------------------------------------------------
-//  Checks (run in order, all errors collected before exit -- Checks 1-13):
+//  Checks (run in order, all errors collected before exit -- Checks 1-14):
 //
 //  1. PIN AGREEMENT  -- every hand-maintained OpenSpec version occurrence
 //     must agree. generatedBy: lines in openspec-generated skill files are
@@ -50,18 +50,16 @@
 //     three triage choice-label prefixes (P1/P2/P3) so a future rename cannot
 //     silently drop a path. Mirrors the Check 8 pattern for pr.md.
 //
-// 11. NO CRUD SKELETON HEADINGS -- the twelve CRUD/web-app section headings
-//     (## Data model, ## Indexing & query performance, ## API, ## UI,
-//     ## Front-end state, ## Auth & authorization, ## Migrations & data,
-//     ## Data model changes, ## API surface, ## UI surface, ## Authorization,
-//     ## Migrations) must NOT appear as literal heading lines inside fenced
-//     code blocks in any of the five artifact-producing agent files
-//     (questioner, designer, architect, planner, reviewer). These headings are
-//     surface-gated and must only be emitted when the repo's surface declares
-//     them present; hard-coding them in skeletons defeats the repo-surface filter.
+// 11. NO SURFACE-GATED SKELETON HEADINGS IN FENCED BLOCKS -- the twenty-two
+//     surface-gated section headings must NOT appear as literal heading lines
+//     inside fenced code blocks in any of the five artifact-producing agent
+//     files (questioner, designer, architect, planner, reviewer). These
+//     headings are surface-gated and must only be emitted when the repo's
+//     surface declares them present; hard-coding them in skeletons defeats the
+//     repo-surface filter.
 //     Disjoint-set invariant: Check 3 requires surface-INDEPENDENT headings
-//     to be PRESENT; Check 11 requires CRUD headings to be ABSENT from fenced
-//     blocks -- disjoint heading sets AND disjoint scopes (full body vs. fences).
+//     to be PRESENT; Check 11 requires surface-GATED headings to be ABSENT
+//     from fenced blocks -- disjoint heading sets AND disjoint scopes.
 //
 // 12. OUTPUT-CONTRACT BANNER PRESENCE -- each of the seven stage agents must
 //     carry a `> **Output contract**` banner line (presence-only check;
@@ -75,6 +73,18 @@
 //     only (NOT presence-on-every-slice); tolerates both the dash-bullet and
 //     bare-bold structural forms. Scoped strictly to the committed change
 //     artifacts -- never scans skills or templates (placeholder examples there).
+//
+// 14. SURFACE APPLICABILITY OF ARTIFACT HEADINGS -- scans every *.md under
+//     openspec/changes/** (excluding /archive/ paths) and flags any heading
+//     line that belongs to an ABSENT surface (a surface not listed in the
+//     stack-cheatsheet's `## Repo surface` block). Reads the present-surface
+//     list from `.claude/skills/qrspi-stack/SKILL.md`; fails loudly if the
+//     `## Repo surface` block is absent or malformed (not warn-and-skip).
+//     Includes an inline self-test that asserts the detector fires on a
+//     synthetic fixture; a broken detector reddens CI immediately.
+//     Disjoint scope with Check 11: Check 11 scans INSIDE fenced blocks in
+//     agent source files; Check 14 scans OUTSIDE fenced blocks in change
+//     artifacts -- the two checks never fire on the same line.
 //
 //  Exits 0 if all checks pass, 1 if any check reports a violation.
 //  Requires only Node.js built-ins (fs, path) -- no npm dependencies.
@@ -1377,17 +1387,17 @@ async function checkTriagePaths(errors) {
   return violations;
 }
 
-// ---- Check 11: NO CRUD SKELETON HEADINGS IN FENCED BLOCKS -----------------
+// ---- Check 11: NO SURFACE-GATED SKELETON HEADINGS IN FENCED BLOCKS --------
 //
-// Asserts that none of the twelve CRUD/web-app heading lines appear as literal
-// heading lines INSIDE fenced code blocks in the five artifact-producing agent
-// files (questioner, designer, architect, planner, reviewer).
+// Asserts that none of the twenty-two surface-gated heading lines appear as
+// literal heading lines INSIDE fenced code blocks in the five artifact-producing
+// agent files (questioner, designer, architect, planner, reviewer).
 //
-// Disjoint-set invariant (design requirement):
+// Disjoint-set invariant (a) -- vs Check 3:
 //   Check 3 (checkHeadingAlignment) requires surface-INDEPENDENT headings
 //   (## Testing, ## Sequencing & scope, ## Open product questions) to be
 //   PRESENT anywhere in the body of the relevant agent file.
-//   Check 11 (this check) requires CRUD/web-app headings to be ABSENT from
+//   Check 11 (this check) requires surface-GATED headings to be ABSENT from
 //   FENCED BLOCKS in the five agent files.
 //   The two checks cover DISJOINT heading sets AND disjoint scopes:
 //     - no heading is simultaneously required-present (Check 3) and
@@ -1395,14 +1405,21 @@ async function checkTriagePaths(errors) {
 //     - Check 3 scans the full body (not limited to fenced blocks);
 //     - Check 11 scans only inside fenced blocks (not the full body).
 //
-// The twelve CRUD headings are the surface-gated headings that Slices 2-3
-// replaced with conditional placeholders in agent skeletons. Matching on
-// lines beginning with the heading marker avoids false positives on prose
-// mentions (e.g. "see ## Data model below") that appear outside fenced blocks.
+// Disjoint-scope invariant (b) -- vs forthcoming Check 14:
+//   Check 11 scans agent SOURCE fenced skeletons (inside ``` blocks).
+//   Check 14 scans committed ARTIFACT bodies outside fences (e.g. questions.md,
+//   design.md files in openspec/changes/).
+//   The two checks cover DISJOINT scopes and will never fire on the same line.
+//
+// The twenty-two surface-gated headings replaced conditional placeholders in
+// agent skeletons. Matching on lines equal to (or beginning with) the heading
+// marker avoids false positives on prose mentions (e.g. "see ## Data model
+// below") that appear outside fenced blocks.
 //
 // Registered after Check 10; contributes to the pass/fail aggregation and exit code.
 
-const CRUD_DENYLIST_HEADINGS = new Set([
+const SURFACE_GATED_DENYLIST_HEADINGS = new Set([
+  // Data-store surface (original 12)
   '## Data model',
   '## Indexing & query performance',
   '## API',
@@ -1415,6 +1432,17 @@ const CRUD_DENYLIST_HEADINGS = new Set([
   '## UI surface',
   '## Authorization',
   '## Migrations',
+  // Kit surfaces (10 new -- added in kit-surface-dogfooding)
+  '## Slash-command surface',
+  '## Command changes',
+  '## Stage-agent surface',
+  '## Agent changes',
+  '## Skill surface',
+  '## Skill changes',
+  '## Lint-gate surface',
+  '## Lint changes',
+  '## Template surface',
+  '## Migration manifest',
 ]);
 
 const CRUD_CHECK_AGENTS = [
@@ -1474,7 +1502,7 @@ async function checkNoCrudSkeletonHeadings(errors) {
       }
 
       if (inFence) {
-        // Check if this line is a CRUD denylist heading.
+        // Check if this line is a surface-gated denylist heading.
         // Match on exact prefix: the line, after trimming trailing whitespace,
         // must equal a denylist entry (handles both "## Foo" alone and avoids
         // matching "## Foo bar" when only "## Foo" is denied).
@@ -1482,10 +1510,10 @@ async function checkNoCrudSkeletonHeadings(errors) {
         // whether the trimmed line starts with the denylist entry followed
         // by end-of-string OR whitespace (prevents "## APIs" matching "## API").
         const trimmed = line.trimEnd();
-        for (const denied of CRUD_DENYLIST_HEADINGS) {
+        for (const denied of SURFACE_GATED_DENYLIST_HEADINGS) {
           if (trimmed === denied || trimmed.startsWith(denied + ' ') || trimmed.startsWith(denied + '\t')) {
             errors.push(
-              `[crud-skeleton] ${rel}:${i + 1}: CRUD heading '${denied}' found inside a fenced block -- ` +
+              `[crud-skeleton] ${rel}:${i + 1}: surface-gated heading '${denied}' found inside a fenced block -- ` +
               `replace with a surface-gate conditional placeholder (see repo-surface skill)`
             );
             violations++;
@@ -1503,7 +1531,7 @@ async function checkNoCrudSkeletonHeadings(errors) {
 
   if (violations === 0) {
     process.stdout.write(
-      `  OK: no CRUD skeleton headings found inside fenced blocks in any of the ${CRUD_CHECK_AGENTS.length} agent files\n`
+      `  OK: no surface-gated skeleton headings found inside fenced blocks in any of the ${CRUD_CHECK_AGENTS.length} agent files\n`
     );
   }
   return violations;
@@ -1652,6 +1680,285 @@ async function checkComputeAnnotations(errors) {
   return violations;
 }
 
+// ---- Check 14: SURFACE APPLICABILITY OF ARTIFACT HEADINGS -----------------
+//
+// Scans every *.md file under openspec/changes/** (excluding any path that
+// contains "/archive/") and flags any heading line that belongs to an
+// ABSENT surface -- i.e., a surface not listed in the stack-cheatsheet's
+// `## Repo surface` block.
+//
+// SETUP (D6, D7, PQ7):
+//   1. Read `.claude/skills/qrspi-stack/SKILL.md` and extract the
+//      `## Repo surface` block. If the heading is absent OR the block yields
+//      neither the sentinel `_No present surfaces._` nor at least one bullet
+//      line, push a clear error and return immediately (fail-loud).
+//   2. Parse the present-surface bullet list from the block.
+//   3. Compute the ABSENT-surface set = all surfaces in SURFACE_GATED_HEADINGS
+//      minus the present set. Derive the absent-heading set from those.
+//   4. Walk every *.md under openspec/changes/, skipping paths with /archive/.
+//   5. For each file, scan lines OUTSIDE fenced code blocks (fence-tracking
+//      mirrors Check 11's approach). Flag any line that is an absent heading
+//      (exact-prefix match: trimmed === h, or starts with h+' ', or h+'\t').
+//   6. On a hit, push a [surface-applicability] error naming file:line, the
+//      heading, and the surface it belongs to.
+//
+// DISJOINT SCOPE (b): Check 11 scans INSIDE fenced blocks in agent source files;
+//   Check 14 scans OUTSIDE fenced blocks in committed change artifacts.
+//   The two checks will never fire on the same line.
+//
+// INLINE SELF-TEST (D8, OQ2):
+//   A synthetic in-memory fixture containing a known absent-surface heading is
+//   run through the detector at startup. If the detector fails to flag it, an
+//   error is pushed so CI reddens immediately -- a broken detector never passes
+//   silently.
+
+// Map from surface name to the section headings it gates (sections only --
+// checklist-item-only surfaces like `typed-nullable` are absent from this map
+// because they have no heading the detector can match). Sourced from the
+// section-to-surface mapping in claude/skills/repo-surface/SKILL.md (D6, PQ6).
+const SURFACE_GATED_HEADINGS = {
+  'data-store': [
+    '## Data model',
+    '## Indexing & query performance',
+    '## Migrations & data',
+    '## Data model changes',
+    '## Migrations',
+  ],
+  'http-api': [
+    '## API',
+    '## API surface',
+  ],
+  'ui': [
+    '## UI',
+    '## Front-end state',
+    '## UI surface',
+  ],
+  'auth': [
+    '## Auth & authorization',
+    '## Authorization',
+  ],
+  // typed-nullable: no section headings (only PR checklist items) -- not included
+  'slash-command': [
+    '## Slash-command surface',
+    '## Command changes',
+  ],
+  'stage-agent': [
+    '## Stage-agent surface',
+    '## Agent changes',
+  ],
+  'skill': [
+    '## Skill surface',
+    '## Skill changes',
+  ],
+  'lint-gate': [
+    '## Lint-gate surface',
+    '## Lint changes',
+  ],
+  'template': [
+    '## Template surface',
+  ],
+  'migration-manifest': [
+    '## Migration manifest',
+  ],
+};
+
+// Parse the present-surface set from the text of qrspi-stack/SKILL.md.
+// Returns { ok: true, surfaces: Set<string> } or { ok: false, message: string }.
+function parseRepoSurfaceBlock(skillText) {
+  const lines = skillText.replace(/\r\n/g, '\n').split('\n');
+
+  // Find the `## Repo surface` heading line
+  const headingIdx = lines.findIndex((l) => l.trimEnd() === '## Repo surface');
+  if (headingIdx === -1) {
+    return {
+      ok: false,
+      message:
+        'the `## Repo surface` block is required for the kit to dogfood its own surface check ' +
+        '-- add a `## Repo surface` section to `.claude/skills/qrspi-stack/SKILL.md`',
+    };
+  }
+
+  // Collect the block's content lines: everything after the heading until
+  // the next `##`-level heading or end of file.
+  const blockLines = [];
+  for (let i = headingIdx + 1; i < lines.length; i++) {
+    if (/^##\s/.test(lines[i])) break;
+    blockLines.push(lines[i]);
+  }
+
+  // Check for sentinel
+  const blockText = blockLines.join('\n');
+  if (blockText.includes('_No present surfaces._')) {
+    return { ok: true, surfaces: new Set() };
+  }
+
+  // Parse bullet lines: `- <surface-name>`
+  const surfaces = new Set();
+  for (const bl of blockLines) {
+    const m = bl.match(/^\s*-\s+(\S+)\s*$/);
+    if (m) surfaces.add(m[1]);
+  }
+
+  if (surfaces.size === 0) {
+    return {
+      ok: false,
+      message:
+        'the `## Repo surface` block in `.claude/skills/qrspi-stack/SKILL.md` is present but ' +
+        'contains neither the sentinel `_No present surfaces._` nor any parseable bullet lines ' +
+        '-- add bullet lines (`- <surface-name>`) or use the sentinel',
+    };
+  }
+
+  return { ok: true, surfaces };
+}
+
+// Core line-scanner used by both the self-test and the real file scan.
+// Given an array of heading strings to flag, scan `text` (a file's full content)
+// for any heading outside a fenced block that matches. Returns an array of
+// { lineNum (1-based), heading, line } hits.
+function scanAbsentHeadings(text, absentHeadings) {
+  if (absentHeadings.length === 0) return [];
+
+  const lines = text.replace(/\r\n/g, '\n').split('\n');
+  const hits = [];
+
+  let inFence = false;
+  let fenceMark = '';
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+
+    // Fence open/close detection (mirrors Check 11)
+    const fenceMatch = line.match(/^(`{3,}|~{3,})/);
+    if (fenceMatch) {
+      const mark = fenceMatch[1][0];
+      const len = fenceMatch[1].length;
+      if (!inFence) {
+        inFence = true;
+        fenceMark = mark.repeat(len);
+      } else if (mark === fenceMark[0] && line.trimEnd() === fenceMark) {
+        inFence = false;
+        fenceMark = '';
+      }
+      continue;
+    }
+
+    // Only flag headings OUTSIDE fenced blocks
+    if (!inFence) {
+      const trimmed = line.trimEnd();
+      for (const h of absentHeadings) {
+        if (trimmed === h || trimmed.startsWith(h + ' ') || trimmed.startsWith(h + '\t')) {
+          hits.push({ lineNum: i + 1, heading: h, line: trimmed });
+          break;
+        }
+      }
+    }
+  }
+
+  return hits;
+}
+
+async function checkSurfaceApplicability(errors) {
+  // ---- INLINE SELF-TEST (D8, OQ2) -----------------------------------------
+  // Run the scanner over a synthetic fixture with a known absent-surface heading
+  // (## Data model is in data-store, which is absent for the kit). The detector
+  // MUST fire; if it misses, the test itself pushes an error so CI fails loudly.
+  const selfTestFixture = '# Title\n\nSome prose.\n\n## Data model\n\nContent here.\n';
+  const selfTestAbsent = ['## Data model'];
+  const selfTestHits = scanAbsentHeadings(selfTestFixture, selfTestAbsent);
+  if (selfTestHits.length === 0) {
+    errors.push(
+      '[surface-applicability] SELF-TEST FAILED: the scanner did not flag ' +
+      '`## Data model` in the synthetic fixture -- the detector is broken'
+    );
+    // Do not proceed if the detector itself is broken
+    return 1;
+  }
+  // Also verify the fence-skip logic: a heading inside a fence must NOT be flagged
+  const selfTestFenced = '# Title\n\n```\n## Data model\n```\n\nProse.\n';
+  const selfTestFencedHits = scanAbsentHeadings(selfTestFenced, selfTestAbsent);
+  if (selfTestFencedHits.length !== 0) {
+    errors.push(
+      '[surface-applicability] SELF-TEST FAILED: the scanner flagged `## Data model` ' +
+      'inside a fenced block -- fence-skip logic is broken'
+    );
+    return 1;
+  }
+  // Self-test passed -- continue to real scan
+  // -------------------------------------------------------------------------
+
+  // 1. Read the stack-cheatsheet skill
+  const stackSkillPath = path.join(root, '.claude', 'skills', 'qrspi-stack', 'SKILL.md');
+  const stackSkillText = await readFileOr(stackSkillPath, null);
+  if (stackSkillText === null) {
+    errors.push(
+      '[surface-applicability] `.claude/skills/qrspi-stack/SKILL.md` not found -- ' +
+      'cannot determine present surfaces for Check 14'
+    );
+    return 1;
+  }
+
+  // 2. Parse the ## Repo surface block (fail-loud on absence or malformed block)
+  const parsed = parseRepoSurfaceBlock(stackSkillText);
+  if (!parsed.ok) {
+    errors.push(`[surface-applicability] ${parsed.message}`);
+    return 1;
+  }
+  const presentSurfaces = parsed.surfaces;
+
+  // 3. Compute absent-surface set and absent-heading set
+  const absentHeadings = [];
+  const headingToSurface = new Map();
+  for (const [surface, headings] of Object.entries(SURFACE_GATED_HEADINGS)) {
+    if (!presentSurfaces.has(surface)) {
+      for (const h of headings) {
+        absentHeadings.push(h);
+        headingToSurface.set(h, surface);
+      }
+    }
+  }
+
+  if (absentHeadings.length === 0) {
+    // All surfaces present -- nothing to flag
+    process.stdout.write(
+      '  OK: all surfaces are present; no absent-surface headings to check\n'
+    );
+    return 0;
+  }
+
+  // 4. Walk openspec/changes/ and scan each .md file (excluding /archive/)
+  const changesDir = path.join(root, 'openspec', 'changes');
+  const allMd = await walkMd(changesDir);
+  const targetFiles = allMd.filter((f) => !f.includes(path.sep + 'archive' + path.sep));
+
+  let violations = 0;
+
+  for (const file of targetFiles) {
+    const rel = path.relative(root, file);
+    const text = await readFileOr(file, null);
+    if (text === null) continue;
+
+    // 5. Scan for absent-surface headings outside fenced blocks
+    const hits = scanAbsentHeadings(text, absentHeadings);
+    for (const { lineNum, heading } of hits) {
+      const surface = headingToSurface.get(heading);
+      errors.push(
+        `[surface-applicability] ${rel}:${lineNum}: heading '${heading}' belongs to ` +
+        `surface '${surface}' which is absent for this repo -- ` +
+        `remove the heading or add '${surface}' to the ## Repo surface block`
+      );
+      violations++;
+    }
+  }
+
+  if (violations === 0) {
+    process.stdout.write(
+      `  OK: no absent-surface headings found in ${targetFiles.length} change artifact file(s)\n`
+    );
+  }
+  return violations;
+}
+
 // ---- main ------------------------------------------------------------------
 
 async function main() {
@@ -1700,6 +2007,9 @@ async function main() {
 
   process.stdout.write('\nCheck 13: Compute annotation value-validation\n');
   await checkComputeAnnotations(errors);
+
+  process.stdout.write('\nCheck 14: Surface applicability of artifact headings\n');
+  await checkSurfaceApplicability(errors);
 
   process.stdout.write('\n');
   if (errors.length === 0) {
