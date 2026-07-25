@@ -50,8 +50,8 @@
 
 **Model:** sonnet — pure documentation: adding a YAML manifest with a known schema, updating a README with established structure, and appending changelog bullets; no algorithmic or architectural reasoning required.
 
-- [ ] 5.1 Add `migrations/<version>.yaml` with `version: <TBD>`, `summary: "…"`, `automated: []`, and a `manual:` step describing the `**Model:** → **Compute:** model=X` rewrite for in-flight `slices.md`/`tasks.md` files (D8)
-- [ ] 5.2 Update `README.md` — add `**Compute:**` annotation form to the relevant stage-table or command-notes section; note Check 13 (`checkComputeAnnotations`) in the checks surface (D8)
-- [ ] 5.3 Add `## [Unreleased]` entries to `CHANGELOG.md` covering: `**Compute:**` grammar, `effort:` frontmatter on all agents, Check 13, Check 2 extension, stage-command threading, FIX MODE inline spec + wiring fix, and the migration manifest (D8)
-- [ ] 5.4 Run `node scripts/lint.mjs` (green — including Check 4 README coverage and Check 6 migration manifest schema)
+- [x] 5.1 Add `migrations/<version>.yaml` with `version: <TBD>`, `summary: "…"`, `automated: []`, and a `manual:` step describing the `**Model:** → **Compute:** model=X` rewrite for in-flight `slices.md`/`tasks.md` files (D8)
+- [x] 5.2 Update `README.md` — add `**Compute:**` annotation form to the relevant stage-table or command-notes section; note Check 13 (`checkComputeAnnotations`) in the checks surface (D8)
+- [x] 5.3 Add `## [Unreleased]` entries to `CHANGELOG.md` covering: `**Compute:**` grammar, `effort:` frontmatter on all agents, Check 13, Check 2 extension, stage-command threading, FIX MODE inline spec + wiring fix, and the migration manifest (D8)
+- [x] 5.4 Run `node scripts/lint.mjs` (green — including Check 4 README coverage and Check 6 migration manifest schema)
 - [ ] 5.5 (human) Run `node scripts/lint.mjs` and confirm it exits 0 with Check 4 and Check 6 both passing. Confirm `migrations/<version>.yaml` exists and its `manual:` list contains the `**Model:** → **Compute:**` rewrite instruction.

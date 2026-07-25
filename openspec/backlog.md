@@ -7,13 +7,14 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## In progress
 
-_None._
+The two rows below are the two halves of one change, `per-slice-compute-knobs`
+(branch `features/per-slice-compute-knobs`), co-designed as one unified
+compute-declaration mechanism. They flip and archive together. Q, R, D, S, V, P, I
+complete — awaiting PR. **Scope corrected at stage D:** only **model** is
+enforceable per-slice; **effort** is a per-stage agent-frontmatter knob (no
+per-invocation param); **thinking** is dropped (no per-subagent control exists).
 
----
-
-## Proposed
-
-### simplify-per-slice-model-selection — `proposed (change folder created 2026-07-24, bundled into per-slice-compute-knobs)` · **P2**
+### simplify-per-slice-model-selection — `in-progress (Q, R, D, S, V, P, I complete; bundled into per-slice-compute-knobs)` · **P2**
 
 **Why:** Per-slice model intent is endorsed by the source, but the mechanism (the
 architect writes a markdown `**Model:**` annotation; the implementer self-halts and
@@ -25,7 +26,7 @@ token/cost lever, now salient with burn climbing — and it's the mechanism
 **Bundled into `per-slice-compute-knobs`** — co-designed with
 [[configurable-effort-and-thinking]] as one unified compute-declaration mechanism.
 
-### configurable-effort-and-thinking — `proposed (change folder created 2026-07-24, bundled into per-slice-compute-knobs)` · **P2**
+### configurable-effort-and-thinking — `in-progress (Q, R, D, S, V, P, I complete; bundled into per-slice-compute-knobs)` · **P2**
 
 **Why:** A change can already set a per-slice **model** (the architect writes a
 `**Model:**` annotation the implementer honors), but reasoning **effort** and
@@ -42,6 +43,12 @@ bolting on a third fragile markdown knob. **Reprioritized P3→P2 (2026-07-24):*
 effort/thinking is a direct token lever and token burn is now the pressing
 concern. **Bundled into `per-slice-compute-knobs`** — co-designed with
 [[simplify-per-slice-model-selection]] as one unified compute-declaration mechanism.
+
+---
+
+## Proposed
+
+_None._
 
 ---
 

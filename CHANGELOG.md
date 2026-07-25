@@ -16,6 +16,71 @@ kit version.
 
 ### Added
 
+- **Per-slice compute annotations (`**Compute:**` grammar, replacing `**Model:**`).**
+  The per-slice `**Model:** sonnet|opus -- <rationale>` annotation is replaced by
+  `**Compute:** model=<alias> effort=<low|medium|high> -- <rationale>`. The
+  `model=` token is required and per-slice-enforced (passed as the per-invocation
+  `model:` parameter on the Agent call). The `effort=` token is optional; when
+  absent, the implementing agent's frontmatter `effort:` (per-stage default) takes
+  effect. Both structural forms are preserved: a dash-bullet in `slices.md`
+  (`- **Compute:** model=sonnet effort=medium -- ...`) and a bare bold line in
+  `tasks.md` (`**Compute:** model=sonnet effort=medium -- ...`). The annotated
+  `slices.md` skeleton in `claude/agents/architect.md`, the `vertical-slice` skill's
+  "Per-slice model selection" section, the planner carry-forward rule, and
+  `openspec-templates/tasks.template.md` are all updated to the new grammar.
+  Consumers with in-flight `slices.md`/`tasks.md` files using the old `**Model:**`
+  form must rewrite them -- see the 0.9.0 migration manifest.
+
+- **`effort:` frontmatter on all seven stage agents.** Every
+  `claude/agents/*.md` now carries an `effort:` frontmatter key declaring its
+  default compute effort level (`low`, `medium`, or `high` -- the kit surface;
+  `xhigh`/`max` are rejected by lint). Opus stages (designer, implementer) default
+  to `effort: high`; sonnet stages (questioner, researcher, architect, planner,
+  reviewer) default to `effort: medium`. The `effort:` value is enforced by the
+  Claude Code agent frontmatter mechanism (per-stage, not per-slice -- there is no
+  per-invocation effort parameter on the Agent tool). Lint Check 2 is extended to
+  require and validate the new field on every agent file.
+
+- **Lint Check 13 (`checkComputeAnnotations`): value-validate `**Compute:**`
+  annotations.** A new lint check in `scripts/lint.mjs` (Check 13) scans every
+  `**Compute:**` line in committed `openspec/changes/**/slices.md` and `**/tasks.md`
+  files and flags: a missing or empty `model=` token; a `model=` value not in
+  `{sonnet, opus}`; and an `effort=` value (if present) not in `{low, medium, high}`.
+  This is value-validation only -- it does NOT assert a `**Compute:**` line is
+  present on every slice. With the implementer self-halt dropped, Check 13 is the
+  only static gate catching a malformed annotation before implement hits it at
+  runtime. Tolerates both the dash-bullet (`slices.md`) and bare bold (`tasks.md`)
+  structural forms.
+
+- **Stage-command model threading on every Agent call.** Every QRSPI stage command
+  (`questions`, `research`, `design`, `structure`, `slices`, `plan`, `pr`) now
+  passes an explicit `model:` parameter on its Agent call, sourced from that agent's
+  frontmatter `model:` value. Previously only `implement` threaded a model. The
+  `implement` command is updated to parse the `model=` token from the next un-ticked
+  `**Compute:**` line in `tasks.md` and pass it per-invocation. The implementer
+  agent's self-halt-on-model-mismatch instruction is removed -- the orchestrator's
+  spawn-time `model:` parameter is the sole gate. A prose note in
+  `claude/commands/implement.md` explains that `effort=` documents per-stage intent
+  and is honored via the implementer agent's frontmatter `effort:`, not as a
+  per-invocation parameter.
+
+- **FIX MODE inline compute spec and prose/wiring fix in `followup.md`.** The FIX
+  MODE path in `/qrspi:followup` gains an optional inline compute spec parsed from
+  the follow-up description: `(compute: model=... effort=...)`. When present, the
+  orchestrator threads `model:` per-invocation on the implementer Agent call; when
+  absent, the default applies. Separately, a prose/wiring mismatch is fixed: the
+  `followup.md` prose said "default sonnet" but the Agent call omitted `model:`,
+  so the implementer's frontmatter `model: opus` silently won. The FIX MODE default
+  is now explicit and wired -- the orchestrator passes `model: sonnet` unless an
+  inline `(compute: model=X)` spec overrides it. Prose and wiring now agree.
+
+- **Migration manifest `migrations/0.9.0.yaml`.** A new migration manifest
+  documents the `**Model:** -> **Compute:**` grammar change for consumer repos with
+  in-flight changes. `automated: []` (no safe blind edit exists for arbitrary change
+  folders); the `manual:` step instructs users to rewrite any `**Model:** X -- R`
+  line in in-flight `slices.md`/`tasks.md` to `**Compute:** model=X -- R` (effort
+  omitted means inherit). See the 0.9.0 manifest for the exact wording.
+
 - **Per-stage skill-set lint (`checkSkillSets`, Check 2b).** A new lint check
   in `scripts/lint.mjs` asserts each of the seven stage agents' `Load skills`
   line matches an approved per-stage registry (`SKILL_SET_EXPECTED` in the new

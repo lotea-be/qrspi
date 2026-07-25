@@ -1,0 +1,15 @@
+version: 0.9.0
+summary: >
+  Per-slice compute annotations change grammar: **Model:** sonnet|opus -- <rationale>
+  is replaced by **Compute:** model=sonnet effort=medium -- <rationale>. Consumers
+  with in-flight changes that still carry a **Model:** annotation in their slices.md
+  or tasks.md must rewrite it before running /qrspi:implement, which now reads
+  model= from the **Compute:** line.
+automated: []
+manual:
+  - >-
+    In any in-flight openspec/changes/*/slices.md or tasks.md that still uses
+    **Model:** X -- R, rewrite the line to **Compute:** model=X -- R (effort=
+    omitted means inherit the agent frontmatter default). In slices.md use the
+    dash-bullet form: - **Compute:** model=X -- R. In tasks.md use the bare bold
+    form: **Compute:** model=X -- R. Archived changes need no edit.
