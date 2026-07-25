@@ -89,9 +89,15 @@ Project-scoped dev-tooling commands (not in plugin, under `.claude/commands/`): 
 
 ---
 
-## Data model
+## Data structures
 
-The kit's "data model" is its file taxonomy and convention map:
+<!-- Renamed from `## Data model` to avoid colliding with the data-store
+     surface-gated heading once lint Check 14 (surface-applicability) lands —
+     the researcher is not surface-gated today, so its fixed skeleton emits this
+     heading for a repo with no data-store surface. Temporary band-aid,
+     superseded by the researcher-surface-generic backlog change (P1). -->
+
+The kit's data structures are its file taxonomy and convention map:
 
 **Surface taxonomy (5 closed surfaces, defined in `repo-surface` SKILL.md):**
 - `data-store` — database / ORM / SQL / persistent store
