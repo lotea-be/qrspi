@@ -18,10 +18,10 @@
 
 **Compute:** model=sonnet effort=low — a single targeted Markdown block rewrite following the established bullet format; no logic involved
 
-- [ ] 2.1 Rewrite the `## Repo surface` block in `.claude/skills/qrspi-stack/SKILL.md` from `_No present surfaces._` to list the six kit surfaces as bullet lines: `slash-command`, `stage-agent`, `skill`, `lint-gate`, `template`, `migration-manifest` (D7)
-- [ ] 2.2 Run `node scripts/lint.mjs` and confirm it exits 0
+- [x] 2.1 Rewrite the `## Repo surface` block in `.claude/skills/qrspi-stack/SKILL.md` from `_No present surfaces._` to list the six kit surfaces as bullet lines: `slash-command`, `stage-agent`, `skill`, `lint-gate`, `template`, `migration-manifest` (D7)
+- [x] 2.2 Run `node scripts/lint.mjs` and confirm it exits 0
 - [ ] 2.3 (human) Launch `claude --plugin-dir /workspaces/git/qrspi`, run any QRSPI stage command on a kit change, and confirm the agent skeleton now has the six kit surfaces available to gate on (observable if the questioner emits a kit-specific section for a surface declared present)
-- [ ] 2.4 Checkpoint: read `.claude/skills/qrspi-stack/SKILL.md` and confirm the `## Repo surface` block contains six bullet lines (no `_No present surfaces._` sentinel), and `node scripts/lint.mjs` exits 0
+- [x] 2.4 Checkpoint: read `.claude/skills/qrspi-stack/SKILL.md` and confirm the `## Repo surface` block contains six bullet lines (no `_No present surfaces._` sentinel), and `node scripts/lint.mjs` exits 0
 
 ## 3. Rename + denylist growth (Check 11)
 
