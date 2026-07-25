@@ -14,7 +14,34 @@ kit version.
 
 ## [Unreleased]
 
-_No unreleased changes._
+### Added
+
+- **Six kit surfaces + the kit dogfoods `repo-surface` on itself
+  (`kit-surface-dogfooding`).** The surface taxonomy gains six kit-specific
+  surfaces — `slash-command`, `stage-agent`, `skill`, `template`, `lint-gate`,
+  `migration-manifest` — each with its gated section(s), a section-to-surface
+  mapping row in the `repo-surface` skill, and gate-comment placeholders in the
+  questioner/designer skeletons and the questions/design templates. The kit's own
+  `qrspi-stack` `## Repo surface` block now declares all six present (previously
+  `_No present surfaces._`), so kit QRSPI artifacts finally emit kit-specific
+  sections. Adds an `## Extending the taxonomy` checklist to the `repo-surface`
+  skill documenting the required edit sites for a new surface.
+- **Lint Check 14 — surface applicability of artifact headings.** Parses the
+  kit's `qrspi-stack` `## Repo surface` block and asserts committed
+  `openspec/changes/**` artifacts (excluding `archive/`) carry no section for an
+  *absent* surface — validating emitted OUTPUT against the declared surface, which
+  Check 11's source-side denylist cannot do. Fails loudly if the `## Repo surface`
+  block is absent or unparseable; carries an inline self-test so a broken detector
+  reddens CI. Scoped to the kit's own artifacts (consumer-repo enforcement remains
+  out of scope).
+
+### Changed
+
+- **Lint constant `CRUD_DENYLIST_HEADINGS` renamed to
+  `SURFACE_GATED_DENYLIST_HEADINGS`** and grown from 12 to 22 entries (the 10 new
+  kit-surface headings); the Check 11 comment block is regeneralized from "CRUD" to
+  "surface-gated" and now states both disjoint-scope invariants (vs Check 3 and vs
+  Check 14).
 
 ## [0.9.0] - 2026-07-25
 
