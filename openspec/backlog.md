@@ -7,24 +7,7 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## In progress
 
-### kit-surface-dogfooding — `in-progress (draft PR #33 open)` · **P2**
-
-**Why:** Bundle of two co-designed surface-taxonomy ideas, both extending the
-merged `repo-applicable-artifact-sections`. (1) **kit-self-surfaces** — give the
-kit its own surface taxonomy (`slash-command`, `stage-agent`, `skill`,
-`template`, `lint-gate`, `migration-manifest`; all six accepted in stage Q) so
-its own QRSPI artifacts stop falling to the always-emitted minimum and the kit
-dogfoods its own fix. (2) **enforce-artifact-surface-applicability** — a new
-lint Check 14 that parses the kit's `qrspi-stack` `## Repo surface` block and
-asserts committed `openspec/changes/**` artifacts (excluding `archive/`) carry
-no sections for *absent* surfaces — validating OUTPUT vs declared surface, which
-Check 11's source-side denylist cannot do. Also renames
-`CRUD_DENYLIST_HEADINGS` → a surface-generic name (PQ9) and adds an
-`## Extending the taxonomy` checklist to the `repo-surface` skill (PQ8). Scope
-boundary: the kit lints its OWN artifacts only — pushing enforcement into
-consumer repos stays with [[standardize-recurring-ops-scripts]]. Entered the
-QRSPI flow 2026-07-25 (stage Q). Formerly the separate `idea` rows
-`kit-self-surfaces` and `enforce-artifact-surface-applicability`.
+_None._
 
 ---
 
