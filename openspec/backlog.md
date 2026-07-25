@@ -237,6 +237,24 @@ archive) — that's a natural trigger point to offer the reprioritization pass.
 (The `P1`–`P3` bands + priority ordering now used in this file are a first,
 hand-maintained cut of this convention.)
 
+### flow-entry-right-sizing — `idea` · **P2**
+
+**Why:** Nothing formally assesses, when a backlog idea is picked up, whether it
+needs the full eight-stage flow or a lighter path — the agent applies the
+`workflow` skill's static "When you can skip stages" prose ad hoc (trivial →
+straight to `/qrspi:implement`; data-model/API/auth → full flow). Make it an
+explicit, recorded **right-sizing gate at flow entry**: assess the chosen scope's
+surface/risk and route it to full-flow vs a trimmed path (e.g. a middle tier that
+skips R but keeps the D alignment gate), recording the decision + rationale. This
+is the entry-side sibling of the archived `right-size-followup-handling` triage
+(which right-sizes POST-PR follow-ups), and the third axis of "what to do next"
+alongside [[backlog-prioritization]] (which idea) and [[propose-bundling-ideas]]
+(how much at once) — this one decides *how heavy* a flow. **Hard constraint
+(design tension):** it must be a right-sizer, not an escape hatch — QRSPI's thesis
+is front-loading Q+R+D to beat the plan-reading illusion, so the gate MUST
+preserve "any data-model / API / auth / contract surface ⇒ full flow" and only
+trim genuinely low-surface changes. Surfaced 2026-07-25.
+
 ### standardize-backlog-format — `idea` · **P2**
 
 **Why:** The kit's commands all *mutate* `openspec/backlog.md` — `questions`
