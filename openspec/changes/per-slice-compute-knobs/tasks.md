@@ -41,9 +41,9 @@
 
 **Model:** sonnet — the fix is two targeted prose-and-wiring edits in a single command file; the inline-spec grammar reuses the same `key=value` pattern already established in D1; no novel logic required.
 
-- [ ] 4.1 Update `claude/commands/followup.md` — add prose describing the optional `(compute: model=… effort=…)` inline spec in the follow-up description; add parsing logic that extracts `model=` and `effort=` tokens from within `(compute: …)` when present (D7)
-- [ ] 4.2 Update the FIX MODE Agent call in `claude/commands/followup.md` — pass `model: sonnet` explicitly as the default; when the inline `(compute: model=X)` spec is present, pass `model: X` instead; note that `effort=` is honored only via the implementer's frontmatter (D7)
-- [ ] 4.3 Run `node scripts/lint.mjs` (green)
+- [x] 4.1 Update `claude/commands/followup.md` — add prose describing the optional `(compute: model=… effort=…)` inline spec in the follow-up description; add parsing logic that extracts `model=` and `effort=` tokens from within `(compute: …)` when present (D7)
+- [x] 4.2 Update the FIX MODE Agent call in `claude/commands/followup.md` — pass `model: sonnet` explicitly as the default; when the inline `(compute: model=X)` spec is present, pass `model: X` instead; note that `effort=` is honored only via the implementer's frontmatter (D7)
+- [x] 4.3 Run `node scripts/lint.mjs` (green)
 - [ ] 4.4 (human) In a `claude --plugin-dir /workspaces/git/qrspi` session, read `claude/commands/followup.md` — confirm the default FIX MODE Agent call carries `model: sonnet` and the prose describes the `(compute: …)` inline spec override.
 
 ## 5. Migration + README + CHANGELOG

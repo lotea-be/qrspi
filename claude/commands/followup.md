@@ -8,6 +8,29 @@ Arguments: $ARGUMENTS — the first token is the change id; any remaining
 text is an optional description of the specific follow-up to fix. If only
 the id is given, work the next un-ticked item in `followups.md`.
 
+**Inline compute spec (optional).** The follow-up description (or the
+`followups.md` entry text) may contain an inline `(compute: …)` spec using
+the same `key=value` grammar as `**Compute:**` slice annotations, e.g.:
+
+```
+(compute: model=opus effort=high)
+```
+
+- `model=` — one of `{sonnet, opus}`. When present, the FIX MODE Agent call
+  passes `model: <value>` per-invocation, overriding the default.
+- `effort=` — one of `{low, medium, high}`. Honored via the implementer
+  agent's frontmatter `effort:` (a per-stage knob, not a per-invocation
+  parameter -- there is no per-invocation effort param on the Agent tool).
+  When absent, the agent frontmatter default takes effect.
+- `(compute: …)` is optional. When absent, the FIX MODE default applies
+  (see **FIX MODE default** below).
+
+Parse the inline spec before spawning the implementer: scan the follow-up
+description text for the pattern `(compute:` followed by one or more
+space-separated `key=value` tokens and a closing `)`. Extract the `model=`
+token if present and the `effort=` token if present. If the spec is absent
+or malformed, fall back to the default.
+
 This is **not** stage I. It is the loop that hangs off the **PR** stage:
 small, contained fixes that surfaced *after* the PR was opened. The
 slice/checkpoint machinery of `/qrspi:implement` does **not** apply here.
@@ -95,7 +118,7 @@ the approved artifact. The edit lands directly on the approved files.
 *Step P2.2 -- add a `## N.` slice group to `slices.md` and `tasks.md`.* Load
 skill `vertical-slice` plus the project's stack-cheatsheet skill (if any), then
 add a new `## N.` vertical-slice group to `slices.md` **and** a matching `## N.`
-group to `tasks.md`, each carrying a `**Model:**` annotation. Loading the
+group to `tasks.md`, each carrying a `**Compute:**` annotation. Loading the
 convention skills is what the architect (V) and planner (P) normally do before
 writing slice/task specs -- do not skip it, or the new slice will contradict
 documented conventions.
@@ -190,12 +213,27 @@ turn. Wire this offer at the end of P1 (after the fix commit step), at the end
 of P2 (after the implement offer resolves, including "Not now"), and at the end
 of P3 (after the backlog commit).
 
-**Model.** Default the implementer to **sonnet** -- post-PR follow-ups are
-typically small and contained. Use **opus** only when the fix touches
-design-level logic or spans several files; say so when you invoke.
+**FIX MODE default.** Default the implementer to **sonnet** -- post-PR
+follow-ups are typically small and contained. Use **opus** only when the
+fix touches design-level logic or spans several files, or when the inline
+`(compute: model=opus …)` spec is present.
+
+**Model threading (mandatory -- not prose-only).** The orchestrator MUST
+pass an explicit `model:` parameter on the Agent call so the wired behavior
+matches the documented default. Do not omit `model:` and rely on the
+implementer's frontmatter `model: opus` to win silently:
+
+- **No inline `(compute: model=…)` spec:** pass `model: sonnet` explicitly.
+- **Inline `(compute: model=X)` spec present:** pass `model: X` instead.
+
+`effort=` from the inline spec is NOT passed as a per-invocation parameter
+(the Agent tool has no per-invocation effort param). If `effort=` is present
+in the inline spec it documents intent; the implementer agent's frontmatter
+`effort:` remains the actual per-stage knob.
 
 Spawn the `implementer` subagent via the **Agent tool** (`subagent_type:
-qrspi:implementer`) in FIX MODE. Tell it explicitly:
+qrspi:implementer`, `model: <sonnet | parsed model from inline spec>`) in
+FIX MODE. Tell it explicitly:
 
 > You are in POST-PR FIX MODE, not slice mode. Load skill
 > `postpr-fix` and follow its checklist. Ignore the per-slice
