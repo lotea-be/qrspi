@@ -7,13 +7,7 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## In progress
 
-_None._
-
----
-
-## Proposed
-
-### researcher-surface-generic — `proposed` · **P1**
+### researcher-surface-generic — `in-progress (Q, R, D, S, V, P, I complete)` · **P1**
 
 **Why:** The `repo-applicable-artifact-sections` surface mechanism gates the
 *proposal*-producing agents (questioner, designer, architect, planner) but **left
@@ -37,6 +31,12 @@ the durable completion of the surface-gating work, and it retires the temporary
 scannable by Check 14 (which already scans all live `changes/**` artifacts).
 Sibling of `kit-self-surfaces`; surfaced 2026-07-25 during the stage-I dogfooding
 of `kit-surface-dogfooding`.
+
+---
+
+## Proposed
+
+_None._
 
 ---
 

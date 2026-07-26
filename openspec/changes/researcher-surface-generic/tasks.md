@@ -26,7 +26,7 @@
 
 **Compute:** model=sonnet effort=low — documentation additions following an established per-surface pattern; verification of Check 14 scope is a targeted code read
 
-- [ ] 3.1 Edit `claude/skills/repo-surface/SKILL.md`: under each `### <surface> gates` subsection that has a research.md inventory heading, add a `- Section \`## <heading>\` (in research.md)` tagged line for each relevant heading; extend the `## Extending the taxonomy` checklist with site 6 ("verify Check 11 still covers all agent skeletons for the new heading") and site 7 ("confirm the researcher skeleton gate comment and the `(in research.md)` mapping line are consistent") (D2, D9, D10)
-- [ ] 3.2 Review the Check 14 implementation in `scripts/lint.mjs`: confirm it walks `research.md` with no research-specific filename filter; if a skip or filter for `research.md` exists in Check 14 (the kit-surface-dogfooding band-aid), remove it (D3)
-- [ ] 3.3 Run `node scripts/lint.mjs` — confirm exit zero
+- [x] 3.1 Edit `claude/skills/repo-surface/SKILL.md`: under each `### <surface> gates` subsection that has a research.md inventory heading, add a `- Section \`## <heading>\` (in research.md)` tagged line for each relevant heading; extend the `## Extending the taxonomy` checklist with site 6 ("verify Check 11 still covers all agent skeletons for the new heading") and site 7 ("confirm the researcher skeleton gate comment and the `(in research.md)` mapping line are consistent") (D2, D9, D10)
+- [x] 3.2 Review the Check 14 implementation in `scripts/lint.mjs`: confirm it walks `research.md` with no research-specific filename filter; if a skip or filter for `research.md` exists in Check 14 (the kit-surface-dogfooding band-aid), remove it (D3)
+- [x] 3.3 Run `node scripts/lint.mjs` — confirm exit zero
 - [ ] 3.4 (human) Review `claude/skills/repo-surface/SKILL.md` and confirm: (a) a `(in research.md)` line is present for each of the six kit surfaces; (b) the `## Extending the taxonomy` section lists exactly 7 sites; (c) site 7 explicitly names `claude/agents/researcher.md`
