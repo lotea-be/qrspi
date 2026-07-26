@@ -46,8 +46,11 @@ to widen them; do not go hunting in the ticket.
 
 ## What to do
 
-1. Load skills `workflow`, `context-hygiene`, plus the project's
-   stack-cheatsheet skill if it defines one.
+1. Load skills `workflow`, `context-hygiene`, and `repo-surface`, plus the
+   project's stack-cheatsheet skill if it defines one (use the Glob tool
+   with pattern `.claude/skills/*/SKILL.md` to find it). The `repo-surface`
+   skill defines which inventory sections to emit based on the surfaces
+   present in the repo; the stack cheatsheet declares those surfaces.
 2. For each area, locate the relevant files using Glob/Grep.
 3. For each file, record:
    - Path and one-line purpose.
@@ -81,16 +84,28 @@ Write `openspec/changes/<id>/research.md`:
 
 ## File map
 ### <area>
-- `src/Data/Entities/Foo.cs` — purpose. Exports: `Foo` entity. Depends on: ...
+- `path/to/file` — purpose. Exports: `Foo`. Depends on: ...
 - ...
 
-## Public API surface
-- `GET /api/questions?category=X` — response: `Question[]`
-- ...
+<!-- Surface-gated inventory sections: emit each section below only when its
+     controlling surface is present for this repo, per the repo-surface skill
+     mapping. Omit the heading entirely when the surface is absent (no heading,
+     no "Not applicable" stanza).
 
-## Data model
-- `Question` (Id, Title, Body, ...)
-- ...
+     data-store        -> ## Data model
+     http-api          -> ## API surface
+     ui                -> ## UI surface
+     auth              -> ## Authorization
+     slash-command     -> ## Slash-command surface
+     stage-agent       -> ## Stage-agent surface
+     skill             -> ## Skill surface
+     lint-gate         -> ## Lint-gate surface
+     template          -> ## Template surface
+     migration-manifest -> ## Migration manifest
+-->
+
+## Notable discrepancies
+- None.
 
 ## Implicit contracts and conventions
 - ...

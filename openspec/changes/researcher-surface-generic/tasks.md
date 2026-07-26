@@ -6,9 +6,9 @@
 
 **Compute:** model=sonnet effort=medium — restructuring a fenced skeleton to gate-comment convention is templated; the D7 prose note and gate-comment wording require careful reading of the existing pattern but no novel reasoning
 
-- [ ] 1.1 Edit `claude/agents/researcher.md`: add `repo-surface` to the step-1 "Load skills" line; add D7 prose note explaining the skill load; replace all literal surface-gated heading lines in the fenced skeleton with a `<!-- Surface-gated inventory sections: ... -->` gate-comment block that lists each surface-to-heading mapping; add `## Notable discrepancies` as a standing (non-gated) heading in the inline skeleton (D1, D3, D5, D7)
-- [ ] 1.2 Edit `scripts/skill-sets.mjs`: update `SKILL_SET_EXPECTED.researcher` from `['context-hygiene','workflow']` to `['context-hygiene','repo-surface','workflow']` (D5)
-- [ ] 1.3 Run `node scripts/lint.mjs` — Check 2b must pass with the updated skill set; Check 7 must still pass (researcher banner unchanged); Check 11 must still pass for all currently-covered agents
+- [x] 1.1 Edit `claude/agents/researcher.md`: add `repo-surface` to the step-1 "Load skills" line; add D7 prose note explaining the skill load; replace all literal surface-gated heading lines in the fenced skeleton with a `<!-- Surface-gated inventory sections: ... -->` gate-comment block that lists each surface-to-heading mapping; add `## Notable discrepancies` as a standing (non-gated) heading in the inline skeleton (D1, D3, D5, D7)
+- [x] 1.2 Edit `scripts/skill-sets.mjs`: update `SKILL_SET_EXPECTED.researcher` from `['context-hygiene','workflow']` to `['context-hygiene','repo-surface','workflow']` (D5)
+- [x] 1.3 Run `node scripts/lint.mjs` — Check 2b must pass with the updated skill set; Check 7 must still pass (researcher banner unchanged); Check 11 must still pass for all currently-covered agents
 - [ ] 1.4 (human) In a fresh `claude --plugin-dir /workspaces/git/qrspi` session, run the researcher against a consumer fixture that declares no `data-store` surface — confirm the produced `research.md` does NOT contain `## Data model` and DOES contain `## Notable discrepancies`
 
 ## 2. Mechanical guards: Check 11 + Check 3 + research template

@@ -15,7 +15,7 @@
 //   implementer -- unchanged
 //   reviewer    -- unchanged: keeps openspec-workflow (archive / sync steps)
 export const SKILL_SET_EXPECTED = {
-  researcher:  ['context-hygiene', 'workflow'],
+  researcher:  ['context-hygiene', 'repo-surface', 'workflow'],
   questioner:  ['repo-surface', 'workflow'],
   designer:    ['context-hygiene', 'repo-surface', 'workflow'],
   architect:   ['openspec-workflow', 'repo-surface', 'vertical-slice', 'workflow'],
