@@ -548,6 +548,22 @@ const TEMPLATE_CANONICAL_HEADINGS = {
     agent: 'planner',
     headings: [], // dynamic heading format -- no fixed canonical headings to check
   },
+  // research.template.md: five spine headings that are ALWAYS emitted regardless of surface.
+  // Surface-driven inventory sections (## Data model, ## API surface, etc.) are injected
+  // dynamically by the researcher at write time and are NOT canonical fixed headings here.
+  // ## Notable discrepancies is a standing non-gated heading (D4, D6, D8) -- it is required
+  // here (Check 3) and must NOT appear in SURFACE_GATED_DENYLIST_HEADINGS or
+  // SURFACE_GATED_HEADINGS (disjoint-set invariant).
+  'research.template.md': {
+    agent: 'researcher',
+    headings: [
+      '## Areas investigated',
+      '## File map',
+      '## Notable discrepancies',
+      '## Implicit contracts and conventions',
+      '## Open gaps',
+    ],
+  },
   // spec-delta.template.md: three operation headers (enforced by openspec validate)
   'spec-delta.template.md': {
     agent: 'architect',
@@ -1450,6 +1466,7 @@ const CRUD_CHECK_AGENTS = [
   'designer',
   'architect',
   'planner',
+  'researcher',
   'reviewer',
 ];
 

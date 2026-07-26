@@ -15,12 +15,12 @@
 
 **Compute:** model=sonnet effort=low — mechanical constant-array and mapping additions in an existing pattern; template creation mirrors the questioner template exactly
 
-- [ ] 2.1 Create `openspec-templates/research.template.md`: include a title line, the `> Stage R …` blockquote, and the five spine headings (`## Areas investigated`, `## File map`, `## Notable discrepancies`, `## Implicit contracts and conventions`, `## Open gaps`); add no surface-gated headings; include a comment explaining that inventory headings are injected dynamically (D6)
-- [ ] 2.2 Edit `scripts/lint.mjs`: add `'researcher'` to `CRUD_CHECK_AGENTS` (Check 11); add the `research.template.md → researcher → [five spine headings]` entry to `TEMPLATE_CANONICAL_HEADINGS` (Check 3); confirm `## Notable discrepancies` is NOT added to `SURFACE_GATED_DENYLIST_HEADINGS` or `SURFACE_GATED_HEADINGS` (D4, D6, D8)
-- [ ] 2.3 Guard-bite demo (a): temporarily inject `## Data model` as a literal heading inside the researcher's fenced skeleton — run `node scripts/lint.mjs` and confirm it exits non-zero naming `researcher.md`; revert the injection (D4)
-- [ ] 2.4 Guard-bite demo (b): temporarily remove `## Open gaps` from the researcher's inline skeleton — run `node scripts/lint.mjs` and confirm Check 3 exits non-zero; revert (D6)
-- [ ] 2.5 Run `node scripts/lint.mjs` on the clean tree — confirm exit zero
-- [ ] 2.6 Checkpoint: lint exits zero on the clean tree; both guard-bite demos in 2.3 and 2.4 fired correctly before revert
+- [x] 2.1 Create `openspec-templates/research.template.md`: include a title line, the `> Stage R …` blockquote, and the five spine headings (`## Areas investigated`, `## File map`, `## Notable discrepancies`, `## Implicit contracts and conventions`, `## Open gaps`); add no surface-gated headings; include a comment explaining that inventory headings are injected dynamically (D6)
+- [x] 2.2 Edit `scripts/lint.mjs`: add `'researcher'` to `CRUD_CHECK_AGENTS` (Check 11); add the `research.template.md → researcher → [five spine headings]` entry to `TEMPLATE_CANONICAL_HEADINGS` (Check 3); confirm `## Notable discrepancies` is NOT added to `SURFACE_GATED_DENYLIST_HEADINGS` or `SURFACE_GATED_HEADINGS` (D4, D6, D8)
+- [x] 2.3 Guard-bite demo (a): temporarily inject `## Data model` as a literal heading inside the researcher's fenced skeleton — run `node scripts/lint.mjs` and confirm it exits non-zero naming `researcher.md`; revert the injection (D4)
+- [x] 2.4 Guard-bite demo (b): temporarily remove `## Open gaps` from the researcher's inline skeleton — run `node scripts/lint.mjs` and confirm Check 3 exits non-zero; revert (D6)
+- [x] 2.5 Run `node scripts/lint.mjs` on the clean tree — confirm exit zero
+- [x] 2.6 Checkpoint: lint exits zero on the clean tree; both guard-bite demos in 2.3 and 2.4 fired correctly before revert
 
 ## 3. Mapping + docs: repo-surface `(in research.md)` lines and 7th checklist site
 
