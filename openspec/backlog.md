@@ -13,7 +13,15 @@ _None._
 
 ## Proposed
 
-_None._
+### per-slice-compute-tier — `proposed`
+
+**Why:** Compute-tier follow-on to the merged `per-slice-compute-knobs` — bundles
+[[per-slice-effort-via-agent-variants]] (true per-slice **effort** via per-slice
+agent selection) and [[haiku-model-tier]] (add the cheapest **model** tier + its
+when-to-use heuristic), both extending the same `**Compute:**` grammar / lint
+Check 13 / slice→agent mapping. The largest remaining token lever (compute is
+multiplicative). Entered the QRSPI flow 2026-07-27; matrix/mechanism best solution
+handed to R/D (questions.md PQ1/PQ8).
 
 ---
 
@@ -34,8 +42,9 @@ kept adjacent near the top so the cost story reads at a glance: the **input** an
 2026-07-24); [[simplify-per-slice-model-selection]] and
 [[configurable-effort-and-thinking]] shipped together as `per-slice-compute-knobs`
 (merged and archived 2026-07-25), whose compute follow-ons
-[[per-slice-effort-via-agent-variants]] and [[haiku-model-tier]] (the compute-tier
-bundle) remain here; and [[standardize-recurring-ops-scripts]]
+[[per-slice-effort-via-agent-variants]] and [[haiku-model-tier]] are now bundled
+into `per-slice-compute-tier` (proposed, in the QRSPI flow); and
+[[standardize-recurring-ops-scripts]]
 (reasoning/exploration) remains here. The
 **surface-taxonomy family** spun off [[repo-applicable-artifact-sections]]:
 `enforce-artifact-surface-applicability` and `kit-self-surfaces` shipped as
@@ -79,43 +88,6 @@ the two-source-of-truth caution in [[optional-technology-specs]]. **P1 like
 [[repo-applicable-artifact-sections]]:** a highly visible artifact-quality defect
 (ugly process references baked into shipped code) rather than a live-workflow
 correctness gap. Surfaced 2026-07-24.
-
-### per-slice-effort-via-agent-variants — `idea` · **P2**
-
-**Why:** `per-slice-compute-knobs` (merged 2026-07-25) makes **model** per-slice-enforceable
-but only **effort** per-*stage*, because the Claude Code Task tool exposes no
-per-invocation effort parameter — effort is settable solely via an agent's static
-`effort:` frontmatter, so one implementer agent cannot vary effort slice-to-slice.
-Recover true per-slice effort by *selecting* an agent per slice: author thin-shell
-variant agents that share one `implementer-core` skill body and differ **only** in
-`model:`/`effort:` frontmatter, map each slice's `**Compute:**` line to the matching
-`subagent_type`, and add a `scripts/lint.mjs` sync check (à la `checkSkillSets`) so
-the variants can't drift from the core. Needs its own Q/R/D: the variant matrix
-(all `models × efforts`, or a few named profiles like `mechanical`/`standard`/`deep`),
-the encapsulation mechanism (shared skill vs a generator that emits variants), the
-sync check, and the `**Compute:** → subagent_type` mapping. The compute-band lever
-sequenced directly behind `per-slice-compute-knobs` (merged 2026-07-25; it shipped
-the grammar + per-stage effort this extends), now unblocked. Deferred from that
-change's stage-D review (D5, 2026-07-25) — folding it in would roughly double the
-change's surface.
-
-**Bundle (proposed — one QRSPI run, this entry as anchor):** take up together with
-[[haiku-model-tier]] (P3) as the **compute-tier follow-on** to
-`per-slice-compute-knobs`. This is the largest remaining *token* lever — compute is
-multiplicative (it changes which model/effort runs the heaviest stage per slice),
-so it dwarfs the input read-footprint trim of [[decompose-tasks-md-per-slice]].
-`per-slice-compute-knobs` ships the grammar + model selection + *per-stage* effort
-but caps the realized savings two ways this bundle removes: effort is only
-per-stage (effort-variants recovers true per-slice effort) and the `model=` vocab
-stops at `{sonnet, opus}` (haiku-model-tier adds the cheapest tier + its
-when-to-use heuristic). They bundle cleanly — both extend the same `**Compute:**`
-grammar / lint Check 13 / slice→agent mapping, both were deferred from the *same*
-`per-slice-compute-knobs` stage-D review (D5 here; D2/OQ1 for haiku), and haiku is
-naturally just another cell in the effort-variant matrix (model × effort), so the
-agent-variant mechanism built once delivers both. **Unblocked:**
-`per-slice-compute-knobs` merged 2026-07-25, so the grammar this bundle extends
-already exists — it's the next compute step and is startable now, like the decompose
-bundle. Bundle proposed 2026-07-27.
 
 ### standardize-recurring-ops-scripts — `idea` · **P2**
 
@@ -759,22 +731,6 @@ hard-stop is a sufficient backstop for now. Deferred as a Non-Goal of
 QRSPI run — that change builds the `tasks.md` slice-boundary parser this check
 needs, and its per-slice-file split reshapes the check into a per-file scan. See
 that entry's Bundle note for the full rationale. Reassessed 2026-07-27.
-
-### haiku-model-tier — `idea` · **P3**
-
-**Why:** `per-slice-compute-knobs` keeps the `model=` vocabulary at `{sonnet, opus}`
-and declines a third `haiku` tier because there is no per-slice heuristic for when a
-slice warrants haiku, and an unguided third tier invites mis-annotation (lint's
-`MODEL_ALIASES` already permits haiku for frontmatter, so the mechanical cost is
-low). Add `haiku` to the annotation `model=` vocabulary + Check 13 **together with**
-a `vertical-slice` heuristic that teaches when a slice is trivial-mechanical enough
-to warrant it — the guidance is the point, not the alias. Deferred from
-`per-slice-compute-knobs` stage D (D2 / OQ1, 2026-07-25).
-
-**Bundle:** proposed to ride with [[per-slice-effort-via-agent-variants]] (P2) as
-the compute-tier follow-on to `per-slice-compute-knobs` — haiku is naturally
-another cell in that change's effort-variant matrix (model × effort). See that
-entry's Bundle note for the full rationale. Proposed 2026-07-27.
 
 ### content-lint-output-contract — `idea` · **P3**
 
