@@ -2,7 +2,7 @@
 // ============================================================================
 //  scripts/lint.mjs -- CI quality gate for the QRSPI kit
 // ----------------------------------------------------------------------------
-//  Checks (run in order, all errors collected before exit -- Checks 1-14):
+//  Checks (run in order, all errors collected before exit -- Checks 1-15):
 //
 //  1. PIN AGREEMENT  -- every hand-maintained OpenSpec version occurrence
 //     must agree. generatedBy: lines in openspec-generated skill files are
@@ -85,6 +85,13 @@
 //     Disjoint scope with Check 11: Check 11 scans INSIDE fenced blocks in
 //     agent source files; Check 14 scans OUTSIDE fenced blocks in change
 //     artifacts -- the two checks never fire on the same line.
+//
+// 15. IMPLEMENTER VARIANT AGENT DRIFT GATE -- asserts that the set of
+//     claude/agents/implementer-*.md stems exactly equals IMPLEMENTER_VARIANTS;
+//     that each variant's step-1 "Load skill" line loads ONLY `implementer-core`;
+//     and that each variant's `effort:` frontmatter value matches its stem suffix
+//     (low/medium/high). Includes an inline self-test that must fire. Registered
+//     after Check 14.
 //
 //  Exits 0 if all checks pass, 1 if any check reports a violation.
 //  Requires only Node.js built-ins (fs, path) -- no npm dependencies.
@@ -1996,6 +2003,167 @@ async function checkSurfaceApplicability(errors) {
   return violations;
 }
 
+// ---- Check 15: VARIANT AGENT DRIFT GATE ------------------------------------
+//
+// Asserts that the set of implementer variant agents in claude/agents/ matches
+// the registry exactly, and that each variant's shape is correct.
+//
+// Three sub-checks:
+//
+//   (a) EXACT SET -- the stems of all claude/agents/implementer-*.md files
+//       must exactly equal IMPLEMENTER_VARIANTS (no extra, no missing).
+//
+//   (b) STEP-1 LOAD -- each variant's step-1 numbered-list line must load
+//       ONLY `implementer-core` (the variants delegate all behaviour to the
+//       core skill; adding other skills here would bypass the shared contract).
+//       Extraction reuses the same step-1 harvest logic as checkSkillSets.
+//
+//   (c) EFFORT MATCH -- each variant's `effort:` frontmatter field must equal
+//       the stem suffix (implementer-low -> effort: low, etc.).
+//
+// INLINE SELF-TEST: a synthetic in-memory fixture is run through the step-1
+// skill extractor to assert it correctly identifies a variant that loads only
+// `implementer-core`. A second fixture with an extra skill asserts the
+// detector fires. If either fails, an error is pushed so CI reddens
+// immediately -- a broken detector never passes silently.
+//
+// SCOPE: strictly implementer-*.md files. The seven named stage agents
+// (including implementer.md itself) are NOT covered here -- they are covered
+// by Checks 7, 12, and 2b. Variants are deliberately outside those registries.
+
+const IMPLEMENTER_VARIANTS = ['implementer-low', 'implementer-medium', 'implementer-high'];
+
+// Extract skill names loaded in step-1 of a body, filtering out -stack suffixes.
+// Reuses the same logic as checkSkillSets: numbered-step lines containing
+// "Load skill(s)" plus any indented continuation lines.
+function extractStep1Skills(body) {
+  const harvested = new Set();
+  const backtickRe = /`([A-Za-z0-9_-]+)`/g;
+  const lines = body.split('\n');
+  for (let i = 0; i < lines.length; i++) {
+    if (/^\s*\d+\.\s[^\n]*Load skills?\s/i.test(lines[i])) {
+      let segment = lines[i];
+      for (let j = i + 1; j < lines.length; j++) {
+        const next = lines[j];
+        if (/^\s+/.test(next) && !/^\s*\d+\.\s/.test(next) && !/^\s*[-*]\s/.test(next)) {
+          segment += ' ' + next;
+        } else {
+          break;
+        }
+      }
+      backtickRe.lastIndex = 0;
+      let bm;
+      while ((bm = backtickRe.exec(segment)) !== null) {
+        harvested.add(bm[1]);
+      }
+    }
+  }
+  return [...harvested].filter((name) => !name.endsWith('-stack'));
+}
+
+async function checkVariantAgents(errors) {
+  // ---- INLINE SELF-TEST -------------------------------------------------------
+  // (i) A variant body loading only `implementer-core` -- must yield exactly
+  //     ['implementer-core'] after extraction.
+  const _okBody = '\n1. Load skill `implementer-core` and follow its instructions exactly.\n';
+  const _okSkills = extractStep1Skills(_okBody);
+  const _okPass = _okSkills.length === 1 && _okSkills[0] === 'implementer-core';
+  if (!_okPass) {
+    errors.push(
+      '[variant-agents] SELF-TEST FAILED: step-1 extractor did not return [implementer-core] ' +
+      `for the valid fixture -- got [${_okSkills.join(', ')}]`
+    );
+  }
+  // (ii) A variant body loading an extra skill -- must yield more than one name.
+  const _badBody = '\n1. Load skills `implementer-core` and `workflow` and follow their instructions.\n';
+  const _badSkills = extractStep1Skills(_badBody);
+  const _badDetected = _badSkills.length !== 1 || _badSkills[0] !== 'implementer-core';
+  if (!_badDetected) {
+    errors.push(
+      '[variant-agents] SELF-TEST FAILED: step-1 extractor did not detect the extra skill ' +
+      'in the invalid fixture -- drift detection is broken'
+    );
+  }
+  // ---- end self-test ----------------------------------------------------------
+
+  const agentsDir = path.join(root, 'claude', 'agents');
+  let violations = 0;
+
+  // (a) EXACT SET -- collect claude/agents/implementer-*.md stems
+  const agentFiles = await listFiles(agentsDir, '.md');
+  const variantFiles = agentFiles.filter((f) => {
+    const stem = path.basename(f, '.md');
+    return stem.startsWith('implementer-') && stem !== 'implementer';
+  });
+  const foundStems = variantFiles.map((f) => path.basename(f, '.md')).sort();
+  const expectedStems = [...IMPLEMENTER_VARIANTS].sort();
+
+  const extraStems   = foundStems.filter((s) => !expectedStems.includes(s));
+  const missingStems = expectedStems.filter((s) => !foundStems.includes(s));
+
+  if (extraStems.length > 0) {
+    errors.push(
+      `[variant-agents] Unexpected variant agent file(s): ${extraStems.map((s) => `claude/agents/${s}.md`).join(', ')}` +
+      ` -- add to IMPLEMENTER_VARIANTS or remove the file`
+    );
+    violations++;
+  }
+  if (missingStems.length > 0) {
+    errors.push(
+      `[variant-agents] Missing variant agent file(s): ${missingStems.map((s) => `claude/agents/${s}.md`).join(', ')}` +
+      ` -- create the file or remove from IMPLEMENTER_VARIANTS`
+    );
+    violations++;
+  }
+
+  // (b) STEP-1 LOAD and (c) EFFORT MATCH -- check each expected variant
+  for (const stem of IMPLEMENTER_VARIANTS) {
+    const filePath = path.join(agentsDir, `${stem}.md`);
+    const rel = `claude/agents/${stem}.md`;
+    const text = await readFileOr(filePath, null);
+    if (text === null) {
+      // Already reported as missing in (a); skip further checks for this file
+      continue;
+    }
+
+    const { front, body } = splitFront(text);
+
+    // (b) STEP-1 LOAD: must load only implementer-core
+    const loadedSkills = extractStep1Skills(body);
+    if (loadedSkills.length === 0) {
+      errors.push(
+        `[variant-agents] ${rel}: no step-1 "Load skill" line found -- ` +
+        `variants must have a numbered step-1 line loading \`implementer-core\``
+      );
+      violations++;
+    } else if (loadedSkills.length !== 1 || loadedSkills[0] !== 'implementer-core') {
+      errors.push(
+        `[variant-agents] ${rel}: step-1 loads [${loadedSkills.join(', ')}] -- ` +
+        `variants must load ONLY \`implementer-core\` (no other skills)`
+      );
+      violations++;
+    }
+
+    // (c) EFFORT MATCH: effort: must equal the stem suffix
+    const stemSuffix = stem.replace(/^implementer-/, '');  // low | medium | high
+    const effortVal = getField(front, 'effort');
+    if (effortVal !== stemSuffix) {
+      errors.push(
+        `[variant-agents] ${rel}: 'effort: ${effortVal || "(missing)"}' does not match stem suffix '${stemSuffix}'` +
+        ` -- set 'effort: ${stemSuffix}'`
+      );
+      violations++;
+    }
+  }
+
+  if (violations === 0) {
+    process.stdout.write(
+      `  OK: ${IMPLEMENTER_VARIANTS.length} implementer variant agent(s) match the registry, step-1 load, and effort values\n`
+    );
+  }
+  return violations;
+}
+
 // ---- main ------------------------------------------------------------------
 
 async function main() {
@@ -2047,6 +2215,9 @@ async function main() {
 
   process.stdout.write('\nCheck 14: Surface applicability of artifact headings\n');
   await checkSurfaceApplicability(errors);
+
+  process.stdout.write('\nCheck 15: Implementer variant agent drift gate\n');
+  await checkVariantAgents(errors);
 
   process.stdout.write('\n');
   if (errors.length === 0) {

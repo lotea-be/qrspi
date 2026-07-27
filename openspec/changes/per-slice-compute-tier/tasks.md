@@ -27,11 +27,11 @@
 
 **Compute:** model=sonnet effort=medium — three new agent files following a clear template plus a new lint check with inline self-test; the self-test harness adds moderate but well-defined complexity. (D5, D6)
 
-- [ ] 3.1 Create `claude/agents/implementer-low.md`, `claude/agents/implementer-medium.md`, and `claude/agents/implementer-high.md`, each loading `implementer-core` with the appropriate effort-tier frontmatter (`effort: low / medium / high`). (D5)
-- [ ] 3.2 Add Check 15 (`checkVariantAgents`) to `scripts/lint.mjs`: asserts all three variant agent files exist and resolve correctly; include an inline synthetic-fixture self-test that fires on every lint pass. (D6)
-- [ ] 3.3 Confirm or update `SKILL_SET_EXPECTED` entries in `scripts/lint.mjs` for the three variant stems (`implementer-low`, `implementer-medium`, `implementer-high`) per the design decision (add entries if required, leave absent if the design says no entry needed). (D5)
-- [ ] 3.4 Unit/integration test: `node scripts/lint.mjs` exits 0 with Check 15 visible in output as `Check 15: OK`; verify the inline self-test fires correctly against its synthetic fixture; verify that removing `claude/agents/implementer-medium.md` in a temp copy causes `node scripts/lint.mjs` to exit non-zero. (D5, D6)
-- [ ] 3.5 Checkpoint: run `node scripts/lint.mjs` and confirm Check 15 appears in output as `Check 15: OK`.
+- [x] 3.1 Create `claude/agents/implementer-low.md`, `claude/agents/implementer-medium.md`, and `claude/agents/implementer-high.md`, each loading `implementer-core` with the appropriate effort-tier frontmatter (`effort: low / medium / high`). (D5)
+- [x] 3.2 Add Check 15 (`checkVariantAgents`) to `scripts/lint.mjs`: asserts all three variant agent files exist and resolve correctly; include an inline synthetic-fixture self-test that fires on every lint pass. (D6)
+- [x] 3.3 Confirm or update `SKILL_SET_EXPECTED` entries in `scripts/lint.mjs` for the three variant stems (`implementer-low`, `implementer-medium`, `implementer-high`) per the design decision (add entries if required, leave absent if the design says no entry needed). (D5)
+- [x] 3.4 Unit/integration test: `node scripts/lint.mjs` exits 0 with Check 15 visible in output as `Check 15: OK`; verify the inline self-test fires correctly against its synthetic fixture; verify that removing `claude/agents/implementer-medium.md` in a temp copy causes `node scripts/lint.mjs` to exit non-zero. (D5, D6)
+- [x] 3.5 Checkpoint: run `node scripts/lint.mjs` and confirm Check 15 appears in output as `Check 15: OK`.
 
 ## 4. implement.md resolution + orthogonal grammar + migration
 
