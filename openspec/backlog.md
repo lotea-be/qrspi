@@ -145,6 +145,20 @@ the two-source-of-truth caution in [[optional-technology-specs]]. **P1 like
 (ugly process references baked into shipped code) rather than a live-workflow
 correctness gap. Surfaced 2026-07-24.
 
+### researcher-apply-surface-gate — `idea` · **P2**
+
+**Why:** The `questioner`, `designer`, and `architect` agents apply the
+`repo-surface` surface-gate (emitting the omit-comment and suppressing
+surface-specific headings absent from the repo's `## Repo surface` block), but the
+`researcher` (stage R) does **not** — it emitted a `## Data model` heading in a
+repo with no `data-store` surface, which `scripts/lint.mjs` Check 14
+(surface-applicability) rejects. The failure only surfaces at stage-I lint (R-stage
+commits don't run lint), so it lands as a mid-implementation hard-stop far from its
+cause. Fix: have the researcher load `repo-surface` and surface-gate its headings
+like the other artifact-producing agents (and/or run lint at R-commit time to catch
+it at the source). Surfaced 2026-07-27 while implementing
+[[unify-implement-paths-on-variants]] (its research.md tripped Check 14).
+
 ### standardize-recurring-ops-scripts — `idea` · **P2**
 
 **Why (two payoffs — consistency *and* token cost):** Several QRSPI operations
@@ -724,6 +738,50 @@ consumer" trade; also weigh the two-source-of-truth risk. Distinct from
 *open/extensible per consumer*; builds naturally on [[structured-surface-schema]]
 (a machine-readable schema is the obvious carrier). Surfaced 2026-07-27 during the
 stage-PR dogfood of `researcher-surface-generic`.
+
+### per-surface-review-fanout — `idea` · **P3**
+
+**Why:** The PR stage runs a **single** read-only reviewer. A review fan-out (N
+reviewers in parallel over one diff) is the cheapest form of "more review" —
+read-only, so no worktree machinery and near-zero added wall-clock; cost is
+token-linear in N, mitigated by prompt-caching the shared diff/spec prefix. But a
+*fixed generic panel* mostly wastes tokens: undirected reviewers cluster on the
+same obvious findings, so you pay N× for ~1× coverage. The insight is that
+**QRSPI already owns the diverse lens set** — the `repo-surface` taxonomy. Fan out
+**one reviewer per *present* surface** (a `data-store` reviewer over migrations/
+indexing/data-model, an `http-api` reviewer over the API contract, an `auth`
+reviewer over authz, …), each scoped to the gated sections + code its surface
+owns. Because surfaces are a *disjoint, closed* vocabulary the lenses can't
+collapse into clones, and because width tracks *present* surfaces the cost
+auto-scales to the repo (docs-only repo → 2 reviewers; full web app → 4) — you
+never pay for absent surfaces. Symmetric with how the artifacts are produced (each
+emits surface-gated sections; each reviewer reviews the sections it emitted).
+
+**Shape:** In the PR (or Implement-checkpoint) reviewer, read the present-surface
+list from the stack-cheatsheet's `## Repo surface` block (same source Check 14
+uses), spawn one read-only reviewer subagent per present surface in a parallel
+fan-out, each briefed on its surface's gated sections + matching code, then merge/
+dedup findings. **Two gaps that must be designed, not assumed away:** (1) surfaces
+gate *artifact sections*, not *all code* — a plain business-logic bug belongs to
+no surface, so the fan-out needs a **non-surface baseline correctness reviewer** as
+a floor (specialists + floor, not a partition); (2) the nastiest bugs live at the
+**seams** (missing `auth` check on an `http-api` endpoint returning `data-store`
+data) — a surface-scoped reviewer with tunnel vision can each pass while the
+*interaction* is broken, so the baseline reviewer must be explicitly assigned the
+cross-surface interactions. **Timing / band:** deferred **post-1.0** — the road-to-1.0
+runway wants schema-freeze, not a new review subsystem, and there is **no observed
+miss** yet justifying it; build only when a retro shows the single PR reviewer
+letting a specific failure class through, and even then add the surface lens that
+was missed rather than the whole panel. On a doc-heavy repo like the kit itself the
+present surfaces (`slash-command`/`stage-agent`/`skill`/…) are lower-diversity than
+the web surfaces, so the payoff is strongest on consumer repos. Relates to
+[[hooks-as-mechanical-guards]] (the other "more enforcement at review time" line)
+and the surface family ([[rationalize-surface-taxonomy]] /
+[[structured-surface-schema]] — a machine-readable surface→section map would make
+the per-surface reviewer briefing mechanical). Prior art: `dfrysinger/qrspi-plus`
+runs an 8-reviewer tier, but *un-scoped by surface* and with no lint/human floor —
+this entry is the QRSPI-native, surface-scaled version. Surfaced 2026-07-27 while
+comparing QRSPI against the public `qrspi-plus` fork.
 
 ### assert-openspec-version-pin-coupling — `idea` · **P3**
 

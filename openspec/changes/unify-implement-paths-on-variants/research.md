@@ -63,7 +63,7 @@
 - `qrspi:implementer-medium` -- medium-effort variant (sonnet, effort medium). Used by `/qrspi:implement` when `effort=medium`.
 - `qrspi:implementer-high` -- high-effort variant (sonnet, effort high). Used by `/qrspi:implement` when `effort=high`.
 
-## Data model
+## Compute annotation grammar
 
 **`**Compute:**` annotation grammar (as of 0.10.0):**
 - `effort=` -- REQUIRED. Values: `low`, `medium`, `high`. Selects the implementer variant subagent.
