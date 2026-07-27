@@ -13,7 +13,27 @@ _None._
 
 ## Proposed
 
-_None._
+### unify-implement-paths-on-variants — `proposed (change folder created 2026-07-27)` · **P2**
+
+**Why:** `per-slice-compute-tier` ships three effort-variant implementer agents but
+keeps the base `implementer.md` as a never-spawned contract/registry anchor, and the
+`/qrspi:followup` + trivial/inline `/qrspi:implement` paths still resolve to the base
+rather than choosing effort+model the way a `tasks.md` slice does. Every implement
+path should pick effort+model and resolve to a variant. Collapse to a variants-only
+structure: route the followup + trivial paths through the same `effort=`/`model=` →
+`qrspi:implementer-<effort>` resolution, and retire or demote the base — which
+requires relocating the stage-I read/output contract (Check 7/12 banners) and the
+`SKILL_SET_EXPECTED['implementer']` registry off the base onto the variants or
+`implementer-core`. Needs its own D (the contract relocation is the load-bearing
+part). Follow-on to `per-slice-compute-tier` (D9); surfaced by the human at that
+change's stage-I dogfood (2026-07-27).
+
+**Bundle:** takes up [[commands-assert-cwd-change-folder]] (P3) as a free rider in
+the same QRSPI flow — that item is bundled into this change and is not a separate
+proposed entry. Deliberately does NOT bundle [[richer-effort-vocab-and-thinking]] or
+[[compute-escalation-on-failure]] (see Ideas section for rationale). Open product
+questions answered: PQ1 (FIX MODE default effort), PQ2 (trivial-path effort), PQ3
+(base file fate), PQ4 (cwd note blast radius) — see `questions.md`.
 
 ---
 
@@ -268,50 +288,8 @@ Part of the adaptive-compute cluster with [[orchestrator-effort-targeting]] and
 [[richer-effort-vocab-and-thinking]]. Surfaced as an afterthought during
 `per-slice-compute-tier` stage-D review (2026-07-27).
 
-### unify-implement-paths-on-variants — `idea` · **P2**
-
-**Why:** `per-slice-compute-tier` ships three effort-variant implementer agents but
-keeps the base `implementer.md` as a never-spawned contract/registry anchor, and the
-`/qrspi:followup` + trivial/inline `/qrspi:implement` paths still resolve to the base
-rather than choosing effort+model the way a `tasks.md` slice does. Every implement
-path should pick effort+model and resolve to a variant. Collapse to a variants-only
-structure: route the followup + trivial paths through the same `effort=`/`model=` →
-`qrspi:implementer-<effort>` resolution, and retire or demote the base — which
-requires relocating the stage-I read/output contract (Check 7/12 banners) and the
-`SKILL_SET_EXPECTED['implementer']` registry off the base onto the variants or
-`implementer-core`. Needs its own D (the contract relocation is the load-bearing
-part). Follow-on to `per-slice-compute-tier` (D9); surfaced by the human at that
-change's stage-I dogfood (2026-07-27).
-
-**Bundle (proposed — one QRSPI run, this entry as anchor):** take up together with
-[[commands-assert-cwd-change-folder]] (P3) as the compute-variant completion work
-for the 0.10.0 breaking release. The cwd-note is a **free rider**: unify already
-rewrites `implement.md` and `followup.md` (routing every path through variant
-resolution), which are the exact command bodies the cwd-note edits — same files, so
-it lands "while we're in here" rather than as a second change. Deliberately does
-NOT bundle [[richer-effort-vocab-and-thinking]] (adding a tier is *additive*, not
-order-dependent on unify — appending a variant needs no fleet restructure — and it
-drags in heuristic + thinking-control scope) or [[compute-escalation-on-failure]]
-(a policy layer best sequenced *after* unify proves the dispatch/contract
-structure). Bundle proposed 2026-07-27.
-
-### commands-assert-cwd-change-folder — `idea` · **P3**
-
-**Why:** QRSPI stage commands reference the change folder as relative
-`openspec/changes/<id>/...` but never state it resolves against the **current repo
-(CWD)**, not the plugin install dir. Under `--plugin-dir` dogfooding of *this* kit
-(which uniquely has its own `openspec/`), the session model can look in the kit
-repo's `openspec/changes/` instead of the consumer's before self-correcting —
-observed repeatedly at the `per-slice-compute-tier` stage-I dogfood (2026-07-27).
-Real consumers (installed plugin in the cache, no competing `openspec/`) don't hit
-it, hence P3 and *not* a `per-slice-compute-tier` defect. Add a one-line "resolves
-against the current working repo, not the plugin dir" note to the stage commands'
-precondition and/or the `qrspi-dogfood` skill's gotchas.
-
-**Bundle:** proposed to ride with [[unify-implement-paths-on-variants]] (P2) as a
-free rider — that change already rewrites the `implement.md`/`followup.md` path
-resolution this note edits. See that entry's Bundle note for the rationale.
-Proposed 2026-07-27.
+<!-- unify-implement-paths-on-variants moved to ## Proposed (2026-07-27) -->
+<!-- commands-assert-cwd-change-folder bundled into unify (see ## Proposed) -->
 
 ### decompose-tasks-md-per-slice — `idea` · **P2**
 
