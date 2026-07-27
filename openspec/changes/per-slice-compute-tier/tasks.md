@@ -20,7 +20,7 @@
 - [x] 2.2 Rewrite `claude/agents/implementer.md` to load `implementer-core` (a thin delegation wrapper) — keep the agent frontmatter and Read-contract banner, replace the body with a load directive. (D3)
 - [x] 2.3 Verify `SKILL_SET_EXPECTED` in `scripts/lint.mjs` has an entry for the `implementer` stem and that Check 5 (`checkSkillSets`) reports OK for the updated layout; add or adjust the entry if needed. (D4)
 - [x] 2.4 Unit/integration test: `node scripts/lint.mjs` exits 0 with Check 2 (skill resolution) and Check 5 (`checkSkillSets`) both passing. (D3, D4)
-- [ ] 2.5 (human) In a `--plugin-dir /workspaces/git/qrspi` session run `/qrspi:implement <id>` on a change that has a `tasks.md` with exactly one un-ticked box; confirm the implementer subagent launches and behaves normally — confirming the refactored `implementer.md` + `implementer-core` body is functionally identical to the pre-refactor baseline.
+- [x] 2.5 (human) In a `--plugin-dir /workspaces/git/qrspi` session run `/qrspi:implement <id>` on a change that has a `tasks.md` with exactly one un-ticked box; confirm the implementer subagent launches and behaves normally — confirming the refactored `implementer.md` + `implementer-core` body is functionally identical to the pre-refactor baseline.
 - [x] 2.6 Checkpoint: `node scripts/lint.mjs` exits 0.
 
 ## 3. Variant agents + Check 15 drift gate
@@ -43,5 +43,5 @@
 - [x] 4.4 Update Check 13 in `scripts/lint.mjs` to enforce `effort=` as required and accept `model=` as optional in the orthogonal grammar; also update the `vertical-slice` skill grammar section and `openspec-templates/` grammar comments to reflect the new canonical form. (D8)
 - [x] 4.5 Add the migration entry to `migrations/` for this version covering the grammar change (existing `slices.md` and `tasks.md` files using the old `model=`-required form). (D8)
 - [x] 4.6 Unit/integration test: `node scripts/lint.mjs` exits 0 with the updated Check 13; verify that a fixture with `model=sonnet` and no `effort=` token causes a non-zero exit. (D7, D8)
-- [ ] 4.7 (human) In a `--plugin-dir /workspaces/git/qrspi` session: (a) run `/qrspi:implement <id>` against a change whose next slice has `effort=low model=haiku` — confirm the terminal shows `implementer-low` spawned with `model: haiku` (OQ1 observed: Agent-tool `model:` overrides frontmatter default); (b) temporarily set a slice's `**Compute:**` line to `model=sonnet` with no `effort=` token — confirm a hard-stop is issued and no implementer is spawned.
+- [x] 4.7 (human) In a `--plugin-dir /workspaces/git/qrspi` session: (a) run `/qrspi:implement <id>` against a change whose next slice has `effort=low model=haiku` — confirm the terminal shows `implementer-low` spawned with `model: haiku` (OQ1 observed: Agent-tool `model:` overrides frontmatter default); (b) temporarily set a slice's `**Compute:**` line to `model=sonnet` with no `effort=` token — confirm a hard-stop is issued and no implementer is spawned.
 - [x] 4.8 Checkpoint: `node scripts/lint.mjs` exits 0.

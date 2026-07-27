@@ -197,6 +197,19 @@ requires relocating the stage-I read/output contract (Check 7/12 banners) and th
 part). Follow-on to `per-slice-compute-tier` (D9); surfaced by the human at that
 change's stage-I dogfood (2026-07-27).
 
+### commands-assert-cwd-change-folder — `idea` · **P3**
+
+**Why:** QRSPI stage commands reference the change folder as relative
+`openspec/changes/<id>/...` but never state it resolves against the **current repo
+(CWD)**, not the plugin install dir. Under `--plugin-dir` dogfooding of *this* kit
+(which uniquely has its own `openspec/`), the session model can look in the kit
+repo's `openspec/changes/` instead of the consumer's before self-correcting —
+observed repeatedly at the `per-slice-compute-tier` stage-I dogfood (2026-07-27).
+Real consumers (installed plugin in the cache, no competing `openspec/`) don't hit
+it, hence P3 and *not* a `per-slice-compute-tier` defect. Add a one-line "resolves
+against the current working repo, not the plugin dir" note to the stage commands'
+precondition and/or the `qrspi-dogfood` skill's gotchas.
+
 ### decompose-tasks-md-per-slice — `idea` · **P2**
 
 **Why:** The implementer (stage I) reads the whole `tasks.md` on **every** slice,
