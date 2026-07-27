@@ -7,15 +7,7 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## In progress
 
-### per-slice-compute-tier — `in-progress (PR #35 open)`
-
-**Why:** Compute-tier follow-on to the merged `per-slice-compute-knobs` — bundles
-[[per-slice-effort-via-agent-variants]] (true per-slice **effort** via per-slice
-agent selection) and [[haiku-model-tier]] (add the cheapest **model** tier + its
-when-to-use heuristic), both extending the same `**Compute:**` grammar / lint
-Check 13 / slice→agent mapping. The largest remaining token lever (compute is
-multiplicative). Entered the QRSPI flow 2026-07-27; matrix/mechanism best solution
-handed to R/D (questions.md PQ1/PQ8).
+_None._
 
 ---
 
