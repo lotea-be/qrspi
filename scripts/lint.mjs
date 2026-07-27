@@ -2,7 +2,7 @@
 // ============================================================================
 //  scripts/lint.mjs -- CI quality gate for the QRSPI kit
 // ----------------------------------------------------------------------------
-//  Checks (run in order, all errors collected before exit -- Checks 1-15):
+//  Checks (run in order, all errors collected before exit -- Checks 1-16):
 //
 //  1. PIN AGREEMENT  -- every hand-maintained OpenSpec version occurrence
 //     must agree. generatedBy: lines in openspec-generated skill files are
@@ -91,9 +91,17 @@
 // 15. IMPLEMENTER VARIANT AGENT DRIFT GATE -- asserts that the set of
 //     claude/agents/implementer-*.md stems exactly equals IMPLEMENTER_VARIANTS;
 //     that each variant's step-1 "Load skill" line loads ONLY `implementer-core`;
-//     and that each variant's `effort:` frontmatter value matches its stem suffix
-//     (low/medium/high). Includes an inline self-test that must fire. Registered
-//     after Check 14.
+//     that each variant's `effort:` frontmatter value matches its stem suffix
+//     (low/medium/high); and (e) that `./claude/agents/implementer.md` is ABSENT
+//     from the `agents` array in .claude-plugin/plugin.json (the base agent was
+//     deleted -- its presence would register a dead spawn target). Includes inline
+//     self-tests that must fire. Registered after Check 14.
+//
+// 16. FOLLOWUP BARE-STEM GUARD -- asserts that claude/commands/followup.md
+//     contains NO bare occurrence of `qrspi:implementer` (without a variant
+//     suffix). Uses regex /qrspi:implementer(?!-)/ so variant stems
+//     (-low/-medium/-high) do not match. Catches both the fenced
+//     `subagent_type:` form and inline-prose form. Registered after Check 15.
 //
 //  Exits 0 if all checks pass, 1 if any check reports a violation.
 //  Requires only Node.js built-ins (fs, path) -- no npm dependencies.
@@ -2214,12 +2222,84 @@ async function checkVariantAgents(errors) {
         violations++;
       }
     }
+
+    // (e) BASE-AGENT ABSENCE -- `./claude/agents/implementer.md` must NOT appear
+    //     in the `agents` array. Its presence would register a bare non-variant
+    //     agent (qrspi:implementer) that the kit no longer ships. Checked here
+    //     (not in (d)) so the self-test below can share the same pluginRaw parse.
+    //
+    //     INLINE SELF-TEST: a synthetic agents list containing the base path is
+    //     run through the absence detector. The detector MUST fire; if it misses,
+    //     an error is pushed so CI reddens immediately -- a broken detector never
+    //     passes silently.
+    const _stBasePresent = ['./claude/agents/implementer.md', './claude/agents/implementer-low.md'];
+    const _stBaseFired = _stBasePresent.includes('./claude/agents/implementer.md');
+    if (!_stBaseFired) {
+      errors.push(
+        '[variant-agents] SELF-TEST FAILED: base-path absence detector did not fire ' +
+        'on a synthetic agents list containing `./claude/agents/implementer.md` -- (e) is broken'
+      );
+    }
+    // End self-test
+
+    if (agentsList.includes('./claude/agents/implementer.md')) {
+      errors.push(
+        '[variant-agents] `./claude/agents/implementer.md` must not appear in ' +
+        '.claude-plugin/plugin.json "agents" -- the base agent was deleted in Slice 2; remove this entry'
+      );
+      violations++;
+    }
   }
 
   if (violations === 0) {
     process.stdout.write(
-      `  OK: ${IMPLEMENTER_VARIANTS.length} implementer variant agent(s) match the registry, plugin.json registration, step-1 load, and effort values\n`
+      `  OK: ${IMPLEMENTER_VARIANTS.length} implementer variant agent(s) match the registry, plugin.json registration (base agent absent), step-1 load, and effort values\n`
     );
+  }
+  return violations;
+}
+
+// ---- Check 16: FOLLOWUP BARE-STEM GUARD ------------------------------------
+//
+// Asserts that `claude/commands/followup.md` contains NO bare occurrence of
+// `qrspi:implementer` (the deleted base-agent name) outside a variant suffix.
+// The regex /qrspi:implementer(?!-)/ uses a negative lookahead so variant
+// stems (qrspi:implementer-low / -medium / -high) do not match.
+//
+// Both the fenced `subagent_type: qrspi:implementer` form and any inline-prose
+// form are caught: the regex is applied to the FULL raw file content.
+//
+// A match is a violation: it means the followup command would spawn the bare
+// qrspi:implementer agent that no longer exists, silently failing at runtime.
+
+async function checkFollowupStem(errors) {
+  const followupPath = path.join(root, 'claude', 'commands', 'followup.md');
+  const text = await readFileOr(followupPath, null);
+  const rel = 'claude/commands/followup.md';
+
+  if (text === null) {
+    errors.push(`[followup-stem] ${rel}: file not found`);
+    return 1;
+  }
+
+  // Negative lookahead: match qrspi:implementer NOT followed by a hyphen.
+  // This accepts qrspi:implementer-low/medium/high but rejects the bare stem.
+  const bareStemRe = /qrspi:implementer(?!-)/g;
+  let violations = 0;
+  const lines = text.split('\n');
+  for (let i = 0; i < lines.length; i++) {
+    bareStemRe.lastIndex = 0;
+    if (bareStemRe.test(lines[i])) {
+      errors.push(
+        `[followup-stem] ${rel}:${i + 1}: bare 'qrspi:implementer' reference found (without variant suffix) -- ` +
+        `replace with qrspi:implementer-low, -medium, or -high`
+      );
+      violations++;
+    }
+  }
+
+  if (violations === 0) {
+    process.stdout.write(`  OK: no bare 'qrspi:implementer' stem in ${rel}\n`);
   }
   return violations;
 }
@@ -2278,6 +2358,9 @@ async function main() {
 
   process.stdout.write('\nCheck 15: Implementer variant agent drift gate\n');
   await checkVariantAgents(errors);
+
+  process.stdout.write('\nCheck 16: Followup bare-stem guard\n');
+  await checkFollowupStem(errors);
 
   process.stdout.write('\n');
   if (errors.length === 0) {
