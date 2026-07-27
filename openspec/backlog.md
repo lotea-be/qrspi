@@ -150,6 +150,36 @@ script** — lint runs in this repo's CI, but a helper a stage command invokes
 at runtime ships into consumer repos and inherits their `gh`/auth availability and
 cross-platform concerns; be deliberate about that split.
 
+### orchestrator-effort-targeting — `idea` · **P3**
+
+**Why:** The QRSPI **orchestrator** (the main loop driving the stages) runs at a
+single session reasoning-effort for the whole flow, but its turns split sharply
+by marginal value: most are *mechanical* (Glob preconditions, `git add`/commit,
+stage handoff, backlog staging) and get near-zero benefit from a large thinking
+budget, while a few are *judgment-heavy* (orchestrating the D review, and the
+S→V→P→I hard-stop **divergence self-assessment** — "materially diverges vs.
+immaterial elaboration"). Running the whole session at high effort spends
+reasoning (output) tokens on the mechanical turns for no quality gain; running it
+at medium under-thinks the gates. Add guidance (and/or a light mechanism) to
+**escalate effort per-turn only at the judgment-heavy gates** — e.g. extended-
+thinking triggers in the stage-command bodies at exactly those points — so
+mechanical turns stay cheap and the expensive reasoning lands where it pays. This
+is the compute-lever thesis (spend compute by marginal value) applied to the
+**orchestrator's own turns**, complementing [[per-slice-compute-tier]] /
+[[per-slice-effort-via-agent-variants]] (which target the *subagent* slices) and
+[[configurable-effort-and-thinking]] (per-*stage* effort). It sits on the
+cost-per-quality frontier: it does not minimise tokens versus always-medium, but
+it beats always-high at equal or better gate quality.
+
+**Design tension (needs Q/D):** per-turn thinking triggers are *prose-level* and
+cannot be mechanically enforced (the "persona, not mechanism" caution — cf.
+[[hooks-as-mechanical-guards]]); scope which gates genuinely warrant the bump
+rather than sprinkling triggers everywhere; and confirm the billing model (whether
+retained thinking blocks from a bumped turn re-bill as downstream input, which
+would shrink the margin) before committing. Surfaced 2026-07-27 while advising on
+what model/effort to run the orchestrator in, during the `per-slice-compute-tier`
+flow.
+
 ### decompose-tasks-md-per-slice — `idea` · **P2**
 
 **Why:** The implementer (stage I) reads the whole `tasks.md` on **every** slice,
