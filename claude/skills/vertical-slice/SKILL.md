@@ -97,7 +97,7 @@ runs the implementer subagent on the specified model.
 
 The `**Compute:**` annotation uses `key=value` tokens:
 
-- `model=` **required.** Allowed values: `sonnet`, `opus` (no `haiku`).
+- `model=` **required.** Allowed values: `sonnet`, `opus`, `haiku`.
 - `effort=` optional. Allowed values: `low`, `medium`, `high`. Documents
   per-stage intent honored via the implementer agent's frontmatter `effort:`
   key; it is not a per-invocation parameter.
@@ -116,7 +116,7 @@ The annotation appears in two forms depending on the file:
 The architect writes the dash-bullet form in `slices.md`. The planner carries
 it forward as the bare bold form in `tasks.md` (stripping the leading `- `).
 
-### Choosing model=sonnet vs model=opus
+### Choosing model=sonnet vs model=opus vs model=haiku
 
 Choose `model=sonnet` when the slice is structured and templated:
 
@@ -141,6 +141,14 @@ Choose `model=opus` when deep reasoning materially changes the output:
 - Business rules with subtle edge cases or invariants.
 - UI components with substantive interaction complexity (focus
   management, keyboard navigation in custom widgets, dynamic state).
+
+Choose `model=haiku` for the lightest mechanical work with zero design
+reasoning:
+
+- Single-file edits: renames, comment updates, constant additions.
+- Pure boilerplate additions that are entirely determined by an adjacent
+  existing line (e.g. appending one entry to an enum or allowlist).
+- No branching logic, no cross-file coordination, no new concepts.
 
 When in doubt, prefer `model=sonnet`. The implementer can escalate to opus
 mid-slice by re-invoking `/qrspi:implement <id>` with an override; the

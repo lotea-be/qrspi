@@ -336,11 +336,10 @@ const MODEL_ALIASES = new Set(['opus', 'sonnet', 'haiku']);
 // low|medium|high|xhigh|max that the kit surfaces (D5). xhigh/max are rejected.
 const COMPUTE_EFFORTS = ['low', 'medium', 'high'];
 
-// Valid `model=` aliases for the `**Compute:**` annotation (D2/D6). Kept
-// separate from MODEL_ALIASES (which includes haiku for frontmatter) because
-// the annotation vocabulary is deliberately {sonnet, opus} until a per-slice
-// haiku heuristic exists.
-const COMPUTE_MODELS = ['sonnet', 'opus'];
+// Valid `model=` aliases for the `**Compute:**` annotation (D2/D6). Includes
+// haiku for single-file mechanical edits with zero design reasoning (D1);
+// the per-slice haiku heuristic is documented in the vertical-slice skill.
+const COMPUTE_MODELS = ['sonnet', 'opus', 'haiku'];
 
 // Pattern for pinned model ids (contains a date segment YYYYMMDD or "claude-<digit>")
 const PINNED_MODEL_RE = /\d{8}|claude-\d/i;
@@ -1630,6 +1629,27 @@ async function checkOutputContracts(errors) {
 // only static gate catching a malformed annotation before implement.
 
 async function checkComputeAnnotations(errors) {
+  // ---- INLINE SELF-TEST -------------------------------------------------------
+  // Verify the haiku alias is accepted and an unknown alias is rejected.
+  // Fixture line: the bare-bold tasks.md form.
+  const _selfTestFixture = '**Compute:** effort=low model=haiku — mechanical rename';
+  const _selfTestModelM = _selfTestFixture.match(/\bmodel=(\S*)/);
+  const _selfTestAccepted = _selfTestModelM && COMPUTE_MODELS.includes(_selfTestModelM[1]);
+  if (!_selfTestAccepted) {
+    errors.push(
+      '[compute] SELF-TEST FAILED: model=haiku was not accepted -- COMPUTE_MODELS is missing the haiku entry'
+    );
+  }
+  const _selfTestUnknown = '**Compute:** model=unknown — bad';
+  const _selfTestUnknownM = _selfTestUnknown.match(/\bmodel=(\S*)/);
+  const _selfTestRejected = _selfTestUnknownM && !COMPUTE_MODELS.includes(_selfTestUnknownM[1]);
+  if (!_selfTestRejected) {
+    errors.push(
+      '[compute] SELF-TEST FAILED: model=unknown was not rejected -- COMPUTE_MODELS validation is broken'
+    );
+  }
+  // ---- end self-test ----------------------------------------------------------
+
   const changesDir = path.join(root, 'openspec', 'changes');
   const allMd = await walkMd(changesDir);
   const artifactFiles = allMd.filter((f) => {

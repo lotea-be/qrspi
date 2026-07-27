@@ -6,11 +6,11 @@
 
 **Compute:** model=sonnet effort=low — mechanical constant addition plus a docs section that mirrors an existing pattern; no novel design reasoning. (D1, D2)
 
-- [ ] 1.1 Add `haiku` to the allowed-model vocabulary constant in `scripts/lint.mjs` (Check 13) so it accepts `model=haiku` without error. (D1)
-- [ ] 1.2 Update `claude/skills/vertical-slice/SKILL.md` to document `model=haiku` as a recognized alias with its own heuristic band (e.g. "single-file edits, renames, boilerplate with zero design reasoning"). (D2)
-- [ ] 1.3 Add a fixture line `effort=low model=haiku — mechanical rename` to the Check 13 test corpus inside `scripts/lint.mjs`. (D2)
-- [ ] 1.4 Unit/integration test: run `node scripts/lint.mjs` and confirm exit 0; verify a `model=unknown` fixture still triggers a non-zero exit. (D1, D2)
-- [ ] 1.5 Checkpoint: run `node scripts/lint.mjs` locally and confirm Check 13 passes with the `model=haiku` fixture line present.
+- [x] 1.1 Add `haiku` to the allowed-model vocabulary constant in `scripts/lint.mjs` (Check 13) so it accepts `model=haiku` without error. (D1)
+- [x] 1.2 Update `claude/skills/vertical-slice/SKILL.md` to document `model=haiku` as a recognized alias with its own heuristic band (e.g. "single-file edits, renames, boilerplate with zero design reasoning"). (D2)
+- [x] 1.3 Add a fixture line `effort=low model=haiku — mechanical rename` to the Check 13 test corpus inside `scripts/lint.mjs`. (D2)
+- [x] 1.4 Unit/integration test: run `node scripts/lint.mjs` and confirm exit 0; verify a `model=unknown` fixture still triggers a non-zero exit. (D1, D2)
+- [x] 1.5 Checkpoint: run `node scripts/lint.mjs` locally and confirm Check 13 passes with the `model=haiku` fixture line present.
 
 ## 2. implementer-core skill + base implementer refactor
 
