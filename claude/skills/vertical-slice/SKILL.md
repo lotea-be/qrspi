@@ -91,27 +91,36 @@ Each slice in `slices.md` MUST carry a one-line `**Compute:**` annotation
 under its header, plus a short rationale. The architect (Slices stage) writes
 it. The planner (P stage) carries it forward into `tasks.md` unchanged. The
 `/qrspi:implement` command reads the next un-ticked slice's annotation and
-runs the implementer subagent on the specified model.
+spawns the matching implementer effort-variant on the resolved model.
 
 ### Annotation grammar
 
-The `**Compute:**` annotation uses `key=value` tokens:
+The `**Compute:**` annotation uses two **orthogonal** `key=value` tokens:
 
-- `model=` **required.** Allowed values: `sonnet`, `opus`, `haiku`.
-- `effort=` optional. Allowed values: `low`, `medium`, `high`. Documents
-  per-stage intent honored via the implementer agent's frontmatter `effort:`
-  key; it is not a per-invocation parameter.
+- `effort=` **required.** Allowed values: `low`, `medium`, `high`. Selects the
+  implementer variant `/qrspi:implement` spawns (`low` → `implementer-low`,
+  `medium` → `implementer-medium`, `high` → `implementer-high`) — each variant
+  carries the matching static `effort:` frontmatter, so this is how per-slice
+  effort is enforced at spawn time.
+- `model=` **optional**, **defaults to `sonnet`** when omitted. Allowed
+  values: `haiku`, `sonnet`, `opus`. Passed per-spawn as the Agent tool's
+  `model:` parameter, which overrides the variant's frontmatter default.
 
-Example: `**Compute:** model=sonnet effort=medium — boilerplate entity`
+The two tokens are independent — any `model × effort` combination is reachable
+directly. There is no `profile=` token (dropped: model must not be coupled to
+effort).
+
+Example: `**Compute:** effort=medium model=sonnet — boilerplate entity`
+Example: `**Compute:** effort=high — deep reasoning, model defaults to sonnet`
 
 ### Structural forms
 
 The annotation appears in two forms depending on the file:
 
 - **`slices.md` form** — a dash-bullet line inside the slice:
-  `- **Compute:** model=<alias> effort=<low|medium|high> — <rationale>`
+  `- **Compute:** effort=<low|medium|high> model=<alias> — <rationale>`
 - **`tasks.md` form** — a bare bold paragraph line under the slice heading:
-  `**Compute:** model=<alias> effort=<low|medium|high> — <rationale>`
+  `**Compute:** effort=<low|medium|high> model=<alias> — <rationale>`
 
 The architect writes the dash-bullet form in `slices.md`. The planner carries
 it forward as the bare bold form in `tasks.md` (stripping the leading `- `).

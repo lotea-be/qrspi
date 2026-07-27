@@ -7,13 +7,7 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## In progress
 
-_None._
-
----
-
-## Proposed
-
-### per-slice-compute-tier — `proposed`
+### per-slice-compute-tier — `in-progress (Q, R, D, S, V, P, I complete)`
 
 **Why:** Compute-tier follow-on to the merged `per-slice-compute-knobs` — bundles
 [[per-slice-effort-via-agent-variants]] (true per-slice **effort** via per-slice
@@ -22,6 +16,12 @@ when-to-use heuristic), both extending the same `**Compute:**` grammar / lint
 Check 13 / slice→agent mapping. The largest remaining token lever (compute is
 multiplicative). Entered the QRSPI flow 2026-07-27; matrix/mechanism best solution
 handed to R/D (questions.md PQ1/PQ8).
+
+---
+
+## Proposed
+
+_None._
 
 ---
 

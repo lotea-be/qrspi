@@ -16,6 +16,24 @@ kit version.
 
 ### Added
 
+- **Per-slice compute tier: orthogonal `effort=`/`model=` grammar + effort-variant
+  agents (`per-slice-compute-tier`).** The `**Compute:**` annotation grammar
+  becomes two orthogonal tokens -- `effort=<low|medium|high>` is now **required**
+  and selects which implementer variant `/qrspi:implement` spawns
+  (`implementer-low` / `implementer-medium` / `implementer-high`, each carrying
+  the matching static `effort:` frontmatter), while `model=<haiku|sonnet|opus>`
+  is now **optional** and defaults to `sonnet` (passed per-spawn as the Agent
+  tool `model:` override). This makes per-slice *effort* enforceable at spawn
+  time (not just per-stage) and reaches all nine `model x effort` combinations.
+  `haiku` is promoted to a first-class `**Compute:** model=` value with its own
+  `vertical-slice` heuristic band. The shared implementer body lives once in a
+  new `implementer-core` skill that the base `implementer.md` and all three
+  variants load; a new lint **Check 15** (`checkVariantAgents`) guards the
+  variant fleet from drift (coverage, core-only load, effort-matches-stem), and
+  **Check 13** swaps to enforce the new required/optional grammar. Breaking
+  grammar change -- consumers are migrated via `migrations/0.10.0.yaml` (effort
+  now required; a `model=`-only line must add an `effort=` token).
+
 - **The QRSPI researcher (stage R) is now surface-aware
   (`researcher-surface-generic`).** The researcher agent loads the `repo-surface`
   skill and gates its factual-inventory sections on the repo's declared surfaces,
@@ -52,6 +70,14 @@ kit version.
 
 ### Changed
 
+- **`/qrspi:implement` resolves the implementer variant + model from the slice
+  (`per-slice-compute-tier`).** The command now maps the required `effort=` token
+  to a variant `subagent_type` (`implementer-low` / `implementer-medium` /
+  `implementer-high`) and passes the optional `model=` (default `sonnet`) as the
+  Agent `model:` parameter, at both the main spawn site and the Full/Semi-auto
+  per-slice loop. The old missing-`model=` hard-stop becomes a missing-`effort=`
+  hard-stop. **Check 13** swaps to enforce the new grammar (`effort=` required,
+  `model=` optional).
 - **Lint constant `CRUD_DENYLIST_HEADINGS` renamed to
   `SURFACE_GATED_DENYLIST_HEADINGS`** and grown from 12 to 22 entries (the 10 new
   kit-surface headings); the Check 11 comment block is regeneralized from "CRUD" to

@@ -68,9 +68,11 @@
 //
 // 13. COMPUTE ANNOTATION VALUE-VALIDATION -- every `**Compute:**` line in the
 //     committed change artifacts (openspec/changes/**/slices.md and
-//     **/tasks.md) must carry a valid `model=` token (in COMPUTE_MODELS) and,
-//     if present, a valid `effort=` token (in COMPUTE_EFFORTS). Value-validation
-//     only (NOT presence-on-every-slice); tolerates both the dash-bullet and
+//     **/tasks.md) must carry a valid `effort=` token (in COMPUTE_EFFORTS) and,
+//     if present, a valid `model=` token (in COMPUTE_MODELS). Orthogonal grammar
+//     (D3/D7): `effort=` is REQUIRED (it selects the implementer variant),
+//     `model=` is OPTIONAL (defaults to sonnet at spawn). Value-validation only
+//     (NOT presence-on-every-slice); tolerates both the dash-bullet and
 //     bare-bold structural forms. Scoped strictly to the committed change
 //     artifacts -- never scans skills or templates (placeholder examples there).
 //
@@ -1615,10 +1617,11 @@ async function checkOutputContracts(errors) {
 // `model=` / `effort=` tokens against COMPUTE_MODELS / COMPUTE_EFFORTS (D6).
 //
 // This is VALUE-VALIDATION ONLY -- it does NOT assert a `**Compute:**` line is
-// present on every slice (that is a Non-Goal). It flags:
-//   - missing/empty `model=` token (model is required -- D3)
-//   - `model=` not in COMPUTE_MODELS
-//   - `effort=` present but not in COMPUTE_EFFORTS
+// present on every slice (that is a Non-Goal). Orthogonal grammar (D3/D7):
+// `effort=` is required, `model=` is optional. It flags:
+//   - missing/empty `effort=` token (effort is required -- D3/D7)
+//   - `effort=` not in COMPUTE_EFFORTS
+//   - `model=` present but not in COMPUTE_MODELS
 //
 // It tolerates BOTH structural forms (D1): the `-` dash-bullet form used in
 // slices.md (`- **Compute:** ...`) and the bare bold form used in tasks.md
@@ -1637,20 +1640,44 @@ async function checkOutputContracts(errors) {
 
 async function checkComputeAnnotations(errors) {
   // ---- INLINE SELF-TEST -------------------------------------------------------
-  // Verify the haiku alias is accepted and an unknown alias is rejected.
-  // Fixture line: the bare-bold tasks.md form.
-  const _selfTestFixture = '**Compute:** effort=low model=haiku — mechanical rename';
-  const _selfTestModelM = _selfTestFixture.match(/\bmodel=(\S*)/);
-  const _selfTestAccepted = _selfTestModelM && COMPUTE_MODELS.includes(_selfTestModelM[1]);
-  if (!_selfTestAccepted) {
+  // Orthogonal grammar (D3/D7): effort= is REQUIRED, model= is OPTIONAL.
+  // Assert the four load-bearing rules on bare-bold tasks.md-form fixtures:
+  //   (1) a line with effort= and no model= is ACCEPTED (model defaults sonnet);
+  //   (2) a line missing effort= is REJECTED (effort is required);
+  //   (3) the haiku alias is a valid model value (COMPUTE_MODELS includes it);
+  //   (4) an unknown model value is rejected.
+  const _matchEffort = (s) => s.match(/\beffort=(\S*)/);
+  const _matchModel = (s) => s.match(/\bmodel=(\S*)/);
+
+  // (1) effort= present, model= omitted -> accepted (no missing-effort error)
+  const _stEffortOnly = '**Compute:** effort=medium — model defaults to sonnet';
+  if (!_matchEffort(_stEffortOnly)) {
+    errors.push(
+      '[compute] SELF-TEST FAILED: effort=medium (no model=) was not recognized -- effort parsing is broken'
+    );
+  }
+
+  // (2) effort= absent -> rejected (missing required effort)
+  const _stNoEffort = '**Compute:** model=sonnet — missing effort';
+  if (_matchEffort(_stNoEffort)) {
+    errors.push(
+      '[compute] SELF-TEST FAILED: a **Compute:** line with no effort= token was treated as having one -- required-effort validation is broken'
+    );
+  }
+
+  // (3) haiku is a valid model alias
+  const _stHaiku = '**Compute:** effort=low model=haiku — mechanical rename';
+  const _stHaikuModel = _matchModel(_stHaiku);
+  if (!(_stHaikuModel && COMPUTE_MODELS.includes(_stHaikuModel[1]))) {
     errors.push(
       '[compute] SELF-TEST FAILED: model=haiku was not accepted -- COMPUTE_MODELS is missing the haiku entry'
     );
   }
-  const _selfTestUnknown = '**Compute:** model=unknown — bad';
-  const _selfTestUnknownM = _selfTestUnknown.match(/\bmodel=(\S*)/);
-  const _selfTestRejected = _selfTestUnknownM && !COMPUTE_MODELS.includes(_selfTestUnknownM[1]);
-  if (!_selfTestRejected) {
+
+  // (4) unknown model value is rejected
+  const _stUnknown = '**Compute:** effort=low model=unknown — bad';
+  const _stUnknownModel = _matchModel(_stUnknown);
+  if (!(_stUnknownModel && !COMPUTE_MODELS.includes(_stUnknownModel[1]))) {
     errors.push(
       '[compute] SELF-TEST FAILED: model=unknown was not rejected -- COMPUTE_MODELS validation is broken'
     );
@@ -1691,25 +1718,26 @@ async function checkComputeAnnotations(errors) {
       const modelM = rest.match(/\bmodel=(\S*)/);
       const effortM = rest.match(/\beffort=(\S*)/);
 
-      // model= required and non-empty (D3)
-      if (!modelM || modelM[1] === '') {
+      // effort= required and non-empty (D3/D7 -- orthogonal grammar: effort
+      // selects the implementer variant, so it is the load-bearing token).
+      if (!effortM || effortM[1] === '') {
         errors.push(
-          `[compute] ${rel}:${i + 1}: **Compute:** line missing required 'model=' token`
+          `[compute] ${rel}:${i + 1}: **Compute:** line missing required 'effort=' token`
         );
         violations++;
-      } else if (!COMPUTE_MODELS.includes(modelM[1])) {
+      } else if (!COMPUTE_EFFORTS.includes(effortM[1])) {
         errors.push(
-          `[compute] ${rel}:${i + 1}: 'model=${modelM[1]}' is not a valid model` +
-          ` (allowed: ${COMPUTE_MODELS.join(', ')})`
+          `[compute] ${rel}:${i + 1}: 'effort=${effortM[1]}' is not a valid effort` +
+          ` (allowed: ${COMPUTE_EFFORTS.join(', ')})`
         );
         violations++;
       }
 
-      // effort= optional, but valid-if-present (D3)
-      if (effortM && !COMPUTE_EFFORTS.includes(effortM[1])) {
+      // model= optional (defaults to sonnet at spawn), but valid-if-present (D3/D7)
+      if (modelM && modelM[1] !== '' && !COMPUTE_MODELS.includes(modelM[1])) {
         errors.push(
-          `[compute] ${rel}:${i + 1}: 'effort=${effortM[1]}' is not a valid effort` +
-          ` (allowed: ${COMPUTE_EFFORTS.join(', ')})`
+          `[compute] ${rel}:${i + 1}: 'model=${modelM[1]}' is not a valid model` +
+          ` (allowed: ${COMPUTE_MODELS.join(', ')})`
         );
         violations++;
       }
