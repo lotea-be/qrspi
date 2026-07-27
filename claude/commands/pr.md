@@ -31,6 +31,8 @@ on un-ticked boxes:
    change folder). Do not Glob this — `git status` is not on the default
    allow-list and the harness's obfuscation guard blocks brace+quote shapes.
 
+> Resolve `openspec/changes/<id>/…` against the **current working repo root** (the consumer's CWD), not the plugin install directory — the change folder lives in the repo you are running the command in.
+
 ## Tasks pass (reconciliation gate)
 
 After the precondition passes, run the tasks pass before spawning the

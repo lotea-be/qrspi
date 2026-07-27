@@ -24,6 +24,8 @@ but if the user explicitly says this is a typo / lint / single-line fix,
 allow it and require the user to state the inline plan in one paragraph
 before any edits.
 
+> Resolve `openspec/changes/<id>/…` against the **current working repo root** (the consumer's CWD), not the plugin install directory — the change folder lives in the repo you are running the command in.
+
 **Trivial inline-plan path (no `tasks.md`).** When the trivial exception
 applies and the user has stated the inline plan, spawn `qrspi:implementer-medium`
 with `model: sonnet` explicitly -- do NOT fall through to the variant-resolution

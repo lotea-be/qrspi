@@ -7,13 +7,7 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## In progress
 
-_None._
-
----
-
-## Proposed
-
-### unify-implement-paths-on-variants — `proposed (change folder created 2026-07-27)` · **P2**
+### unify-implement-paths-on-variants — `in-progress (Q, R, D, S, V, P, I complete)` · **P2**
 
 **Why:** `per-slice-compute-tier` ships three effort-variant implementer agents but
 keeps the base `implementer.md` as a never-spawned contract/registry anchor, and the
@@ -34,6 +28,12 @@ proposed entry. Deliberately does NOT bundle [[richer-effort-vocab-and-thinking]
 [[compute-escalation-on-failure]] (see Ideas section for rationale). Open product
 questions answered: PQ1 (FIX MODE default effort), PQ2 (trivial-path effort), PQ3
 (base file fate), PQ4 (cwd note blast radius) — see `questions.md`.
+
+---
+
+## Proposed
+
+_None._
 
 ---
 

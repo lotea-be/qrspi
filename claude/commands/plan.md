@@ -21,6 +21,8 @@ Precondition (canonical *precondition check* in skill `workflow`,
 `/qrspi:slices`. Use the **Glob** tool to verify the artifact exists — do
 not shell out.
 
+> Resolve `openspec/changes/<id>/…` against the **current working repo root** (the consumer's CWD), not the plugin install directory — the change folder lives in the repo you are running the command in.
+
 Spawn the `planner` subagent via the **Agent tool** (`subagent_type:
 qrspi:planner`, `model: sonnet` — matching the planner agent's frontmatter
 `model:`) for the bounded artifact write. Pass the change id. Tell

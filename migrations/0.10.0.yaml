@@ -30,3 +30,10 @@ manual:
     high) and passes the optional model= (default sonnet) as the Agent tool
     model: parameter, and hard-stops when effort= is absent (was: hard-stop on
     absent model=).
+  - >-
+    If you have locally overridden claude/commands/followup.md, re-apply your
+    customizations on top of the new variant-routing logic: FIX MODE now spawns
+    qrspi:implementer-medium by default (was: bare qrspi:implementer), and the
+    effort= token from the inline (compute: ...) spec maps to the matching
+    variant (implementer-low/medium/high). The model= default (sonnet) and the
+    per-invocation model: threading are unchanged.

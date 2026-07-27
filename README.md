@@ -140,7 +140,7 @@ any QRSPI change artifact, and Check 14 enforces this mechanically.
 ```
 qrspi/
   claude/                    # SOURCE OF TRUTH — Claude Code plugin payload
-    agents/                  #   7 subagent definitions (questioner … reviewer)
+    agents/                  #   9 subagent definitions (6 stage agents + 3 implementer effort variants)
     commands/                #   /qrspi:* slash commands
     skills/                  #   workflow + convention skills (stack-agnostic)
   openspec-templates/        # the 5 canonical artifact templates (shared)
@@ -310,7 +310,7 @@ all hand-maintained occurrences agree -- the lint will catch any missed location
 
 ### CI lint checks (`node scripts/lint.mjs`)
 
-The lint script runs 15 checks (Checks 1-15) on every CI run. Key checks relevant
+The lint script runs 16 checks (Checks 1-16) on every CI run. Key checks relevant
 to context hygiene and agent contracts:
 
 - **Check 2b (`checkSkillSets`)** -- asserts each stage agent's `Load skills` line
@@ -320,9 +320,12 @@ to context hygiene and agent contracts:
   surface-gated section headings appear as literal heading lines INSIDE fenced code
   blocks in the five artifact-producing agent files. Surface-gated headings must appear
   only as conditional gate comments, never hard-coded in skeletons.
-- **Check 12 (`checkOutputContracts`)** -- asserts each of the seven stage agents
-  carries a `> **Output contract**` banner line (presence-only). Mirrors the scope
-  and pattern of Check 7 (`checkReadContracts`).
+- **Check 12 (`checkOutputContracts`)** -- asserts each of the nine agents (six
+  stage agents plus three implementer effort-variant agents: `implementer-low`,
+  `implementer-medium`, `implementer-high`) carries a `> **Output contract**`
+  banner line (presence-only). Mirrors the scope and pattern of Check 7
+  (`checkReadContracts`), which asserts the same nine agents carry a matching
+  `> **Read contract**` banner.
 - **Check 13 (`checkComputeAnnotations`)** -- value-validates every `**Compute:**`
   line in committed `slices.md` and `tasks.md` artifacts. Requires an `effort=`
   token (`low|medium|high`) -- it selects the implementer variant -- and flags a
@@ -340,12 +343,21 @@ to context hygiene and agent contracts:
   Check 14 scans OUTSIDE fenced blocks in change artifacts -- they never fire on the
   same line.
 - **Check 15 (`checkVariantAgents`)** -- guards the effort-variant implementer
-  fleet from drift: asserts the `claude/agents/implementer-*.md` stems exactly
-  match the `IMPLEMENTER_VARIANTS` registry, each variant loads only
-  `implementer-core`, each variant's `effort:` frontmatter matches its stem
-  suffix, and each variant is registered in `.claude-plugin/plugin.json`'s
+  fleet from drift: (a) asserts the `claude/agents/implementer-*.md` stems exactly
+  match the `IMPLEMENTER_VARIANTS` registry, (b) each variant loads only
+  `implementer-core`, (c) each variant's `effort:` frontmatter matches its stem
+  suffix, (d) each variant is registered in `.claude-plugin/plugin.json`'s
   `agents` array (required for the variant to be a spawnable `qrspi:implementer-*`
-  subagent). Includes an inline self-test.
+  subagent), and (e) `./claude/agents/implementer.md` is ABSENT from the `agents`
+  array in `.claude-plugin/plugin.json` (the base agent was deleted -- its presence
+  would register a dead spawn target). Includes inline self-tests for sub-checks
+  (d) and (e) that must fire on a synthetic fixture.
+- **Check 16 (`checkFollowupStem`)** -- asserts `claude/commands/followup.md`
+  contains no bare occurrence of the deleted base-agent stem `qrspi:implementer`
+  (without a variant suffix `-low`, `-medium`, or `-high`). Uses a negative-lookahead
+  regex so variant stems do not match. Catches both the fenced `subagent_type:` form
+  and inline-prose form, ensuring `/qrspi:followup` always spawns a named variant,
+  never the deleted base agent.
 
 All other checks (pin agreement, frontmatter, heading alignment, README command
 coverage, gate-tool/executor agreement, migration manifests, read-contract banners,

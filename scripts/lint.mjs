@@ -2046,7 +2046,7 @@ async function checkSurfaceApplicability(errors) {
 // Asserts that the set of implementer variant agents in claude/agents/ matches
 // the registry exactly, and that each variant's shape is correct.
 //
-// Three sub-checks:
+// Five sub-checks:
 //
 //   (a) EXACT SET -- the stems of all claude/agents/implementer-*.md files
 //       must exactly equal IMPLEMENTER_VARIANTS (no extra, no missing).
@@ -2059,15 +2059,24 @@ async function checkSurfaceApplicability(errors) {
 //   (c) EFFORT MATCH -- each variant's `effort:` frontmatter field must equal
 //       the stem suffix (implementer-low -> effort: low, etc.).
 //
+//   (d) PLUGIN REGISTRATION -- each variant must be listed in
+//       .claude-plugin/plugin.json's `agents` array (registered as a spawnable
+//       subagent_type).
+//
+//   (e) BASE-AGENT ABSENCE -- `./claude/agents/implementer.md` must NOT appear
+//       in the `agents` array; the base agent was deleted (its dispatch paths
+//       now route through the variants) and its re-registration would revive a
+//       dead spawn target.
+//
 // INLINE SELF-TEST: a synthetic in-memory fixture is run through the step-1
 // skill extractor to assert it correctly identifies a variant that loads only
 // `implementer-core`. A second fixture with an extra skill asserts the
 // detector fires. If either fails, an error is pushed so CI reddens
 // immediately -- a broken detector never passes silently.
 //
-// SCOPE: strictly implementer-*.md files. The seven named stage agents
-// (including implementer.md itself) are NOT covered here -- they are covered
-// by Checks 7, 12, and 2b. Variants are deliberately outside those registries.
+// SCOPE: strictly implementer-*.md files. The six named stage agents are NOT
+// covered here -- they are covered by Checks 7, 12, and 2b. Variants are
+// deliberately outside those registries.
 
 const IMPLEMENTER_VARIANTS = ['implementer-low', 'implementer-medium', 'implementer-high'];
 

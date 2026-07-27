@@ -46,6 +46,8 @@ Preconditions (verify with the **Glob** tool — no shell preamble):
    If absent and the user named a specific fix, the implementer creates it
    and adds the item before resolving it (per skill `postpr-fix`).
 
+> Resolve `openspec/changes/<id>/…` against the **current working repo root** (the consumer's CWD), not the plugin install directory — the change folder lives in the repo you are running the command in.
+
 **Triage gate (never suppressed -- fires in Full auto, Semi-auto, and Manual).**
 
 Before spawning the implementer, self-assess the targeted follow-up item
