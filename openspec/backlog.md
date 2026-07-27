@@ -309,6 +309,57 @@ is front-loading Q+R+D to beat the plan-reading illusion, so the gate MUST
 preserve "any data-model / API / auth / contract surface ⇒ full flow" and only
 trim genuinely low-surface changes. Surfaced 2026-07-25.
 
+### real-runtime-slice-checkpoints — `idea` · **P2**
+
+**Why:** QRSPI slices default to acceptance the automated suite can reach
+(unit/integration tests, lint, `openspec validate`), but a slice's real acceptance
+often depends on behaviour tests **cannot** exercise — deployment/image rollout,
+identity/secret wiring, external-API integration, plugin/agent registration. Today
+nothing forces a checkpoint for those, so the gap surfaces only in the target
+environment (the abkf `dsr-self-service` retro: a background Job passed CI and bicep
+validation but failed three ways in staging — image never rolled, auth missing,
+config drift). The kit already has the right primitive — the `(human)`
+runtime-verification checkpoint — it is just under-applied. Generalize the
+`vertical-slice` skill (and the architect/planner that emit checkpoints) so **any
+slice whose acceptance cannot be reached by the automated suite MUST carry a
+`(human)` checkpoint verifying it in the real target environment.** Stack-agnostic
+by construction (covers deployment, external integration, and e.g. this repo's own
+Check-15 plugin-registration bug that lint was blind to until the dogfood). Sibling
+to [[architect-real-runtime-done-decomposition]] (decompose it — this one verifies
+it). Surfaced by the abkf `dsr-self-service` consumer retro (2026-07-27).
+
+### architect-real-runtime-done-decomposition — `idea` · **P2**
+
+**Why:** The architect (S) decomposes a change into slices/tasks but tends to stop
+at *code-complete* ("compiles, tests pass") rather than *runtime-complete* ("what
+does shipping this resource to its real environment actually entail?"). In the abkf
+`dsr-self-service` retro, deploying a new background Job — image distribution,
+identity registration, secret injection, cross-context config parity — arrived as
+ad-hoc post-PR work because the architecture never decomposed it. Add generic
+architect guidance to decompose **what "done in the real runtime" means for each
+new resource**, not just the code that produces it. **Keep the kernel generic** —
+the specific cloud checklist (image/identity/secret/parity) is stack-specific and
+belongs behind an `infra`/deployment **surface**, NOT hardcoded into every architect
+run (see [[extend-surface-taxonomy]]); baking IaC steps into the generic prompt
+would regress the kit's stack-agnostic, surface-gated design. Sibling to
+[[real-runtime-slice-checkpoints]] (verify it). Surfaced by the abkf
+`dsr-self-service` consumer retro (2026-07-27).
+
+### designer-flag-shared-artifact-coupling — `idea` · **P2**
+
+**Why:** When a design reuses one artifact across multiple roles/contexts (in the
+abkf `dsr-self-service` retro, a single image served both a web and a job runtime via
+a mode flag), the contexts become permanently config-coupled — but the design never
+recorded that parity must be maintained, so each missing role-specific setting became
+a separate production incident. Add designer (D) guidance to **flag any artifact
+reused across multiple roles and require the design to state the coupling contract
+explicitly** — whether configuration/behaviour parity is maintained across the shared
+artifact, or the roles are split into separate slim startups. Stack-agnostic
+hidden-coupling surfacing — squarely the designer's "surface your assumptions" job,
+not a deployment-specific concern. Relates to the two-source-of-truth caution in
+[[optional-technology-specs]]. Surfaced by the abkf `dsr-self-service` consumer retro
+(2026-07-27).
+
 ### standardize-backlog-format — `idea` · **P2**
 
 **Why:** The kit's commands all *mutate* `openspec/backlog.md` — `questions`
@@ -473,7 +524,13 @@ gates no emitted section is inert). Candidate surface + section clusters to desi
 - **`object-storage` / filesystem** — blob/object stores, path layout, retention/lifecycle.
 - **`caching`** — cache keys, invalidation strategy, TTL/staleness.
 - **`observability`** — logging, metrics, tracing, alerting surfaces.
-- **`infra` / IaC** — provisioned resources, deployment topology, environments.
+- **`infra` / deployment / IaC** — provisioned resources, deployment topology,
+  environments; and the **deployable-resource lifecycle** a real consumer incident
+  concretely motivates (abkf `dsr-self-service` retro, 2026-07-27): image
+  distribution/rollout, identity registration, secret injection, and cross-context
+  config parity. This is the surface-gated home for the deployment specifics that
+  [[architect-real-runtime-done-decomposition]] deliberately keeps OUT of the
+  generic architect prompt.
 - **`ml-model`** — model artifacts, training data provenance, evaluation metrics, versioning.
 - **`realtime` / streaming** — websockets/SSE/streaming endpoints, backpressure.
 
