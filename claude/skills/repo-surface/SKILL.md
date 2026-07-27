@@ -51,6 +51,7 @@ surface is absent.
 - Section `## Indexing & query performance` (in questions.md)
 - Section `## Migrations & data` (in questions.md)
 - Section `## Data model changes` (in design.md)
+- Section `## Data model` (in research.md)
 - Migration-generation task (in tasks.md)
 - Section `## Migrations` (in PR review artifacts)
 - Checklist item "No raw SQL" (in PR checklists)
@@ -59,6 +60,7 @@ surface is absent.
 
 - Section `## API` (in questions.md)
 - Section `## API surface` (in design.md)
+- Section `## API surface` (in research.md)
 - Checklist item "endpoints use authorization policies" (in PR checklists)
 
 ### `ui` gates
@@ -66,11 +68,13 @@ surface is absent.
 - Section `## UI` (in questions.md)
 - Section `## Front-end state` (in questions.md)
 - Section `## UI surface` (in design.md)
+- Section `## UI surface` (in research.md)
 
 ### `auth` gates
 
 - Section `## Auth & authorization` (in questions.md)
 - Section `## Authorization` (in design.md)
+- Section `## Authorization` (in research.md)
 - Checklist item "auth-policy applied" (in PR checklists)
 
 ### `typed-nullable` gates
@@ -81,31 +85,37 @@ surface is absent.
 
 - Section `## Slash-command surface` (in questions.md)
 - Section `## Command changes` (in design.md)
+- Section `## Slash-command surface` (in research.md)
 
 ### `stage-agent` gates
 
 - Section `## Stage-agent surface` (in questions.md)
 - Section `## Agent changes` (in design.md)
+- Section `## Stage-agent surface` (in research.md)
 
 ### `skill` gates
 
 - Section `## Skill surface` (in questions.md)
 - Section `## Skill changes` (in design.md)
+- Section `## Skill surface` (in research.md)
 
 ### `lint-gate` gates
 
 - Section `## Lint-gate surface` (in questions.md)
 - Section `## Lint changes` (in design.md)
+- Section `## Lint-gate surface` (in research.md)
 
 ### `template` gates
 
 - Section `## Template surface` (in questions.md)
 - Section `## Template surface` (in design.md)
+- Section `## Template surface` (in research.md)
 
 ### `migration-manifest` gates
 
 - Section `## Migration manifest` (in questions.md)
 - Section `## Migration manifest` (in design.md)
+- Section `## Migration manifest` (in research.md)
 
 ## Omit mechanic
 
@@ -220,14 +230,16 @@ To add a new surface to the taxonomy, update all of the following sites in the
 same change (touching any one without the others leaves the taxonomy inconsistent):
 
 - [ ] **This mapping row** -- add a `### <surface> gates` subsection here listing
-  the section name(s) it controls, and add the new surface row to the taxonomy
-  table above.
+  the section name(s) it controls (with `(in questions.md)`, `(in design.md)`,
+  and `(in research.md)` artifact tags as appropriate), and add the new surface
+  row to the taxonomy table above.
 - [ ] **Agent skeleton gate comment** -- add a conditional gate comment (NOT a
   literal heading line) in the `<!-- Surface-gated sections -->` block of each
-  relevant agent file (`claude/agents/questioner.md`, `claude/agents/designer.md`).
-  Use the same `<!-- SURFACE-GATED: <surface> surface. -->` comment format the
-  existing entries use. Never add a bare `## <heading>` line inside a fenced
-  block -- that would trip Check 11 (`SURFACE_GATED_DENYLIST_HEADINGS`).
+  relevant agent file (`claude/agents/questioner.md`, `claude/agents/designer.md`,
+  `claude/agents/researcher.md`). Use the same `<!-- SURFACE-GATED: <surface>
+  surface. -->` comment format the existing entries use. Never add a bare
+  `## <heading>` line inside a fenced block -- that would trip Check 11
+  (`SURFACE_GATED_DENYLIST_HEADINGS`).
 - [ ] **Template gate comment** -- add the matching gate comment to
   `openspec-templates/questions.template.md` and
   `openspec-templates/design.template.md` in the same style.
@@ -241,6 +253,11 @@ same change (touching any one without the others leaves the taxonomy inconsisten
 - [ ] **`qrspi-stack` `## Repo surface` block** (`.claude/skills/qrspi-stack/SKILL.md`)
   -- if the new surface applies to this repo, add it to the bullet list there.
   If not, no edit is needed (absent surfaces are implied by omission).
+- [ ] **Researcher skeleton gate comment** -- confirm the new surface entry is
+  present in the `<!-- Surface-gated inventory sections: -->` block of
+  `claude/agents/researcher.md` with the correct `<surface> -> ## <heading>`
+  mapping, and that a matching `(in research.md)` line exists in the
+  `### <surface> gates` subsection above.
 
 **`## Template surface` self-collision caveat:** `## Template surface` is both a
 present section heading (it appears inside a fenced skeleton in the questioner and

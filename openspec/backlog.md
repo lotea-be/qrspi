@@ -7,7 +7,30 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## In progress
 
-_None._
+### researcher-surface-generic — `in-progress (draft PR #34 open)` · **P1**
+
+**Why:** The `repo-applicable-artifact-sections` surface mechanism gates the
+*proposal*-producing agents (questioner, designer, architect, planner) but **left
+the researcher out** — `claude/agents/researcher.md` never loads `repo-surface`
+and carries a fixed, web-app-shaped skeleton (`## Public API surface`,
+`## Data model`, …). So `research.md` emits a `## Data model` section even for a
+repo with no data-store surface (the kit itself) — the same hardcoded-surface
+assumption the surface work set out to kill. **Make the researcher generic:**
+drive its factual-inventory sections from the repo's declared surfaces (the stack
+cheatsheet `## Repo surface` block) instead of a fixed skeleton. Two design
+wrinkles need their own Q/D: (1) **inventory-vs-proposal semantics** — the gated
+agents *omit* a proposal section for an absent surface, but documenting the
+*absence* of a surface can itself be a useful factual finding, so "omit when
+absent" is not obviously right for a factual map; (2) the researcher is
+**ticket-blind** and does not load `repo-surface` today, so this touches its Read
+contract and the R stage. Needs a surface→*inventory-heading* mapping distinct
+from the existing surface→*proposal-heading* mapping. **P1 / take up next:** it is
+the durable completion of the surface-gating work, and it retires the temporary
+`## Data model`→`## Data structures` band-aid in `kit-surface-dogfooding`'s
+`research.md` — once the researcher is surface-gated, `research.md` is legitimately
+scannable by Check 14 (which already scans all live `changes/**` artifacts).
+Sibling of `kit-self-surfaces`; surfaced 2026-07-25 during the stage-I dogfooding
+of `kit-surface-dogfooding`.
 
 ---
 
@@ -40,31 +63,6 @@ now proposed), and
 into `kit-surface-dogfooding` (proposed, in the QRSPI flow); the remaining
 [[structured-surface-schema]] and [[extend-surface-taxonomy]] are kept
 contiguous below across the P2/P3 boundary.
-
-### researcher-surface-generic — `idea` · **P1**
-
-**Why:** The `repo-applicable-artifact-sections` surface mechanism gates the
-*proposal*-producing agents (questioner, designer, architect, planner) but **left
-the researcher out** — `claude/agents/researcher.md` never loads `repo-surface`
-and carries a fixed, web-app-shaped skeleton (`## Public API surface`,
-`## Data model`, …). So `research.md` emits a `## Data model` section even for a
-repo with no data-store surface (the kit itself) — the same hardcoded-surface
-assumption the surface work set out to kill. **Make the researcher generic:**
-drive its factual-inventory sections from the repo's declared surfaces (the stack
-cheatsheet `## Repo surface` block) instead of a fixed skeleton. Two design
-wrinkles need their own Q/D: (1) **inventory-vs-proposal semantics** — the gated
-agents *omit* a proposal section for an absent surface, but documenting the
-*absence* of a surface can itself be a useful factual finding, so "omit when
-absent" is not obviously right for a factual map; (2) the researcher is
-**ticket-blind** and does not load `repo-surface` today, so this touches its Read
-contract and the R stage. Needs a surface→*inventory-heading* mapping distinct
-from the existing surface→*proposal-heading* mapping. **P1 / take up next:** it is
-the durable completion of the surface-gating work, and it retires the temporary
-`## Data model`→`## Data structures` band-aid in `kit-surface-dogfooding`'s
-`research.md` — once the researcher is surface-gated, `research.md` is legitimately
-scannable by Check 14 (which already scans all live `changes/**` artifacts).
-Sibling of `kit-self-surfaces`; surfaced 2026-07-25 during the stage-I dogfooding
-of `kit-surface-dogfooding`.
 
 ### spec-anchored-code-comments — `idea` · **P1**
 
@@ -414,6 +412,47 @@ denylist entry. Surfaced 2026-07-24 during stage-I dogfooding of
 question). Relates to [[structured-surface-schema]]. The kit's *own* self-surfaces
 (the distinct "let this repo dogfood richer surfaces" flavor) split out into
 [[kit-self-surfaces]] as a higher-value standalone.
+
+### rationalize-surface-taxonomy — `idea` · **P3**
+
+**Why:** The current `repo-surface` taxonomy is a flat list that mixes three
+different kinds of surface: generic web surfaces (`data-store`, `http-api`, `ui`,
+`auth`), Claude-plugin-shaped ones (`slash-command`, `stage-agent`, `skill`), and
+repo-local kit ones (`lint-gate`, `template`, `migration-manifest`) — plus
+`typed-nullable`, which gates only a PR-checklist item (no section heading).
+Rationalize it: (1) **group** the three plugin surfaces under one coarser
+`claude-plugin` / `llm-agent` surface; (2) **mark** `lint-gate` / `template` /
+`migration-manifest` explicitly as repo-local (kit-specific) rather than
+general-purpose; (3) **drop** `typed-nullable`. **Design tension (needs Q/D):**
+each surface today gates a *distinct* artifact section, so collapsing three into
+one either merges their inventory sections (coarser research/design output) or
+needs sub-surface granularity to keep the per-artifact sections apart — resolve
+before shaping. Distinct from [[extend-surface-taxonomy]] (which *adds* built-in
+surfaces) — this one *prunes and regroups* the existing set; relates to
+[[structured-surface-schema]] (the same "give the surface list a real shape" move)
+and [[consumer-extensible-surfaces]]. Surfaced 2026-07-27 during the stage-PR
+dogfood review of `researcher-surface-generic`.
+
+### consumer-extensible-surfaces — `idea` · **P3**
+
+**Why:** The surface taxonomy is **closed by construction** today — surfaces and
+the artifact sections they gate are hardcoded in the kit's `repo-surface` skill
+and lint arrays, so a consumer repo whose domain has a surface the kit never
+imagined (a game engine's `scene-graph`, a compiler's `ir-pass`) cannot gate its
+own artifact sections without forking the kit. Add a mechanism for a
+**qrspi-enabled consumer repo to declare its own surfaces and the section(s) each
+gates**, picked up per-repo at stage time (e.g. a consumer-side surface manifest
+the `repo-surface` skill merges with the built-in taxonomy), so custom surfaces
+flow through the questioner/designer/researcher gating without editing kit source.
+**Design tension (needs Q/R/D):** the built-in Check 11 / Check 14 lint arrays are
+the enforcement floor and cannot see consumer-defined headings, so consumer
+surfaces need either a shipped validation path or an accepted "unenforced in the
+consumer" trade; also weigh the two-source-of-truth risk. Distinct from
+[[extend-surface-taxonomy]] (grow the *kit's* built-in list) and
+[[rationalize-surface-taxonomy]] (restructure it) — this one makes the taxonomy
+*open/extensible per consumer*; builds naturally on [[structured-surface-schema]]
+(a machine-readable schema is the obvious carrier). Surfaced 2026-07-27 during the
+stage-PR dogfood of `researcher-surface-generic`.
 
 ### assert-openspec-version-pin-coupling — `idea` · **P3**
 
