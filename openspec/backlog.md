@@ -7,7 +7,7 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## In progress
 
-### researcher-surface-generic — `in-progress (Q, R, D, S, V, P, I complete)` · **P1**
+### researcher-surface-generic — `in-progress (draft PR #34 open)` · **P1**
 
 **Why:** The `repo-applicable-artifact-sections` surface mechanism gates the
 *proposal*-producing agents (questioner, designer, architect, planner) but **left
