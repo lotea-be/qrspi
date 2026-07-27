@@ -40,14 +40,20 @@ item, `## Data model changes`, the migration-generation task, and the PR
 use authorization policies" checklist item; `ui` gates UI, Front-end state, and
 `## UI surface`; `auth` gates Auth & authorization, `## Authorization`, and the
 auth-policy checklist item; `typed-nullable` gates the "No nullable suppression"
-checklist item; `slash-command` gates `## Slash-command surface` (questions.md)
-and `## Command changes` (design.md); `stage-agent` gates `## Stage-agent
-surface` (questions.md) and `## Agent changes` (design.md); `skill` gates
-`## Skill surface` (questions.md) and `## Skill changes` (design.md);
-`lint-gate` gates `## Lint-gate surface` (questions.md) and `## Lint changes`
-(design.md); `template` gates `## Template surface` (both questions.md and
-design.md); `migration-manifest` gates `## Migration manifest` (both
-questions.md and design.md).
+checklist item; `slash-command` gates `## Slash-command surface` (questions.md),
+`## Command changes` (design.md), and `## Slash-command surface` (research.md);
+`stage-agent` gates `## Stage-agent surface` (questions.md), `## Agent changes`
+(design.md), and `## Stage-agent surface` (research.md); `skill` gates
+`## Skill surface` (questions.md), `## Skill changes` (design.md), and
+`## Skill surface` (research.md); `lint-gate` gates `## Lint-gate surface`
+(questions.md), `## Lint changes` (design.md), and `## Lint-gate surface`
+(research.md); `template` gates `## Template surface` (both questions.md and
+design.md) and `## Template surface` (research.md); `migration-manifest`
+gates `## Migration manifest` (both questions.md and design.md) and
+`## Migration manifest` (research.md). For every surface that has an inventory
+section, the mapping entry in the skill MUST include a tagged line of the form
+`- Section \`## <heading>\` (in research.md)` under the corresponding
+`### <surface> gates` subsection.
 
 #### Scenario: data-store mapping listed in skill body
 - **WHEN** the skill body is read
@@ -62,10 +68,20 @@ questions.md and design.md).
 #### Scenario: kit surface mapping listed in skill body
 - **WHEN** the skill body is read
 - **THEN** the `slash-command` entry lists `## Slash-command surface` and
-  `## Command changes`; the `skill` entry lists `## Skill surface` and
-  `## Skill changes`; the `lint-gate` entry lists `## Lint-gate surface` and
-  `## Lint changes`; the `template` entry lists `## Template surface`; and
-  the `migration-manifest` entry lists `## Migration manifest`.
+  `## Command changes` (in questions.md / design.md respectively) plus
+  `## Slash-command surface` (in research.md); the `skill` entry lists
+  `## Skill surface` and `## Skill changes` plus `## Skill surface` (in
+  research.md); the `lint-gate` entry lists `## Lint-gate surface` and
+  `## Lint changes` plus `## Lint-gate surface` (in research.md); the `template`
+  entry lists `## Template surface` (for both questions.md and design.md) plus
+  `## Template surface` (in research.md); and the `migration-manifest` entry
+  lists `## Migration manifest` (for both questions.md and design.md) plus
+  `## Migration manifest` (in research.md).
+
+#### Scenario: research.md inventory heading is documented per surface
+- **WHEN** the skill body's `### slash-command gates` subsection is read
+- **THEN** a tagged line `- Section \`## Slash-command surface\` (in research.md)`
+  is present, confirming the research.md inventory heading is documented.
 
 ### Requirement: repo-surface skill defines surface-independent sections that are always emitted
 The skill MUST identify the sections that are NOT gated by any surface and MUST
@@ -136,25 +152,31 @@ the omitted section.
 The skill MUST include an `## Extending the taxonomy` section that lists the
 exact steps required to add a new surface to the taxonomy: (1) add the surface
 name and its gated section(s) to the section-to-surface mapping table in this
-skill; (2) add the gated section(s) to the relevant agent skeleton(s) and
+skill, including the `(in research.md)` tagged line for the research.md inventory
+heading; (2) add the gated section(s) to the relevant agent skeleton(s) and
 template(s) (questioner skeleton and `questions.template.md` for questions-stage
-sections; designer skeleton and `design.template.md` for design-stage sections);
-(3) add every new gated heading to the `SURFACE_GATED_DENYLIST_HEADINGS` set in
-`scripts/lint.mjs` (Check 11) so skeletons cannot hard-code it; (4) add every
-new gated heading to the `SURFACE_GATED_HEADINGS` map in `scripts/lint.mjs`
-(Check 14) so live artifacts are scanned against it; (5) if the surface is
-present for this repo, add it to the `## Repo surface` block in the repo's
-stack-cheatsheet. The checklist MUST note that `## Template surface` is a
-present kit heading AND a Check 11 denylist entry, so skeletons must express it
-as a conditional gate comment, never a literal heading line inside a fenced
-block.
+sections; designer skeleton and `design.template.md` for design-stage sections;
+researcher skeleton gate comment in `claude/agents/researcher.md` for the
+research.md inventory heading); (3) add every new gated heading to the
+`SURFACE_GATED_DENYLIST_HEADINGS` set in `scripts/lint.mjs` (Check 11) so
+skeletons cannot hard-code it; (4) add every new gated heading to the
+`SURFACE_GATED_HEADINGS` map in `scripts/lint.mjs` (Check 14) so live artifacts
+are scanned against it; (5) if the surface is present for this repo, add it to
+the `## Repo surface` block in the repo's stack-cheatsheet. The checklist MUST
+note that `## Template surface` is a present kit heading AND a Check 11 denylist
+entry, so skeletons must express it as a conditional gate comment, never a
+literal heading line inside a fenced block. The checklist MUST contain exactly
+seven sites: the five listed above plus (6) verify Check 11 still covers all
+agent skeletons for the new heading, and (7) confirm the researcher skeleton gate
+comment and the `(in research.md)` mapping line are consistent.
 
 #### Scenario: checklist is present and complete
 - **WHEN** the `repo-surface` skill body is read
 - **THEN** it contains an `## Extending the taxonomy` section listing at minimum
-  the five required edit sites: the skill mapping, the agent skeletons and
-  templates, the Check 11 denylist, the Check 14 map, and the stack-cheatsheet
-  block.
+  the seven required edit sites: the skill mapping (with research.md line), the
+  agent skeletons and templates (including the researcher skeleton gate comment),
+  the Check 11 denylist, the Check 14 map, the stack-cheatsheet block, and the
+  two researcher-specific cross-checks.
 
 #### Scenario: self-collision caveat is documented
 - **WHEN** the `## Extending the taxonomy` section is read
@@ -162,3 +184,9 @@ block.
   heading) must appear in skeletons only as a conditional gate comment, not as a
   literal heading inside a fenced block, because the Check 11 denylist forbids
   literal gated headings inside fences.
+
+#### Scenario: 7th site explicitly names the researcher skeleton gate comment
+- **WHEN** the `## Extending the taxonomy` section is read
+- **THEN** it explicitly names `claude/agents/researcher.md` as a skeleton that
+  must have its gate comment updated when a new surface is added, alongside the
+  questioner and designer skeletons.
