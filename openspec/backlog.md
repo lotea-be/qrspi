@@ -54,15 +54,39 @@ contiguous below across the P2/P3 boundary.
 > shipped-but-incomplete work outranks starting new P1 scope. `spec-anchored-code-comments`
 > remains the top **new-scope** priority after it.
 >
-> **Reprioritization note (2026-07-27):** three consumer handovers (abkf) added six
-> P2s in one day. Rough intended order *after* the unify bundle: **(1)** the
-> orchestrator-context pair — [[reset-and-resume-between-boundaries]] then
-> [[orchestrator-context-budget-gate]] (a live token-safety gap that recurs on every
-> long session, cheap structural half first); **(2)** [[privacy-gdpr-surface]] (high
-> value, unblocked, dogfood cases ready); **(3)** the alignment-quality trio
-> [[real-runtime-slice-checkpoints]] / [[architect-real-runtime-done-decomposition]] /
-> [[designer-flag-shared-artifact-coupling]] (guidance-level, lower risk). Bands
-> unchanged; this records sequencing, not a re-banding.
+> **Road to 1.0 (2026-07-27):** the [[rename-qrspi-to-qrnchi]] rebrand is the
+> vehicle for the first **stable v1.0.0** and public debut (submission to Anthropic's
+> `claude-plugins-community` marketplace). Because 1.0 is a *schema-freeze* and
+> first-impression-at-scale point, a short runway of readiness work is sequenced
+> **ahead of the rename**, filtered by one lens — *what would bite a stranger or
+> embarrass us in week one of a public 1.0* — not by band alone:
+>
+> - **Tier 1 — bites a stranger (do first):** the unify bundle above (removes the
+>   vestigial base-implementer dead path before it ships in a "stable" artifact),
+>   then the orchestrator-context pair — [[reset-and-resume-between-boundaries]] then
+>   [[orchestrator-context-budget-gate]] (a real consumer hit **98% context** at the
+>   D review of their *second* change; nothing enforces the `context-hygiene`
+>   budget, so a marathon session silently detonates — the sharpest edge for a
+>   plugin whose premise is long multi-stage sessions).
+> - **Tier 1.5 — freeze the last ad-hoc schema (cheap, good timing):**
+>   [[standardize-backlog-format]], **template + lint floor only** (defer the heavier
+>   per-file `backlog/<id>.md` model to post-1.0). The backlog is the one QRSPI
+>   surface with no schema behind it; locking it is far cheaper before public
+>   installs write the ad-hoc shape than after. Encodes the P-band convention
+>   [[backlog-prioritization]] already applies informally.
+> - **Tier 2 — fixes "it's heavy" for newcomers:** [[init-conductor-plus-overview]]
+>   + [[flow-entry-right-sizing]] (onboarding is a feature when the audience is
+>   strangers, not colleagues who know the lore).
+> - **Deferred past 1.0:** [[spec-anchored-code-comments]] (P1 but large — 1.1
+>   flagship, needs stable spec ids first); [[privacy-gdpr-surface]] and the
+>   alignment-quality trio [[real-runtime-slice-checkpoints]] /
+>   [[architect-real-runtime-done-decomposition]] / [[designer-flag-shared-artifact-coupling]]
+>   (all still P2, just sequenced after the 1.0 cut). [[automate-marketplace-source-bump]]
+>   rides *with* the release mechanics, not before.
+>
+> Bands unchanged throughout; this records sequencing, not a re-banding. Supersedes
+> the prior 2026-07-27 abkf-handover sequencing (privacy + trio next) — those slip
+> behind the road-to-1.0 readiness work.
 
 ### spec-anchored-code-comments — `idea` · **P1**
 
