@@ -114,6 +114,56 @@ script** — lint runs in this repo's CI, but a helper a stage command invokes
 at runtime ships into consumer repos and inherits their `gh`/auth availability and
 cross-platform concerns; be deliberate about that split.
 
+### reset-and-resume-between-boundaries — `idea` · **P2**
+
+**Why:** QRSPI firewalls *stage work* into subagents (`context-hygiene`), keeping
+the orchestrator lean **per stage** — but the orchestrator itself accumulates
+**unbounded across stages and changes** in one session: every AskUserQuestion +
+answer, every stage-handoff commit + bash output, every subagent return summary,
+every Full-auto pause and hard-stop. `context-hygiene` *says* keep the orchestrator
+under ~40% and reset at 60%, but nothing enforces it, so a marathon session blows
+past it silently (a consumer session hit **982k/1m = 98%, 95.8% "Messages"** at the
+D review of its *second* change — abkf `QRSPI-HANDOVER-context-overflow.md`,
+2026-07-27; this repo's own compute-tier session is the same shape). The fix is
+cheap because **the orchestrator conversation is disposable and the change folder is
+truth** — each stage reads only its input artifact from disk, so a fresh session
+resumes losslessly at any boundary. Make reset-and-resume a **blessed, first-class
+step** at the natural boundaries (no harness capability needed — these are
+*structural* triggers): (1) after `/qrspi:archive`, actively recommend a new session
+before the next `/qrspi:questions` — starting change N+1 in the same orchestrator is
+the single biggest contributor; (2) document/one-command the resume path ("fresh
+session, `/qrspi:<next> <id>`") so reset is routine hygiene not a "did I lose state?"
+scare — `/qrspi:status` partly does this; (3) nudge a reset after a
+`/qrspi:followup` batch (the handover's deploy saga ran ~10+ followups ≈ half the
+message volume); (4) harden `context-hygiene`'s prose to name the marathon
+anti-pattern explicitly (subagent firewalling does NOT bound cross-session
+accumulation). Sibling to [[orchestrator-context-budget-gate]] (the live-%
+nudge/gate mechanism — this item is the structural half that needs no new harness
+primitive). Distinct axis from the archived `context-budget` (per-stage input/output
+load) — this is cross-session orchestrator accumulation. Surfaced by the abkf
+consumer handover (2026-07-27).
+
+### orchestrator-context-budget-gate — `idea` · **P2**
+
+**Why:** The mechanism half of the context-overflow fix (abkf
+`QRSPI-HANDOVER-context-overflow.md`, 2026-07-27, proposal #1 — "the single thing
+that would have prevented this"): at the top of each `/qrspi:<stage>` command
+(alongside the version check), read the harness **context utilization %** and, above
+a threshold (~60%), emit a one-line "reset recommended" notice pointing at the
+resume path; above ~80%, a soft gate (AskUserQuestion: *reset now / continue*).
+**Load-bearing unknown (needs R/D):** whether a slash-command body can actually read
+live context utilization mid-run — the version-check reads a *static* file
+(`installed_plugins.json`); live context % is a different capability that may not be
+exposed to command bodies. If it is not, this degrades to a **structural heuristic**
+(a stages-run / followups-run counter maintained in orchestrator context) — which is
+exactly the trigger [[reset-and-resume-between-boundaries]] already uses, so the two
+converge if the %-read proves infeasible. Could rise to **P1** if a live-% read is
+feasible (a recurring systemic cost/quality regression on every long session —
+reasoning degrades near the ceiling before autocompact fires). Sibling to
+[[reset-and-resume-between-boundaries]] (the structural half, buildable now) and
+[[orchestrator-effort-targeting]] (both manage the orchestrator's own resources).
+Surfaced by the abkf consumer handover (2026-07-27).
+
 ### orchestrator-effort-targeting — `idea` · **P3**
 
 **Why:** The QRSPI **orchestrator** (the main loop driving the stages) runs at a
