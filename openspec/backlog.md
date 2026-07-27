@@ -7,7 +7,7 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## In progress
 
-### per-slice-compute-tier — `in-progress (Q, R, D, S, V, P, I complete)`
+### per-slice-compute-tier — `in-progress (PR #35 open)`
 
 **Why:** Compute-tier follow-on to the merged `per-slice-compute-knobs` — bundles
 [[per-slice-effort-via-agent-variants]] (true per-slice **effort** via per-slice
