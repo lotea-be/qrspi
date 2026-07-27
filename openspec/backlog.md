@@ -45,6 +45,25 @@ into `per-slice-compute-tier` (proposed, in the QRSPI flow); and
 [[structured-surface-schema]] and [[extend-surface-taxonomy]] are kept
 contiguous below across the P2/P3 boundary.
 
+> **▶ Next up:** the [[unify-implement-paths-on-variants]] + [[commands-assert-cwd-change-folder]]
+> bundle. Sequenced ahead of the P1 [[spec-anchored-code-comments]] by explicit
+> decision (2026-07-27): it **completes an already-shipped mechanism** — the
+> compute-variant dispatch from `per-slice-compute-tier` left the base implementer
+> vestigial (D9) — and is the last piece before cutting the **0.10.0** breaking
+> release (whose `migrations/0.10.0.yaml` this repo already carries). Finishing
+> shipped-but-incomplete work outranks starting new P1 scope. `spec-anchored-code-comments`
+> remains the top **new-scope** priority after it.
+>
+> **Reprioritization note (2026-07-27):** three consumer handovers (abkf) added six
+> P2s in one day. Rough intended order *after* the unify bundle: **(1)** the
+> orchestrator-context pair — [[reset-and-resume-between-boundaries]] then
+> [[orchestrator-context-budget-gate]] (a live token-safety gap that recurs on every
+> long session, cheap structural half first); **(2)** [[privacy-gdpr-surface]] (high
+> value, unblocked, dogfood cases ready); **(3)** the alignment-quality trio
+> [[real-runtime-slice-checkpoints]] / [[architect-real-runtime-done-decomposition]] /
+> [[designer-flag-shared-artifact-coupling]] (guidance-level, lower risk). Bands
+> unchanged; this records sequencing, not a re-banding.
+
 ### spec-anchored-code-comments — `idea` · **P1**
 
 **Why:** Implementation code comments sometimes reference the *process* artifacts
