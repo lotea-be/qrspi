@@ -152,6 +152,36 @@ would shrink the margin) before committing. Surfaced 2026-07-27 while advising o
 what model/effort to run the orchestrator in, during the `per-slice-compute-tier`
 flow.
 
+### richer-effort-vocab-and-thinking — `idea` · **P3**
+
+**Why:** `per-slice-compute-tier` keeps the `**Compute:**` effort vocabulary at
+`{low, medium, high}` and ships no thinking-budget control. Some slices may
+warrant more (a deep, design-heavy slice) or an explicit thinking budget. Extend
+the `effort=` vocabulary (e.g. `xhigh` / `max`) and/or add a thinking-budget knob
+to the grammar + Check 13, **together with** heuristics for when each tier is
+warranted — mis-annotation risk grows with the vocabulary (cf. the haiku heuristic
+this change ships). Note the variant-agent consequence: each new effort tier needs
+its own static `implementer-<tier>` variant (D1/D2). Part of the adaptive-compute
+cluster with [[orchestrator-effort-targeting]] and
+[[compute-escalation-on-failure]]. Surfaced as a Non-Goal of
+`per-slice-compute-tier` (stage D, 2026-07-27).
+
+### compute-escalation-on-failure — `idea` · **P3**
+
+**Why:** When an implementer slice fails its build/tests at the slice boundary, the
+orchestrator hard-stops and asks the human (workflow hard-stop condition 3).
+Because effort is baked into the *static* variant agent (per
+`per-slice-compute-tier`'s D1), the implementer cannot raise its own effort — so
+adaptive retry must be **orchestrator-driven**: on a slice failure, re-spawn the
+slice on a higher tier (bump effort and/or model up a ladder) before falling to the
+human hard-stop. Design questions: which dimension escalates first (effort vs
+model) and the ladder order; max retries / cost cap; and how escalation stays
+compatible with the never-suppressed human gate (escalate-then-ask, not
+escalate-silently-forever). Depends on `per-slice-compute-tier`'s tier mechanism.
+Part of the adaptive-compute cluster with [[orchestrator-effort-targeting]] and
+[[richer-effort-vocab-and-thinking]]. Surfaced as an afterthought during
+`per-slice-compute-tier` stage-D review (2026-07-27).
+
 ### decompose-tasks-md-per-slice — `idea` · **P2**
 
 **Why:** The implementer (stage I) reads the whole `tasks.md` on **every** slice,
