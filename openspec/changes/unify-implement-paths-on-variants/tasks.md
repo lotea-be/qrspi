@@ -6,12 +6,12 @@
 
 **Compute:** model=sonnet effort=low — two mechanical prose edits to existing command files; pattern is a direct find-and-replace of the spawn block and effort-routing addition with a settled spec.
 
-- [ ] 1.1 Edit `claude/commands/followup.md` — parse the optional `(compute: effort=… model=…)` token from the follow-up description; map `effort=` to variant subagent_type (default `qrspi:implementer-medium`); wire `model: sonnet` as the explicit default; replace the bare `qrspi:implementer` Agent spawn in the FIX MODE block with the resolved variant name. (D1)
-- [ ] 1.2 Edit `claude/commands/implement.md` — in the trivial / no-`tasks.md` inline-plan branch, replace the fall-through bare spawn with an explicit spawn of `qrspi:implementer-medium` with `model: sonnet`. (D2)
-- [ ] 1.3 Unit/integration test: run `node scripts/lint.mjs` and confirm it exits 0 (base agent still exists so Check 7/12 and Check 15 see no violation). (D1, D2)
+- [x] 1.1 Edit `claude/commands/followup.md` — parse the optional `(compute: effort=… model=…)` token from the follow-up description; map `effort=` to variant subagent_type (default `qrspi:implementer-medium`); wire `model: sonnet` as the explicit default; replace the bare `qrspi:implementer` Agent spawn in the FIX MODE block with the resolved variant name. (D1)
+- [x] 1.2 Edit `claude/commands/implement.md` — in the trivial / no-`tasks.md` inline-plan branch, replace the fall-through bare spawn with an explicit spawn of `qrspi:implementer-medium` with `model: sonnet`. (D2)
+- [x] 1.3 Unit/integration test: run `node scripts/lint.mjs` and confirm it exits 0 (base agent still exists so Check 7/12 and Check 15 see no violation). (D1, D2)
 - [ ] 1.4 (human) Confirm no-effort-token default: in a `--plugin-dir /workspaces/git/qrspi` session with a throwaway consumer fixture outside this repo, invoke `/qrspi:followup <id>` with a P1 triage pick and no `(compute: …)` token; confirm the Agent tool call targets `qrspi:implementer-medium`. (D1)
 - [ ] 1.5 (human) D8 model-override precedence: in the same `--plugin-dir` session, invoke `/qrspi:followup <id>` with a follow-up description containing `(compute: model=opus effort=high)`; confirm the Agent call carries `subagent_type: qrspi:implementer-high` and `model: opus`, verifying the inline `model=` overrides the sonnet default. (D1)
-- [ ] 1.6 Checkpoint: `node scripts/lint.mjs` exits 0. Read `claude/commands/followup.md` and confirm the FIX MODE Agent call targets `qrspi:implementer-medium` (or a resolved variant) and carries `model: sonnet` as the default. Read `claude/commands/implement.md` and confirm the trivial inline-plan branch spawns `qrspi:implementer-medium` with `model: sonnet` and contains no reference to the bare `qrspi:implementer`. (D1, D2)
+- [x] 1.6 Checkpoint: `node scripts/lint.mjs` exits 0. Read `claude/commands/followup.md` and confirm the FIX MODE Agent call targets `qrspi:implementer-medium` (or a resolved variant) and carries `model: sonnet` as the default. Read `claude/commands/implement.md` and confirm the trivial inline-plan branch spawns `qrspi:implementer-medium` with `model: sonnet` and contains no reference to the bare `qrspi:implementer`. (D1, D2)
 
 ## 2. Delete base + relocate banner and skill-set responsibilities
 

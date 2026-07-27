@@ -24,6 +24,20 @@ but if the user explicitly says this is a typo / lint / single-line fix,
 allow it and require the user to state the inline plan in one paragraph
 before any edits.
 
+**Trivial inline-plan path (no `tasks.md`).** When the trivial exception
+applies and the user has stated the inline plan, spawn `qrspi:implementer-medium`
+with `model: sonnet` explicitly -- do NOT fall through to the variant-resolution
+block below (which requires a `**Compute:**` line and would hard-stop on a
+missing `effort=` token). Write the inline plan as the first thing you do
+(per the Implement stage precondition note), then invoke the Agent tool with:
+
+- `subagent_type: qrspi:implementer-medium`
+- `model: sonnet`
+
+Tell the implementer it is in **trivial / inline-plan mode** (no `tasks.md`,
+no slice checkpoints), provide the inline plan text, and ask it to apply the
+single-file fix, run lint, and return the canonical Final message format.
+
 **Resolve the implementer variant + model from the next un-ticked slice.**
 Read `openspec/changes/$ARGUMENTS/tasks.md` and locate the first slice header
 (`## N. ...`) whose tasks are not all ticked. The line directly
