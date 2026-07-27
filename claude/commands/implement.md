@@ -31,8 +31,11 @@ under that header reads `**Compute:** effort=<low|medium|high> model=<alias> —
 Parse the two **orthogonal** tokens from that `**Compute:**` line:
 
 - `effort=` is **required**. Map it to the implementer variant to spawn
-  (its `subagent_type`): `low` → `implementer-low`, `medium` →
-  `implementer-medium`, `high` → `implementer-high`. Each variant carries the
+  (its plugin-namespaced `subagent_type`): `low` → `qrspi:implementer-low`,
+  `medium` → `qrspi:implementer-medium`, `high` → `qrspi:implementer-high` (the
+  `qrspi:` prefix is required — registered agents are namespaced by the plugin,
+  and the variant files must be listed in `.claude-plugin/plugin.json`'s `agents`
+  array to be spawnable). Each variant carries the
   matching static `effort:` frontmatter — this is how per-slice effort is
   enforced at spawn time (the Agent tool has no per-invocation effort param).
 - `model=` is **optional**, defaulting to `sonnet` when omitted. Allowed
@@ -41,7 +44,7 @@ Parse the two **orthogonal** tokens from that `**Compute:**` line:
   frontmatter `model:`).
 
 Invoke the resolved variant subagent via the Agent tool with
-`subagent_type: <effort-variant>` and `model: <parsed alias or sonnet>` so the
+`subagent_type: qrspi:implementer-<effort>` and `model: <parsed alias or sonnet>` so the
 subagent runs on the right effort *and* the right model for this slice.
 Thinking is not shipped (no per-subagent thinking control).
 
@@ -100,8 +103,9 @@ skill `workflow`).** After the implementer subagent returns for Slice N:
      ```
 3. Read the next un-ticked slice's `**Compute:**` line from `tasks.md` and
    resolve it exactly as the main spawn site above: map the **required**
-   `effort=` token to the variant `subagent_type` (`low`→`implementer-low`,
-   `medium`→`implementer-medium`, `high`→`implementer-high`) and pass the
+   `effort=` token to the plugin-namespaced variant `subagent_type`
+   (`low`→`qrspi:implementer-low`, `medium`→`qrspi:implementer-medium`,
+   `high`→`qrspi:implementer-high`) and pass the
    **optional** `model=` token (default `sonnet`) as the Agent tool's
    `model:` parameter. Invoke that variant for the next slice. Auto mode does
    NOT bypass per-slice variant/model selection -- the annotation is the

@@ -2184,9 +2184,39 @@ async function checkVariantAgents(errors) {
     }
   }
 
+  // (d) PLUGIN REGISTRATION -- each variant must be listed in
+  //     .claude-plugin/plugin.json's `agents` array. The file existing in
+  //     claude/agents/ is NOT enough: this plugin declares agents via an
+  //     explicit array (not directory discovery), so an unlisted variant is
+  //     never registered as a spawnable subagent_type (qrspi:implementer-<x>).
+  const pluginJsonPath = path.join(root, '.claude-plugin', 'plugin.json');
+  const pluginRaw = await readFileOr(pluginJsonPath, null);
+  if (pluginRaw === null) {
+    errors.push(`[variant-agents] cannot read .claude-plugin/plugin.json to verify variant registration`);
+    violations++;
+  } else {
+    let agentsList = [];
+    try {
+      agentsList = JSON.parse(pluginRaw).agents || [];
+    } catch {
+      errors.push(`[variant-agents] .claude-plugin/plugin.json is not valid JSON -- cannot verify variant registration`);
+      violations++;
+    }
+    for (const stem of IMPLEMENTER_VARIANTS) {
+      const entry = `./claude/agents/${stem}.md`;
+      if (!agentsList.includes(entry)) {
+        errors.push(
+          `[variant-agents] ${entry} is not registered in .claude-plugin/plugin.json "agents" -- ` +
+          `add it or the variant cannot be spawned (agents are an explicit array, not directory-discovered)`
+        );
+        violations++;
+      }
+    }
+  }
+
   if (violations === 0) {
     process.stdout.write(
-      `  OK: ${IMPLEMENTER_VARIANTS.length} implementer variant agent(s) match the registry, step-1 load, and effort values\n`
+      `  OK: ${IMPLEMENTER_VARIANTS.length} implementer variant agent(s) match the registry, plugin.json registration, step-1 load, and effort values\n`
     );
   }
   return violations;

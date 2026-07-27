@@ -255,6 +255,27 @@ reasoning, output fully determined by a rule:**
 Tie-break addendum: "When in doubt between haiku and sonnet, prefer `sonnet` —
 haiku is only for slices where a competent script could do it."
 
+### D9 — Variant registration + namespaced spawn (added during stage-I dogfooding, 2026-07-27)
+
+Dogfooding Slice 3/4 in a `--plugin-dir` session surfaced a gap R/D missed:
+`.claude-plugin/plugin.json` registers agents via an **explicit `agents` array**,
+not directory discovery, and spawnable subagent types are **plugin-namespaced**
+(`qrspi:<stem>`). A variant file in `claude/agents/` is therefore inert until (a)
+it is listed in that array and (b) `implement.md` spawns it as
+`qrspi:implementer-<effort>` (not the bare stem). Fix: register the three variants
+in `plugin.json`; namespace both `implement.md` spawn sites; extend Check 15 with a
+`(d)` assertion that every `IMPLEMENTER_VARIANTS` stem is listed in the manifest
+(lint scanned the directory but not the manifest — the exact hole). The research
+gap is noted in `research.md`.
+
+**Open restructure (deferred → backlog):** every `/qrspi:implement` path — a
+`tasks.md` slice or a `/qrspi:followup` — should choose effort+model and resolve to
+a variant, which makes the base `implementer.md` a never-spawned contract/registry
+anchor. Retained as that anchor for this change; collapsing to a variants-only
+structure (retire/demote the base, route the followup + trivial paths through
+variant resolution, relocate the Check 7/12 + `SKILL_SET_EXPECTED` contract) is
+captured as `unify-implement-paths-on-variants`.
+
 ## Vertical slices (preview)
 
 Each slice ends in something demoable end-to-end (an author writes an annotation

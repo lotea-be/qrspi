@@ -182,6 +182,21 @@ Part of the adaptive-compute cluster with [[orchestrator-effort-targeting]] and
 [[richer-effort-vocab-and-thinking]]. Surfaced as an afterthought during
 `per-slice-compute-tier` stage-D review (2026-07-27).
 
+### unify-implement-paths-on-variants — `idea` · **P2**
+
+**Why:** `per-slice-compute-tier` ships three effort-variant implementer agents but
+keeps the base `implementer.md` as a never-spawned contract/registry anchor, and the
+`/qrspi:followup` + trivial/inline `/qrspi:implement` paths still resolve to the base
+rather than choosing effort+model the way a `tasks.md` slice does. Every implement
+path should pick effort+model and resolve to a variant. Collapse to a variants-only
+structure: route the followup + trivial paths through the same `effort=`/`model=` →
+`qrspi:implementer-<effort>` resolution, and retire or demote the base — which
+requires relocating the stage-I read/output contract (Check 7/12 banners) and the
+`SKILL_SET_EXPECTED['implementer']` registry off the base onto the variants or
+`implementer-core`. Needs its own D (the contract relocation is the load-bearing
+part). Follow-on to `per-slice-compute-tier` (D9); surfaced by the human at that
+change's stage-I dogfood (2026-07-27).
+
 ### decompose-tasks-md-per-slice — `idea` · **P2**
 
 **Why:** The implementer (stage I) reads the whole `tasks.md` on **every** slice,
