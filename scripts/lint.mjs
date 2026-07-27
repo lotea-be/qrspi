@@ -2,7 +2,7 @@
 // ============================================================================
 //  scripts/lint.mjs -- CI quality gate for the QRSPI kit
 // ----------------------------------------------------------------------------
-//  Checks (run in order, all errors collected before exit -- Checks 1-14):
+//  Checks (run in order, all errors collected before exit -- Checks 1-15):
 //
 //  1. PIN AGREEMENT  -- every hand-maintained OpenSpec version occurrence
 //     must agree. generatedBy: lines in openspec-generated skill files are
@@ -68,9 +68,11 @@
 //
 // 13. COMPUTE ANNOTATION VALUE-VALIDATION -- every `**Compute:**` line in the
 //     committed change artifacts (openspec/changes/**/slices.md and
-//     **/tasks.md) must carry a valid `model=` token (in COMPUTE_MODELS) and,
-//     if present, a valid `effort=` token (in COMPUTE_EFFORTS). Value-validation
-//     only (NOT presence-on-every-slice); tolerates both the dash-bullet and
+//     **/tasks.md) must carry a valid `effort=` token (in COMPUTE_EFFORTS) and,
+//     if present, a valid `model=` token (in COMPUTE_MODELS). Orthogonal grammar
+//     (D3/D7): `effort=` is REQUIRED (it selects the implementer variant),
+//     `model=` is OPTIONAL (defaults to sonnet at spawn). Value-validation only
+//     (NOT presence-on-every-slice); tolerates both the dash-bullet and
 //     bare-bold structural forms. Scoped strictly to the committed change
 //     artifacts -- never scans skills or templates (placeholder examples there).
 //
@@ -85,6 +87,13 @@
 //     Disjoint scope with Check 11: Check 11 scans INSIDE fenced blocks in
 //     agent source files; Check 14 scans OUTSIDE fenced blocks in change
 //     artifacts -- the two checks never fire on the same line.
+//
+// 15. IMPLEMENTER VARIANT AGENT DRIFT GATE -- asserts that the set of
+//     claude/agents/implementer-*.md stems exactly equals IMPLEMENTER_VARIANTS;
+//     that each variant's step-1 "Load skill" line loads ONLY `implementer-core`;
+//     and that each variant's `effort:` frontmatter value matches its stem suffix
+//     (low/medium/high). Includes an inline self-test that must fire. Registered
+//     after Check 14.
 //
 //  Exits 0 if all checks pass, 1 if any check reports a violation.
 //  Requires only Node.js built-ins (fs, path) -- no npm dependencies.
@@ -336,11 +345,10 @@ const MODEL_ALIASES = new Set(['opus', 'sonnet', 'haiku']);
 // low|medium|high|xhigh|max that the kit surfaces (D5). xhigh/max are rejected.
 const COMPUTE_EFFORTS = ['low', 'medium', 'high'];
 
-// Valid `model=` aliases for the `**Compute:**` annotation (D2/D6). Kept
-// separate from MODEL_ALIASES (which includes haiku for frontmatter) because
-// the annotation vocabulary is deliberately {sonnet, opus} until a per-slice
-// haiku heuristic exists.
-const COMPUTE_MODELS = ['sonnet', 'opus'];
+// Valid `model=` aliases for the `**Compute:**` annotation (D2/D6). Includes
+// haiku for single-file mechanical edits with zero design reasoning (D1);
+// the per-slice haiku heuristic is documented in the vertical-slice skill.
+const COMPUTE_MODELS = ['sonnet', 'opus', 'haiku'];
 
 // Pattern for pinned model ids (contains a date segment YYYYMMDD or "claude-<digit>")
 const PINNED_MODEL_RE = /\d{8}|claude-\d/i;
@@ -1609,10 +1617,11 @@ async function checkOutputContracts(errors) {
 // `model=` / `effort=` tokens against COMPUTE_MODELS / COMPUTE_EFFORTS (D6).
 //
 // This is VALUE-VALIDATION ONLY -- it does NOT assert a `**Compute:**` line is
-// present on every slice (that is a Non-Goal). It flags:
-//   - missing/empty `model=` token (model is required -- D3)
-//   - `model=` not in COMPUTE_MODELS
-//   - `effort=` present but not in COMPUTE_EFFORTS
+// present on every slice (that is a Non-Goal). Orthogonal grammar (D3/D7):
+// `effort=` is required, `model=` is optional. It flags:
+//   - missing/empty `effort=` token (effort is required -- D3/D7)
+//   - `effort=` not in COMPUTE_EFFORTS
+//   - `model=` present but not in COMPUTE_MODELS
 //
 // It tolerates BOTH structural forms (D1): the `-` dash-bullet form used in
 // slices.md (`- **Compute:** ...`) and the bare bold form used in tasks.md
@@ -1630,6 +1639,51 @@ async function checkOutputContracts(errors) {
 // only static gate catching a malformed annotation before implement.
 
 async function checkComputeAnnotations(errors) {
+  // ---- INLINE SELF-TEST -------------------------------------------------------
+  // Orthogonal grammar (D3/D7): effort= is REQUIRED, model= is OPTIONAL.
+  // Assert the four load-bearing rules on bare-bold tasks.md-form fixtures:
+  //   (1) a line with effort= and no model= is ACCEPTED (model defaults sonnet);
+  //   (2) a line missing effort= is REJECTED (effort is required);
+  //   (3) the haiku alias is a valid model value (COMPUTE_MODELS includes it);
+  //   (4) an unknown model value is rejected.
+  const _matchEffort = (s) => s.match(/\beffort=(\S*)/);
+  const _matchModel = (s) => s.match(/\bmodel=(\S*)/);
+
+  // (1) effort= present, model= omitted -> accepted (no missing-effort error)
+  const _stEffortOnly = '**Compute:** effort=medium — model defaults to sonnet';
+  if (!_matchEffort(_stEffortOnly)) {
+    errors.push(
+      '[compute] SELF-TEST FAILED: effort=medium (no model=) was not recognized -- effort parsing is broken'
+    );
+  }
+
+  // (2) effort= absent -> rejected (missing required effort)
+  const _stNoEffort = '**Compute:** model=sonnet — missing effort';
+  if (_matchEffort(_stNoEffort)) {
+    errors.push(
+      '[compute] SELF-TEST FAILED: a **Compute:** line with no effort= token was treated as having one -- required-effort validation is broken'
+    );
+  }
+
+  // (3) haiku is a valid model alias
+  const _stHaiku = '**Compute:** effort=low model=haiku — mechanical rename';
+  const _stHaikuModel = _matchModel(_stHaiku);
+  if (!(_stHaikuModel && COMPUTE_MODELS.includes(_stHaikuModel[1]))) {
+    errors.push(
+      '[compute] SELF-TEST FAILED: model=haiku was not accepted -- COMPUTE_MODELS is missing the haiku entry'
+    );
+  }
+
+  // (4) unknown model value is rejected
+  const _stUnknown = '**Compute:** effort=low model=unknown — bad';
+  const _stUnknownModel = _matchModel(_stUnknown);
+  if (!(_stUnknownModel && !COMPUTE_MODELS.includes(_stUnknownModel[1]))) {
+    errors.push(
+      '[compute] SELF-TEST FAILED: model=unknown was not rejected -- COMPUTE_MODELS validation is broken'
+    );
+  }
+  // ---- end self-test ----------------------------------------------------------
+
   const changesDir = path.join(root, 'openspec', 'changes');
   const allMd = await walkMd(changesDir);
   const artifactFiles = allMd.filter((f) => {
@@ -1664,25 +1718,26 @@ async function checkComputeAnnotations(errors) {
       const modelM = rest.match(/\bmodel=(\S*)/);
       const effortM = rest.match(/\beffort=(\S*)/);
 
-      // model= required and non-empty (D3)
-      if (!modelM || modelM[1] === '') {
+      // effort= required and non-empty (D3/D7 -- orthogonal grammar: effort
+      // selects the implementer variant, so it is the load-bearing token).
+      if (!effortM || effortM[1] === '') {
         errors.push(
-          `[compute] ${rel}:${i + 1}: **Compute:** line missing required 'model=' token`
+          `[compute] ${rel}:${i + 1}: **Compute:** line missing required 'effort=' token`
         );
         violations++;
-      } else if (!COMPUTE_MODELS.includes(modelM[1])) {
+      } else if (!COMPUTE_EFFORTS.includes(effortM[1])) {
         errors.push(
-          `[compute] ${rel}:${i + 1}: 'model=${modelM[1]}' is not a valid model` +
-          ` (allowed: ${COMPUTE_MODELS.join(', ')})`
+          `[compute] ${rel}:${i + 1}: 'effort=${effortM[1]}' is not a valid effort` +
+          ` (allowed: ${COMPUTE_EFFORTS.join(', ')})`
         );
         violations++;
       }
 
-      // effort= optional, but valid-if-present (D3)
-      if (effortM && !COMPUTE_EFFORTS.includes(effortM[1])) {
+      // model= optional (defaults to sonnet at spawn), but valid-if-present (D3/D7)
+      if (modelM && modelM[1] !== '' && !COMPUTE_MODELS.includes(modelM[1])) {
         errors.push(
-          `[compute] ${rel}:${i + 1}: 'effort=${effortM[1]}' is not a valid effort` +
-          ` (allowed: ${COMPUTE_EFFORTS.join(', ')})`
+          `[compute] ${rel}:${i + 1}: 'model=${modelM[1]}' is not a valid model` +
+          ` (allowed: ${COMPUTE_MODELS.join(', ')})`
         );
         violations++;
       }
@@ -1976,6 +2031,197 @@ async function checkSurfaceApplicability(errors) {
   return violations;
 }
 
+// ---- Check 15: VARIANT AGENT DRIFT GATE ------------------------------------
+//
+// Asserts that the set of implementer variant agents in claude/agents/ matches
+// the registry exactly, and that each variant's shape is correct.
+//
+// Three sub-checks:
+//
+//   (a) EXACT SET -- the stems of all claude/agents/implementer-*.md files
+//       must exactly equal IMPLEMENTER_VARIANTS (no extra, no missing).
+//
+//   (b) STEP-1 LOAD -- each variant's step-1 numbered-list line must load
+//       ONLY `implementer-core` (the variants delegate all behaviour to the
+//       core skill; adding other skills here would bypass the shared contract).
+//       Extraction reuses the same step-1 harvest logic as checkSkillSets.
+//
+//   (c) EFFORT MATCH -- each variant's `effort:` frontmatter field must equal
+//       the stem suffix (implementer-low -> effort: low, etc.).
+//
+// INLINE SELF-TEST: a synthetic in-memory fixture is run through the step-1
+// skill extractor to assert it correctly identifies a variant that loads only
+// `implementer-core`. A second fixture with an extra skill asserts the
+// detector fires. If either fails, an error is pushed so CI reddens
+// immediately -- a broken detector never passes silently.
+//
+// SCOPE: strictly implementer-*.md files. The seven named stage agents
+// (including implementer.md itself) are NOT covered here -- they are covered
+// by Checks 7, 12, and 2b. Variants are deliberately outside those registries.
+
+const IMPLEMENTER_VARIANTS = ['implementer-low', 'implementer-medium', 'implementer-high'];
+
+// Extract skill names loaded in step-1 of a body, filtering out -stack suffixes.
+// Reuses the same logic as checkSkillSets: numbered-step lines containing
+// "Load skill(s)" plus any indented continuation lines.
+function extractStep1Skills(body) {
+  const harvested = new Set();
+  const backtickRe = /`([A-Za-z0-9_-]+)`/g;
+  const lines = body.split('\n');
+  for (let i = 0; i < lines.length; i++) {
+    if (/^\s*\d+\.\s[^\n]*Load skills?\s/i.test(lines[i])) {
+      let segment = lines[i];
+      for (let j = i + 1; j < lines.length; j++) {
+        const next = lines[j];
+        if (/^\s+/.test(next) && !/^\s*\d+\.\s/.test(next) && !/^\s*[-*]\s/.test(next)) {
+          segment += ' ' + next;
+        } else {
+          break;
+        }
+      }
+      backtickRe.lastIndex = 0;
+      let bm;
+      while ((bm = backtickRe.exec(segment)) !== null) {
+        harvested.add(bm[1]);
+      }
+    }
+  }
+  return [...harvested].filter((name) => !name.endsWith('-stack'));
+}
+
+async function checkVariantAgents(errors) {
+  // ---- INLINE SELF-TEST -------------------------------------------------------
+  // (i) A variant body loading only `implementer-core` -- must yield exactly
+  //     ['implementer-core'] after extraction.
+  const _okBody = '\n1. Load skill `implementer-core` and follow its instructions exactly.\n';
+  const _okSkills = extractStep1Skills(_okBody);
+  const _okPass = _okSkills.length === 1 && _okSkills[0] === 'implementer-core';
+  if (!_okPass) {
+    errors.push(
+      '[variant-agents] SELF-TEST FAILED: step-1 extractor did not return [implementer-core] ' +
+      `for the valid fixture -- got [${_okSkills.join(', ')}]`
+    );
+  }
+  // (ii) A variant body loading an extra skill -- must yield more than one name.
+  const _badBody = '\n1. Load skills `implementer-core` and `workflow` and follow their instructions.\n';
+  const _badSkills = extractStep1Skills(_badBody);
+  const _badDetected = _badSkills.length !== 1 || _badSkills[0] !== 'implementer-core';
+  if (!_badDetected) {
+    errors.push(
+      '[variant-agents] SELF-TEST FAILED: step-1 extractor did not detect the extra skill ' +
+      'in the invalid fixture -- drift detection is broken'
+    );
+  }
+  // ---- end self-test ----------------------------------------------------------
+
+  const agentsDir = path.join(root, 'claude', 'agents');
+  let violations = 0;
+
+  // (a) EXACT SET -- collect claude/agents/implementer-*.md stems
+  const agentFiles = await listFiles(agentsDir, '.md');
+  const variantFiles = agentFiles.filter((f) => {
+    const stem = path.basename(f, '.md');
+    return stem.startsWith('implementer-') && stem !== 'implementer';
+  });
+  const foundStems = variantFiles.map((f) => path.basename(f, '.md')).sort();
+  const expectedStems = [...IMPLEMENTER_VARIANTS].sort();
+
+  const extraStems   = foundStems.filter((s) => !expectedStems.includes(s));
+  const missingStems = expectedStems.filter((s) => !foundStems.includes(s));
+
+  if (extraStems.length > 0) {
+    errors.push(
+      `[variant-agents] Unexpected variant agent file(s): ${extraStems.map((s) => `claude/agents/${s}.md`).join(', ')}` +
+      ` -- add to IMPLEMENTER_VARIANTS or remove the file`
+    );
+    violations++;
+  }
+  if (missingStems.length > 0) {
+    errors.push(
+      `[variant-agents] Missing variant agent file(s): ${missingStems.map((s) => `claude/agents/${s}.md`).join(', ')}` +
+      ` -- create the file or remove from IMPLEMENTER_VARIANTS`
+    );
+    violations++;
+  }
+
+  // (b) STEP-1 LOAD and (c) EFFORT MATCH -- check each expected variant
+  for (const stem of IMPLEMENTER_VARIANTS) {
+    const filePath = path.join(agentsDir, `${stem}.md`);
+    const rel = `claude/agents/${stem}.md`;
+    const text = await readFileOr(filePath, null);
+    if (text === null) {
+      // Already reported as missing in (a); skip further checks for this file
+      continue;
+    }
+
+    const { front, body } = splitFront(text);
+
+    // (b) STEP-1 LOAD: must load only implementer-core
+    const loadedSkills = extractStep1Skills(body);
+    if (loadedSkills.length === 0) {
+      errors.push(
+        `[variant-agents] ${rel}: no step-1 "Load skill" line found -- ` +
+        `variants must have a numbered step-1 line loading \`implementer-core\``
+      );
+      violations++;
+    } else if (loadedSkills.length !== 1 || loadedSkills[0] !== 'implementer-core') {
+      errors.push(
+        `[variant-agents] ${rel}: step-1 loads [${loadedSkills.join(', ')}] -- ` +
+        `variants must load ONLY \`implementer-core\` (no other skills)`
+      );
+      violations++;
+    }
+
+    // (c) EFFORT MATCH: effort: must equal the stem suffix
+    const stemSuffix = stem.replace(/^implementer-/, '');  // low | medium | high
+    const effortVal = getField(front, 'effort');
+    if (effortVal !== stemSuffix) {
+      errors.push(
+        `[variant-agents] ${rel}: 'effort: ${effortVal || "(missing)"}' does not match stem suffix '${stemSuffix}'` +
+        ` -- set 'effort: ${stemSuffix}'`
+      );
+      violations++;
+    }
+  }
+
+  // (d) PLUGIN REGISTRATION -- each variant must be listed in
+  //     .claude-plugin/plugin.json's `agents` array. The file existing in
+  //     claude/agents/ is NOT enough: this plugin declares agents via an
+  //     explicit array (not directory discovery), so an unlisted variant is
+  //     never registered as a spawnable subagent_type (qrspi:implementer-<x>).
+  const pluginJsonPath = path.join(root, '.claude-plugin', 'plugin.json');
+  const pluginRaw = await readFileOr(pluginJsonPath, null);
+  if (pluginRaw === null) {
+    errors.push(`[variant-agents] cannot read .claude-plugin/plugin.json to verify variant registration`);
+    violations++;
+  } else {
+    let agentsList = [];
+    try {
+      agentsList = JSON.parse(pluginRaw).agents || [];
+    } catch {
+      errors.push(`[variant-agents] .claude-plugin/plugin.json is not valid JSON -- cannot verify variant registration`);
+      violations++;
+    }
+    for (const stem of IMPLEMENTER_VARIANTS) {
+      const entry = `./claude/agents/${stem}.md`;
+      if (!agentsList.includes(entry)) {
+        errors.push(
+          `[variant-agents] ${entry} is not registered in .claude-plugin/plugin.json "agents" -- ` +
+          `add it or the variant cannot be spawned (agents are an explicit array, not directory-discovered)`
+        );
+        violations++;
+      }
+    }
+  }
+
+  if (violations === 0) {
+    process.stdout.write(
+      `  OK: ${IMPLEMENTER_VARIANTS.length} implementer variant agent(s) match the registry, plugin.json registration, step-1 load, and effort values\n`
+    );
+  }
+  return violations;
+}
+
 // ---- main ------------------------------------------------------------------
 
 async function main() {
@@ -2027,6 +2273,9 @@ async function main() {
 
   process.stdout.write('\nCheck 14: Surface applicability of artifact headings\n');
   await checkSurfaceApplicability(errors);
+
+  process.stdout.write('\nCheck 15: Implementer variant agent drift gate\n');
+  await checkVariantAgents(errors);
 
   process.stdout.write('\n');
   if (errors.length === 0) {

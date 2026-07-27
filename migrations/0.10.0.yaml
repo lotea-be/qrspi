@@ -1,0 +1,32 @@
+# NOTE: version is an assumption -- 0.9.0 already carries an Unreleased
+# migration, and this breaking grammar swap bumps the minor component (0.x
+# semver: breaking changes bump the minor). If the eventual release tag differs,
+# rename this file to match plugin.json version at release time.
+version: 0.10.0
+summary: >
+  Per-slice **Compute:** annotation grammar becomes orthogonal and swaps which
+  token is required. Previously model= was REQUIRED and effort= optional; now
+  effort= is REQUIRED (it selects the implementer effort-variant that
+  /qrspi:implement spawns -- implementer-low/medium/high) and model= is OPTIONAL,
+  defaulting to sonnet when omitted. The profile= concept (if ever used locally)
+  is dropped -- model and effort are independent. Consumers with in-flight
+  changes whose slices.md or tasks.md carry a **Compute:** line with model= but
+  no effort= must add an effort= token before running /qrspi:implement, which now
+  hard-stops on a missing effort=. Lines that already carry both tokens (the
+  common case, since the prior grammar's examples paired them) need no edit.
+automated: []
+manual:
+  - >-
+    In any in-flight openspec/changes/*/slices.md or tasks.md, ensure every
+    **Compute:** line carries an effort= token (low|medium|high). If a line has
+    only model=X, add the effort you intend: **Compute:** effort=<level> model=X
+    -- R. model= is now optional and defaults to sonnet, so a line may carry
+    effort= alone. Token order is free (effort= or model= may come first).
+    Archived changes need no edit.
+  - >-
+    If you have locally overridden claude/commands/implement.md, re-apply your
+    customizations on top of the new resolution logic: the command now maps the
+    required effort= token to a variant subagent_type (implementer-low/medium/
+    high) and passes the optional model= (default sonnet) as the Agent tool
+    model: parameter, and hard-stops when effort= is absent (was: hard-stop on
+    absent model=).

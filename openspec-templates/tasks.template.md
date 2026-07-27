@@ -20,7 +20,10 @@ goes in the heading text; do **not** prefix it with `Slice N —` (the canonical
 
 ## 1. <slice name>
 
-**Compute:** model=<alias> effort=<low|medium|high> — <rationale carried verbatim from slices.md>
+<!-- **Compute:** grammar: effort=<low|medium|high> required (selects the
+     implementer variant); model=<haiku|sonnet|opus> optional, defaults to
+     sonnet when omitted. No profile= token. Carried verbatim from slices.md. -->
+**Compute:** effort=<low|medium|high> model=<alias> — <rationale carried verbatim from slices.md>
 
 <!-- Surface-gated task lines: include or omit each category below based on
      which surfaces are present for this repo, per the repo-surface skill mapping.
@@ -43,7 +46,7 @@ goes in the heading text; do **not** prefix it with `Slice N —` (the canonical
 
 ## 2. <slice name>
 
-**Compute:** model=<alias> effort=<low|medium|high> — <rationale>
+**Compute:** effort=<low|medium|high> model=<alias> — <rationale>
 
 - [ ] 2.1 ...
 ```

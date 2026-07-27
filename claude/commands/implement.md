@@ -24,27 +24,37 @@ but if the user explicitly says this is a typo / lint / single-line fix,
 allow it and require the user to state the inline plan in one paragraph
 before any edits.
 
-**Pick the implementer's model from the next un-ticked slice.** Read
-`openspec/changes/$ARGUMENTS/tasks.md` and locate the first slice header
+**Resolve the implementer variant + model from the next un-ticked slice.**
+Read `openspec/changes/$ARGUMENTS/tasks.md` and locate the first slice header
 (`## N. ...`) whose tasks are not all ticked. The line directly
-under that header reads `**Compute:** model=<alias> effort=<low|medium|high> — <rationale>`.
-Parse the `model=` token from that `**Compute:**` line — that alias is the
-architect's per-slice call; honor it. Invoke the implementer subagent via
-the Agent tool with `model: <parsed alias>` so the subagent runs on the
-right model for this slice's complexity.
+under that header reads `**Compute:** effort=<low|medium|high> model=<alias> — <rationale>`.
+Parse the two **orthogonal** tokens from that `**Compute:**` line:
 
-`effort=` on that same `**Compute:**` line documents the per-stage compute
-intent, but it is **not** passed as a per-invocation parameter — the Task
-tool has no per-invocation effort param. Effort is honored via the
-implementer agent's frontmatter `effort:` (a per-stage knob, the same for
-every implement slice); the per-slice `effort=` token records intent and
-should match that frontmatter. Do not attempt to thread `effort` on the
-Agent call. Thinking is not shipped (no per-subagent thinking control).
+- `effort=` is **required**. Map it to the implementer variant to spawn
+  (its plugin-namespaced `subagent_type`): `low` → `qrspi:implementer-low`,
+  `medium` → `qrspi:implementer-medium`, `high` → `qrspi:implementer-high` (the
+  `qrspi:` prefix is required — registered agents are namespaced by the plugin,
+  and the variant files must be listed in `.claude-plugin/plugin.json`'s `agents`
+  array to be spawnable). Each variant carries the
+  matching static `effort:` frontmatter — this is how per-slice effort is
+  enforced at spawn time (the Agent tool has no per-invocation effort param).
+- `model=` is **optional**, defaulting to `sonnet` when omitted. Allowed
+  aliases: `haiku`, `sonnet`, `opus`. It is passed per-spawn as the Agent
+  tool's `model:` parameter (which takes precedence over the variant's
+  frontmatter `model:`).
 
-If a slice is missing the `**Compute:**` line or its `model=` token, stop
-and tell the user the slices/tasks file needs to be fixed (the architect at
-stage V (Slices) is required to write it). Do not silently default — silent
-defaults hide planning gaps.
+Invoke the resolved variant subagent via the Agent tool with
+`subagent_type: qrspi:implementer-<effort>` and `model: <parsed alias or sonnet>` so the
+subagent runs on the right effort *and* the right model for this slice.
+Thinking is not shipped (no per-subagent thinking control).
+
+**Missing-`effort=` hard-stop.** If a slice is missing the `**Compute:**`
+line or its `effort=` token, **stop** — surface the condition and tell the
+user the slices/tasks file needs to be fixed (the architect at stage V
+(Slices) is required to write it). Do NOT spawn any implementer, and do not
+silently default the effort — silent defaults hide planning gaps. An absent
+`model=` is fine (it defaults to `sonnet`); only a missing `effort=` triggers
+the hard-stop.
 
 The implementer will:
 
@@ -92,12 +102,17 @@ skill `workflow`).** After the implementer subagent returns for Slice N:
      git push
      ```
 3. Read the next un-ticked slice's `**Compute:**` line from `tasks.md` and
-   parse its `model=` token. Honor it: invoke the implementer subagent via
-   the Agent tool with `model: <parsed alias>` for the next slice. Auto mode
-   does NOT bypass per-slice model selection -- the annotation is the
-   architect's call. (`effort=` is honored via the implementer's frontmatter
-   `effort:`, not a per-invocation parameter -- see the model-selection note
-   above.)
+   resolve it exactly as the main spawn site above: map the **required**
+   `effort=` token to the plugin-namespaced variant `subagent_type`
+   (`low`→`qrspi:implementer-low`, `medium`→`qrspi:implementer-medium`,
+   `high`→`qrspi:implementer-high`) and pass the
+   **optional** `model=` token (default `sonnet`) as the Agent tool's
+   `model:` parameter. Invoke that variant for the next slice. Auto mode does
+   NOT bypass per-slice variant/model selection -- the annotation is the
+   architect's call. If the next slice is missing its `effort=` token, this is
+   the missing-`effort=` hard-stop (see the main spawn site above): halt the
+   chain, spawn no implementer, and surface the condition per the "Hard-stop
+   procedure" in skill `workflow`.
 4. Repeat until all slices are done.
 5. After the final slice is committed, proceed to the next-stage handoff
    (PR stage) per the "Next-stage handoff" in skill `workflow`.

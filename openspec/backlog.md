@@ -7,7 +7,15 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## In progress
 
-_None._
+### per-slice-compute-tier — `in-progress (PR #35 open)`
+
+**Why:** Compute-tier follow-on to the merged `per-slice-compute-knobs` — bundles
+[[per-slice-effort-via-agent-variants]] (true per-slice **effort** via per-slice
+agent selection) and [[haiku-model-tier]] (add the cheapest **model** tier + its
+when-to-use heuristic), both extending the same `**Compute:**` grammar / lint
+Check 13 / slice→agent mapping. The largest remaining token lever (compute is
+multiplicative). Entered the QRSPI flow 2026-07-27; matrix/mechanism best solution
+handed to R/D (questions.md PQ1/PQ8).
 
 ---
 
@@ -34,8 +42,9 @@ kept adjacent near the top so the cost story reads at a glance: the **input** an
 2026-07-24); [[simplify-per-slice-model-selection]] and
 [[configurable-effort-and-thinking]] shipped together as `per-slice-compute-knobs`
 (merged and archived 2026-07-25), whose compute follow-ons
-[[per-slice-effort-via-agent-variants]] and [[haiku-model-tier]] (the compute-tier
-bundle) remain here; and [[standardize-recurring-ops-scripts]]
+[[per-slice-effort-via-agent-variants]] and [[haiku-model-tier]] are now bundled
+into `per-slice-compute-tier` (proposed, in the QRSPI flow); and
+[[standardize-recurring-ops-scripts]]
 (reasoning/exploration) remains here. The
 **surface-taxonomy family** spun off [[repo-applicable-artifact-sections]]:
 `enforce-artifact-surface-applicability` and `kit-self-surfaces` shipped as
@@ -80,43 +89,6 @@ the two-source-of-truth caution in [[optional-technology-specs]]. **P1 like
 (ugly process references baked into shipped code) rather than a live-workflow
 correctness gap. Surfaced 2026-07-24.
 
-### per-slice-effort-via-agent-variants — `idea` · **P2**
-
-**Why:** `per-slice-compute-knobs` (merged 2026-07-25) makes **model** per-slice-enforceable
-but only **effort** per-*stage*, because the Claude Code Task tool exposes no
-per-invocation effort parameter — effort is settable solely via an agent's static
-`effort:` frontmatter, so one implementer agent cannot vary effort slice-to-slice.
-Recover true per-slice effort by *selecting* an agent per slice: author thin-shell
-variant agents that share one `implementer-core` skill body and differ **only** in
-`model:`/`effort:` frontmatter, map each slice's `**Compute:**` line to the matching
-`subagent_type`, and add a `scripts/lint.mjs` sync check (à la `checkSkillSets`) so
-the variants can't drift from the core. Needs its own Q/R/D: the variant matrix
-(all `models × efforts`, or a few named profiles like `mechanical`/`standard`/`deep`),
-the encapsulation mechanism (shared skill vs a generator that emits variants), the
-sync check, and the `**Compute:** → subagent_type` mapping. The compute-band lever
-sequenced directly behind `per-slice-compute-knobs` (merged 2026-07-25; it shipped
-the grammar + per-stage effort this extends), now unblocked. Deferred from that
-change's stage-D review (D5, 2026-07-25) — folding it in would roughly double the
-change's surface.
-
-**Bundle (proposed — one QRSPI run, this entry as anchor):** take up together with
-[[haiku-model-tier]] (P3) as the **compute-tier follow-on** to
-`per-slice-compute-knobs`. This is the largest remaining *token* lever — compute is
-multiplicative (it changes which model/effort runs the heaviest stage per slice),
-so it dwarfs the input read-footprint trim of [[decompose-tasks-md-per-slice]].
-`per-slice-compute-knobs` ships the grammar + model selection + *per-stage* effort
-but caps the realized savings two ways this bundle removes: effort is only
-per-stage (effort-variants recovers true per-slice effort) and the `model=` vocab
-stops at `{sonnet, opus}` (haiku-model-tier adds the cheapest tier + its
-when-to-use heuristic). They bundle cleanly — both extend the same `**Compute:**`
-grammar / lint Check 13 / slice→agent mapping, both were deferred from the *same*
-`per-slice-compute-knobs` stage-D review (D5 here; D2/OQ1 for haiku), and haiku is
-naturally just another cell in the effort-variant matrix (model × effort), so the
-agent-variant mechanism built once delivers both. **Unblocked:**
-`per-slice-compute-knobs` merged 2026-07-25, so the grammar this bundle extends
-already exists — it's the next compute step and is startable now, like the decompose
-bundle. Bundle proposed 2026-07-27.
-
 ### standardize-recurring-ops-scripts — `idea` · **P2**
 
 **Why (two payoffs — consistency *and* token cost):** Several QRSPI operations
@@ -149,6 +121,94 @@ precedent. (2) **A shipped runtime helper is a bigger commitment than a CI-only
 script** — lint runs in this repo's CI, but a helper a stage command invokes
 at runtime ships into consumer repos and inherits their `gh`/auth availability and
 cross-platform concerns; be deliberate about that split.
+
+### orchestrator-effort-targeting — `idea` · **P3**
+
+**Why:** The QRSPI **orchestrator** (the main loop driving the stages) runs at a
+single session reasoning-effort for the whole flow, but its turns split sharply
+by marginal value: most are *mechanical* (Glob preconditions, `git add`/commit,
+stage handoff, backlog staging) and get near-zero benefit from a large thinking
+budget, while a few are *judgment-heavy* (orchestrating the D review, and the
+S→V→P→I hard-stop **divergence self-assessment** — "materially diverges vs.
+immaterial elaboration"). Running the whole session at high effort spends
+reasoning (output) tokens on the mechanical turns for no quality gain; running it
+at medium under-thinks the gates. Add guidance (and/or a light mechanism) to
+**escalate effort per-turn only at the judgment-heavy gates** — e.g. extended-
+thinking triggers in the stage-command bodies at exactly those points — so
+mechanical turns stay cheap and the expensive reasoning lands where it pays. This
+is the compute-lever thesis (spend compute by marginal value) applied to the
+**orchestrator's own turns**, complementing [[per-slice-compute-tier]] /
+[[per-slice-effort-via-agent-variants]] (which target the *subagent* slices) and
+[[configurable-effort-and-thinking]] (per-*stage* effort). It sits on the
+cost-per-quality frontier: it does not minimise tokens versus always-medium, but
+it beats always-high at equal or better gate quality.
+
+**Design tension (needs Q/D):** per-turn thinking triggers are *prose-level* and
+cannot be mechanically enforced (the "persona, not mechanism" caution — cf.
+[[hooks-as-mechanical-guards]]); scope which gates genuinely warrant the bump
+rather than sprinkling triggers everywhere; and confirm the billing model (whether
+retained thinking blocks from a bumped turn re-bill as downstream input, which
+would shrink the margin) before committing. Surfaced 2026-07-27 while advising on
+what model/effort to run the orchestrator in, during the `per-slice-compute-tier`
+flow.
+
+### richer-effort-vocab-and-thinking — `idea` · **P3**
+
+**Why:** `per-slice-compute-tier` keeps the `**Compute:**` effort vocabulary at
+`{low, medium, high}` and ships no thinking-budget control. Some slices may
+warrant more (a deep, design-heavy slice) or an explicit thinking budget. Extend
+the `effort=` vocabulary (e.g. `xhigh` / `max`) and/or add a thinking-budget knob
+to the grammar + Check 13, **together with** heuristics for when each tier is
+warranted — mis-annotation risk grows with the vocabulary (cf. the haiku heuristic
+this change ships). Note the variant-agent consequence: each new effort tier needs
+its own static `implementer-<tier>` variant (D1/D2). Part of the adaptive-compute
+cluster with [[orchestrator-effort-targeting]] and
+[[compute-escalation-on-failure]]. Surfaced as a Non-Goal of
+`per-slice-compute-tier` (stage D, 2026-07-27).
+
+### compute-escalation-on-failure — `idea` · **P3**
+
+**Why:** When an implementer slice fails its build/tests at the slice boundary, the
+orchestrator hard-stops and asks the human (workflow hard-stop condition 3).
+Because effort is baked into the *static* variant agent (per
+`per-slice-compute-tier`'s D1), the implementer cannot raise its own effort — so
+adaptive retry must be **orchestrator-driven**: on a slice failure, re-spawn the
+slice on a higher tier (bump effort and/or model up a ladder) before falling to the
+human hard-stop. Design questions: which dimension escalates first (effort vs
+model) and the ladder order; max retries / cost cap; and how escalation stays
+compatible with the never-suppressed human gate (escalate-then-ask, not
+escalate-silently-forever). Depends on `per-slice-compute-tier`'s tier mechanism.
+Part of the adaptive-compute cluster with [[orchestrator-effort-targeting]] and
+[[richer-effort-vocab-and-thinking]]. Surfaced as an afterthought during
+`per-slice-compute-tier` stage-D review (2026-07-27).
+
+### unify-implement-paths-on-variants — `idea` · **P2**
+
+**Why:** `per-slice-compute-tier` ships three effort-variant implementer agents but
+keeps the base `implementer.md` as a never-spawned contract/registry anchor, and the
+`/qrspi:followup` + trivial/inline `/qrspi:implement` paths still resolve to the base
+rather than choosing effort+model the way a `tasks.md` slice does. Every implement
+path should pick effort+model and resolve to a variant. Collapse to a variants-only
+structure: route the followup + trivial paths through the same `effort=`/`model=` →
+`qrspi:implementer-<effort>` resolution, and retire or demote the base — which
+requires relocating the stage-I read/output contract (Check 7/12 banners) and the
+`SKILL_SET_EXPECTED['implementer']` registry off the base onto the variants or
+`implementer-core`. Needs its own D (the contract relocation is the load-bearing
+part). Follow-on to `per-slice-compute-tier` (D9); surfaced by the human at that
+change's stage-I dogfood (2026-07-27).
+
+### commands-assert-cwd-change-folder — `idea` · **P3**
+
+**Why:** QRSPI stage commands reference the change folder as relative
+`openspec/changes/<id>/...` but never state it resolves against the **current repo
+(CWD)**, not the plugin install dir. Under `--plugin-dir` dogfooding of *this* kit
+(which uniquely has its own `openspec/`), the session model can look in the kit
+repo's `openspec/changes/` instead of the consumer's before self-correcting —
+observed repeatedly at the `per-slice-compute-tier` stage-I dogfood (2026-07-27).
+Real consumers (installed plugin in the cache, no competing `openspec/`) don't hit
+it, hence P3 and *not* a `per-slice-compute-tier` defect. Add a one-line "resolves
+against the current working repo, not the plugin dir" note to the stage commands'
+precondition and/or the `qrspi-dogfood` skill's gotchas.
 
 ### decompose-tasks-md-per-slice — `idea` · **P2**
 
@@ -729,22 +789,6 @@ hard-stop is a sufficient backstop for now. Deferred as a Non-Goal of
 QRSPI run — that change builds the `tasks.md` slice-boundary parser this check
 needs, and its per-slice-file split reshapes the check into a per-file scan. See
 that entry's Bundle note for the full rationale. Reassessed 2026-07-27.
-
-### haiku-model-tier — `idea` · **P3**
-
-**Why:** `per-slice-compute-knobs` keeps the `model=` vocabulary at `{sonnet, opus}`
-and declines a third `haiku` tier because there is no per-slice heuristic for when a
-slice warrants haiku, and an unguided third tier invites mis-annotation (lint's
-`MODEL_ALIASES` already permits haiku for frontmatter, so the mechanical cost is
-low). Add `haiku` to the annotation `model=` vocabulary + Check 13 **together with**
-a `vertical-slice` heuristic that teaches when a slice is trivial-mechanical enough
-to warrant it — the guidance is the point, not the alias. Deferred from
-`per-slice-compute-knobs` stage D (D2 / OQ1, 2026-07-25).
-
-**Bundle:** proposed to ride with [[per-slice-effort-via-agent-variants]] (P2) as
-the compute-tier follow-on to `per-slice-compute-knobs` — haiku is naturally
-another cell in that change's effort-variant matrix (model × effort). See that
-entry's Bundle note for the full rationale. Proposed 2026-07-27.
 
 ### content-lint-output-contract — `idea` · **P3**
 
