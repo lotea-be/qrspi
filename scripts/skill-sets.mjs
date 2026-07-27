@@ -20,6 +20,6 @@ export const SKILL_SET_EXPECTED = {
   designer:    ['context-hygiene', 'repo-surface', 'workflow'],
   architect:   ['openspec-workflow', 'repo-surface', 'vertical-slice', 'workflow'],
   planner:     ['repo-surface', 'vertical-slice', 'workflow'],
-  implementer: ['context-hygiene', 'vertical-slice', 'workflow'],
+  implementer: ['context-hygiene', 'implementer-core', 'vertical-slice', 'workflow'],
   reviewer:    ['openspec-workflow', 'repo-surface', 'workflow'],
 };

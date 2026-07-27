@@ -16,12 +16,12 @@
 
 **Compute:** model=sonnet effort=low — mechanical extraction: copy the body, update one load line, update one registry entry; the skill-set structure is already established. (D3, D4)
 
-- [ ] 2.1 Create `claude/skills/implementer-core/SKILL.md` containing the full shared implementer body extracted verbatim from `claude/agents/implementer.md`. (D3)
-- [ ] 2.2 Rewrite `claude/agents/implementer.md` to load `implementer-core` (a thin delegation wrapper) — keep the agent frontmatter and Read-contract banner, replace the body with a load directive. (D3)
-- [ ] 2.3 Verify `SKILL_SET_EXPECTED` in `scripts/lint.mjs` has an entry for the `implementer` stem and that Check 5 (`checkSkillSets`) reports OK for the updated layout; add or adjust the entry if needed. (D4)
-- [ ] 2.4 Unit/integration test: `node scripts/lint.mjs` exits 0 with Check 2 (skill resolution) and Check 5 (`checkSkillSets`) both passing. (D3, D4)
+- [x] 2.1 Create `claude/skills/implementer-core/SKILL.md` containing the full shared implementer body extracted verbatim from `claude/agents/implementer.md`. (D3)
+- [x] 2.2 Rewrite `claude/agents/implementer.md` to load `implementer-core` (a thin delegation wrapper) — keep the agent frontmatter and Read-contract banner, replace the body with a load directive. (D3)
+- [x] 2.3 Verify `SKILL_SET_EXPECTED` in `scripts/lint.mjs` has an entry for the `implementer` stem and that Check 5 (`checkSkillSets`) reports OK for the updated layout; add or adjust the entry if needed. (D4)
+- [x] 2.4 Unit/integration test: `node scripts/lint.mjs` exits 0 with Check 2 (skill resolution) and Check 5 (`checkSkillSets`) both passing. (D3, D4)
 - [ ] 2.5 (human) In a `--plugin-dir /workspaces/git/qrspi` session run `/qrspi:implement <id>` on a change that has a `tasks.md` with exactly one un-ticked box; confirm the implementer subagent launches and behaves normally — confirming the refactored `implementer.md` + `implementer-core` body is functionally identical to the pre-refactor baseline.
-- [ ] 2.6 Checkpoint: `node scripts/lint.mjs` exits 0.
+- [x] 2.6 Checkpoint: `node scripts/lint.mjs` exits 0.
 
 ## 3. Variant agents + Check 15 drift gate
 
