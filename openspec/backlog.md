@@ -32,12 +32,14 @@ this ordering whenever an item is added, modified, or archived (see
 kept adjacent near the top so the cost story reads at a glance: the **input** and
 **output** levers shipped together as `context-budget` (merged and archived
 2026-07-24); [[simplify-per-slice-model-selection]] and
-[[configurable-effort-and-thinking]] (bundled into `per-slice-compute-knobs`,
-now proposed), and
-[[standardize-recurring-ops-scripts]] (reasoning/exploration) remain here. The
+[[configurable-effort-and-thinking]] shipped together as `per-slice-compute-knobs`
+(merged and archived 2026-07-25), whose compute follow-ons
+[[per-slice-effort-via-agent-variants]] and [[haiku-model-tier]] (the compute-tier
+bundle) remain here; and [[standardize-recurring-ops-scripts]]
+(reasoning/exploration) remains here. The
 **surface-taxonomy family** spun off [[repo-applicable-artifact-sections]]:
-`enforce-artifact-surface-applicability` and `kit-self-surfaces` are now bundled
-into `kit-surface-dogfooding` (proposed, in the QRSPI flow); the remaining
+`enforce-artifact-surface-applicability` and `kit-self-surfaces` shipped as
+`kit-surface-dogfooding` (merged and archived 2026-07-25); the remaining
 [[structured-surface-schema]] and [[extend-surface-taxonomy]] are kept
 contiguous below across the P2/P3 boundary.
 
@@ -61,17 +63,26 @@ those ids. Then establish the convention in the implementer's guidance — and i
 a `scripts/lint.mjs`-style check over changed code — that comments cite a spec id
 only. Keep the comment **terse: the id, not a paraphrase.** A descriptive
 restatement of the spec inside the comment is itself a second source of truth that
-drifts from the spec it quotes; the id *points*, the spec *says*. Relates to
-[[enforce-d-number-tags-in-slices]] (the inverse traceability link — `(D<n>)` tags
-bind slices back to design; this binds code forward to specs) and to the
-two-source-of-truth caution in [[optional-technology-specs]]. **P1 like
+drifts from the spec it quotes; the id *points*, the spec *says*.
+
+**Supersedes `enforce-d-number-tags-in-slices`:** once specs carry stable ids,
+slices should tag a **spec-id**, not a `(D<n>)` — one id-space, not two parallel
+tag schemes on a slice (the same two-sources-of-truth smell). That removes the
+standalone D-number lint idea; its open question folds in here for this change's
+D stage: does the slice→spec *contract* link replace the slice→design *rationale*
+link `tighten-stage-read-boundaries` relied on at implement time (design.md out of
+read scope)? If contract-level grounding suffices for the implementer, yes; if the
+implementer needs the *why* and not just the *what*, the spec-id tag must be made
+to carry it. Was the inverse traceability link — `(D<n>)` tags bound slices back to
+design; this binds code forward to specs — now unified onto specs. Also relates to
+the two-source-of-truth caution in [[optional-technology-specs]]. **P1 like
 [[repo-applicable-artifact-sections]]:** a highly visible artifact-quality defect
 (ugly process references baked into shipped code) rather than a live-workflow
 correctness gap. Surfaced 2026-07-24.
 
 ### per-slice-effort-via-agent-variants — `idea` · **P2**
 
-**Why:** `per-slice-compute-knobs` (in flight) makes **model** per-slice-enforceable
+**Why:** `per-slice-compute-knobs` (merged 2026-07-25) makes **model** per-slice-enforceable
 but only **effort** per-*stage*, because the Claude Code Task tool exposes no
 per-invocation effort parameter — effort is settable solely via an agent's static
 `effort:` frontmatter, so one implementer agent cannot vary effort slice-to-slice.
@@ -83,9 +94,28 @@ the variants can't drift from the core. Needs its own Q/R/D: the variant matrix
 (all `models × efforts`, or a few named profiles like `mechanical`/`standard`/`deep`),
 the encapsulation mechanism (shared skill vs a generator that emits variants), the
 sync check, and the `**Compute:** → subagent_type` mapping. The compute-band lever
-sequenced directly behind `per-slice-compute-knobs` (which ships the grammar +
-per-stage effort it extends). Deferred from that change's stage-D review (D5,
-2026-07-25) — folding it in would roughly double the change's surface.
+sequenced directly behind `per-slice-compute-knobs` (merged 2026-07-25; it shipped
+the grammar + per-stage effort this extends), now unblocked. Deferred from that
+change's stage-D review (D5, 2026-07-25) — folding it in would roughly double the
+change's surface.
+
+**Bundle (proposed — one QRSPI run, this entry as anchor):** take up together with
+[[haiku-model-tier]] (P3) as the **compute-tier follow-on** to
+`per-slice-compute-knobs`. This is the largest remaining *token* lever — compute is
+multiplicative (it changes which model/effort runs the heaviest stage per slice),
+so it dwarfs the input read-footprint trim of [[decompose-tasks-md-per-slice]].
+`per-slice-compute-knobs` ships the grammar + model selection + *per-stage* effort
+but caps the realized savings two ways this bundle removes: effort is only
+per-stage (effort-variants recovers true per-slice effort) and the `model=` vocab
+stops at `{sonnet, opus}` (haiku-model-tier adds the cheapest tier + its
+when-to-use heuristic). They bundle cleanly — both extend the same `**Compute:**`
+grammar / lint Check 13 / slice→agent mapping, both were deferred from the *same*
+`per-slice-compute-knobs` stage-D review (D5 here; D2/OQ1 for haiku), and haiku is
+naturally just another cell in the effort-variant matrix (model × effort), so the
+agent-variant mechanism built once delivers both. **Unblocked:**
+`per-slice-compute-knobs` merged 2026-07-25, so the grammar this bundle extends
+already exists — it's the next compute step and is startable now, like the decompose
+bundle. Bundle proposed 2026-07-27.
 
 ### standardize-recurring-ops-scripts — `idea` · **P2**
 
@@ -146,6 +176,20 @@ the countervailing pull: `tasks.md` doubles as the single-glance progress view f
 the human and the reviewer, so a naive split fragments that — likely wants a
 top-level index + per-slice detail, and the `(human)` checkpoints still need a
 slice association. Surfaced 2026-07-24 during the `context-budget` flow.
+
+**Bundle (proposed — one QRSPI run):** take up together with
+[[compute-annotation-presence-lint]] (P3, below) under this entry as anchor. Both
+live on the **same `tasks.md` slice-boundary parser** — decompose *builds* it (to
+split/route per-slice files), and the presence lint *needs* it (to assert every
+slice block carries a `**Compute:**` line). The coupling is order-dependent, so
+bundling avoids throwaway work: doing the presence lint alone builds a boundary
+parser over today's flat `tasks.md` that decompose then obsoletes, and once
+decompose splits to `tasks/slice-<n>.md` the presence check collapses to a per-file
+scan. Bundling is what makes the boundary-parsing cost — the very reason both were
+deferred — worth paying once, so it *raises* the lint's effective priority rather
+than lowering decompose's. `enforce-d-number-tags-in-slices` was considered for this
+bundle but pulled out — it's entangled with spec-id numbering, now folded into
+[[spec-anchored-code-comments]] instead. Bundle reassessed 2026-07-27.
 
 ### init-conductor-plus-overview — `idea` · **P2**
 
@@ -666,16 +710,6 @@ this today. Add per-version resume state (or a completed-versions marker) plus
 idempotency guidance for manifest authors. Surfaced by `versioned-update-command`
 PR review (non-blocking).
 
-### enforce-d-number-tags-in-slices — `idea` · **P3**
-
-**Why:** `tighten-stage-read-boundaries` makes embedding `(D<n>)` decision tags in
-every `slices.md` bullet a *prose* "required output rule" (its D3), and removes the
-planner's/implementer's `design.md` fallback (D2/D4). So a missing `(D<n>)` tag now
-silently breaks the design→task traceability chain with nothing to catch it. Add a
-structural `scripts/lint.mjs` check (or heading assertion) that every slice bullet
-which implements a decision carries its tag, mechanically enforcing D3. Flagged in
-that change's design Risks section as "not this change".
-
 ### compute-annotation-presence-lint — `idea` · **P3**
 
 **Why:** `per-slice-compute-knobs` ships lint Check 13 as **value-validation only** —
@@ -691,6 +725,11 @@ hard-stop is a sufficient backstop for now. Deferred as a Non-Goal of
 `per-slice-compute-knobs` (stage D, D6, 2026-07-25). Sibling to
 [[content-lint-output-contract]] (the same existence→content lint-promotion move).
 
+**Bundle:** proposed to ride with [[decompose-tasks-md-per-slice]] (P2) in one
+QRSPI run — that change builds the `tasks.md` slice-boundary parser this check
+needs, and its per-slice-file split reshapes the check into a per-file scan. See
+that entry's Bundle note for the full rationale. Reassessed 2026-07-27.
+
 ### haiku-model-tier — `idea` · **P3**
 
 **Why:** `per-slice-compute-knobs` keeps the `model=` vocabulary at `{sonnet, opus}`
@@ -701,6 +740,11 @@ low). Add `haiku` to the annotation `model=` vocabulary + Check 13 **together wi
 a `vertical-slice` heuristic that teaches when a slice is trivial-mechanical enough
 to warrant it — the guidance is the point, not the alias. Deferred from
 `per-slice-compute-knobs` stage D (D2 / OQ1, 2026-07-25).
+
+**Bundle:** proposed to ride with [[per-slice-effort-via-agent-variants]] (P2) as
+the compute-tier follow-on to `per-slice-compute-knobs` — haiku is naturally
+another cell in that change's effort-variant matrix (model × effort). See that
+entry's Bundle note for the full rationale. Proposed 2026-07-27.
 
 ### content-lint-output-contract — `idea` · **P3**
 
