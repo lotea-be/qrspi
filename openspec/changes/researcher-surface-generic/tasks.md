@@ -9,7 +9,7 @@
 - [x] 1.1 Edit `claude/agents/researcher.md`: add `repo-surface` to the step-1 "Load skills" line; add D7 prose note explaining the skill load; replace all literal surface-gated heading lines in the fenced skeleton with a `<!-- Surface-gated inventory sections: ... -->` gate-comment block that lists each surface-to-heading mapping; add `## Notable discrepancies` as a standing (non-gated) heading in the inline skeleton (D1, D3, D5, D7)
 - [x] 1.2 Edit `scripts/skill-sets.mjs`: update `SKILL_SET_EXPECTED.researcher` from `['context-hygiene','workflow']` to `['context-hygiene','repo-surface','workflow']` (D5)
 - [x] 1.3 Run `node scripts/lint.mjs` — Check 2b must pass with the updated skill set; Check 7 must still pass (researcher banner unchanged); Check 11 must still pass for all currently-covered agents
-- [ ] 1.4 (human) In a fresh `claude --plugin-dir /workspaces/git/qrspi` session, run the researcher against a consumer fixture that declares no `data-store` surface — confirm the produced `research.md` does NOT contain `## Data model` and DOES contain `## Notable discrepancies`
+- [x] 1.4 (human) In a fresh `claude --plugin-dir /workspaces/git/qrspi` session, run the researcher against a consumer fixture that declares no `data-store` surface — confirm the produced `research.md` does NOT contain `## Data model` and DOES contain `## Notable discrepancies`
 
 ## 2. Mechanical guards: Check 11 + Check 3 + research template
 
@@ -29,4 +29,4 @@
 - [x] 3.1 Edit `claude/skills/repo-surface/SKILL.md`: under each `### <surface> gates` subsection that has a research.md inventory heading, add a `- Section \`## <heading>\` (in research.md)` tagged line for each relevant heading; extend the `## Extending the taxonomy` checklist with site 6 ("verify Check 11 still covers all agent skeletons for the new heading") and site 7 ("confirm the researcher skeleton gate comment and the `(in research.md)` mapping line are consistent") (D2, D9, D10)
 - [x] 3.2 Review the Check 14 implementation in `scripts/lint.mjs`: confirm it walks `research.md` with no research-specific filename filter; if a skip or filter for `research.md` exists in Check 14 (the kit-surface-dogfooding band-aid), remove it (D3)
 - [x] 3.3 Run `node scripts/lint.mjs` — confirm exit zero
-- [ ] 3.4 (human) Review `claude/skills/repo-surface/SKILL.md` and confirm: (a) a `(in research.md)` line is present for each of the six kit surfaces; (b) the `## Extending the taxonomy` section lists exactly 7 sites; (c) site 7 explicitly names `claude/agents/researcher.md`
+- [x] 3.4 (human) Review `claude/skills/repo-surface/SKILL.md` and confirm: (a) a `(in research.md)` line is present for each of the six kit surfaces; (b) the `## Extending the taxonomy` section lists exactly 7 sites; (c) site 7 explicitly names `claude/agents/researcher.md`
