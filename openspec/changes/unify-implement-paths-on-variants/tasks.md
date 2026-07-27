@@ -19,13 +19,13 @@
 
 > **Atomic-commit constraint:** all tasks in this slice (2.1–2.5) must be staged and committed together in a single commit. No partial intermediate state should be committed — doing so would break Check 7, Check 12, or Check 15 between tasks.
 
-- [ ] 2.1 Add verbatim `> **Read contract** — Reads: tasks.md. …` and `> **Output contract**` blockquote banners to each of `claude/agents/implementer-low.md`, `claude/agents/implementer-medium.md`, and `claude/agents/implementer-high.md`, placed before the numbered steps so `extractStep1Skills` does not harvest them. (D4)
-- [ ] 2.2 Edit `scripts/lint.mjs` — in `READ_CONTRACT_EXPECTED`, remove the `implementer` key and add `implementer-low`, `implementer-medium`, `implementer-high` (each with value `'Reads: tasks.md.'`); in `SKILL_SET_EXPECTED`, remove the `implementer` key and add `implementer-low`, `implementer-medium`, `implementer-high` (each with value `['implementer-core']`). (D5)
-- [ ] 2.3 Edit `claude/skills/implementer-core/SKILL.md` frontmatter — update `description:` to reference the effort-variant agents and remove the `implementer.md` mention. (D5)
-- [ ] 2.4 Edit `.claude-plugin/plugin.json` — remove `"./claude/agents/implementer.md"` from the `agents` array (10 paths -> 9 paths). (D3)
-- [ ] 2.5 Delete `claude/agents/implementer.md`. (D3)
-- [ ] 2.6 Unit/integration test: run `node scripts/lint.mjs` and confirm it exits 0 across all checks (Check 2b, Check 7, Check 12, Check 15 sub-checks a-d; note sub-check (e) is not yet present). (D3, D4, D5)
-- [ ] 2.7 Checkpoint: `node scripts/lint.mjs` exits 0. Confirm `claude/agents/implementer.md` does not exist. Confirm `plugin.json` `agents` array has exactly 9 paths and does not list `./claude/agents/implementer.md`. Confirm each of the three variant files contains a `> **Read contract**` and `> **Output contract**` blockquote banner. (D3, D4, D5)
+- [x] 2.1 Add verbatim `> **Read contract** — Reads: tasks.md. …` and `> **Output contract**` blockquote banners to each of `claude/agents/implementer-low.md`, `claude/agents/implementer-medium.md`, and `claude/agents/implementer-high.md`, placed before the numbered steps so `extractStep1Skills` does not harvest them. (D4)
+- [x] 2.2 Edit `scripts/lint.mjs` — in `READ_CONTRACT_EXPECTED`, remove the `implementer` key and add `implementer-low`, `implementer-medium`, `implementer-high` (each with value `'Reads: tasks.md.'`); in `SKILL_SET_EXPECTED`, remove the `implementer` key and add `implementer-low`, `implementer-medium`, `implementer-high` (each with value `['implementer-core']`). (D5)
+- [x] 2.3 Edit `claude/skills/implementer-core/SKILL.md` frontmatter — update `description:` to reference the effort-variant agents and remove the `implementer.md` mention. (D5)
+- [x] 2.4 Edit `.claude-plugin/plugin.json` — remove `"./claude/agents/implementer.md"` from the `agents` array (10 paths -> 9 paths). (D3)
+- [x] 2.5 Delete `claude/agents/implementer.md`. (D3)
+- [x] 2.6 Unit/integration test: run `node scripts/lint.mjs` and confirm it exits 0 across all checks (Check 2b, Check 7, Check 12, Check 15 sub-checks a-d; note sub-check (e) is not yet present). (D3, D4, D5)
+- [x] 2.7 Checkpoint: `node scripts/lint.mjs` exits 0. Confirm `claude/agents/implementer.md` does not exist. Confirm `plugin.json` `agents` array has exactly 9 paths and does not list `./claude/agents/implementer.md`. Confirm each of the three variant files contains a `> **Read contract**` and `> **Output contract**` blockquote banner. (D3, D4, D5)
 
 ## 3. Tighten the guards: Check 15(e) + Check 16
 

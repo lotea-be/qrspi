@@ -1165,7 +1165,9 @@ const READ_CONTRACT_EXPECTED = {
   designer: 'Reads: questions.md, research.md.',
   architect: 'Reads (S): design.md. Reads (V): proposal.md, specs/.',
   planner: 'Reads: slices.md.',
-  implementer: 'Reads: tasks.md.',
+  'implementer-low': 'Reads: tasks.md.',
+  'implementer-medium': 'Reads: tasks.md.',
+  'implementer-high': 'Reads: tasks.md.',
   reviewer: 'Reads: full changes/<id>/ folder (by design).',
 };
 
