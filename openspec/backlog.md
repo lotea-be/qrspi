@@ -41,6 +41,7 @@ into `per-slice-compute-tier` (proposed, in the QRSPI flow); and
 **surface-taxonomy family** spun off [[repo-applicable-artifact-sections]]:
 `enforce-artifact-surface-applicability` and `kit-self-surfaces` shipped as
 `kit-surface-dogfooding` (merged and archived 2026-07-25); the remaining
+[[privacy-gdpr-surface]] (P2, the highest-value surface-extension instance),
 [[structured-surface-schema]] and [[extend-surface-taxonomy]] are kept
 contiguous below across the P2/P3 boundary.
 
@@ -558,6 +559,58 @@ marketplace manifest's exact shape confirmed first (which file; `source: …@vX`
 vs a `ref:`/`version:` key). Pairs with [[qrspi-release-auto-stub-manifest]]
 (the other release-time automation idea) and relates to
 [[assert-openspec-version-pin-coupling]]. Surfaced 2026-07-25.
+
+### privacy-gdpr-surface — `idea` · **P2**
+
+**Why:** Add a **`privacy` (GDPR) repo-surface** to the taxonomy so that, when a
+repo declares it, the Questioner/Designer/Architect emit privacy-specific sections —
+front-loading the privacy dimension into alignment (Q/D/S), the cheapest place to
+catch it, instead of discovering it reactively one bug/gap at a time. Evidence from
+a GDPR-central consumer (abkf `QRSPI-HANDOVER-gdpr-surface.md`, 2026-07-27 — Belgian
+kendo federation: participant PII, **minors**, **health documents**): it discovered
+its obligations reactively across many changes (a privacy audit → `dsr-self-service`
+export/erase/scheduled-deletion → `add-gdpr-audit-logging` → deferred
+retention/consent/health-upload/subprocessor work → a live prod gap: a deleted
+user's lingering JWT). Several were caught *only* because a human happened to ask "is
+X covered?" A `privacy` surface turns those into **standing prompts on every
+personal-data change** (audit-logged? does erase reach the new field? lawful basis?
+retention? minors? transfers? DPIA?). **Non-goal:** not legal advice / a DPO
+substitute — a structured "did you consider…" so the dimension is never silently
+skipped.
+
+**Section mappings (from the handover):** Q → a `## Personal data & privacy` section
+(fields/categories incl. Art. 9 special-category, lawful basis, consent, retention,
+erasure-reachability, audit hook, minors, transfers/sub-processors, DPIA); D → a
+`## Privacy / GDPR` decisions block (data-minimization, retention/erasure design,
+audit-hook, consent model, lawful basis) that become binding downstream constraints;
+S/V → privacy requirements as **delta-spec requirements** ("erasure MUST anonymize
+field X", "admin read MUST emit an audit entry") + cross-cutting hooks enumerated as
+tasks rather than found post-PR.
+
+**Distinct enough to be its own item (not folded into [[extend-surface-taxonomy]]):**
+(1) it is a new *kind* of surface — a cross-cutting **compliance/governance** concern,
+not a technical capability like that item's `cli`/`mq`/`storage` candidates — which is
+the "taxonomy mixes different kinds of surface" observation [[rationalize-surface-taxonomy]]
+already flags; (2) it needs a genuinely new mechanic every existing surface lacks — a
+**per-change relevance trigger** ("does *this* change touch personal data?", vs the
+current emit-whenever-declared model) plus an optional cheatsheet **personal-data
+inventory** block (PII fields + which are Art. 9), which relates to
+[[structured-surface-schema]]. **Built-in, not [[consumer-extensible-surfaces]]:**
+GDPR is broadly applicable across consumer domains, unlike that idea's niche examples.
+
+**Design tension (needs Q/D — do not pre-decide):** privacy's cross-cutting nature
+makes **alarm-fatigue** sharper than for other surfaces — the emit-whenever-declared
+MVP (consistent with today's surfaces, mitigated by an "N/A — no personal data"
+fast-path) will fire on many non-PII changes, and rubber-stamped N/As kill the value.
+The trigger heuristic (match a personal-data signal from the cheatsheet inventory /
+touched files) mitigates it but is the hard part — so it is a *higher-priority*
+follow-on for privacy than for a technical surface. Ship MVP consistent with existing
+surfaces; treat the smart trigger + PII-inventory block as fast-follow. Unblocked —
+the surface machinery already shipped (`repo-applicable-artifact-sections`,
+`kit-surface-dogfooding`); the consumer offers concrete dogfood test cases
+(`define-data-retention-policy`, `enforce-minor-parental-consent`,
+`secure-health-document-uploads`, `document-subprocessors-and-dpas`). Surfaced by the
+abkf consumer handover (2026-07-27).
 
 ### structured-surface-schema — `idea` · **P3**
 
