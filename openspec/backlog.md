@@ -413,6 +413,47 @@ question). Relates to [[structured-surface-schema]]. The kit's *own* self-surfac
 (the distinct "let this repo dogfood richer surfaces" flavor) split out into
 [[kit-self-surfaces]] as a higher-value standalone.
 
+### rationalize-surface-taxonomy — `idea` · **P3**
+
+**Why:** The current `repo-surface` taxonomy is a flat list that mixes three
+different kinds of surface: generic web surfaces (`data-store`, `http-api`, `ui`,
+`auth`), Claude-plugin-shaped ones (`slash-command`, `stage-agent`, `skill`), and
+repo-local kit ones (`lint-gate`, `template`, `migration-manifest`) — plus
+`typed-nullable`, which gates only a PR-checklist item (no section heading).
+Rationalize it: (1) **group** the three plugin surfaces under one coarser
+`claude-plugin` / `llm-agent` surface; (2) **mark** `lint-gate` / `template` /
+`migration-manifest` explicitly as repo-local (kit-specific) rather than
+general-purpose; (3) **drop** `typed-nullable`. **Design tension (needs Q/D):**
+each surface today gates a *distinct* artifact section, so collapsing three into
+one either merges their inventory sections (coarser research/design output) or
+needs sub-surface granularity to keep the per-artifact sections apart — resolve
+before shaping. Distinct from [[extend-surface-taxonomy]] (which *adds* built-in
+surfaces) — this one *prunes and regroups* the existing set; relates to
+[[structured-surface-schema]] (the same "give the surface list a real shape" move)
+and [[consumer-extensible-surfaces]]. Surfaced 2026-07-27 during the stage-PR
+dogfood review of `researcher-surface-generic`.
+
+### consumer-extensible-surfaces — `idea` · **P3**
+
+**Why:** The surface taxonomy is **closed by construction** today — surfaces and
+the artifact sections they gate are hardcoded in the kit's `repo-surface` skill
+and lint arrays, so a consumer repo whose domain has a surface the kit never
+imagined (a game engine's `scene-graph`, a compiler's `ir-pass`) cannot gate its
+own artifact sections without forking the kit. Add a mechanism for a
+**qrspi-enabled consumer repo to declare its own surfaces and the section(s) each
+gates**, picked up per-repo at stage time (e.g. a consumer-side surface manifest
+the `repo-surface` skill merges with the built-in taxonomy), so custom surfaces
+flow through the questioner/designer/researcher gating without editing kit source.
+**Design tension (needs Q/R/D):** the built-in Check 11 / Check 14 lint arrays are
+the enforcement floor and cannot see consumer-defined headings, so consumer
+surfaces need either a shipped validation path or an accepted "unenforced in the
+consumer" trade; also weigh the two-source-of-truth risk. Distinct from
+[[extend-surface-taxonomy]] (grow the *kit's* built-in list) and
+[[rationalize-surface-taxonomy]] (restructure it) — this one makes the taxonomy
+*open/extensible per consumer*; builds naturally on [[structured-surface-schema]]
+(a machine-readable schema is the obvious carrier). Surfaced 2026-07-27 during the
+stage-PR dogfood of `researcher-surface-generic`.
+
 ### assert-openspec-version-pin-coupling — `idea` · **P3**
 
 **Why:** `openspec/config.yaml` carries an `openspec_version` field recording the
