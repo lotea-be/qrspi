@@ -97,16 +97,13 @@ with default sonnet, allowed model set `{haiku, sonnet, opus}`); (c) no
 - **WHEN** `claude/skills/vertical-slice/SKILL.md` is read
 - **THEN** the annotation grammar description states that `effort=` is required and `model=` is optional with a default of `sonnet`.
 
-### Requirement: openspec-templates slices and tasks grammar comments use the orthogonal form
+### Requirement: openspec-templates tasks grammar comment uses the orthogonal form
 The system MUST update the `**Compute:**` grammar placeholder or comment in
-`openspec-templates/slices.template.md` and `openspec-templates/tasks.template.md`
-to reflect the orthogonal form: `effort=<low|medium|high>` required,
-`model=<haiku|sonnet|opus>` optional with default sonnet. No `profile=` token
-appears in either template.
-
-#### Scenario: slices.template.md grammar comment uses orthogonal form
-- **WHEN** `openspec-templates/slices.template.md` is read after the change ships
-- **THEN** the `**Compute:**` grammar comment or placeholder reflects `effort=` as required and `model=` as optional/default sonnet; no `profile=` token is present.
+`openspec-templates/tasks.template.md` to reflect the orthogonal form:
+`effort=<low|medium|high>` required, `model=<haiku|sonnet|opus>` optional with
+default sonnet, and no `profile=` token. There is no `slices.template.md` in this
+repo; the slices `**Compute:**` grammar lives in
+`claude/skills/vertical-slice/SKILL.md` (covered by the requirement above).
 
 #### Scenario: tasks.template.md grammar comment uses orthogonal form
 - **WHEN** `openspec-templates/tasks.template.md` is read after the change ships

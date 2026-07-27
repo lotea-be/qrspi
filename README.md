@@ -310,7 +310,7 @@ all hand-maintained occurrences agree -- the lint will catch any missed location
 
 ### CI lint checks (`node scripts/lint.mjs`)
 
-The lint script runs 14 checks (Checks 1-14) on every CI run. Key checks relevant
+The lint script runs 15 checks (Checks 1-15) on every CI run. Key checks relevant
 to context hygiene and agent contracts:
 
 - **Check 2b (`checkSkillSets`)** -- asserts each stage agent's `Load skills` line
@@ -324,9 +324,11 @@ to context hygiene and agent contracts:
   carries a `> **Output contract**` banner line (presence-only). Mirrors the scope
   and pattern of Check 7 (`checkReadContracts`).
 - **Check 13 (`checkComputeAnnotations`)** -- value-validates every `**Compute:**`
-  line in committed `slices.md` and `tasks.md` artifacts. Flags a missing or
-  unknown `model=` token and an unknown `effort=` token (when present). Tolerates
-  both the dash-bullet form (`slices.md`) and the bare bold form (`tasks.md`).
+  line in committed `slices.md` and `tasks.md` artifacts. Requires an `effort=`
+  token (`low|medium|high`) -- it selects the implementer variant -- and flags a
+  missing or unknown one; `model=` is optional (defaulting to `sonnet`) and, when
+  present, is validated against `{haiku, sonnet, opus}`. Tolerates both the
+  dash-bullet form (`slices.md`) and the bare bold form (`tasks.md`).
 - **Check 14 (`checkSurfaceApplicability`)** -- scans every `*.md` under
   `openspec/changes/**` (excluding `/archive/` paths) and flags any heading line
   belonging to an absent surface (a surface not listed in the stack-cheatsheet's
@@ -337,6 +339,13 @@ to context hygiene and agent contracts:
   Disjoint scope with Check 11: Check 11 scans INSIDE fenced blocks in agent files;
   Check 14 scans OUTSIDE fenced blocks in change artifacts -- they never fire on the
   same line.
+- **Check 15 (`checkVariantAgents`)** -- guards the effort-variant implementer
+  fleet from drift: asserts the `claude/agents/implementer-*.md` stems exactly
+  match the `IMPLEMENTER_VARIANTS` registry, each variant loads only
+  `implementer-core`, each variant's `effort:` frontmatter matches its stem
+  suffix, and each variant is registered in `.claude-plugin/plugin.json`'s
+  `agents` array (required for the variant to be a spawnable `qrspi:implementer-*`
+  subagent). Includes an inline self-test.
 
 All other checks (pin agreement, frontmatter, heading alignment, README command
 coverage, gate-tool/executor agreement, migration manifests, read-contract banners,
