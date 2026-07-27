@@ -16,6 +16,21 @@ kit version.
 
 ### Added
 
+- **The QRSPI researcher (stage R) is now surface-aware
+  (`researcher-surface-generic`).** The researcher agent loads the `repo-surface`
+  skill and gates its factual-inventory sections on the repo's declared surfaces,
+  exactly like the proposal-producing agents — omitting a section for any absent
+  surface instead of hardcoding a web-app skeleton (`## Public API surface`,
+  `## Data model`). Its fenced skeleton moves to the gate-comment convention and
+  gains a standing `## Notable discrepancies` heading (a factual home for code
+  evidence of a declared-absent surface). Ships a spine-only
+  `research.template.md` guarded by Check 3, extends Check 11's
+  `CRUD_CHECK_AGENTS` to cover the researcher skeleton, adds `repo-surface` to the
+  researcher's skill set, and documents each surface's `research.md` inventory
+  heading (`(in research.md)` mapping lines) plus a 7th `## Extending the
+  taxonomy` checklist site. Completes surface-gating across all
+  artifact-producing agents and retires the temporary `## Data
+  model`→`## Data structures` band-aid pattern.
 - **Six kit surfaces + the kit dogfoods `repo-surface` on itself
   (`kit-surface-dogfooding`).** The surface taxonomy gains six kit-specific
   surfaces — `slash-command`, `stage-agent`, `skill`, `template`, `lint-gate`,

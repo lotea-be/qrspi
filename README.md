@@ -103,6 +103,16 @@ There are eleven named surfaces (closed vocabulary):
 | `template` | Ships OpenSpec artifact templates | `## Template surface` |
 | `migration-manifest` | Ships per-version migration manifests (`migrations/*.yaml`) | `## Migration manifest` |
 
+**Research inventory sections.** The **Gated sections** column above lists the
+headings the *proposal*-producing agents (questioner, designer) emit. The stage-R
+researcher is surface-gated the same way: for each surface with an inventory
+heading it emits the matching `research.md` section, **reusing the proposal
+heading** (e.g. `## Data model` for `data-store`, `## API surface` for `http-api`),
+and omits it when the surface is absent. Each `### <surface> gates` subsection in
+the `repo-surface` skill tags these with `(in research.md)`. The researcher also
+always emits a standing, non-gated `## Notable discrepancies` section — the factual
+home for code evidence of a *declared-absent* surface.
+
 **Declaring present surfaces.** A stack-cheatsheet skill (`.claude/skills/<repo>-stack/SKILL.md`,
 bootstrapped with `/qrspi:stack`) declares present surfaces via a `## Repo surface` block:
 
