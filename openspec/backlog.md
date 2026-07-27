@@ -189,6 +189,18 @@ requires relocating the stage-I read/output contract (Check 7/12 banners) and th
 part). Follow-on to `per-slice-compute-tier` (D9); surfaced by the human at that
 change's stage-I dogfood (2026-07-27).
 
+**Bundle (proposed — one QRSPI run, this entry as anchor):** take up together with
+[[commands-assert-cwd-change-folder]] (P3) as the compute-variant completion work
+for the 0.10.0 breaking release. The cwd-note is a **free rider**: unify already
+rewrites `implement.md` and `followup.md` (routing every path through variant
+resolution), which are the exact command bodies the cwd-note edits — same files, so
+it lands "while we're in here" rather than as a second change. Deliberately does
+NOT bundle [[richer-effort-vocab-and-thinking]] (adding a tier is *additive*, not
+order-dependent on unify — appending a variant needs no fleet restructure — and it
+drags in heuristic + thinking-control scope) or [[compute-escalation-on-failure]]
+(a policy layer best sequenced *after* unify proves the dispatch/contract
+structure). Bundle proposed 2026-07-27.
+
 ### commands-assert-cwd-change-folder — `idea` · **P3**
 
 **Why:** QRSPI stage commands reference the change folder as relative
@@ -201,6 +213,11 @@ Real consumers (installed plugin in the cache, no competing `openspec/`) don't h
 it, hence P3 and *not* a `per-slice-compute-tier` defect. Add a one-line "resolves
 against the current working repo, not the plugin dir" note to the stage commands'
 precondition and/or the `qrspi-dogfood` skill's gotchas.
+
+**Bundle:** proposed to ride with [[unify-implement-paths-on-variants]] (P2) as a
+free rider — that change already rewrites the `implement.md`/`followup.md` path
+resolution this note edits. See that entry's Bundle note for the rationale.
+Proposed 2026-07-27.
 
 ### decompose-tasks-md-per-slice — `idea` · **P2**
 
