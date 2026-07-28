@@ -7,27 +7,7 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## In progress
 
-### unify-implement-paths-on-variants — `in-progress (PR #36 open)` · **P2**
-
-**Why:** `per-slice-compute-tier` ships three effort-variant implementer agents but
-keeps the base `implementer.md` as a never-spawned contract/registry anchor, and the
-`/qrspi:followup` + trivial/inline `/qrspi:implement` paths still resolve to the base
-rather than choosing effort+model the way a `tasks.md` slice does. Every implement
-path should pick effort+model and resolve to a variant. Collapse to a variants-only
-structure: route the followup + trivial paths through the same `effort=`/`model=` →
-`qrspi:implementer-<effort>` resolution, and retire or demote the base — which
-requires relocating the stage-I read/output contract (Check 7/12 banners) and the
-`SKILL_SET_EXPECTED['implementer']` registry off the base onto the variants or
-`implementer-core`. Needs its own D (the contract relocation is the load-bearing
-part). Follow-on to `per-slice-compute-tier` (D9); surfaced by the human at that
-change's stage-I dogfood (2026-07-27).
-
-**Bundle:** takes up [[commands-assert-cwd-change-folder]] (P3) as a free rider in
-the same QRSPI flow — that item is bundled into this change and is not a separate
-proposed entry. Deliberately does NOT bundle [[richer-effort-vocab-and-thinking]] or
-[[compute-escalation-on-failure]] (see Ideas section for rationale). Open product
-questions answered: PQ1 (FIX MODE default effort), PQ2 (trivial-path effort), PQ3
-(base file fate), PQ4 (cwd note blast radius) — see `questions.md`.
+_None._
 
 ---
 
@@ -825,6 +805,27 @@ change) — since that prompt currently lives in the same un-editable generated
 `openspec-archive-change` skill. Relates to
 [[standardize-recurring-ops-scripts]] and [[retro-as-extension-plugin]] (both
 concern the consumer/maintainer + generated-artifact boundary).
+
+### sync-modified-delta-scenario-loss — `idea` · **P2**
+
+**Why:** OpenSpec's `## MODIFIED Requirements` semantics replace a requirement
+**wholesale** — body *and* every scenario. When an architect authors a MODIFIED
+delta at stage S that lists only the new/changed scenarios (not re-stating the
+existing carried-forward ones), the archive-time delta→main sync **silently
+drops** those omitted scenarios from `openspec/specs/**`. Observed 2026-07-28
+archiving [[unify-implement-paths-on-variants]]: the Check 15 MODIFIED delta
+carried only the new (d)/(e) plugin.json/base-absent scenarios, so the sync
+dropped the pre-existing (a)/(b)/(c) coverage scenarios (stray/missing variant,
+extra-skill, effort-mismatch) — the lint *code* still enforces them, but the
+standing contract stopped documenting them (hand-restored during that archive).
+This silently erodes spec coverage exactly where the spec is supposed to be the
+durable truth. Fix, cheapest first: (1) **architect guidance** — a MODIFIED
+requirement MUST re-state the scenarios it intends to keep, not just the deltas;
+(2) a **sync/lint guard** that warns when a MODIFIED requirement's post-sync
+scenario count is lower than the pre-sync main spec's (a "did you mean to drop
+N scenarios?" gate). Belongs with the delta-merge contract in
+[[dedicated-spec-sync-agent]] (the natural home for encoding MODIFIED/REMOVED
+semantics once). P2 (correctness — silent loss of contract coverage), not P3.
 
 ### pr-human-task-loop-stop-option — `idea` · **P3**
 
