@@ -1015,6 +1015,19 @@ as of the 2026-06-19 archives, so the validated surface is real — re-weigh the
 dependency against a vendored folder convention + a small validator with that in
 mind.)
 
+**Folded-in concern — qrspi-branded workspace folder (2026-07-28):** a related
+want is renaming the `openspec/` workspace root to `qrspi/` for the road-to-1.0
+rebrand. It is *not* a free cosmetic rename: `openspec/` is the OpenSpec CLI's
+hardcoded workspace root (`openspec init`/`validate`/`status --json` and the
+generated archive/sync skills all assume it), so QRSPI cannot rename it
+unilaterally. Two paths, both landing here: (a) OpenSpec upstream adds a
+**configurable workspace root** (unverified whether the current CLI exposes
+this — needs checking against its config surface, `openspec/config.yaml`); or
+(b) dropping the CLI for the vendored convention + small validator this entry
+already weighs, at which point QRSPI owns the folder name outright. Ties to the
+[[rename-qrspi-to-qrnchi]] rebrand vehicle. Surfaced as a user question during
+the `spec-sync-contract` D stage.
+
 ### tutorial-mode-coaching-overlay — `idea` · **P3**
 
 **Why:** Follow-up to `tutorial-mode-narrated-tour` once the tour format proves
