@@ -16,6 +16,24 @@ kit version.
 
 _No unreleased changes._
 
+## [0.10.1] - 2026-07-28
+
+### Fixed
+
+- **`spec-syncer` can now create a new capability's base spec (grant `Write`).**
+  v0.10.0's least-privilege `spec-syncer` deliberately withheld `Write`, on the
+  assumption that a brand-new capability's base spec would be "materialized by
+  the archive folder move." That assumption was wrong: `/qrspi:archive` step 4
+  takes **only** the folder move from the `openspec-archive-change` skill and
+  hard-declines its native sync, so the `spec-syncer` was the sole writer of
+  `openspec/specs/**` — and, holding no `Write`, it could not create the base
+  spec file for a change that adds a new capability. The result was silent
+  data loss: a new capability's `## ADDED Requirements` were never written to
+  the main specs. The agent now holds `Write`, scoped to creating a new
+  capability's `openspec/specs/<capability>/spec.md`; existing capabilities
+  are still edited in place with `Edit`, and the count-drop hard-stop is
+  unchanged.
+
 ## [0.10.0] - 2026-07-28
 
 ### Added

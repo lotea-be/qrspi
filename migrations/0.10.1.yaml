@@ -1,0 +1,19 @@
+version: 0.10.1
+summary: >
+  Patch fix: the kit-owned spec-syncer agent now holds Write, scoped to creating
+  a new capability's base spec file at archive time. v0.10.0 withheld Write on
+  the mistaken assumption the archive folder move would materialize a new
+  capability's spec; it does not (/qrspi:archive takes only the folder move from
+  the openspec-archive-change skill), so a change adding a brand-new capability
+  silently lost its ## ADDED Requirements. No consumer data migration is needed
+  -- the plugin update replaces claude/agents/spec-syncer.md in place.
+automated: []
+manual:
+  - >-
+    If you have locally overridden claude/agents/spec-syncer.md, re-apply your
+    customizations on top of the new tool set (Read, Write, Edit, Bash, Glob,
+    Skill): the agent now creates a new capability's
+    openspec/specs/<capability>/spec.md with Write when the delta adds a
+    capability that has no base spec yet, and edits existing base specs in place
+    with Edit as before. The count-drop hard-stop and the Read contract are
+    unchanged.

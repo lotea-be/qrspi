@@ -8,8 +8,11 @@ into base specs at archive time. Created by the `spec-sync-contract` change.
 ### Requirement: spec-syncer is a named least-privilege agent registered in plugin.json
 The system MUST provide `claude/agents/spec-syncer.md` as a named agent
 registered in `plugin.json`'s `agents` array with exactly the following tool
-set: Read, Edit, Bash, Glob, Skill. The agent MUST NOT be granted Write, Agent,
-or AskUserQuestion. Bash access is scoped by the agent's contract to
+set: Read, Write, Edit, Bash, Glob, Skill. The agent MUST NOT be granted Agent
+or AskUserQuestion. `Write` is scoped by the agent's contract to creating a new
+capability's base spec file (`openspec/specs/<capability>/spec.md`) when the
+delta adds a capability that has no base spec yet; existing base specs are
+edited in place via `Edit`. Bash access is scoped by the agent's contract to
 `openspec validate` invocations only. The agent name MUST use the kebab-slug
 convention `spec-syncer`.
 
@@ -19,11 +22,12 @@ convention `spec-syncer`.
   `./claude/agents/spec-syncer.md` and the file exists with `name: spec-syncer`
   frontmatter and a `> **Read contract**` banner.
 
-#### Scenario: spec-syncer lacks write and agent tools
+#### Scenario: spec-syncer holds Write but not agent/prompt tools
 - **WHEN** `claude/agents/spec-syncer.md` is read
-- **THEN** no `Write` tool, `Agent` tool, or `AskUserQuestion` tool appears in
-  the agent's declared tool set; the agent edits existing spec files via the
-  `Edit` tool only and cannot create new files.
+- **THEN** the declared tool set includes `Write` but no `Agent` tool and no
+  `AskUserQuestion` tool; the agent's contract scopes `Write` to creating a new
+  capability's base spec file and edits existing base specs in place via the
+  `Edit` tool.
 
 ### Requirement: spec-syncer carries the authoritative MODIFIED = wholesale-replacement contract
 The spec-syncer agent MUST carry, in its system prompt, the authoritative
