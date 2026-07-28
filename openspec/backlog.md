@@ -7,7 +7,7 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## In progress
 
-### unify-implement-paths-on-variants — `in-progress (Q, R, D, S, V, P, I complete)` · **P2**
+### unify-implement-paths-on-variants — `in-progress (PR #36 open)` · **P2**
 
 **Why:** `per-slice-compute-tier` ships three effort-variant implementer agents but
 keeps the base `implementer.md` as a never-spawned contract/registry anchor, and the
