@@ -254,6 +254,19 @@ primitive). Distinct axis from the archived `context-budget` (per-stage input/ou
 load) — this is cross-session orchestrator accumulation. Surfaced by the abkf
 consumer handover (2026-07-27).
 
+### upgrade-budget-gate-to-live-context-read — `idea` · **P3**
+
+**Why:** `orchestrator-context-budget` (proposed 2026-07-28) had to implement its
+budget gate as a **structural stage-event counter** because stage-R research
+confirmed no live harness signal exposes context-window utilization to a
+slash-command body (the version check reads only static files; the counter is a
+lower-bound heuristic). If a future Claude Code harness ever exposes a **live
+context-% read** to command bodies, upgrade the `context-budget-gate` skill from
+the counter to a real gauge (the counter becomes the fallback, or is retired).
+This is the live-% half of [[orchestrator-context-budget-gate]] that was found
+infeasible at design time — blocked on an external harness capability, hence P3.
+Surfaced 2026-07-28 during the `orchestrator-context-budget` D review.
+
 ### orchestrator-context-budget-gate — `bundled into orchestrator-context-budget (proposed 2026-07-28)` · **P2**
 
 > **Bundled into `orchestrator-context-budget`** (proposed 2026-07-28) with
