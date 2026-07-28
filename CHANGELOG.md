@@ -14,6 +14,10 @@ kit version.
 
 ## [Unreleased]
 
+_No unreleased changes._
+
+## [0.10.1] - 2026-07-28
+
 ### Fixed
 
 - **`spec-syncer` can now create a new capability's base spec (grant `Write`).**
