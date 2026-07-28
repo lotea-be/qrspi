@@ -6,10 +6,10 @@
 
 **Compute:** effort=medium -- new skill with non-trivial branching logic (dual trigger, two thresholds, two session flags, run-mode-agnostic soft gate); 8-command embed is mechanical but the position rule is load-bearing (D4)
 
-- [ ] 1.1 Create `claude/skills/context-budget-gate/SKILL.md` with YAML frontmatter, in-context counter logic, dual-trigger evaluation (counter OR self-assessment), nudge at 8 (print advisory + set flag, no AskUserQuestion), soft gate at 12 (AskUserQuestion "Reset now" / "Continue anyway", never suppressed; "Reset now" prints resume one-liner and ends turn), and per-level fire-once session flags (D1, D3, D5, D6, D7, D8)
-- [ ] 1.2 Insert the `context-budget-gate` load line after `qrspi-version-check` and before run-mode establishment in all 8 stage command files: `claude/commands/questions.md`, `research.md`, `design.md`, `structure.md`, `slices.md`, `plan.md`, `implement.md`, `pr.md` (D2, D4)
-- [ ] 1.3 Add a third bullet to the "Never-suppressed gates" list in `claude/skills/workflow/SKILL.md` naming the context-budget soft gate and noting it fires in all run-modes with "Reset now" ending the turn (D9)
-- [ ] 1.4 Run `node scripts/lint.mjs` (smoke pass -- the Slice 3 lint check does not exist yet); manually verify the embed is positioned correctly in at least one command file (e.g., `plan.md`)
+- [x] 1.1 Create `claude/skills/context-budget-gate/SKILL.md` with YAML frontmatter, in-context counter logic, dual-trigger evaluation (counter OR self-assessment), nudge at 8 (print advisory + set flag, no AskUserQuestion), soft gate at 12 (AskUserQuestion "Reset now" / "Continue anyway", never suppressed; "Reset now" prints resume one-liner and ends turn), and per-level fire-once session flags (D1, D3, D5, D6, D7, D8)
+- [x] 1.2 Insert the `context-budget-gate` load line after `qrspi-version-check` and before run-mode establishment in all 8 stage command files: `claude/commands/questions.md`, `research.md`, `design.md`, `structure.md`, `slices.md`, `plan.md`, `implement.md`, `pr.md` (D2, D4)
+- [x] 1.3 Add a third bullet to the "Never-suppressed gates" list in `claude/skills/workflow/SKILL.md` naming the context-budget soft gate and noting it fires in all run-modes with "Reset now" ending the turn (D9)
+- [x] 1.4 Run `node scripts/lint.mjs` (smoke pass -- the Slice 3 lint check does not exist yet); manually verify the embed is positioned correctly in at least one command file (e.g., `plan.md`)
 - [ ] 1.5 (human) In a fresh `claude --plugin-dir /workspaces/git/qrspi` session, invoke any stage command 8 times; confirm the one-line nudge advisory appears exactly once and the stage proceeds without an AskUserQuestion. Invoke 4 more times (total 12); confirm the soft-gate AskUserQuestion appears. Select "Reset now"; confirm the resume one-liner is printed and the turn ends. Start a new session and confirm no flags carry over (counter starts at 1).
 
 ## 2. Boundary resets

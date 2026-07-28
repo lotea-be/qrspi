@@ -324,6 +324,13 @@ suppressed in Full auto, Semi-auto, or Manual:
   a time) holds regardless of mode. These remain interactive AskUserQuestion
   calls. "Full auto pauses only at Q and D" is shorthand; the backlog-capture
   offers in Q, D, and S are the deliberate additional exception.
+- **The context-budget soft gate** (skill `context-budget-gate`) fires in all
+  run-modes without exception when the stage-event counter reaches 12 or the
+  orchestrator's qualitative self-assessment indicates heavy context load. On
+  "Reset now" the skill prints the resume one-liner and **ends the turn**
+  without auto-advancing to any next stage. On "Continue in this session" the
+  gate sets its once-only flag and proceeds; it does not re-fire in this
+  session.
 
 ### Hard-stop procedure
 
