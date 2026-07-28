@@ -2,7 +2,7 @@
 // ============================================================================
 //  scripts/lint.mjs -- CI quality gate for the QRSPI kit
 // ----------------------------------------------------------------------------
-//  Checks (run in order, all errors collected before exit -- Checks 1-16, 18-19):
+//  Checks (run in order, all errors collected before exit -- Checks 1-19):
 //
 //  1. PIN AGREEMENT  -- every hand-maintained OpenSpec version occurrence
 //     must agree. generatedBy: lines in openspec-generated skill files are
@@ -102,6 +102,15 @@
 //     suffix). Uses regex /qrspi:implementer(?!-)/ so variant stems
 //     (-low/-medium/-high) do not match. Catches both the fenced
 //     `subagent_type:` form and inline-prose form. Registered after Check 15.
+//
+// 17. HELPER AGENT READ-CONTRACT BANNER AGREEMENT -- separate from Check 7's
+//     nine-stage-agent scope. Maintains HELPER_READ_CONTRACT_EXPECTED (a map
+//     distinct from READ_CONTRACT_EXPECTED) with one entry per helper agent;
+//     asserts each helper agent's `> **Read contract**` banner `Reads:` field
+//     matches its map entry. Initial entry: spec-syncer. Includes an inline
+//     self-test (banner-absent fixture must return null from extractReadsField;
+//     if it does not, a Check 17 error is pushed). Registered between Check 16
+//     and Check 18 so check numbers read 17 -> 18 -> 19 top-to-bottom.
 //
 // 18. MODIFIED SCENARIO COUNT GUARD -- parses every delta spec under
 //     openspec/changes/*/specs/**/spec.md, counts `#### Scenario:` blocks per
@@ -2326,6 +2335,100 @@ async function checkFollowupStem(errors) {
   return violations;
 }
 
+// ---- Check 17: HELPER AGENT READ-CONTRACT BANNER AGREEMENT -----------------
+//
+// Helper agents are not QRSPI stages and are not covered by Check 7's
+// READ_CONTRACT_EXPECTED map (which is scoped strictly to the nine stage-agent
+// entries). This check covers the separate set of helper agents -- one-job
+// agents spawned by kit commands rather than stage commands -- using the same
+// banner-extraction logic as Check 7 (extractReadsField / normalizeWs).
+//
+// A separate hardcoded map HELPER_READ_CONTRACT_EXPECTED drives the check so
+// that Check 7's nine-agent scope is never widened (PQ13 / D10).
+//
+// Algorithm:
+//   1. For each entry in HELPER_READ_CONTRACT_EXPECTED, read the agent file
+//      claude/agents/<stem>.md.
+//   2. Extract the `Reads:` field from the `> **Read contract**` banner using
+//      the same extractReadsField() / normalizeWs() helpers as Check 7.
+//   3. Assert the extracted field equals the expected value.
+//
+// INLINE SELF-TEST (mirrors Check 15's pattern):
+//   Run extractReadsField against a synthetic fixture string with no banner line.
+//   Assert the detector returns null (the banner is missing). If it does not,
+//   push a Check 17 error so CI reddens immediately -- a broken detector never
+//   passes silently.
+//
+// SCOPE: strictly the helper agents named in HELPER_READ_CONTRACT_EXPECTED.
+//   This check must NOT flag any stage agent or any other file.
+
+// Expected `Reads:` field per helper agent -- the exact text that must appear
+// between the banner's em-dash separator and its `Never opens:` clause, after
+// whitespace normalisation. Maintained separately from READ_CONTRACT_EXPECTED
+// (Check 7) so Check 7's nine-agent scope is never widened.
+const HELPER_READ_CONTRACT_EXPECTED = {
+  'spec-syncer': 'Reads: specs/** (delta) and openspec/specs/** (main, via the spec.md exception).',
+};
+
+async function checkHelperAgentReadContracts(errors) {
+  // ---- INLINE SELF-TEST -------------------------------------------------------
+  // Assert that extractReadsField returns null when no banner line is present.
+  // This verifies the detector will correctly flag a missing banner rather than
+  // silently passing it.
+  const _selfTestNoBanner = '# Heading\n\nSome prose without a read contract banner.\n';
+  const _selfTestResult = extractReadsField(_selfTestNoBanner);
+  if (_selfTestResult !== null) {
+    errors.push(
+      '[helper-read-contract] SELF-TEST FAILED: extractReadsField returned non-null ' +
+      `("${_selfTestResult}") for a fixture with no Read contract banner -- banner detection is broken`
+    );
+    // Do not proceed if the detector itself is broken
+    return 1;
+  }
+  // Self-test passed -- continue to real scan
+  // ---- end self-test ----------------------------------------------------------
+
+  const agentsDir = path.join(root, 'claude', 'agents');
+  let violations = 0;
+
+  for (const stem of Object.keys(HELPER_READ_CONTRACT_EXPECTED)) {
+    const rel = `claude/agents/${stem}.md`;
+    const text = await readFileOr(path.join(agentsDir, `${stem}.md`), null);
+    if (text === null) {
+      errors.push(`[helper-read-contract] ${rel}: file not found -- expected a helper-agent read-contract banner`);
+      violations++;
+      continue;
+    }
+
+    const { body } = splitFront(text);
+    const actual = extractReadsField(body);
+    if (actual === null) {
+      errors.push(
+        `[helper-read-contract] ${rel}: no parseable '> **Read contract** -- Reads: ... Never opens: ...' banner found`
+      );
+      violations++;
+      continue;
+    }
+
+    const expected = normalizeWs(HELPER_READ_CONTRACT_EXPECTED[stem]);
+    if (actual !== expected) {
+      errors.push(
+        `[helper-read-contract] ${rel}: banner Reads-field mismatch\n` +
+        `    expected: ${expected}\n` +
+        `    actual:   ${actual}`
+      );
+      violations++;
+    }
+  }
+
+  if (violations === 0) {
+    process.stdout.write(
+      `  OK: ${Object.keys(HELPER_READ_CONTRACT_EXPECTED).length} helper-agent read-contract banner(s) match the read matrix\n`
+    );
+  }
+  return violations;
+}
+
 // ---- Check 18: MODIFIED SCENARIO COUNT GUARD --------------------------------
 //
 // Ensures that every MODIFIED requirement in a delta spec restates at least as
@@ -2353,6 +2456,7 @@ async function checkFollowupStem(errors) {
 // the current one). Archive paths are NOT excluded on purpose -- if an archived
 // delta had a count-drop it was already merged but the check is harmless there
 // (the base spec now reflects the new lower count, so both would agree).
+// Registered after Check 17 (helper-agent read-contract banner agreement).
 
 async function checkModifiedScenarioCounts(errors) {
   const changesDir = path.join(root, 'openspec', 'changes');
@@ -2695,6 +2799,9 @@ async function main() {
 
   process.stdout.write('\nCheck 16: Followup bare-stem guard\n');
   await checkFollowupStem(errors);
+
+  process.stdout.write('\nCheck 17: Helper agent read-contract banner agreement\n');
+  await checkHelperAgentReadContracts(errors);
 
   process.stdout.write('\nCheck 18: Modified scenario count guard\n');
   await checkModifiedScenarioCounts(errors);

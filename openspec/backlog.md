@@ -7,13 +7,7 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## In progress
 
-_None._
-
----
-
-## Proposed
-
-### spec-sync-contract — `proposed` · **P2** · bundle of [[sync-modified-delta-scenario-loss]] + [[dedicated-spec-sync-agent]]
+### spec-sync-contract — `in-progress (Q, R, D, S, V, P, I complete)` · **P2** · bundle of [[sync-modified-delta-scenario-loss]] + [[dedicated-spec-sync-agent]]
 
 Entered the QRSPI flow 2026-07-28. Bundles the P2 correctness fix
 [[sync-modified-delta-scenario-loss]] with its P3 vehicle
@@ -26,11 +20,17 @@ count-drop guard — the P2's "natural home." Bundled because doing the P2 alone
 would force inlining or duplicating a contract the P3 exists to extract once;
 authored together it lands in the right place with no rework. Scope spans the new
 sync agent (+ `/qrspi:archive` delegation, `claude/agents/spec-syncer.md`,
-Read-Matrix row, lint Check 7 banner) **and** architect (stage S) guidance that a
-MODIFIED delta re-state the scenarios it keeps. Carries the P2 band overall
-(silent spec-coverage loss); it bit the 2026-07-28 `unify-implement-paths-on-variants`
+Read-Matrix "Helper agents" row, lint Check 17 banner) **and** architect (stage S)
+guidance that a MODIFIED delta re-state the scenarios it keeps. Carries the P2 band
+overall (silent spec-coverage loss); it bit the 2026-07-28 `unify-implement-paths-on-variants`
 archive. Sequencing vs the road-to-1.0 orchestrator-context pair is deferred to
 the human.
+
+---
+
+## Proposed
+
+_None._
 
 ---
 

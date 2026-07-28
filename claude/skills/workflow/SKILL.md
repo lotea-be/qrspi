@@ -150,6 +150,23 @@ Two rows carry a special case:
   because its whole job is to check the change end-to-end. This is the sole
   "read everything" row and is deliberate, not a gap.
 
+#### Helper agents
+
+Helper agents are spawned by kit commands (not stage commands) to perform a
+bounded, one-job task. They are not QRSPI stages and do not carry a stage row
+in the table above. Their read contract is governed by the same cross-change
+boundary as stage agents, with a different within-change read set:
+
+| Agent | Spawned by | Reads (within-change) | Cross-change |
+|-------|------------|-----------------------|--------------|
+| spec-syncer | `/qrspi:archive` | `specs/**` (delta only) | `openspec/specs/**` (main, via the spec.md exception) |
+
+The `spec-syncer` agent opens **no process artifacts** -- not `questions.md`,
+`research.md`, `design.md`, `proposal.md`, `slices.md`, `tasks.md`, `pr.md`,
+or `followups.md` -- of this change or any other. Lint Check 17
+(`checkHelperAgentReadContracts`) asserts its `> **Read contract**` banner
+matches this table, keeping the two surfaces in sync.
+
 #### Cross-change boundary (the `spec.md` exception)
 
 On **every** stage agent, one boundary holds regardless of the within-change
