@@ -13,7 +13,24 @@ _None._
 
 ## Proposed
 
-_None._
+### spec-sync-contract — `proposed` · **P2** · bundle of [[sync-modified-delta-scenario-loss]] + [[dedicated-spec-sync-agent]]
+
+Entered the QRSPI flow 2026-07-28. Bundles the P2 correctness fix
+[[sync-modified-delta-scenario-loss]] with its P3 vehicle
+[[dedicated-spec-sync-agent]]: stand up a least-privilege `qrspi:spec-syncer`
+agent whose system prompt owns the delta-merge contract (ADDED/MODIFIED/REMOVED/
+renamed semantics), have `/qrspi:archive` own the sync delegation instead of the
+un-editable generated `openspec-archive-change` skill, and encode in that same
+contract the MODIFIED-replaces-wholesale rule (re-state kept scenarios) plus a
+count-drop guard — the P2's "natural home." Bundled because doing the P2 alone
+would force inlining or duplicating a contract the P3 exists to extract once;
+authored together it lands in the right place with no rework. Scope spans the new
+sync agent (+ `/qrspi:archive` delegation, `claude/agents/spec-syncer.md`,
+Read-Matrix row, lint Check 7 banner) **and** architect (stage S) guidance that a
+MODIFIED delta re-state the scenarios it keeps. Carries the P2 band overall
+(silent spec-coverage loss); it bit the 2026-07-28 `unify-implement-paths-on-variants`
+archive. Sequencing vs the road-to-1.0 orchestrator-context pair is deferred to
+the human.
 
 ---
 
@@ -779,6 +796,10 @@ check) that flags divergence. Surfaced as a Non-Goal of
 
 ### dedicated-spec-sync-agent — `idea` · **P3**
 
+> **Bundled into `spec-sync-contract`** (proposed) with
+> [[sync-modified-delta-scenario-loss]] — this item is the vehicle; see the
+> Proposed-section entry.
+
 **Why:** The archive flow's delta-spec → main-spec sync is delegated to a
 catch-all `general-purpose` subagent (with `*` — all tools), because that
 `subagent_type` is hard-coded inside the *generated* `openspec-archive-change`
@@ -807,6 +828,10 @@ change) — since that prompt currently lives in the same un-editable generated
 concern the consumer/maintainer + generated-artifact boundary).
 
 ### sync-modified-delta-scenario-loss — `idea` · **P2**
+
+> **Bundled into `spec-sync-contract`** (proposed) with
+> [[dedicated-spec-sync-agent]] — this item is the P2 driver; see the
+> Proposed-section entry.
 
 **Why:** OpenSpec's `## MODIFIED Requirements` semantics replace a requirement
 **wholesale** — body *and* every scenario. When an architect authors a MODIFIED
