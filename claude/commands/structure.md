@@ -18,10 +18,12 @@ Change id: $ARGUMENTS
 Precondition (canonical *precondition check* in skill `workflow`,
 "Stage choreography"): the input artifact is
 `openspec/changes/<id>/design.md`; on failure point the user at
-`/qrspi:design`. **This stage also has an approval gate beyond the file
-gate**
+`/qrspi:design`.
 
-> Resolve `openspec/changes/<id>/…` against the **current working repo root** (the consumer's CWD), not the plugin install directory — the change folder lives in the repo you are running the command in. — design must be human-approved, not merely present. If the user has
+> Resolve `openspec/changes/<id>/…` against the **current working repo root** (the consumer's CWD), not the plugin install directory — the change folder lives in the repo you are running the command in.
+
+**This stage also has an approval gate beyond the file
+gate** — design must be human-approved, not merely present. If the user has
 not explicitly confirmed approval, use the **AskUserQuestion** tool to ask:
 "Have you reviewed and approved design.md for this change?" with choices
 ["Yes, design is approved", "No — I still need to review it"]. Only proceed
