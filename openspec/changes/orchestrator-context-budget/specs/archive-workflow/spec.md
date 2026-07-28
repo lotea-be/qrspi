@@ -8,10 +8,10 @@
 ## ADDED Requirements
 
 ### Requirement: archive.md offers a new-session reset after a successful archive
-After a successful archive (folder moved, backlog row removed, commit pushed),
-`/qrspi:archive` MUST present a new step-7 AskUserQuestion asking "Start a new
-session for the next change?" with choices: "Yes -- print resume path and end
-turn" and "No -- stay in this session". On "Yes" the command MUST print
+`/qrspi:archive` MUST, after a successful archive (folder moved, backlog row
+removed, commit pushed), present a new step-7 AskUserQuestion asking "Start a
+new session for the next change?" with choices: "Yes -- print resume path and
+end turn" and "No -- stay in this session". On "Yes" the command MUST print
 `/qrspi:status` as the suggested starting point for the next session and end the
 turn without auto-advancing. On "No" the command ends the turn normally. The
 offer MUST always be shown after a successful archive -- it is not suppressible
