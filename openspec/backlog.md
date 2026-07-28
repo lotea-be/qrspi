@@ -7,7 +7,7 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## In progress
 
-### spec-sync-contract — `in-progress (Q, R, D, S, V, P, I complete)` · **P2** · bundle of [[sync-modified-delta-scenario-loss]] + [[dedicated-spec-sync-agent]]
+### spec-sync-contract — `in-progress (PR #37 open)` · **P2** · bundle of [[sync-modified-delta-scenario-loss]] + [[dedicated-spec-sync-agent]]
 
 Entered the QRSPI flow 2026-07-28. Bundles the P2 correctness fix
 [[sync-modified-delta-scenario-loss]] with its P3 vehicle
