@@ -17,12 +17,12 @@
 
 **Compute:** model=sonnet effort=medium — mechanical lint checks following the established dependency-free ESM pattern already in `scripts/lint.mjs`; no novel reasoning, templated after existing checks.
 
-- [ ] 2.1 Strengthen the MODIFIED comment in `openspec-templates/spec-delta.template.md` to state unambiguously that MODIFIED = wholesale replacement and all scenarios must be repeated in full. (D7)
-- [ ] 2.2 Add `checkModifiedScenarioCounts` (Check 18) to `scripts/lint.mjs` after the highest existing Check number, using the dependency-free ESM async-function pattern. Check must: parse delta specs at `openspec/changes/*/specs/**/spec.md`; count `#### Scenario:` blocks under `## MODIFIED Requirements` per requirement title; look up the base count in `openspec/specs/<capability>/spec.md`; flag any reduction; skip requirements where the base capability spec does not exist (new capability). (D6)
-- [ ] 2.3 Add `checkAuthoritativeSyncDelegator` (Check 19) to `scripts/lint.mjs` after Check 18: assert (a) `claude/commands/archive.md` contains `qrspi:spec-syncer`; (b) no kit-owned file under `claude/commands/` or `claude/agents/` contains `subagent_type: general-purpose` in proximity to a sync-context string. (D8)
-- [ ] 2.4 Run `node scripts/lint.mjs` with a synthetic scenario-dropping delta fixture placed at `openspec/changes/lint-test-fixture/specs/foo/spec.md` (with a matching base at `openspec/specs/foo/spec.md`) -- Check 18 must exit non-zero and name the requirement and counts.
-- [ ] 2.5 Run `node scripts/lint.mjs` with `claude/commands/archive.md` temporarily missing the `qrspi:spec-syncer` reference -- Check 19 must exit non-zero.
-- [ ] 2.6 Restore `archive.md` and remove the synthetic fixture. Run `node scripts/lint.mjs` clean -- must exit 0. Commit only after the clean pass.
+- [x] 2.1 Strengthen the MODIFIED comment in `openspec-templates/spec-delta.template.md` to state unambiguously that MODIFIED = wholesale replacement and all scenarios must be repeated in full. (D7)
+- [x] 2.2 Add `checkModifiedScenarioCounts` (Check 18) to `scripts/lint.mjs` after the highest existing Check number, using the dependency-free ESM async-function pattern. Check must: parse delta specs at `openspec/changes/*/specs/**/spec.md`; count `#### Scenario:` blocks under `## MODIFIED Requirements` per requirement title; look up the base count in `openspec/specs/<capability>/spec.md`; flag any reduction; skip requirements where the base capability spec does not exist (new capability). (D6)
+- [x] 2.3 Add `checkAuthoritativeSyncDelegator` (Check 19) to `scripts/lint.mjs` after Check 18: assert (a) `claude/commands/archive.md` contains `qrspi:spec-syncer`; (b) no kit-owned file under `claude/commands/` or `claude/agents/` contains `subagent_type: general-purpose` in proximity to a sync-context string. (D8)
+- [x] 2.4 Run `node scripts/lint.mjs` with a synthetic scenario-dropping delta fixture placed at `openspec/changes/lint-test-fixture/specs/foo/spec.md` (with a matching base at `openspec/specs/foo/spec.md`) -- Check 18 must exit non-zero and name the requirement and counts.
+- [x] 2.5 Run `node scripts/lint.mjs` with `claude/commands/archive.md` temporarily missing the `qrspi:spec-syncer` reference -- Check 19 must exit non-zero.
+- [x] 2.6 Restore `archive.md` and remove the synthetic fixture. Run `node scripts/lint.mjs` clean -- must exit 0. Commit only after the clean pass.
 
 ## 3. Read-contract wiring and Check 17
 
