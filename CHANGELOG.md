@@ -14,6 +14,10 @@ kit version.
 
 ## [Unreleased]
 
+_No unreleased changes._
+
+## [0.10.0] - 2026-07-28
+
 ### Added
 
 - **Kit-owned `spec-syncer` agent + hardened archive-time spec sync
