@@ -7,7 +7,7 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## In progress
 
-### orchestrator-context-budget — `in-progress (Q, R, D, S, V, P, I complete)` · **P2**
+### orchestrator-context-budget — `in-progress (PR #38 open)` · **P2**
 
 Bundles [[reset-and-resume-between-boundaries]] and [[orchestrator-context-budget-gate]]
 (both formerly `idea` under `## Ideas`) into one QRSPI flow. See those entries below for
