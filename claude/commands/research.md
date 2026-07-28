@@ -47,6 +47,8 @@ To list the in-flight changes, use the **Glob** tool with pattern
 `openspec/changes/*` — do not shell out; Glob has no permission requirements
 and works on every platform.
 
+> Resolve `openspec/changes/<id>/…` against the **current working repo root** (the consumer's CWD), not the plugin install directory — the change folder lives in the repo you are running the command in.
+
 Return only what the researcher's "Final message format" specifies.
 
 **Choreography (see skill `workflow`, "Stage choreography").** Follow

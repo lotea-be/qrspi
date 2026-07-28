@@ -11,7 +11,6 @@
     "./claude/agents/designer.md",
     "./claude/agents/architect.md",
     "./claude/agents/planner.md",
-    "./claude/agents/implementer.md",
     "./claude/agents/implementer-low.md",
     "./claude/agents/implementer-medium.md",
     "./claude/agents/implementer-high.md",

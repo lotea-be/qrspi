@@ -21,6 +21,8 @@ Precondition (canonical *precondition check* in skill `workflow`,
 `openspec/changes/<id>/specs/*/spec.md` (Glob both patterns); on failure
 point the user at `/qrspi:structure`.
 
+> Resolve `openspec/changes/<id>/…` against the **current working repo root** (the consumer's CWD), not the plugin install directory — the change folder lives in the repo you are running the command in.
+
 Otherwise spawn the `architect` subagent via the **Agent tool**
 (`subagent_type: qrspi:architect`, `model: sonnet` — matching the architect
 agent's frontmatter `model:`) for the bounded artifact write. Tell it

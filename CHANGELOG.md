@@ -84,6 +84,48 @@ kit version.
   "surface-gated" and now states both disjoint-scope invariants (vs Check 3 and vs
   Check 14).
 
+### Added (unify-implement-paths-on-variants)
+
+- **Implementer-dispatch unification (`unify-implement-paths-on-variants`).** All
+  paths that spawn an implementer -- `/qrspi:implement` (trivial inline-plan branch),
+  `/qrspi:followup` (FIX MODE), and the three effort-variant agents themselves -- now
+  consistently spawn a named variant (`qrspi:implementer-low`, `qrspi:implementer-medium`,
+  or `qrspi:implementer-high`) rather than the deleted base agent `qrspi:implementer`.
+  `/qrspi:followup` defaults to `qrspi:implementer-medium` when no inline `(compute:
+  effort=...)` spec is present; the `effort=` token in the inline spec maps to the
+  matching variant. The trivial inline-plan branch of `/qrspi:implement` explicitly
+  spawns `qrspi:implementer-medium` with `model: sonnet`.
+
+- **Base `implementer.md` agent deleted.** `claude/agents/implementer.md` is removed;
+  `plugin.json` `agents` array now lists nine paths (six stage agents plus three
+  effort-variant implementer agents). The shared body lives in the `implementer-core`
+  skill loaded by each variant. Check 7 (`checkReadContracts`) and Check 12
+  (`checkOutputContracts`) now cover nine agents instead of seven.
+
+- **Lint Check 15 sub-check (e): base-agent absent from `plugin.json`.**
+  `checkVariantAgents` (Check 15) gains sub-check (e): asserts
+  `./claude/agents/implementer.md` is absent from the `agents` array in
+  `.claude-plugin/plugin.json`. An inline self-test fires on a synthetic fixture
+  containing the base path, so a regression reddens CI immediately.
+
+- **Lint Check 16 (`checkFollowupStem`): no bare `qrspi:implementer` in
+  `followup.md`.** Asserts `claude/commands/followup.md` contains no bare
+  occurrence of `qrspi:implementer` (without a `-low`/`-medium`/`-high` suffix).
+  Uses regex `/qrspi:implementer(?!-)/` so variant stems do not match. Ensures
+  the command always spawns a named variant, never the deleted base agent.
+
+- **CWD note added to eleven command files.** Each of the eleven change-folder-resolving
+  commands (`questions`, `research`, `design`, `structure`, `slices`, `plan`,
+  `implement`, `pr`, `followup`, `archive`, `retro`) now carries a blockquote note
+  adjacent to its Glob/precondition line reminding the agent that
+  `openspec/changes/<id>/...` resolves against the consumer's CWD (the repo being
+  worked on), not the plugin install directory.
+
+- **Migration manifest `migrations/0.10.0.yaml` extended.** A new `manual` entry
+  advises consumers who locally overrode `followup.md` to re-apply their
+  customizations onto the new variant-routing logic (`qrspi:implementer-medium`
+  default instead of bare `qrspi:implementer`).
+
 ## [0.9.0] - 2026-07-25
 
 ### Added

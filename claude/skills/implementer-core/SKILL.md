@@ -1,6 +1,6 @@
 ---
 name: implementer-core
-description: Full shared implementer body for the QRSPI Implement stage. Carries all preconditions, coding rules, what-to-do steps, stuck-handling, and output format. Load this from implementer.md (and variant agents) to keep a single source of truth for implementer behaviour.
+description: Full shared implementer body for the QRSPI Implement stage. Carries all preconditions, coding rules, what-to-do steps, stuck-handling, and output format. Load this from the effort-variant agents (implementer-low, implementer-medium, implementer-high) to keep a single source of truth for implementer behaviour.
 ---
 
 ## Precondition

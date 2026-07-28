@@ -7,7 +7,27 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## In progress
 
-_None._
+### unify-implement-paths-on-variants — `in-progress (PR #36 open)` · **P2**
+
+**Why:** `per-slice-compute-tier` ships three effort-variant implementer agents but
+keeps the base `implementer.md` as a never-spawned contract/registry anchor, and the
+`/qrspi:followup` + trivial/inline `/qrspi:implement` paths still resolve to the base
+rather than choosing effort+model the way a `tasks.md` slice does. Every implement
+path should pick effort+model and resolve to a variant. Collapse to a variants-only
+structure: route the followup + trivial paths through the same `effort=`/`model=` →
+`qrspi:implementer-<effort>` resolution, and retire or demote the base — which
+requires relocating the stage-I read/output contract (Check 7/12 banners) and the
+`SKILL_SET_EXPECTED['implementer']` registry off the base onto the variants or
+`implementer-core`. Needs its own D (the contract relocation is the load-bearing
+part). Follow-on to `per-slice-compute-tier` (D9); surfaced by the human at that
+change's stage-I dogfood (2026-07-27).
+
+**Bundle:** takes up [[commands-assert-cwd-change-folder]] (P3) as a free rider in
+the same QRSPI flow — that item is bundled into this change and is not a separate
+proposed entry. Deliberately does NOT bundle [[richer-effort-vocab-and-thinking]] or
+[[compute-escalation-on-failure]] (see Ideas section for rationale). Open product
+questions answered: PQ1 (FIX MODE default effort), PQ2 (trivial-path effort), PQ3
+(base file fate), PQ4 (cwd note blast radius) — see `questions.md`.
 
 ---
 
@@ -54,15 +74,39 @@ contiguous below across the P2/P3 boundary.
 > shipped-but-incomplete work outranks starting new P1 scope. `spec-anchored-code-comments`
 > remains the top **new-scope** priority after it.
 >
-> **Reprioritization note (2026-07-27):** three consumer handovers (abkf) added six
-> P2s in one day. Rough intended order *after* the unify bundle: **(1)** the
-> orchestrator-context pair — [[reset-and-resume-between-boundaries]] then
-> [[orchestrator-context-budget-gate]] (a live token-safety gap that recurs on every
-> long session, cheap structural half first); **(2)** [[privacy-gdpr-surface]] (high
-> value, unblocked, dogfood cases ready); **(3)** the alignment-quality trio
-> [[real-runtime-slice-checkpoints]] / [[architect-real-runtime-done-decomposition]] /
-> [[designer-flag-shared-artifact-coupling]] (guidance-level, lower risk). Bands
-> unchanged; this records sequencing, not a re-banding.
+> **Road to 1.0 (2026-07-27):** the [[rename-qrspi-to-qrnchi]] rebrand is the
+> vehicle for the first **stable v1.0.0** and public debut (submission to Anthropic's
+> `claude-plugins-community` marketplace). Because 1.0 is a *schema-freeze* and
+> first-impression-at-scale point, a short runway of readiness work is sequenced
+> **ahead of the rename**, filtered by one lens — *what would bite a stranger or
+> embarrass us in week one of a public 1.0* — not by band alone:
+>
+> - **Tier 1 — bites a stranger (do first):** the unify bundle above (removes the
+>   vestigial base-implementer dead path before it ships in a "stable" artifact),
+>   then the orchestrator-context pair — [[reset-and-resume-between-boundaries]] then
+>   [[orchestrator-context-budget-gate]] (a real consumer hit **98% context** at the
+>   D review of their *second* change; nothing enforces the `context-hygiene`
+>   budget, so a marathon session silently detonates — the sharpest edge for a
+>   plugin whose premise is long multi-stage sessions).
+> - **Tier 1.5 — freeze the last ad-hoc schema (cheap, good timing):**
+>   [[standardize-backlog-format]], **template + lint floor only** (defer the heavier
+>   per-file `backlog/<id>.md` model to post-1.0). The backlog is the one QRSPI
+>   surface with no schema behind it; locking it is far cheaper before public
+>   installs write the ad-hoc shape than after. Encodes the P-band convention
+>   [[backlog-prioritization]] already applies informally.
+> - **Tier 2 — fixes "it's heavy" for newcomers:** [[init-conductor-plus-overview]]
+>   + [[flow-entry-right-sizing]] (onboarding is a feature when the audience is
+>   strangers, not colleagues who know the lore).
+> - **Deferred past 1.0:** [[spec-anchored-code-comments]] (P1 but large — 1.1
+>   flagship, needs stable spec ids first); [[privacy-gdpr-surface]] and the
+>   alignment-quality trio [[real-runtime-slice-checkpoints]] /
+>   [[architect-real-runtime-done-decomposition]] / [[designer-flag-shared-artifact-coupling]]
+>   (all still P2, just sequenced after the 1.0 cut). [[automate-marketplace-source-bump]]
+>   rides *with* the release mechanics, not before.
+>
+> Bands unchanged throughout; this records sequencing, not a re-banding. Supersedes
+> the prior 2026-07-27 abkf-handover sequencing (privacy + trio next) — those slip
+> behind the road-to-1.0 readiness work.
 
 ### spec-anchored-code-comments — `idea` · **P1**
 
@@ -100,6 +144,20 @@ the two-source-of-truth caution in [[optional-technology-specs]]. **P1 like
 [[repo-applicable-artifact-sections]]:** a highly visible artifact-quality defect
 (ugly process references baked into shipped code) rather than a live-workflow
 correctness gap. Surfaced 2026-07-24.
+
+### researcher-apply-surface-gate — `idea` · **P2**
+
+**Why:** The `questioner`, `designer`, and `architect` agents apply the
+`repo-surface` surface-gate (emitting the omit-comment and suppressing
+surface-specific headings absent from the repo's `## Repo surface` block), but the
+`researcher` (stage R) does **not** — it emitted a `## Data model` heading in a
+repo with no `data-store` surface, which `scripts/lint.mjs` Check 14
+(surface-applicability) rejects. The failure only surfaces at stage-I lint (R-stage
+commits don't run lint), so it lands as a mid-implementation hard-stop far from its
+cause. Fix: have the researcher load `repo-surface` and surface-gate its headings
+like the other artifact-producing agents (and/or run lint at R-commit time to catch
+it at the source). Surfaced 2026-07-27 while implementing
+[[unify-implement-paths-on-variants]] (its research.md tripped Check 14).
 
 ### standardize-recurring-ops-scripts — `idea` · **P2**
 
@@ -244,50 +302,8 @@ Part of the adaptive-compute cluster with [[orchestrator-effort-targeting]] and
 [[richer-effort-vocab-and-thinking]]. Surfaced as an afterthought during
 `per-slice-compute-tier` stage-D review (2026-07-27).
 
-### unify-implement-paths-on-variants — `idea` · **P2**
-
-**Why:** `per-slice-compute-tier` ships three effort-variant implementer agents but
-keeps the base `implementer.md` as a never-spawned contract/registry anchor, and the
-`/qrspi:followup` + trivial/inline `/qrspi:implement` paths still resolve to the base
-rather than choosing effort+model the way a `tasks.md` slice does. Every implement
-path should pick effort+model and resolve to a variant. Collapse to a variants-only
-structure: route the followup + trivial paths through the same `effort=`/`model=` →
-`qrspi:implementer-<effort>` resolution, and retire or demote the base — which
-requires relocating the stage-I read/output contract (Check 7/12 banners) and the
-`SKILL_SET_EXPECTED['implementer']` registry off the base onto the variants or
-`implementer-core`. Needs its own D (the contract relocation is the load-bearing
-part). Follow-on to `per-slice-compute-tier` (D9); surfaced by the human at that
-change's stage-I dogfood (2026-07-27).
-
-**Bundle (proposed — one QRSPI run, this entry as anchor):** take up together with
-[[commands-assert-cwd-change-folder]] (P3) as the compute-variant completion work
-for the 0.10.0 breaking release. The cwd-note is a **free rider**: unify already
-rewrites `implement.md` and `followup.md` (routing every path through variant
-resolution), which are the exact command bodies the cwd-note edits — same files, so
-it lands "while we're in here" rather than as a second change. Deliberately does
-NOT bundle [[richer-effort-vocab-and-thinking]] (adding a tier is *additive*, not
-order-dependent on unify — appending a variant needs no fleet restructure — and it
-drags in heuristic + thinking-control scope) or [[compute-escalation-on-failure]]
-(a policy layer best sequenced *after* unify proves the dispatch/contract
-structure). Bundle proposed 2026-07-27.
-
-### commands-assert-cwd-change-folder — `idea` · **P3**
-
-**Why:** QRSPI stage commands reference the change folder as relative
-`openspec/changes/<id>/...` but never state it resolves against the **current repo
-(CWD)**, not the plugin install dir. Under `--plugin-dir` dogfooding of *this* kit
-(which uniquely has its own `openspec/`), the session model can look in the kit
-repo's `openspec/changes/` instead of the consumer's before self-correcting —
-observed repeatedly at the `per-slice-compute-tier` stage-I dogfood (2026-07-27).
-Real consumers (installed plugin in the cache, no competing `openspec/`) don't hit
-it, hence P3 and *not* a `per-slice-compute-tier` defect. Add a one-line "resolves
-against the current working repo, not the plugin dir" note to the stage commands'
-precondition and/or the `qrspi-dogfood` skill's gotchas.
-
-**Bundle:** proposed to ride with [[unify-implement-paths-on-variants]] (P2) as a
-free rider — that change already rewrites the `implement.md`/`followup.md` path
-resolution this note edits. See that entry's Bundle note for the rationale.
-Proposed 2026-07-27.
+<!-- unify-implement-paths-on-variants moved to ## Proposed (2026-07-27) -->
+<!-- commands-assert-cwd-change-folder bundled into unify (see ## Proposed) -->
 
 ### decompose-tasks-md-per-slice — `idea` · **P2**
 
@@ -722,6 +738,50 @@ consumer" trade; also weigh the two-source-of-truth risk. Distinct from
 *open/extensible per consumer*; builds naturally on [[structured-surface-schema]]
 (a machine-readable schema is the obvious carrier). Surfaced 2026-07-27 during the
 stage-PR dogfood of `researcher-surface-generic`.
+
+### per-surface-review-fanout — `idea` · **P3**
+
+**Why:** The PR stage runs a **single** read-only reviewer. A review fan-out (N
+reviewers in parallel over one diff) is the cheapest form of "more review" —
+read-only, so no worktree machinery and near-zero added wall-clock; cost is
+token-linear in N, mitigated by prompt-caching the shared diff/spec prefix. But a
+*fixed generic panel* mostly wastes tokens: undirected reviewers cluster on the
+same obvious findings, so you pay N× for ~1× coverage. The insight is that
+**QRSPI already owns the diverse lens set** — the `repo-surface` taxonomy. Fan out
+**one reviewer per *present* surface** (a `data-store` reviewer over migrations/
+indexing/data-model, an `http-api` reviewer over the API contract, an `auth`
+reviewer over authz, …), each scoped to the gated sections + code its surface
+owns. Because surfaces are a *disjoint, closed* vocabulary the lenses can't
+collapse into clones, and because width tracks *present* surfaces the cost
+auto-scales to the repo (docs-only repo → 2 reviewers; full web app → 4) — you
+never pay for absent surfaces. Symmetric with how the artifacts are produced (each
+emits surface-gated sections; each reviewer reviews the sections it emitted).
+
+**Shape:** In the PR (or Implement-checkpoint) reviewer, read the present-surface
+list from the stack-cheatsheet's `## Repo surface` block (same source Check 14
+uses), spawn one read-only reviewer subagent per present surface in a parallel
+fan-out, each briefed on its surface's gated sections + matching code, then merge/
+dedup findings. **Two gaps that must be designed, not assumed away:** (1) surfaces
+gate *artifact sections*, not *all code* — a plain business-logic bug belongs to
+no surface, so the fan-out needs a **non-surface baseline correctness reviewer** as
+a floor (specialists + floor, not a partition); (2) the nastiest bugs live at the
+**seams** (missing `auth` check on an `http-api` endpoint returning `data-store`
+data) — a surface-scoped reviewer with tunnel vision can each pass while the
+*interaction* is broken, so the baseline reviewer must be explicitly assigned the
+cross-surface interactions. **Timing / band:** deferred **post-1.0** — the road-to-1.0
+runway wants schema-freeze, not a new review subsystem, and there is **no observed
+miss** yet justifying it; build only when a retro shows the single PR reviewer
+letting a specific failure class through, and even then add the surface lens that
+was missed rather than the whole panel. On a doc-heavy repo like the kit itself the
+present surfaces (`slash-command`/`stage-agent`/`skill`/…) are lower-diversity than
+the web surfaces, so the payoff is strongest on consumer repos. Relates to
+[[hooks-as-mechanical-guards]] (the other "more enforcement at review time" line)
+and the surface family ([[rationalize-surface-taxonomy]] /
+[[structured-surface-schema]] — a machine-readable surface→section map would make
+the per-surface reviewer briefing mechanical). Prior art: `dfrysinger/qrspi-plus`
+runs an 8-reviewer tier, but *un-scoped by surface* and with no lint/human floor —
+this entry is the QRSPI-native, surface-scaled version. Surfaced 2026-07-27 while
+comparing QRSPI against the public `qrspi-plus` fork.
 
 ### assert-openspec-version-pin-coupling — `idea` · **P3**
 

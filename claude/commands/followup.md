@@ -46,6 +46,8 @@ Preconditions (verify with the **Glob** tool — no shell preamble):
    If absent and the user named a specific fix, the implementer creates it
    and adds the item before resolving it (per skill `postpr-fix`).
 
+> Resolve `openspec/changes/<id>/…` against the **current working repo root** (the consumer's CWD), not the plugin install directory — the change folder lives in the repo you are running the command in.
+
 **Triage gate (never suppressed -- fires in Full auto, Semi-auto, and Manual).**
 
 Before spawning the implementer, self-assess the targeted follow-up item
@@ -231,8 +233,23 @@ implementer's frontmatter `model: opus` to win silently:
 in the inline spec it documents intent; the implementer agent's frontmatter
 `effort:` remains the actual per-stage knob.
 
-Spawn the `implementer` subagent via the **Agent tool** (`subagent_type:
-qrspi:implementer`, `model: <sonnet | parsed model from inline spec>`) in
+**Resolve the implementer variant.** Before spawning, resolve which variant
+to use:
+
+- If `effort=` was parsed from the inline `(compute: …)` spec, map it to the
+  variant subagent_type: `low` -> `qrspi:implementer-low`,
+  `medium` -> `qrspi:implementer-medium`, `high` -> `qrspi:implementer-high`.
+- If `effort=` was absent or the spec was absent, default to
+  `qrspi:implementer-medium`.
+
+The `model:` parameter is resolved independently:
+
+- If `model=` was parsed from the inline spec, use that value.
+- Otherwise default to `sonnet`.
+
+Spawn the resolved implementer variant via the **Agent tool**
+(`subagent_type: qrspi:implementer-<resolved>`,
+`model: <sonnet | parsed model from inline spec>`) in
 FIX MODE. Tell it explicitly:
 
 > You are in POST-PR FIX MODE, not slice mode. Load skill

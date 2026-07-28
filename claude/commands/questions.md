@@ -65,6 +65,8 @@ Otherwise:
 Repository signals you may use (to list in-flight and archived changes, use the
 **Glob** tool with patterns `openspec/changes/*` and
 `openspec/changes/archive/*` — do not shell out):
+
+> Resolve `openspec/changes/<id>/…` against the **current working repo root** (the consumer's CWD), not the plugin install directory — the change folder lives in the repo you are running the command in.
 @requirements.md
 @tech-stack.md
 @openspec/backlog.md
