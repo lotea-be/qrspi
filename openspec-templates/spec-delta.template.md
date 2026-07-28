@@ -54,8 +54,10 @@ The system MUST ...
 ## MODIFIED Requirements
 
 ### Requirement: <EXACT name of the existing base-spec requirement>
-<the FULL replacement text for the requirement — sync overwrites the base
- requirement, it does not append. Repeat every scenario it should still have.>
+<MODIFIED = **wholesale replacement**: sync REPLACES this requirement wholesale
+ (body + every scenario). List EVERY scenario the requirement should still have,
+ including unchanged ones — any scenario you omit is DELETED from the main spec.
+ Do NOT assume the syncer will preserve omitted scenarios; it will not.>
 
 #### Scenario: <name>
 - **WHEN** ...

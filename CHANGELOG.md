@@ -16,6 +16,27 @@ kit version.
 
 ### Added
 
+- **Kit-owned `spec-syncer` agent + hardened archive-time spec sync
+  (`spec-sync-contract`).** Fixes a silent data-loss bug: the archive-time
+  delta→main spec sync (previously delegated to a catch-all `general-purpose`
+  subagent hard-coded in the generated `openspec-archive-change` skill) could
+  silently drop scenarios when a `## MODIFIED Requirements` block omitted
+  carried-forward scenarios — OpenSpec MODIFIED semantics replace a requirement
+  wholesale. Bundles two backlog ideas (`sync-modified-delta-scenario-loss` P2 +
+  `dedicated-spec-sync-agent` P3). Stands up a least-privilege `spec-syncer`
+  helper agent (Read/Edit/Bash/Glob/Skill) owning the authoritative MODIFIED =
+  wholesale-replacement contract with a **count-drop hard-stop** on any scenario
+  reduction (human confirms → re-spawn with a confirmed-ok flag), and makes the
+  kit-owned `/qrspi:archive` the sole sync delegator via a new command-owned step
+  4a (happy-path sync prompt removed; escape-hatch prompt retained; generated
+  skill's post-sync prompt bypassed). Strengthens the delta-spec template's
+  MODIFIED comment, adds a "Helper agents" row to the workflow Read Matrix, and
+  adds three kit-only `scripts/lint.mjs` checks — **Check 17**
+  (`checkHelperAgentReadContracts`), **Check 18** (`checkModifiedScenarioCounts`),
+  **Check 19** (`checkAuthoritativeSyncDelegator`). The lint checks are
+  kit-internal (they do **not** ship in the plugin); consumer repos are protected
+  by the runtime `spec-syncer` guard.
+
 - **Per-slice compute tier: orthogonal `effort=`/`model=` grammar + effort-variant
   agents (`per-slice-compute-tier`).** The `**Compute:**` annotation grammar
   becomes two orthogonal tokens -- `effort=<low|medium|high>` is now **required**

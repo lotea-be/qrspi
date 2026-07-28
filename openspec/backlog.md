@@ -7,7 +7,24 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## In progress
 
-_None._
+### spec-sync-contract — `in-progress (PR #37 open)` · **P2** · bundle of [[sync-modified-delta-scenario-loss]] + [[dedicated-spec-sync-agent]]
+
+Entered the QRSPI flow 2026-07-28. Bundles the P2 correctness fix
+[[sync-modified-delta-scenario-loss]] with its P3 vehicle
+[[dedicated-spec-sync-agent]]: stand up a least-privilege `qrspi:spec-syncer`
+agent whose system prompt owns the delta-merge contract (ADDED/MODIFIED/REMOVED/
+renamed semantics), have `/qrspi:archive` own the sync delegation instead of the
+un-editable generated `openspec-archive-change` skill, and encode in that same
+contract the MODIFIED-replaces-wholesale rule (re-state kept scenarios) plus a
+count-drop guard — the P2's "natural home." Bundled because doing the P2 alone
+would force inlining or duplicating a contract the P3 exists to extract once;
+authored together it lands in the right place with no rework. Scope spans the new
+sync agent (+ `/qrspi:archive` delegation, `claude/agents/spec-syncer.md`,
+Read-Matrix "Helper agents" row, lint Check 17 banner) **and** architect (stage S)
+guidance that a MODIFIED delta re-state the scenarios it keeps. Carries the P2 band
+overall (silent spec-coverage loss); it bit the 2026-07-28 `unify-implement-paths-on-variants`
+archive. Sequencing vs the road-to-1.0 orchestrator-context pair is deferred to
+the human.
 
 ---
 
@@ -138,6 +155,25 @@ cause. Fix: have the researcher load `repo-surface` and surface-gate its heading
 like the other artifact-producing agents (and/or run lint at R-commit time to catch
 it at the source). Surfaced 2026-07-27 while implementing
 [[unify-implement-paths-on-variants]] (its research.md tripped Check 14).
+
+### architect-must-leads-requirement-first-line — `idea` · **P2**
+
+**Why:** OpenSpec `validate --strict` (1.4.1) only scans the **first line** of a
+requirement body for `MUST`/`SHALL`. An architect (stage S) that opens a
+requirement body with a wrapped `When …` clause and lets `MUST` fall to line 2
+authors a delta that reads fine, passes a non-strict eye, and passes lint — then
+**hard-stops the Implement stage** at the `openspec validate --strict` slice gate
+(CI runs strict), far from its cause. Observed 2026-07-28 implementing
+[[spec-sync-contract]] slice 1: three ADDED requirements each began `When …` with
+`MUST` on the next line; the implementer returned blocked and the orchestrator
+had to reorder each body so `MUST` leads. Fix, cheapest first: (1) add a line to
+`claude/agents/architect.md` (and/or the `spec-delta.template.md` requirement
+comment) — "put `MUST`/`SHALL` on the requirement body's **first line**, before
+any `When …` clause"; (2) optionally a `scripts/lint.mjs` check mirroring the
+strict first-line scan so the gotcha fails at S-commit, not mid-implement.
+Relates to [[dedicated-spec-sync-agent]]/[[spec-sync-contract]]'s delta-merge
+authoring rules and the general "artifact-authoring gate fires late at stage I"
+smell shared with [[researcher-apply-surface-gate]].
 
 ### standardize-recurring-ops-scripts — `idea` · **P2**
 
@@ -779,6 +815,10 @@ check) that flags divergence. Surfaced as a Non-Goal of
 
 ### dedicated-spec-sync-agent — `idea` · **P3**
 
+> **Bundled into `spec-sync-contract`** (proposed) with
+> [[sync-modified-delta-scenario-loss]] — this item is the vehicle; see the
+> Proposed-section entry.
+
 **Why:** The archive flow's delta-spec → main-spec sync is delegated to a
 catch-all `general-purpose` subagent (with `*` — all tools), because that
 `subagent_type` is hard-coded inside the *generated* `openspec-archive-change`
@@ -807,6 +847,10 @@ change) — since that prompt currently lives in the same un-editable generated
 concern the consumer/maintainer + generated-artifact boundary).
 
 ### sync-modified-delta-scenario-loss — `idea` · **P2**
+
+> **Bundled into `spec-sync-contract`** (proposed) with
+> [[dedicated-spec-sync-agent]] — this item is the P2 driver; see the
+> Proposed-section entry.
 
 **Why:** OpenSpec's `## MODIFIED Requirements` semantics replace a requirement
 **wholesale** — body *and* every scenario. When an architect authors a MODIFIED
@@ -989,6 +1033,19 @@ gain `openspec validate` on the delta specs. (`openspec/specs/` is now populated
 as of the 2026-06-19 archives, so the validated surface is real — re-weigh the
 dependency against a vendored folder convention + a small validator with that in
 mind.)
+
+**Folded-in concern — qrspi-branded workspace folder (2026-07-28):** a related
+want is renaming the `openspec/` workspace root to `qrspi/` for the road-to-1.0
+rebrand. It is *not* a free cosmetic rename: `openspec/` is the OpenSpec CLI's
+hardcoded workspace root (`openspec init`/`validate`/`status --json` and the
+generated archive/sync skills all assume it), so QRSPI cannot rename it
+unilaterally. Two paths, both landing here: (a) OpenSpec upstream adds a
+**configurable workspace root** (unverified whether the current CLI exposes
+this — needs checking against its config surface, `openspec/config.yaml`); or
+(b) dropping the CLI for the vendored convention + small validator this entry
+already weighs, at which point QRSPI owns the folder name outright. Ties to the
+[[rename-qrspi-to-qrnchi]] rebrand vehicle. Surfaced as a user question during
+the `spec-sync-contract` D stage.
 
 ### tutorial-mode-coaching-overlay — `idea` · **P3**
 

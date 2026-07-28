@@ -2,7 +2,7 @@
 // ============================================================================
 //  scripts/lint.mjs -- CI quality gate for the QRSPI kit
 // ----------------------------------------------------------------------------
-//  Checks (run in order, all errors collected before exit -- Checks 1-16):
+//  Checks (run in order, all errors collected before exit -- Checks 1-19):
 //
 //  1. PIN AGREEMENT  -- every hand-maintained OpenSpec version occurrence
 //     must agree. generatedBy: lines in openspec-generated skill files are
@@ -102,6 +102,28 @@
 //     suffix). Uses regex /qrspi:implementer(?!-)/ so variant stems
 //     (-low/-medium/-high) do not match. Catches both the fenced
 //     `subagent_type:` form and inline-prose form. Registered after Check 15.
+//
+// 17. HELPER AGENT READ-CONTRACT BANNER AGREEMENT -- separate from Check 7's
+//     nine-stage-agent scope. Maintains HELPER_READ_CONTRACT_EXPECTED (a map
+//     distinct from READ_CONTRACT_EXPECTED) with one entry per helper agent;
+//     asserts each helper agent's `> **Read contract**` banner `Reads:` field
+//     matches its map entry. Initial entry: spec-syncer. Includes an inline
+//     self-test (banner-absent fixture must return null from extractReadsField;
+//     if it does not, a Check 17 error is pushed). Registered between Check 16
+//     and Check 18 so check numbers read 17 -> 18 -> 19 top-to-bottom.
+//
+// 18. MODIFIED SCENARIO COUNT GUARD -- parses every delta spec under
+//     openspec/changes/*/specs/**/spec.md, counts `#### Scenario:` blocks per
+//     MODIFIED requirement, and compares each to the base count in
+//     openspec/specs/<capability>/spec.md. Flags any reduction. Skips
+//     requirements whose base capability spec does not exist (new capability).
+//     Numbered 18 to leave room for Check 17 (added in Slice 3).
+//
+// 19. AUTHORITATIVE SYNC DELEGATOR -- asserts (a) claude/commands/archive.md
+//     contains `qrspi:spec-syncer` and (b) no kit-owned file under
+//     claude/commands/ or claude/agents/ contains `subagent_type:
+//     general-purpose` in proximity to a sync-context string. Registered after
+//     Check 18.
 //
 //  Exits 0 if all checks pass, 1 if any check reports a violation.
 //  Requires only Node.js built-ins (fs, path) -- no npm dependencies.
@@ -2313,6 +2335,413 @@ async function checkFollowupStem(errors) {
   return violations;
 }
 
+// ---- Check 17: HELPER AGENT READ-CONTRACT BANNER AGREEMENT -----------------
+//
+// Helper agents are not QRSPI stages and are not covered by Check 7's
+// READ_CONTRACT_EXPECTED map (which is scoped strictly to the nine stage-agent
+// entries). This check covers the separate set of helper agents -- one-job
+// agents spawned by kit commands rather than stage commands -- using the same
+// banner-extraction logic as Check 7 (extractReadsField / normalizeWs).
+//
+// A separate hardcoded map HELPER_READ_CONTRACT_EXPECTED drives the check so
+// that Check 7's nine-agent scope is never widened (PQ13 / D10).
+//
+// Algorithm:
+//   1. For each entry in HELPER_READ_CONTRACT_EXPECTED, read the agent file
+//      claude/agents/<stem>.md.
+//   2. Extract the `Reads:` field from the `> **Read contract**` banner using
+//      the same extractReadsField() / normalizeWs() helpers as Check 7.
+//   3. Assert the extracted field equals the expected value.
+//
+// INLINE SELF-TEST (mirrors Check 15's pattern):
+//   Run extractReadsField against a synthetic fixture string with no banner line.
+//   Assert the detector returns null (the banner is missing). If it does not,
+//   push a Check 17 error so CI reddens immediately -- a broken detector never
+//   passes silently.
+//
+// SCOPE: strictly the helper agents named in HELPER_READ_CONTRACT_EXPECTED.
+//   This check must NOT flag any stage agent or any other file.
+
+// Expected `Reads:` field per helper agent -- the exact text that must appear
+// between the banner's em-dash separator and its `Never opens:` clause, after
+// whitespace normalisation. Maintained separately from READ_CONTRACT_EXPECTED
+// (Check 7) so Check 7's nine-agent scope is never widened.
+const HELPER_READ_CONTRACT_EXPECTED = {
+  'spec-syncer': 'Reads: specs/** (delta) and openspec/specs/** (main, via the spec.md exception).',
+};
+
+async function checkHelperAgentReadContracts(errors) {
+  // ---- INLINE SELF-TEST -------------------------------------------------------
+  // Assert that extractReadsField returns null when no banner line is present.
+  // This verifies the detector will correctly flag a missing banner rather than
+  // silently passing it.
+  const _selfTestNoBanner = '# Heading\n\nSome prose without a read contract banner.\n';
+  const _selfTestResult = extractReadsField(_selfTestNoBanner);
+  if (_selfTestResult !== null) {
+    errors.push(
+      '[helper-read-contract] SELF-TEST FAILED: extractReadsField returned non-null ' +
+      `("${_selfTestResult}") for a fixture with no Read contract banner -- banner detection is broken`
+    );
+    // Do not proceed if the detector itself is broken
+    return 1;
+  }
+  // Self-test passed -- continue to real scan
+  // ---- end self-test ----------------------------------------------------------
+
+  const agentsDir = path.join(root, 'claude', 'agents');
+  let violations = 0;
+
+  for (const stem of Object.keys(HELPER_READ_CONTRACT_EXPECTED)) {
+    const rel = `claude/agents/${stem}.md`;
+    const text = await readFileOr(path.join(agentsDir, `${stem}.md`), null);
+    if (text === null) {
+      errors.push(`[helper-read-contract] ${rel}: file not found -- expected a helper-agent read-contract banner`);
+      violations++;
+      continue;
+    }
+
+    const { body } = splitFront(text);
+    const actual = extractReadsField(body);
+    if (actual === null) {
+      errors.push(
+        `[helper-read-contract] ${rel}: no parseable '> **Read contract** -- Reads: ... Never opens: ...' banner found`
+      );
+      violations++;
+      continue;
+    }
+
+    const expected = normalizeWs(HELPER_READ_CONTRACT_EXPECTED[stem]);
+    if (actual !== expected) {
+      errors.push(
+        `[helper-read-contract] ${rel}: banner Reads-field mismatch\n` +
+        `    expected: ${expected}\n` +
+        `    actual:   ${actual}`
+      );
+      violations++;
+    }
+  }
+
+  if (violations === 0) {
+    process.stdout.write(
+      `  OK: ${Object.keys(HELPER_READ_CONTRACT_EXPECTED).length} helper-agent read-contract banner(s) match the read matrix\n`
+    );
+  }
+  return violations;
+}
+
+// ---- Check 18: MODIFIED SCENARIO COUNT GUARD --------------------------------
+//
+// Ensures that every MODIFIED requirement in a delta spec restates at least as
+// many `#### Scenario:` blocks as the base spec requirement it replaces.
+//
+// Because MODIFIED = wholesale replacement (body + every scenario), any scenario
+// the author omits in the delta will be silently deleted from the main spec at
+// archive time. This check catches that class of accidental omission at CI time,
+// before the spec is ever merged.
+//
+// Algorithm (per delta spec file):
+//   1. Parse the ## MODIFIED Requirements section.
+//   2. For each ### Requirement: <title> block under that section, count the
+//      number of `#### Scenario:` lines within the block.
+//   3. Derive the capability name from the delta spec path:
+//      openspec/changes/<id>/specs/<capability>/spec.md -> capability.
+//   4. Locate the base spec at openspec/specs/<capability>/spec.md. If it does
+//      not exist, SKIP (new capability -- no base count to compare against).
+//   5. In the base spec, find the same ### Requirement: <title> block (verbatim
+//      match) and count its `#### Scenario:` lines.
+//   6. If delta_count < base_count, push a violation naming the file, requirement
+//      title, and the counts (pre -> post).
+//
+// Scope: all openspec/changes/*/specs/**/spec.md (all active changes, not just
+// the current one). Archive paths are NOT excluded on purpose -- if an archived
+// delta had a count-drop it was already merged but the check is harmless there
+// (the base spec now reflects the new lower count, so both would agree).
+// Registered after Check 17 (helper-agent read-contract banner agreement).
+
+async function checkModifiedScenarioCounts(errors) {
+  const changesDir = path.join(root, 'openspec', 'changes');
+  const baseSpecsDir = path.join(root, 'openspec', 'specs');
+
+  // Walk all delta spec files: openspec/changes/*/specs/**/spec.md
+  let deltaFiles = [];
+  async function walkDeltaSpecs(dir, depth) {
+    let entries;
+    try {
+      entries = await fs.readdir(dir, { withFileTypes: true });
+    } catch {
+      return;
+    }
+    for (const e of entries) {
+      const full = path.join(dir, e.name);
+      if (e.isDirectory()) {
+        await walkDeltaSpecs(full, depth + 1);
+      } else if (e.isFile() && e.name === 'spec.md') {
+        // Must be under a specs/ subdirectory of a change folder
+        // Path shape: openspec/changes/<id>/specs/<capability>/spec.md
+        const rel = path.relative(changesDir, full);
+        // rel = <id>/specs/<cap>/spec.md (or deeper)
+        const parts = rel.split(path.sep);
+        if (parts.length >= 4 && parts[1] === 'specs') {
+          deltaFiles.push(full);
+        }
+      }
+    }
+  }
+  await walkDeltaSpecs(changesDir, 0);
+
+  if (deltaFiles.length === 0) {
+    process.stdout.write('  OK: no delta spec files found (nothing to check)\n');
+    return 0;
+  }
+
+  // Parse scenario counts per requirement within a specific section of a spec.
+  // Returns Map<requirementTitle, scenarioCount>.
+  function parseModifiedRequirements(text) {
+    const lines = text.replace(/\r\n/g, '\n').split('\n');
+    const result = new Map(); // title -> count
+
+    let inModified = false;
+    let currentReq = null;
+    let count = 0;
+
+    for (const line of lines) {
+      // Detect ## MODIFIED Requirements section
+      if (/^##\s+MODIFIED Requirements\s*$/.test(line)) {
+        inModified = true;
+        continue;
+      }
+      // Stop at the next ## section
+      if (inModified && /^##\s/.test(line) && !/^##\s+MODIFIED Requirements/.test(line)) {
+        // Save current requirement if any
+        if (currentReq !== null) {
+          result.set(currentReq, count);
+          currentReq = null;
+          count = 0;
+        }
+        inModified = false;
+        continue;
+      }
+
+      if (!inModified) continue;
+
+      // Detect ### Requirement: <title>
+      const reqMatch = line.match(/^###\s+Requirement:\s+(.+?)\s*$/);
+      if (reqMatch) {
+        // Save previous requirement
+        if (currentReq !== null) {
+          result.set(currentReq, count);
+        }
+        currentReq = reqMatch[1].trim();
+        count = 0;
+        continue;
+      }
+
+      // Count #### Scenario: lines within the current requirement
+      if (currentReq !== null && /^####\s+Scenario:/.test(line)) {
+        count++;
+      }
+    }
+
+    // Save last requirement
+    if (currentReq !== null) {
+      result.set(currentReq, count);
+    }
+
+    return result;
+  }
+
+  // Parse scenario count for a specific requirement title in the base spec.
+  // Returns the count, or -1 if the requirement was not found.
+  function parseBaseRequirementCount(text, requirementTitle) {
+    const lines = text.replace(/\r\n/g, '\n').split('\n');
+    let found = false;
+    let count = 0;
+
+    for (const line of lines) {
+      // Look for the exact requirement title match
+      const reqMatch = line.match(/^###\s+Requirement:\s+(.+?)\s*$/);
+      if (reqMatch) {
+        if (found) {
+          // We've moved past the target requirement
+          break;
+        }
+        if (reqMatch[1].trim() === requirementTitle) {
+          found = true;
+          continue;
+        }
+      }
+
+      // If we found the requirement, count its scenarios until the next ###
+      if (found) {
+        if (/^###\s/.test(line)) {
+          // Next requirement starts -- done
+          break;
+        }
+        if (/^####\s+Scenario:/.test(line)) {
+          count++;
+        }
+      }
+    }
+
+    return found ? count : -1;
+  }
+
+  let violations = 0;
+  let filesChecked = 0;
+  let requirementsChecked = 0;
+
+  for (const deltaFile of deltaFiles) {
+    const rel = path.relative(root, deltaFile);
+    const relFromChanges = path.relative(changesDir, deltaFile);
+    const parts = relFromChanges.split(path.sep);
+    // parts[0] = change id, parts[1] = 'specs', parts[2] = capability, ...
+    const capability = parts[2];
+
+    const deltaText = await readFileOr(deltaFile, null);
+    if (deltaText === null) continue;
+
+    // Check if this delta has a MODIFIED Requirements section
+    if (!deltaText.includes('## MODIFIED Requirements')) continue;
+
+    filesChecked++;
+    const modifiedReqs = parseModifiedRequirements(deltaText);
+    if (modifiedReqs.size === 0) continue;
+
+    // Look up the base spec
+    const baseSpecPath = path.join(baseSpecsDir, capability, 'spec.md');
+    const baseText = await readFileOr(baseSpecPath, null);
+    if (baseText === null) {
+      // Base capability spec does not exist -- SKIP (new capability)
+      continue;
+    }
+
+    // Compare scenario counts for each MODIFIED requirement
+    for (const [reqTitle, deltaCount] of modifiedReqs) {
+      requirementsChecked++;
+      const baseCount = parseBaseRequirementCount(baseText, reqTitle);
+
+      if (baseCount === -1) {
+        // Requirement not found in base spec -- could be a mismatched title
+        // (openspec validate catches that). Skip here to avoid false positives.
+        continue;
+      }
+
+      if (deltaCount < baseCount) {
+        errors.push(
+          `[modified-scenario-counts] ${rel}: MODIFIED requirement "${reqTitle}" ` +
+          `has ${deltaCount} scenario(s) in the delta but ${baseCount} in the base spec ` +
+          `(${baseCount} -> ${deltaCount}). MODIFIED replaces the base wholesale -- ` +
+          `list every scenario the requirement should still have, including unchanged ones.`
+        );
+        violations++;
+      }
+    }
+  }
+
+  if (violations === 0) {
+    process.stdout.write(
+      `  OK: ${requirementsChecked} MODIFIED requirement(s) across ${filesChecked} delta spec file(s) ` +
+      `all meet or exceed their base scenario counts\n`
+    );
+  }
+  return violations;
+}
+
+// ---- Check 19: AUTHORITATIVE SYNC DELEGATOR ---------------------------------
+//
+// Ensures the kit routes spec-sync through the authoritative `spec-syncer`
+// agent and does NOT inadvertently re-open a general-purpose sync path.
+//
+// Two sub-checks:
+//
+//   (a) ARCHIVE COMMAND WIRES SPEC-SYNCER -- claude/commands/archive.md must
+//       contain the string `qrspi:spec-syncer`. This asserts that the archive
+//       flow calls the dedicated agent rather than ad-hoc sync prose.
+//
+//   (b) NO GENERAL-PURPOSE SYNC SPAWN -- no kit-owned file under
+//       claude/commands/ or claude/agents/ may contain the string
+//       `subagent_type: general-purpose` on a line that is within 15 lines of
+//       a sync-context string (any of: "sync", "spec-sync", "openspec/specs",
+//       "MODIFIED Requirements", "wholesale"). Proximity is measured in either
+//       direction. This guards against a future editor accidentally introducing
+//       a general-purpose subagent invocation for the sync step, which would
+//       bypass the wholesale-replacement contract.
+
+const SYNC_CONTEXT_STRINGS = [
+  'sync',
+  'spec-sync',
+  'openspec/specs',
+  'MODIFIED Requirements',
+  'wholesale',
+];
+
+const SYNC_PROXIMITY_WINDOW = 15; // lines in either direction
+
+async function checkAuthoritativeSyncDelegator(errors) {
+  let violations = 0;
+
+  // (a) archive.md must contain qrspi:spec-syncer
+  const archivePath = path.join(root, 'claude', 'commands', 'archive.md');
+  const archiveText = await readFileOr(archivePath, null);
+
+  if (archiveText === null) {
+    errors.push('[sync-delegator] claude/commands/archive.md: file not found');
+    violations++;
+  } else if (!archiveText.includes('qrspi:spec-syncer')) {
+    errors.push(
+      '[sync-delegator] claude/commands/archive.md: does not contain `qrspi:spec-syncer` -- ' +
+      'the archive command must delegate spec-sync to the spec-syncer agent'
+    );
+    violations++;
+  }
+
+  // (b) No general-purpose subagent spawn near a sync-context string in kit commands/agents
+  const commandsDir = path.join(root, 'claude', 'commands');
+  const agentsDir = path.join(root, 'claude', 'agents');
+
+  const kitFiles = [
+    ...(await walkMd(commandsDir)),
+    ...(await listFiles(agentsDir, '.md')),
+  ];
+
+  for (const file of kitFiles) {
+    const text = await readFileOr(file, null);
+    if (text === null) continue;
+
+    const lines = text.split('\n');
+
+    // Find all lines with `subagent_type: general-purpose`
+    for (let i = 0; i < lines.length; i++) {
+      if (!lines[i].includes('subagent_type: general-purpose')) continue;
+
+      // Check the window around this line for sync-context strings
+      const windowStart = Math.max(0, i - SYNC_PROXIMITY_WINDOW);
+      const windowEnd = Math.min(lines.length - 1, i + SYNC_PROXIMITY_WINDOW);
+      const window = lines.slice(windowStart, windowEnd + 1).join('\n');
+
+      for (const ctx of SYNC_CONTEXT_STRINGS) {
+        if (window.includes(ctx)) {
+          const rel = path.relative(root, file);
+          errors.push(
+            `[sync-delegator] ${rel}:${i + 1}: \`subagent_type: general-purpose\` ` +
+            `appears within ${SYNC_PROXIMITY_WINDOW} lines of sync-context string "${ctx}" -- ` +
+            `spec-sync must be routed through the spec-syncer agent, not a general-purpose spawn`
+          );
+          violations++;
+          break; // one violation per occurrence of general-purpose is enough
+        }
+      }
+    }
+  }
+
+  if (violations === 0) {
+    process.stdout.write(
+      '  OK: archive.md wires qrspi:spec-syncer; no general-purpose sync spawn found in kit commands/agents\n'
+    );
+  }
+  return violations;
+}
+
 // ---- main ------------------------------------------------------------------
 
 async function main() {
@@ -2370,6 +2799,15 @@ async function main() {
 
   process.stdout.write('\nCheck 16: Followup bare-stem guard\n');
   await checkFollowupStem(errors);
+
+  process.stdout.write('\nCheck 17: Helper agent read-contract banner agreement\n');
+  await checkHelperAgentReadContracts(errors);
+
+  process.stdout.write('\nCheck 18: Modified scenario count guard\n');
+  await checkModifiedScenarioCounts(errors);
+
+  process.stdout.write('\nCheck 19: Authoritative sync delegator\n');
+  await checkAuthoritativeSyncDelegator(errors);
 
   process.stdout.write('\n');
   if (errors.length === 0) {

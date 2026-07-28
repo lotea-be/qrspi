@@ -71,10 +71,82 @@ Steps:
      > Archival is blocked until the PR merges. Merge PR #<N>, then re-run
      > `/qrspi:archive <id>`.
 
-4. **Delegate to the archive skill.** Load and run the `openspec-archive-change`
-   skill, passing the change id (or letting it prompt for selection). It checks
-   artifact/task completion, assesses delta-spec sync state, moves the folder to
-   `archive/YYYY-MM-DD-<id>/`, and prints the archive summary.
+4a. **Sync the delta specs into the base specs (command-owned, before the
+   folder move).** This runs by default — there is **no** "Sync now / Archive
+   without syncing" prompt on the happy path.
+   - **Skip when there is nothing to sync.** Use the **Glob** tool with pattern
+     `openspec/changes/<id>/specs/**/spec.md`. If it returns nothing, skip step
+     4a entirely and go straight to step 4 (the folder move). Do not spawn
+     `spec-syncer`.
+   - **Spawn `spec-syncer`.** When delta specs are present, spawn the
+     `spec-syncer` helper via the **Agent tool**
+     (`subagent_type: qrspi:spec-syncer`, `model: opus`), passing the change id.
+     It owns the authoritative MODIFIED = wholesale-replacement merge contract
+     and folds the delta specs into `openspec/specs/**`. It returns **exactly
+     one** structured signal — `synced`, `blocked-on-count-drop`, or
+     `escape-hatch` — and never prompts the human itself (it holds no
+     AskUserQuestion). Branch on that signal:
+   - **`synced`** — the merge succeeded (or there was nothing to merge). Proceed
+     directly to step 4 (the folder move). Do **not** show any sync prompt.
+   - **`blocked-on-count-drop`** — at least one MODIFIED requirement would
+     reduce its scenario count (wholesale replacement would silently drop base
+     scenarios). This is a **hard-stop**: the base spec is untouched and you
+     MUST NOT proceed to the folder move while any count-drop block is
+     unresolved. Surface the blocked requirement(s) and their `<pre> -> <post>`
+     counts, then use the **AskUserQuestion** tool, once per blocked
+     requirement (or grouped if several):
+     - question: "Syncing `<id>` would reduce requirement `<Foo>` from `<pre>`
+       to `<post>` scenarios (MODIFIED replaces the base wholesale). Is that
+       intentional?"
+     - choices:
+       - "Yes — the reduction is intentional (re-sync)"
+       - "No — abort the archive so I can fix the delta"
+     - On **Yes**, **re-spawn `spec-syncer` from scratch** (same Agent-tool
+       call) with a `confirmed count-drop OK: <Foo>` flag naming the confirmed
+       requirement(s). The re-spawn carries no partial merge state — it
+       re-derives the full merge and skips the guard for the named
+       requirement(s) only. Only proceed to step 4 once the re-spawn returns
+       `synced`. If the re-spawn returns `blocked-on-count-drop` again for a
+       *different* requirement, repeat this confirmation flow for that one.
+     - On **No**, **halt the archive** — do not run the folder move. The change
+       folder and base specs remain unchanged. Tell the user to fix the delta
+       (repeat the missing scenarios verbatim in the MODIFIED block) and re-run
+       `/qrspi:archive <id>`.
+   - **`escape-hatch`** (malformed delta / abandoned change) — the delta failed
+     `openspec validate <id> --strict` or is otherwise malformed such that a
+     merge would corrupt the base spec. No base specs were modified. Surface the
+     failure description, then use the **AskUserQuestion** tool:
+     - question: "The delta for `<id>` is malformed and could not be synced:
+       <failure>. How do you want to proceed?"
+     - choices:
+       - "Archive without syncing (escape hatch)"
+       - "Abort to fix the delta"
+     - On **Archive without syncing**, proceed to step 4 (folder move) with the
+       base specs left un-synced. On **Abort**, halt without the folder move.
+     - This escape-hatch prompt appears **only** in response to the
+       `escape-hatch` signal — never on a `synced` result (happy path) and never
+       on a `blocked-on-count-drop` result (which uses the count-drop
+       confirmation flow above instead).
+
+   Respect the Non-Goal: do **not** hand-edit the generated
+   `openspec-archive-change` skill or the generated `openspec-sync-specs`
+   skill — the merge contract lives in the `spec-syncer` agent, not in those
+   generated files.
+
+4. **Delegate to the archive skill (folder move only).** Load and run the
+   `openspec-archive-change` skill, passing the change id (or letting it prompt
+   for selection). It checks artifact/task completion, assesses delta-spec sync
+   state, moves the folder to `archive/YYYY-MM-DD-<id>/`, and prints the archive
+   summary.
+   - **Already-synced bypass (mandatory).** Step 4a has **already** merged the
+     delta specs into `openspec/specs/**`, so the base spec is up to date before
+     this skill runs. The skill's own sync-assessment must therefore take its
+     **already-synced** branch and NOT offer a re-sync. If the skill nonetheless
+     raises a sync prompt post-4a (e.g. "Sync now" / "Sync anyway"), **hard-
+     decline it** — do NOT accept "Sync anyway" and do NOT let it run a second
+     sync. No second `spec-syncer` or `general-purpose` sync spawn may occur;
+     syncing the base spec twice would double-apply the merge. Take only the
+     folder move from this skill.
 
 5. **Remove the backlog row, propose the commit target, and commit the
    archive (mandatory).** The skill in step 4 only moves the folder on disk;

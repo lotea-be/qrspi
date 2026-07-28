@@ -140,7 +140,7 @@ any QRSPI change artifact, and Check 14 enforces this mechanically.
 ```
 qrspi/
   claude/                    # SOURCE OF TRUTH — Claude Code plugin payload
-    agents/                  #   9 subagent definitions (6 stage agents + 3 implementer effort variants)
+    agents/                  #   10 subagent definitions (6 stage agents + 3 implementer effort variants + 1 archive spec-syncer helper)
     commands/                #   /qrspi:* slash commands
     skills/                  #   workflow + convention skills (stack-agnostic)
   openspec-templates/        # the 5 canonical artifact templates (shared)
@@ -358,6 +358,22 @@ to context hygiene and agent contracts:
   regex so variant stems do not match. Catches both the fenced `subagent_type:` form
   and inline-prose form, ensuring `/qrspi:followup` always spawns a named variant,
   never the deleted base agent.
+- **Check 17 (`checkHelperAgentReadContracts`)** -- asserts each non-stage helper
+  agent (currently `spec-syncer`) carries a `> **Read contract**` banner whose
+  `Reads:` field matches a dedicated `HELPER_READ_CONTRACT_EXPECTED` map, kept
+  separate from Check 7's nine stage-agent scope. Includes an inline self-test
+  (Check 15's pattern) so the banner detector itself cannot silently break.
+- **Check 18 (`checkModifiedScenarioCounts`)** -- kit-only guard against the
+  silent-scenario-loss bug: parses every delta spec under
+  `openspec/changes/*/specs/**/spec.md`, counts `#### Scenario:` blocks per
+  `## MODIFIED Requirements` requirement, compares against the base
+  `openspec/specs/**` count, and flags any reduction. Skips requirements whose
+  base capability spec does not exist yet (a new capability has no pre-count).
+- **Check 19 (`checkAuthoritativeSyncDelegator`)** -- asserts `/qrspi:archive`
+  stays the authoritative sync delegator: `claude/commands/archive.md` must
+  reference `qrspi:spec-syncer`, and no kit-owned command/agent may delegate sync
+  to `subagent_type: general-purpose`, so a future OpenSpec CLI regeneration
+  cannot silently regress the ownership.
 
 All other checks (pin agreement, frontmatter, heading alignment, README command
 coverage, gate-tool/executor agreement, migration manifests, read-contract banners,

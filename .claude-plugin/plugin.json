@@ -14,7 +14,8 @@
     "./claude/agents/implementer-low.md",
     "./claude/agents/implementer-medium.md",
     "./claude/agents/implementer-high.md",
-    "./claude/agents/reviewer.md"
+    "./claude/agents/reviewer.md",
+    "./claude/agents/spec-syncer.md"
   ],
   "skills": "./claude/skills"
 }
