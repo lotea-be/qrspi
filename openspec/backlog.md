@@ -7,24 +7,7 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## In progress
 
-### spec-sync-contract — `in-progress (PR #37 open)` · **P2** · bundle of [[sync-modified-delta-scenario-loss]] + [[dedicated-spec-sync-agent]]
-
-Entered the QRSPI flow 2026-07-28. Bundles the P2 correctness fix
-[[sync-modified-delta-scenario-loss]] with its P3 vehicle
-[[dedicated-spec-sync-agent]]: stand up a least-privilege `qrspi:spec-syncer`
-agent whose system prompt owns the delta-merge contract (ADDED/MODIFIED/REMOVED/
-renamed semantics), have `/qrspi:archive` own the sync delegation instead of the
-un-editable generated `openspec-archive-change` skill, and encode in that same
-contract the MODIFIED-replaces-wholesale rule (re-state kept scenarios) plus a
-count-drop guard — the P2's "natural home." Bundled because doing the P2 alone
-would force inlining or duplicating a contract the P3 exists to extract once;
-authored together it lands in the right place with no rework. Scope spans the new
-sync agent (+ `/qrspi:archive` delegation, `claude/agents/spec-syncer.md`,
-Read-Matrix "Helper agents" row, lint Check 17 banner) **and** architect (stage S)
-guidance that a MODIFIED delta re-state the scenarios it keeps. Carries the P2 band
-overall (silent spec-coverage loss); it bit the 2026-07-28 `unify-implement-paths-on-variants`
-archive. Sequencing vs the road-to-1.0 orchestrator-context pair is deferred to
-the human.
+_None._
 
 ---
 
@@ -62,14 +45,16 @@ into `per-slice-compute-tier` (proposed, in the QRSPI flow); and
 [[structured-surface-schema]] and [[extend-surface-taxonomy]] are kept
 contiguous below across the P2/P3 boundary.
 
-> **▶ Next up:** the [[unify-implement-paths-on-variants]] + [[commands-assert-cwd-change-folder]]
-> bundle. Sequenced ahead of the P1 [[spec-anchored-code-comments]] by explicit
-> decision (2026-07-27): it **completes an already-shipped mechanism** — the
-> compute-variant dispatch from `per-slice-compute-tier` left the base implementer
-> vestigial (D9) — and is the last piece before cutting the **0.10.0** breaking
-> release (whose `migrations/0.10.0.yaml` this repo already carries). Finishing
-> shipped-but-incomplete work outranks starting new P1 scope. `spec-anchored-code-comments`
-> remains the top **new-scope** priority after it.
+> **▶ Next up:** with `spec-sync-contract` **shipped** (PR #37, archived
+> 2026-07-28 — kit-owned `spec-syncer` agent, archive rewire, count-drop guard,
+> Checks 17/18/19) and the [[unify-implement-paths-on-variants]] +
+> [[commands-assert-cwd-change-folder]] bundle **shipped** (PR #36, archived
+> 2026-07-28 — the vestigial base implementer is gone and the **0.10.0** breaking
+> piece is done), the next readiness item is the orchestrator-context pair below. Sequenced ahead of the P1
+> [[spec-anchored-code-comments]] by explicit decision (2026-07-27): the runway
+> **completes already-shipped mechanisms and freezes schemas** before the public
+> 1.0 cut, which outranks starting new P1 scope. `spec-anchored-code-comments`
+> remains the top **new-scope** priority after the 1.0 cut.
 >
 > **Road to 1.0 (2026-07-27):** the [[rename-qrspi-to-qrnchi]] rebrand is the
 > vehicle for the first **stable v1.0.0** and public debut (submission to Anthropic's
@@ -78,13 +63,25 @@ contiguous below across the P2/P3 boundary.
 > **ahead of the rename**, filtered by one lens — *what would bite a stranger or
 > embarrass us in week one of a public 1.0* — not by band alone:
 >
-> - **Tier 1 — bites a stranger (do first):** the unify bundle above (removes the
->   vestigial base-implementer dead path before it ships in a "stable" artifact),
->   then the orchestrator-context pair — [[reset-and-resume-between-boundaries]] then
->   [[orchestrator-context-budget-gate]] (a real consumer hit **98% context** at the
->   D review of their *second* change; nothing enforces the `context-hygiene`
->   budget, so a marathon session silently detonates — the sharpest edge for a
->   plugin whose premise is long multi-stage sessions).
+> - **Tier 1 — bites a stranger (do first):** the orchestrator-context pair —
+>   [[reset-and-resume-between-boundaries]] then [[orchestrator-context-budget-gate]]
+>   (a real consumer hit **98% context** at the D review of their *second* change;
+>   nothing enforces the `context-hygiene` budget, so a marathon session silently
+>   detonates — the sharpest edge for a plugin whose premise is long multi-stage
+>   sessions). (The unify bundle that also sat in this tier shipped 2026-07-28.)
+> - **Tier 1.25 — settle the OpenSpec-dependency question before it's frozen at 1.0
+>   (decision spike, 2026-07-28):** run R/D on [[reassess-openspec-dependency]] to a
+>   **documented keep-CLI-vs-vendor verdict** ahead of the rename — *not* a commitment
+>   to rename the workspace folder for 1.0. Motive: the rebrand's folded-in want of a
+>   branded `qrnchi/` workspace root is **not** a free rename — verified 2026-07-28
+>   that the OpenSpec CLI exposes **no configurable workspace-root name through 1.6.0**
+>   (pin is 1.4.1; `init [path]` only sets a parent, no config/env key renames
+>   `openspec/`), so a branded root forces **dropping the CLI** for a vendored
+>   convention + validator — a change larger than the rebrand itself. The spike
+>   de-risks 1.0: if the verdict is *keep the CLI*, the rebrand proceeds as designed
+>   (`openspec/` stays, folder-branding deferred past 1.0); if *vendor*, that lands as
+>   its own change and the rebrand waits on it. Either way 1.0 doesn't back into a big
+>   migration by accident.
 > - **Tier 1.5 — freeze the last ad-hoc schema (cheap, good timing):**
 >   [[standardize-backlog-format]], **template + lint floor only** (defer the heavier
 >   per-file `backlog/<id>.md` model to post-1.0). The backlog is the one QRSPI
@@ -1046,6 +1043,18 @@ this — needs checking against its config surface, `openspec/config.yaml`); or
 already weighs, at which point QRSPI owns the folder name outright. Ties to the
 [[rename-qrspi-to-qrnchi]] rebrand vehicle. Surfaced as a user question during
 the `spec-sync-contract` D stage.
+
+**Path (a) verified closed (2026-07-28).** Checked the OpenSpec CLI up to the
+latest **1.6.0** (pin is 1.4.1): there is **no configurable workspace-root name** —
+`init [path]` only sets a parent directory, and the `config` surface exposes only
+profile/delivery/telemetry keys, none renaming `openspec/`. The "resolved OpenSpec
+root" language is root *discovery*, not renaming. So a branded `qrnchi/` root
+requires **path (b), dropping the CLI** — a change larger than the rebrand itself.
+
+**Pulled forward as a decision spike (2026-07-28).** Sequenced into the road-to-1.0
+runway as **Tier 1.25** (see the ▶ Next-up note): run R/D to a documented
+keep-vs-vendor verdict *before* the rename, without committing 1.0 to the folder
+rename. Keeps its **P3** band — this records sequencing, not a re-banding.
 
 ### tutorial-mode-coaching-overlay — `idea` · **P3**
 
