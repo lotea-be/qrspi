@@ -16,11 +16,11 @@
 
 **Compute:** effort=low -- two command-file edits against established patterns; the archive step-7 wording mirrors the soft-gate "Reset now" pattern already shipped in Slice 1 (D10)
 
-- [ ] 2.1 Insert the `context-budget-gate` load line after `qrspi-version-check` in `claude/commands/archive.md` (D2, D4)
-- [ ] 2.2 Add step-7 AskUserQuestion ("Start a new session for the next change?" / "Yes -- print resume path and end turn" / "No -- stay in this session") after the successful-archive block in `claude/commands/archive.md`; "Yes" prints `/qrspi:status` and ends the turn without auto-advancing; the offer is never suppressed by run-mode (D10)
-- [ ] 2.3 Insert the `context-budget-gate` load line after `qrspi-version-check` in `claude/commands/followup.md` (D2, D4)
-- [ ] 2.4 Verify that `claude/skills/context-budget-gate/SKILL.md` (shipped in Slice 1) already instructs the once-per-invocation nudge rule for `/qrspi:followup`; make no additional skill edit if the rule is already present (D8)
-- [ ] 2.5 Run `node scripts/lint.mjs` smoke pass; manually verify step-7 prose and embed positions in `archive.md` and `followup.md`
+- [x] 2.1 Insert the `context-budget-gate` load line after `qrspi-version-check` in `claude/commands/archive.md` (D2, D4)
+- [x] 2.2 Add step-7 AskUserQuestion ("Start a new session for the next change?" / "Yes -- print resume path and end turn" / "No -- stay in this session") after the successful-archive block in `claude/commands/archive.md`; "Yes" prints `/qrspi:status` and ends the turn without auto-advancing; the offer is never suppressed by run-mode (D10)
+- [x] 2.3 Insert the `context-budget-gate` load line after `qrspi-version-check` in `claude/commands/followup.md` (D2, D4)
+- [x] 2.4 Verify that `claude/skills/context-budget-gate/SKILL.md` (shipped in Slice 1) already instructs the once-per-invocation nudge rule for `/qrspi:followup`; make no additional skill edit if the rule is already present (D8)
+- [x] 2.5 Run `node scripts/lint.mjs` smoke pass; manually verify step-7 prose and embed positions in `archive.md` and `followup.md`
 - [ ] 2.6 (human) In a fresh `claude --plugin-dir /workspaces/git/qrspi` session, archive a throwaway fixture change; confirm the step-7 AskUserQuestion appears after the commit and selecting "Yes" prints `/qrspi:status` and ends the turn. Then in a separate session invoke `/qrspi:followup` on a change with 2+ follow-up items after crossing the nudge threshold (8 prior events); confirm the nudge fires at most once during that invocation.
 
 ## 3. Docs + guardrail
