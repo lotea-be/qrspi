@@ -7,13 +7,7 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## In progress
 
-_None._
-
----
-
-## Proposed
-
-### orchestrator-context-budget — `proposed (change folder created 2026-07-28)` · **P2**
+### orchestrator-context-budget — `in-progress (Q, R, D, S, V, P, I complete)` · **P2**
 
 Bundles [[reset-and-resume-between-boundaries]] and [[orchestrator-context-budget-gate]]
 (both formerly `idea` under `## Ideas`) into one QRSPI flow. See those entries below for
@@ -29,6 +23,12 @@ at the top of each stage command that nudges or soft-blocks before the orchestra
 context degrades. The two halves converge if live-% read proves infeasible (both then
 reduce to a structural stages-run counter). Needs NO new harness primitive -- structural
 prose/triggers only.
+
+---
+
+## Proposed
+
+_None._
 
 ---
 

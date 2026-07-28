@@ -27,9 +27,9 @@
 
 **Compute:** effort=medium -- the lint check is new logic (file-read loop, constant definition, inline-form assertion, excluded-commands guard); the context-hygiene prose edit is light but the vocabulary constraint (cross-stage not cross-change) requires care
 
-- [ ] 3.1 Add `checkBudgetGateEmbed` to `scripts/lint.mjs` after Check 9, using the same async-function-pushing-to-errors pattern; hardcode `BUDGET_GATE_COMMAND_STEMS` as the 11-command constant; assert inline form (not transitive-only); flag missing embeds by file name; excluded commands (`status.md`, `update.md`, `retro.md`) must not be in the constant (D12, D13)
-- [ ] 3.2 Add `## Marathon anti-pattern` subsection to `claude/skills/context-hygiene/SKILL.md` with "cross-stage within one session" vocabulary and a 4th mechanism bullet naming the `context-budget-gate` skill (D14)
-- [ ] 3.3 Check `README.md` for any skills list or lint-checks section that needs updating to reflect the new `context-budget-gate` skill and the new `checkBudgetGateEmbed` lint check; update as needed to keep `README.md` current per `CLAUDE.md` policy
-- [ ] 3.4 Run `node scripts/lint.mjs` -- must exit 0 with all 11 embeds present
-- [ ] 3.5 Temporarily remove the `context-budget-gate` load line from `claude/commands/plan.md`, run `node scripts/lint.mjs` again, confirm `checkBudgetGateEmbed` reports a violation naming `plan.md` and exits non-zero; restore the line and confirm the check passes again
-- [ ] 3.6 Run `openspec validate orchestrator-context-budget --strict`
+- [x] 3.1 Add `checkBudgetGateEmbed` to `scripts/lint.mjs` after Check 9, using the same async-function-pushing-to-errors pattern; hardcode `BUDGET_GATE_COMMAND_STEMS` as the 11-command constant; assert inline form (not transitive-only); flag missing embeds by file name; excluded commands (`status.md`, `update.md`, `retro.md`) must not be in the constant (D12, D13)
+- [x] 3.2 Add `## Marathon anti-pattern` subsection to `claude/skills/context-hygiene/SKILL.md` with "cross-stage within one session" vocabulary and a 4th mechanism bullet naming the `context-budget-gate` skill (D14)
+- [x] 3.3 Check `README.md` for any skills list or lint-checks section that needs updating to reflect the new `context-budget-gate` skill and the new `checkBudgetGateEmbed` lint check; update as needed to keep `README.md` current per `CLAUDE.md` policy
+- [x] 3.4 Run `node scripts/lint.mjs` -- must exit 0 with all 11 embeds present
+- [x] 3.5 Temporarily remove the `context-budget-gate` load line from `claude/commands/plan.md`, run `node scripts/lint.mjs` again, confirm `checkBudgetGateEmbed` reports a violation naming `plan.md` and exits non-zero; restore the line and confirm the check passes again
+- [x] 3.6 Run `openspec validate orchestrator-context-budget --strict`
