@@ -156,6 +156,25 @@ like the other artifact-producing agents (and/or run lint at R-commit time to ca
 it at the source). Surfaced 2026-07-27 while implementing
 [[unify-implement-paths-on-variants]] (its research.md tripped Check 14).
 
+### architect-must-leads-requirement-first-line — `idea` · **P2**
+
+**Why:** OpenSpec `validate --strict` (1.4.1) only scans the **first line** of a
+requirement body for `MUST`/`SHALL`. An architect (stage S) that opens a
+requirement body with a wrapped `When …` clause and lets `MUST` fall to line 2
+authors a delta that reads fine, passes a non-strict eye, and passes lint — then
+**hard-stops the Implement stage** at the `openspec validate --strict` slice gate
+(CI runs strict), far from its cause. Observed 2026-07-28 implementing
+[[spec-sync-contract]] slice 1: three ADDED requirements each began `When …` with
+`MUST` on the next line; the implementer returned blocked and the orchestrator
+had to reorder each body so `MUST` leads. Fix, cheapest first: (1) add a line to
+`claude/agents/architect.md` (and/or the `spec-delta.template.md` requirement
+comment) — "put `MUST`/`SHALL` on the requirement body's **first line**, before
+any `When …` clause"; (2) optionally a `scripts/lint.mjs` check mirroring the
+strict first-line scan so the gotcha fails at S-commit, not mid-implement.
+Relates to [[dedicated-spec-sync-agent]]/[[spec-sync-contract]]'s delta-merge
+authoring rules and the general "artifact-authoring gate fires late at stage I"
+smell shared with [[researcher-apply-surface-gate]].
+
 ### standardize-recurring-ops-scripts — `idea` · **P2**
 
 **Why (two payoffs — consistency *and* token cost):** Several QRSPI operations

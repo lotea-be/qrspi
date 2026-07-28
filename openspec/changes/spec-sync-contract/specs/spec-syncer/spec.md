@@ -110,12 +110,12 @@ describe the failure.
   describing the validation error; no base specs are modified.
 
 ### Requirement: spec-syncer accepts a confirmed-count-drop-ok flag for re-spawning
-When `/qrspi:archive` re-spawns spec-syncer after the human confirms an
-intentional scenario-count reduction, spec-syncer MUST accept a
-"confirmed count-drop OK" flag (identifying the confirmed requirement by name)
-and MUST skip the count-drop hard-stop for that specific requirement while
-continuing to enforce it for all others. This preserves the single write path:
-the command carries no partial merge state.
+spec-syncer MUST accept a "confirmed count-drop OK" flag (identifying the
+confirmed requirement by name) when `/qrspi:archive` re-spawns it after the
+human confirms an intentional scenario-count reduction, and MUST skip the
+count-drop hard-stop for that specific requirement while continuing to enforce
+it for all others. This preserves the single write path: the command carries no
+partial merge state.
 
 #### Scenario: re-spawn with confirmed flag skips the guard for that requirement
 - **GIVEN** the human has confirmed that the scenario-count reduction in

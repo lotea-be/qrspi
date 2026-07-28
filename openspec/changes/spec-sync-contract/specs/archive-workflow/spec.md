@@ -33,12 +33,13 @@ command MUST skip step 4a entirely.
   (folder move via the generated skill).
 
 ### Requirement: count-drop hard-stop surfaces the blocked requirement for human confirmation
-When spec-syncer returns a `blocked-on-count-drop` signal, `/qrspi:archive`
-MUST hard-stop and surface the blocked requirement and its pre/post counts to
-the human via AskUserQuestion, offering two choices: confirm the intentional
-reduction (which re-spawns spec-syncer with the "confirmed count-drop OK" flag
-for that requirement) or abort the archive. The command MUST NOT proceed with
-the folder move while any count-drop block is unresolved.
+`/qrspi:archive` MUST hard-stop when spec-syncer returns a
+`blocked-on-count-drop` signal, surfacing the blocked requirement and its
+pre/post counts to the human via AskUserQuestion and offering two choices:
+confirm the intentional reduction (which re-spawns spec-syncer with the
+"confirmed count-drop OK" flag for that requirement) or abort the archive. The
+command MUST NOT proceed with the folder move while any count-drop block is
+unresolved.
 
 #### Scenario: human confirms count-drop — spec-syncer is re-spawned
 - **GIVEN** spec-syncer returned `blocked-on-count-drop` naming requirement
@@ -55,11 +56,11 @@ the folder move while any count-drop block is unresolved.
   and base specs remain unchanged.
 
 ### Requirement: escape-hatch prompt offered only for malformed or abandoned deltas
-When spec-syncer returns an `escape-hatch` signal (delta is malformed or fails
-`openspec validate <id> --strict`), `/qrspi:archive` MUST surface the failure
-description to the human and offer an escape-hatch choice: archive without
-syncing, or abort to fix the delta. This prompt MUST only appear in response to
-the `escape-hatch` signal — it MUST NOT appear on the happy path (a `synced`
+`/qrspi:archive` MUST surface the failure description to the human and offer an
+escape-hatch choice when spec-syncer returns an `escape-hatch` signal (delta is
+malformed or fails `openspec validate <id> --strict`): archive without syncing,
+or abort to fix the delta. This prompt MUST only appear in response to the
+`escape-hatch` signal — it MUST NOT appear on the happy path (a `synced`
 result) or on a `blocked-on-count-drop` result (which uses the count-drop
 confirmation flow instead).
 
