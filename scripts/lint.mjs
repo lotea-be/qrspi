@@ -368,7 +368,86 @@ async function checkPinAgreement(errors) {
   const versions = [...new Set(found.map((f) => f.version))];
   if (versions.length === 1) {
     // All agree -- pass
-    process.stdout.write(`  OK: ${found.length} pin occurrence(s) all agree on v${versions[0]}\n`);
+    const agreedPin = versions[0];
+    process.stdout.write(`  OK: ${found.length} pin occurrence(s) all agree on v${agreedPin}\n`);
+
+    // ---- CONFIG-COUPLING ASSERTION (D2, D3) ------------------------------------
+    // openspec/config.yaml must carry an `openspec_version:` key that agrees with
+    // the agreed pin V derived above.  Two failure legs (D2):
+    //   (a) absent  -- the key is missing from the file (or the file is missing)
+    //   (b) mismatch -- the key is present but does not equal V
+    // The zero-pin branch above is unchanged (D4).
+    //
+    // ---- INLINE SELF-TEST (D6) --------------------------------------------------
+    // Three in-memory fixtures exercising the extractor used by the real assertion.
+    // Self-test failures are pushed as errors so CI catches detector regressions.
+    function extractConfigVersion(rawText) {
+      // Extract the first `openspec_version: X.Y.Z` occurrence from raw YAML text.
+      // Reuses the same pinRe pattern already used in the scan above.
+      const configPinRe = /openspec_version:\s*(\d+\.\d+\.\d+)/;
+      const m = rawText.match(configPinRe);
+      return m ? m[1] : null;
+    }
+
+    // Fixture A: absent key -- extractor must return null
+    const _stAbsentText = 'schema: spec-driven\n# no openspec_version here\n';
+    if (extractConfigVersion(_stAbsentText) !== null) {
+      errors.push(
+        '[pin] SELF-TEST FAILED: absent-config fixture -- extractor returned a version' +
+        ' when openspec_version is absent (config-absent leg detection is broken)'
+      );
+    }
+
+    // Fixture B: wrong value -- extractor must return a version != agreedPin
+    const _wrongVersion = agreedPin === '0.0.1' ? '0.0.2' : '0.0.1';
+    const _stWrongText = `schema: spec-driven\nopenspec_version: ${_wrongVersion}\n`;
+    const _stWrongResult = extractConfigVersion(_stWrongText);
+    if (_stWrongResult === null || _stWrongResult === agreedPin) {
+      errors.push(
+        '[pin] SELF-TEST FAILED: present-but-wrong-value fixture -- extractor did not' +
+        ' return the wrong version (config-mismatch leg detection is broken)'
+      );
+    }
+
+    // Fixture C: agrees -- extractor must return agreedPin exactly
+    const _stAgreeText = `schema: spec-driven\nopenspec_version: ${agreedPin}\n`;
+    if (extractConfigVersion(_stAgreeText) !== agreedPin) {
+      errors.push(
+        '[pin] SELF-TEST FAILED: agrees fixture -- extractor did not return the agreed' +
+        ` pin v${agreedPin} (config-coupling extractor is broken)`
+      );
+    }
+    // ---- end self-test ----------------------------------------------------------
+
+    // Real assertion: read openspec/config.yaml and check its openspec_version
+    const configPath = path.join(root, 'openspec', 'config.yaml');
+    const configText = await readFileOr(configPath, null);
+    if (configText === null) {
+      // File missing entirely counts as absent-key (config-absent leg)
+      errors.push(
+        '[pin] openspec/config.yaml not found -- add `openspec_version: ' + agreedPin + '`' +
+        ' so the config stays coupled to the pin'
+      );
+    } else {
+      const configVersion = extractConfigVersion(configText);
+      if (configVersion === null) {
+        // Key absent from the file (config-absent leg)
+        errors.push(
+          '[pin] openspec/config.yaml is missing the `openspec_version:` key' +
+          ` -- add \`openspec_version: ${agreedPin}\` so the config stays coupled to the pin`
+        );
+      } else if (configVersion !== agreedPin) {
+        // Key present but wrong value (config-mismatch leg)
+        errors.push(
+          `[pin] openspec/config.yaml has \`openspec_version: ${configVersion}\`` +
+          ` but the agreed pin is v${agreedPin}` +
+          ` -- update openspec/config.yaml to \`openspec_version: ${agreedPin}\``
+        );
+      }
+      // If configVersion === agreedPin: the config agrees -- no error (happy path)
+    }
+    // ---- end config-coupling assertion -----------------------------------------
+
     return;
   }
 
