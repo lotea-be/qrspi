@@ -1,0 +1,18 @@
+version: 0.12.0
+summary: >
+  Adds the in-session context-budget gate: a new context-budget-gate skill loads at
+  the top of the 10 long-session commands (8 stage commands + archive + followup),
+  nudging at 8 stage-events and soft-gating at 12 to prompt a /clear reset before the
+  orchestrator context degrades. archive.md gains a step-7 new-session reset offer.
+  The shipped behaviour applies automatically on update -- no consumer action is
+  required unless you have locally overridden the affected files.
+automated: []
+manual:
+  - >-
+    If you have locally overridden any of the 10 gate-scoped command files (questions,
+    research, design, structure, slices, plan, implement, pr, archive, followup) or the
+    workflow / context-hygiene skills, re-apply your customizations on top of the new
+    versions: each gate-scoped command now carries a context-budget-gate skill-load line
+    after the version check; archive.md adds a step-7 "start a fresh session?" offer;
+    workflow adds a never-suppressed-gates bullet; context-hygiene adds a "Marathon
+    anti-pattern" subsection. If you have not overridden these files, no action is needed.

@@ -14,6 +14,10 @@ kit version.
 
 ## [Unreleased]
 
+_No unreleased changes._
+
+## [0.12.0] - 2026-07-29
+
 ### Added
 
 - **In-session orchestrator context-budget gate (`orchestrator-context-budget`).**
