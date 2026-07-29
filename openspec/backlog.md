@@ -185,6 +185,22 @@ appends a well-formed idea row using the same mechanic those flows already embed
 writer for the schema [[standardize-backlog-format]] defines, and pairs with
 [[backlog-prioritization]] (it can propose a band + placement on capture).
 
+### batch-archive-multiple-changes — `idea` · **P3**
+
+**Why:** `/qrspi:archive` handles exactly **one** change per run; archiving several
+merged changes together (as one PR) currently requires manual git juggling — separate
+per-change archive branches, then cherry-pick/re-sync to combine, resolving base-spec
+overlap by hand (observed 2026-07-29 archiving `orchestrator-context-budget` +
+`architect-must-leads-requirement-first-line` into one PR, where both touched the base
+`ci-quality-gates` spec). Add a batch mode — e.g. `/qrspi:archive <id1> <id2> …` or an
+`--all-merged` sweep — that archives multiple changes in one atomic commit/PR: verify
+each linked PR merged, fold each change's delta specs into the base **sequentially** (so
+overlapping capabilities like a shared `ci-quality-gates` accrete cleanly instead of
+git-conflicting), move all folders under `archive/<date>-<id>/`, remove all backlog rows,
+and land a single commit. Leans on the `spec-syncer`'s sequential-merge behavior and
+relates to [[standardize-recurring-ops-scripts]] (the archive-ops helper family).
+Convenience/robustness, not a correctness gap — hence P3.
+
 ### standardize-recurring-ops-scripts — `idea` · **P2**
 
 **Why (two payoffs — consistency *and* token cost):** Several QRSPI operations
