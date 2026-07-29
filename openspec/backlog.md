@@ -228,6 +228,22 @@ appends a well-formed idea row using the same mechanic those flows already embed
 writer for the schema [[standardize-backlog-format]] defines, and pairs with
 [[backlog-prioritization]] (it can propose a band + placement on capture).
 
+### backlog-wikilink-resolution-lint — `idea` · **P3**
+
+**Why:** [[standardize-backlog-format]] froze the row grammar and enum but left
+`[[wikilink]]` target resolution explicitly out of the new lint Check (a scoping
+call at its D stage). So a `[[dangling-idea]]` cross-reference to a row that never
+existed — or that was archived and removed — passes lint silently, and the backlog
+accumulates broken links no check catches. This is the same "marker rots" failure
+the schema change set out to prevent, one layer up at the cross-reference level.
+
+**Shape:** Extend the backlog lint (Check 22's successor, or a sibling Check) to
+collect every `[[<slug>]]` occurrence and assert each resolves to either an
+existing `### <slug>` row id in `openspec/backlog.md` or an archived change folder
+under `openspec/changes/archive/*-<slug>/`. Warn (not hard-fail) on the archived-
+row case if that proves noisy; hard-fail on a slug that resolves nowhere. Depends
+on [[standardize-backlog-format]] having landed the row-id grammar first.
+
 ### batch-archive-multiple-changes — `idea` · **P3**
 
 **Why:** `/qrspi:archive` handles exactly **one** change per run; archiving several
