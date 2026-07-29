@@ -976,6 +976,19 @@ OpenSpec pin, so the CI `ci.yml` pin is unchecked. Unlike `openspec/config.yaml`
 fails loudly, so this is separable hygiene — add `.github/` to Check 1's scan.
 Surfaced as a Non-Goal of [[reassess-openspec-dependency]] (stage D, 2026-07-29).
 
+### simplify-pin-coupling-mismatch-branch — `idea` · **P3**
+
+**Why:** The pin-coupling guard shipped by [[reassess-openspec-dependency]] has a
+dedicated config-mismatch message (`configVersion !== agreedPin`, inside
+`checkPinAgreement`'s "all agree" branch) that is **unreachable in the real-repo
+path**: a wrong `openspec_version` in `openspec/config.yaml` is caught first by the
+pre-existing multi-version scan, so the dedicated message fires only via the
+in-memory self-test fixture. Either remove the redundant branch, or restructure so
+`config.yaml` is validated *solely* through the coupling assertion (so its specific,
+more actionable message surfaces instead of the generic "distinct versions" error).
+Not blocking — the guard's fail-loud intent is already met by the pre-existing
+error. Surfaced during PR review of [[reassess-openspec-dependency]] (2026-07-29).
+
 ### sync-modified-delta-scenario-loss — `idea` · **P2**
 
 > **Bundled into `spec-sync-contract`** (proposed) with
