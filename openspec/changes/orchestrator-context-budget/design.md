@@ -43,9 +43,13 @@ it degrades.
 - Add the soft gate to the `workflow` skill's "Never-suppressed gates" list.
 
 **Non-Goals** (load-bearing fences unless noted):
-- **Automating the reset** (LB) — no harness primitive can start a session; we
-  recommend/gate only. Every "reset now" branch prints the resume path and ends
-  the turn.
+- **Automating the reset** (LB) — no harness primitive lets the orchestrator
+  reset its own context; we recommend/gate only. Every "reset now" branch prints
+  the resume path and ends the turn. **Verified (D12):** even `/clear` cannot be
+  auto-invoked — slash commands are user-initiated REPL directives (a
+  model-emitted `/clear` is inert text; there is no `SlashCommand` invoke API; and
+  `/clear` would wipe the turn attempting it). So the resume instruction *names*
+  `/clear` for the human to run; it never runs it.
 - **A live-% mechanism** (LB) — infeasible per PQ1/research; do not design one.
 - **Persisting the counter to disk** (LB) — in-context only; drift on `/clear` is
   acceptable because the counter is always a *lower bound* (see D3).
@@ -131,16 +135,19 @@ naturally without a per-item nudge (which would itself be friction). No separate
 "end of batch" detection is needed; the counter is the batch signal. Answers Q3,
 Q25.
 
-### D8 — Resume path: self-contained one-liner
+### D8 — Resume path: self-contained one-liner (names `/clear`, per D12)
 The reset instruction printed by both the soft gate (D6) and archive step 7 (D9):
 
-> Start a fresh session and run `/qrspi:<next> <id>` — the change folder on disk
-> is the truth; run-mode is re-asked (correct, not a bug). `/qrspi:status` shows
-> where you are if unsure.
+> Run `/clear` to reset this session in place, then `/qrspi:<next> <id>` — the
+> change folder on disk is the truth; run-mode is re-asked (correct, not a bug).
+> `/qrspi:status` shows where you are if unsure. (A full relaunch is only needed
+> when the plugin files themselves changed.)
 
 `<next>` is the stage the orchestrator was about to run (or, post-archive,
 `/qrspi:questions <new-id>`). Links `/qrspi:status` as the optional "where am I"
-step but is self-contained. Answers Q10, Q22(b), Q23.
+step but is self-contained. `/clear` is named explicitly as the lightweight
+in-place reset (D12) — it is the cheapest way to drop the accumulated
+orchestrator context without leaving the terminal. Answers Q10, Q22(b), Q23.
 
 ### D9 — Post-archive reset: new step-7 AskUserQuestion in archive.md
 `archive.md` gains a **new step 7** after the step-6 completion summary:
@@ -182,6 +189,21 @@ in-scope** (mirrors Check 9's `VERSION_CHECK_COMMAND_STEMS`): a new
 plan, implement, pr, archive, followup]` with the whitespace-collapsed embed
 assertion. This prevents silent under-coverage across 11 sites. Answers Q7, Q26,
 Q28, Q30, Q33.
+
+### D12 — Reset instruction names `/clear` (auto-invoke verified infeasible) — post-PR amendment
+Added as a post-PR P2 amendment (follow-up "orchestrator runs `/clear` on Yes").
+The follow-up asked whether the orchestrator could *itself* run `/clear` on the
+"Reset now" / archive-step-7 "Yes" branch, which would overturn Non-Goal 35a's
+"no auto-reset" fence. A `claude-code-guide` capability check returned a definitive
+**no**: slash commands are user-initiated REPL directives parsed before model
+invocation; a model-emitted `/clear` is inert text; there is no `SlashCommand`
+(or equivalent) tool exposing `/clear`; and `/clear` wipes the conversation
+(including the turn), so an agent could not continue after it. Non-Goal 35a
+therefore **stands** — but the reset UX is refined: the resume one-liner (D8) and
+the archive-step-7 "Yes" branch (D9) now **name `/clear` explicitly** as the
+lightweight in-place reset the *human* runs (cheaper than relaunching a terminal),
+followed by `/qrspi:<next> <id>`. Observable change is text-only: the branches
+still print-and-end-the-turn; only the printed instruction now says `/clear`.
 
 ## Command changes
 - All 8 stage commands: insert the budget-gate embed as the step **between** the

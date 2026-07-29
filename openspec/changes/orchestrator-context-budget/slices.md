@@ -132,3 +132,24 @@ needed here.
   `context-budget-gate` load line from `claude/commands/plan.md` and rerun;
   confirm `checkBudgetGateEmbed` reports a violation naming `plan.md` and exits
   non-zero. Restore the line and confirm the check passes again.
+
+## Slice 4 — Reset instruction names `/clear` (post-PR P2 amendment)
+
+Refine the reset UX so the "Reset now" (soft gate) and archive-step-7 "Yes"
+branches direct the human to run `/clear` (the lightweight in-place reset) before
+`/qrspi:<next> <id>`, per D12 — auto-invoking `/clear` was verified infeasible
+(slash commands are user-initiated; a model-emitted `/clear` is inert). Text-only
+observable change; the branches still print-and-end-the-turn.
+
+- Skill: update the `context-budget-gate` resume one-liner (Step 4 "Reset now"
+  branch) to name `/clear` then `/qrspi:<next> <id>` (D8, D12)
+- Command: update `archive.md` step-7 "Yes" branch resume line to name `/clear`
+  then the next command (D9, D12)
+- Spec: update the resume-path wording in `specs/context-budget-gate/spec.md` and
+  `specs/archive-workflow/spec.md` to mention `/clear` (D12)
+- Docs: refresh the CHANGELOG `[Unreleased]` entry to mention the `/clear`-named reset
+- **Compute:** effort=low -- text-only prose refinement across a skill, a command,
+  two delta specs, and the changelog; no logic change
+- Checkpoint: `node scripts/lint.mjs` exits 0 and `openspec validate
+  orchestrator-context-budget --strict` passes; the resume one-liner and the
+  archive step-7 "Yes" branch both name `/clear`.
