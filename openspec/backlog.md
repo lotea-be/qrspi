@@ -989,6 +989,21 @@ more actionable message surfaces instead of the generic "distinct versions" erro
 Not blocking — the guard's fail-loud intent is already met by the pre-existing
 error. Surfaced during PR review of [[reassess-openspec-dependency]] (2026-07-29).
 
+### bump-openspec-pin — `idea` · **P3**
+
+**Why:** The kit pins `@fission-ai/openspec@1.4.1` while the CLI has moved on
+(latest **1.6.0** as of the [[reassess-openspec-dependency]] research, 2026-07-29).
+The KEEP verdict (D1) commits the kit to the CLI through 1.0, so keeping the pin
+current is worth a look — but it is a separate, deliberate change, not free: bump
+every hand-maintained `@fission-ai/openspec@<version>` site (`init.md`, README, CI
+`ci.yml`) **and** `openspec/config.yaml`'s `openspec_version`, plus add a
+migration-manifest `edit-file` step for `openspec/config.yaml` — now *required*
+because [[reassess-openspec-dependency]]'s new Check 1 coupling guard turns red on
+upgraded consumers whose config still reads the old pin. Assess the 1.5/1.6
+changelog (any grammar / `validate` behaviour changes that affect delta specs)
+before bumping. Surfaced during PR review of [[reassess-openspec-dependency]]
+(2026-07-29).
+
 ### sync-modified-delta-scenario-loss — `idea` · **P2**
 
 > **Bundled into `spec-sync-contract`** (proposed) with
