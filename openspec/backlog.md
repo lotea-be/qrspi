@@ -13,7 +13,50 @@ _None._
 
 ## Proposed
 
-_None._
+### reassess-openspec-dependency — `proposed` · **P3**
+
+**Why:** The source only asks to "persist to disk," but the kit pins an external
+OpenSpec CLI (npx, a version pin spread across files, a CI lint to police it) to
+gain `openspec validate` on the delta specs. (`openspec/specs/` is now populated
+as of the 2026-06-19 archives, so the validated surface is real — re-weigh the
+dependency against a vendored folder convention + a small validator with that in
+mind.)
+
+**Folded-in concern — qrspi-branded workspace folder (2026-07-28):** a related
+want is renaming the `openspec/` workspace root to `qrspi/` for the road-to-1.0
+rebrand. It is *not* a free cosmetic rename: `openspec/` is the OpenSpec CLI's
+hardcoded workspace root (`openspec init`/`validate`/`status --json` and the
+generated archive/sync skills all assume it), so QRSPI cannot rename it
+unilaterally. Two paths, both landing here: (a) OpenSpec upstream adds a
+**configurable workspace root** (unverified whether the current CLI exposes
+this — needs checking against its config surface, `openspec/config.yaml`); or
+(b) dropping the CLI for the vendored convention + small validator this entry
+already weighs, at which point QRSPI owns the folder name outright. Ties to the
+[[rename-qrspi-to-qrnchi]] rebrand vehicle. Surfaced as a user question during
+the `spec-sync-contract` D stage.
+
+**Path (a) verified closed (2026-07-28).** Checked the OpenSpec CLI up to the
+latest **1.6.0** (pin is 1.4.1): there is **no configurable workspace-root name** —
+`init [path]` only sets a parent directory, and the `config` surface exposes only
+profile/delivery/telemetry keys, none renaming `openspec/`. The "resolved OpenSpec
+root" language is root *discovery*, not renaming. So a branded `qrnchi/` root
+requires **path (b), dropping the CLI** — a change larger than the rebrand itself.
+
+**Pulled forward as a decision spike (2026-07-28).** Sequenced into the road-to-1.0
+runway as **Tier 1.25** (see the ▶ Next-up note): run R/D to a documented
+keep-vs-vendor verdict *before* the rename, without committing 1.0 to the folder
+rename. Keeps its **P3** band — this records sequencing, not a re-banding.
+
+**Anchor of a bundle (taken up 2026-07-29).** Bundled with
+[[assert-openspec-version-pin-coupling]] — both hinge on the same keep-CLI-vs-vendor
+verdict. The spike's verdict decides that item's fate: *vendor* retires it (no pin
+to police); *keep* continues the flow through to build the pin-coupling guard. The
+verdict must therefore state, per option, what happens to the OpenSpec version-pin
+coupling.
+
+**Stage Q done (2026-07-29).** `questions.md` written; PQ1–PQ5 answered — prior
+lean **keep**, guard ships in this same flow on a keep verdict, branded-root rename
+is a soft (deferrable) want, R/D-analysis evidence bar (no prototype). Next: R.
 
 ---
 
@@ -844,7 +887,13 @@ runs an 8-reviewer tier, but *un-scoped by surface* and with no lint/human floor
 this entry is the QRSPI-native, surface-scaled version. Surfaced 2026-07-27 while
 comparing QRSPI against the public `qrspi-plus` fork.
 
-### assert-openspec-version-pin-coupling — `idea` · **P3**
+### assert-openspec-version-pin-coupling — `bundled into reassess-openspec-dependency (2026-07-29)` · **P3**
+
+> **Bundled into `reassess-openspec-dependency`** (2026-07-29) — the spike's
+> keep-CLI-vs-vendor verdict decides this item's fate: a *vendor* verdict retires
+> it (no OpenSpec pin left to police), a *keep* verdict continues the flow through
+> to build this pin-coupling guard in the same run. Same load-bearing question, so
+> co-decided rather than built speculatively. See that entry.
 
 **Why:** `openspec/config.yaml` carries an `openspec_version` field recording the
 OpenSpec CLI version a consumer repo was scaffolded with, but its own comment
@@ -1069,40 +1118,6 @@ kit-only meta-tooling — audit whether anything else in the base plugin is
 maintainer-only (note `readme-audit` is already `.claude/`
 dev-tooling, not plugin-shipped, so likely already on the right side). Surfaced
 during `add-auto-mode`'s stage-I/PR retro.
-
-### reassess-openspec-dependency — `idea` · **P3**
-
-**Why:** The source only asks to "persist to disk," but the kit pins an external
-OpenSpec CLI (npx, a version pin spread across files, a CI lint to police it) to
-gain `openspec validate` on the delta specs. (`openspec/specs/` is now populated
-as of the 2026-06-19 archives, so the validated surface is real — re-weigh the
-dependency against a vendored folder convention + a small validator with that in
-mind.)
-
-**Folded-in concern — qrspi-branded workspace folder (2026-07-28):** a related
-want is renaming the `openspec/` workspace root to `qrspi/` for the road-to-1.0
-rebrand. It is *not* a free cosmetic rename: `openspec/` is the OpenSpec CLI's
-hardcoded workspace root (`openspec init`/`validate`/`status --json` and the
-generated archive/sync skills all assume it), so QRSPI cannot rename it
-unilaterally. Two paths, both landing here: (a) OpenSpec upstream adds a
-**configurable workspace root** (unverified whether the current CLI exposes
-this — needs checking against its config surface, `openspec/config.yaml`); or
-(b) dropping the CLI for the vendored convention + small validator this entry
-already weighs, at which point QRSPI owns the folder name outright. Ties to the
-[[rename-qrspi-to-qrnchi]] rebrand vehicle. Surfaced as a user question during
-the `spec-sync-contract` D stage.
-
-**Path (a) verified closed (2026-07-28).** Checked the OpenSpec CLI up to the
-latest **1.6.0** (pin is 1.4.1): there is **no configurable workspace-root name** —
-`init [path]` only sets a parent directory, and the `config` surface exposes only
-profile/delivery/telemetry keys, none renaming `openspec/`. The "resolved OpenSpec
-root" language is root *discovery*, not renaming. So a branded `qrnchi/` root
-requires **path (b), dropping the CLI** — a change larger than the rebrand itself.
-
-**Pulled forward as a decision spike (2026-07-28).** Sequenced into the road-to-1.0
-runway as **Tier 1.25** (see the ▶ Next-up note): run R/D to a documented
-keep-vs-vendor verdict *before* the rename, without committing 1.0 to the folder
-rename. Keeps its **P3** band — this records sequencing, not a re-banding.
 
 ### tutorial-mode-coaching-overlay — `idea` · **P3**
 
