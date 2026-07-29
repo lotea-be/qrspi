@@ -7,13 +7,7 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## In progress
 
-_None._
-
----
-
-## Proposed
-
-### architect-must-leads-requirement-first-line — `proposed (change folder created 2026-07-28)` · **P2**
+### architect-must-leads-requirement-first-line — `in-progress (Q, R, D, S, V, P, I complete)` · **P2**
 
 **Why:** OpenSpec `validate --strict` (1.4.1) only scans the **first line** of a
 requirement body for `MUST`/`SHALL`. An architect (stage S) that opens a
@@ -30,6 +24,12 @@ optionally a `scripts/lint.mjs` check (Check 20) mirroring the strict first-line
 scan so the gotcha fails at S-commit, not mid-implement. Scope decided at Q
 (PQ1). Relates to [[researcher-apply-surface-gate]] (same "gate fires late at I"
 pattern).
+
+---
+
+## Proposed
+
+_None._
 
 ---
 

@@ -2,7 +2,7 @@
 // ============================================================================
 //  scripts/lint.mjs -- CI quality gate for the QRSPI kit
 // ----------------------------------------------------------------------------
-//  Checks (run in order, all errors collected before exit -- Checks 1-20):
+//  Checks (run in order, all errors collected before exit -- Checks 1-21):
 //
 //  1. PIN AGREEMENT  -- every hand-maintained OpenSpec version occurrence
 //     must agree. generatedBy: lines in openspec-generated skill files are
@@ -134,6 +134,16 @@
 //     ###/## boundary) contains neither MUST nor SHALL (case-sensitive). Skips
 //     empty bodies (no non-blank line before the boundary). Suppresses
 //     ### Requirement: lines inside fenced code blocks. Registered after Check 19.
+//
+// 21. FORMAT-RULES PARITY GUARD -- extracts the text delimited by
+//     <!-- must-leads:begin --> and <!-- must-leads:end --> sentinel comments
+//     from both claude/agents/architect.md and
+//     openspec-templates/spec-delta.template.md, and asserts the two extracted
+//     blocks are byte-identical. Fails closed: if either sentinel pair is
+//     missing or unbalanced the check pushes a [format-rules-parity] error and
+//     exits non-zero rather than silently passing. Carries an inline three-
+//     fixture self-test (match, drift, missing-anchor) run before file I/O.
+//     Registered after Check 20.
 //
 //  Exits 0 if all checks pass, 1 if any check reports a violation.
 //  Requires only Node.js built-ins (fs, path) -- no npm dependencies.
@@ -3050,6 +3060,122 @@ async function checkRequirementFirstLineModal(errors) {
   return violations;
 }
 
+// ---- Check 21: FORMAT-RULES PARITY GUARD ------------------------------------
+//
+// Extracts the text between <!-- must-leads:begin --> and <!-- must-leads:end -->
+// sentinels from both:
+//   claude/agents/architect.md
+//   openspec-templates/spec-delta.template.md
+// and asserts the two extracted blocks are byte-identical.
+//
+// Fails closed on a missing or unbalanced sentinel pair in either file:
+// a missing anchor is an error, never a silent pass.
+//
+// Carries an inline three-fixture self-test run before file I/O:
+//   (a) matching pair      -> PASS
+//   (b) drifted pair       -> FAIL
+//   (c) missing-anchor     -> FAIL
+
+async function checkFormatRulesParity(errors) {
+  const BEGIN_SENTINEL = '<!-- must-leads:begin -->';
+  const END_SENTINEL   = '<!-- must-leads:end -->';
+
+  // Helper: extract the text between the sentinel comments (exclusive of the
+  // sentinel lines themselves). Returns the extracted string, or null if either
+  // sentinel is missing or the begin occurs after the end.
+  function extractBlock(text) {
+    const beginIdx = text.indexOf(BEGIN_SENTINEL);
+    if (beginIdx === -1) return null;
+    const afterBegin = beginIdx + BEGIN_SENTINEL.length;
+    const endIdx = text.indexOf(END_SENTINEL, afterBegin);
+    if (endIdx === -1) return null;
+    return text.slice(afterBegin, endIdx);
+  }
+
+  // ---- INLINE SELF-TEST -------------------------------------------------------
+  // Three fixtures exercising extractBlock and the byte-identity assertion.
+  // Run before file I/O so a broken detector reddens CI immediately.
+
+  // Fixture (a): matching pair -> PASS (both blocks are identical)
+  const _stTextA1 = `${BEGIN_SENTINEL}\n- MUST line\n${END_SENTINEL}`;
+  const _stTextA2 = `${BEGIN_SENTINEL}\n- MUST line\n${END_SENTINEL}`;
+  const _stBlockA1 = extractBlock(_stTextA1);
+  const _stBlockA2 = extractBlock(_stTextA2);
+  if (_stBlockA1 === null || _stBlockA2 === null || _stBlockA1 !== _stBlockA2) {
+    errors.push('[format-rules-parity] SELF-TEST FAILED: fixture (a) -- matching pair was not accepted');
+  }
+
+  // Fixture (b): drifted pair -> FAIL (blocks differ)
+  const _stTextB1 = `${BEGIN_SENTINEL}\n- MUST line A\n${END_SENTINEL}`;
+  const _stTextB2 = `${BEGIN_SENTINEL}\n- MUST line B (drifted)\n${END_SENTINEL}`;
+  const _stBlockB1 = extractBlock(_stTextB1);
+  const _stBlockB2 = extractBlock(_stTextB2);
+  if (_stBlockB1 === null || _stBlockB2 === null || _stBlockB1 === _stBlockB2) {
+    errors.push('[format-rules-parity] SELF-TEST FAILED: fixture (b) -- drifted pair was not detected');
+  }
+
+  // Fixture (c): missing-anchor -> FAIL (extractBlock returns null)
+  const _stTextC = `no sentinels here`;
+  const _stBlockC = extractBlock(_stTextC);
+  if (_stBlockC !== null) {
+    errors.push('[format-rules-parity] SELF-TEST FAILED: fixture (c) -- missing anchor was not detected (got non-null)');
+  }
+  // ---- end self-test ----------------------------------------------------------
+
+  const architectPath = path.join(root, 'claude', 'agents', 'architect.md');
+  const templatePath  = path.join(root, 'openspec-templates', 'spec-delta.template.md');
+  const architectRel  = 'claude/agents/architect.md';
+  const templateRel   = 'openspec-templates/spec-delta.template.md';
+
+  const architectText = await readFileOr(architectPath, null);
+  const templateText  = await readFileOr(templatePath, null);
+
+  if (architectText === null) {
+    errors.push(`[format-rules-parity] ${architectRel}: file not found`);
+    return 1;
+  }
+  if (templateText === null) {
+    errors.push(`[format-rules-parity] ${templateRel}: file not found`);
+    return 1;
+  }
+
+  const architectBlock = extractBlock(architectText);
+  const templateBlock  = extractBlock(templateText);
+
+  let violations = 0;
+
+  if (architectBlock === null) {
+    errors.push(
+      `[format-rules-parity] ${architectRel}: missing or unbalanced ` +
+      `<!-- must-leads:begin --> / <!-- must-leads:end --> sentinel anchors`
+    );
+    violations++;
+  }
+
+  if (templateBlock === null) {
+    errors.push(
+      `[format-rules-parity] ${templateRel}: missing or unbalanced ` +
+      `<!-- must-leads:begin --> / <!-- must-leads:end --> sentinel anchors`
+    );
+    violations++;
+  }
+
+  if (violations === 0 && architectBlock !== templateBlock) {
+    errors.push(
+      `[format-rules-parity] ${architectRel} and ${templateRel} MUST-leads Format-rules blocks differ` +
+      ` -- edit both or neither.`
+    );
+    violations++;
+  }
+
+  if (violations === 0) {
+    process.stdout.write(
+      `  OK: Format-rules sentinel blocks in architect.md and spec-delta.template.md are byte-identical\n`
+    );
+  }
+  return violations;
+}
+
 // ---- main ------------------------------------------------------------------
 
 async function main() {
@@ -3119,6 +3245,9 @@ async function main() {
 
   process.stdout.write('\nCheck 20: Requirement first-line MUST/SHALL guard\n');
   await checkRequirementFirstLineModal(errors);
+
+  process.stdout.write('\nCheck 21: Format-rules parity (MUST-leads)\n');
+  await checkFormatRulesParity(errors);
 
   process.stdout.write('\n');
   if (errors.length === 0) {
