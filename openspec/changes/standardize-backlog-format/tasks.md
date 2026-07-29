@@ -6,10 +6,10 @@
 
 **Compute:** effort=low model=sonnet — mechanical label renumber with no logic change; purely find-and-replace across two files.
 
-- [ ] 1.1 In `scripts/lint.mjs`, identify which `process.stdout.write` label currently reads `"Check 10: ..."` for `checkTriagePaths`; renumber it and any downstream labels (`checkTriagePaths` onward) to the next free slot(s), keeping `checkBudgetGateEmbed` as Check 10. Update every `process.stdout.write` label string in `main()` to carry a unique `"Check N"` number. (D1)
-- [ ] 1.2 Update `README.md`: change the Check-list entry for `checkTriagePaths` to the renumbered label and adjust the total Check count to match. (D1)
-- [ ] 1.3 Unit/integration test: run `node scripts/lint.mjs`; confirm exit 0, no two `"Check N:"` lines in stdout share the same N, and `checkTriagePaths` still fires on a synthetic missing-P2-choice condition.
-- [ ] 1.4 Checkpoint: run `node scripts/lint.mjs` in repo root — all checks report `OK`, no duplicate `"Check N"` label appears. Read `README.md` Check-list and confirm the renumbered entry and count are consistent. (D1)
+- [x] 1.1 In `scripts/lint.mjs`, identify which `process.stdout.write` label currently reads `"Check 10: ..."` for `checkTriagePaths`; renumber it and any downstream labels (`checkTriagePaths` onward) to the next free slot(s), keeping `checkBudgetGateEmbed` as Check 10. Update every `process.stdout.write` label string in `main()` to carry a unique `"Check N"` number. (D1)
+- [x] 1.2 Update `README.md`: change the Check-list entry for `checkTriagePaths` to the renumbered label and adjust the total Check count to match. (D1)
+- [x] 1.3 Unit/integration test: run `node scripts/lint.mjs`; confirm exit 0, no two `"Check N:"` lines in stdout share the same N, and `checkTriagePaths` still fires on a synthetic missing-P2-choice condition.
+- [x] 1.4 Checkpoint: run `node scripts/lint.mjs` in repo root — all checks report `OK`, no duplicate `"Check N"` label appears. Read `README.md` Check-list and confirm the renumbered entry and count are consistent. (D1)
 
 ## 2. Check 22 + kit backlog backfill + backlog template
 

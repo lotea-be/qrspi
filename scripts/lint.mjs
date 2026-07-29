@@ -3366,7 +3366,7 @@ async function main() {
   process.stdout.write('\nCheck 10 (budget-gate-embed): Budget-gate embed\n');
   await checkBudgetGateEmbed(errors);
 
-  process.stdout.write('\nCheck 10: Triage path anchors\n');
+  process.stdout.write('\nCheck 10b: Triage path anchors\n');
   await checkTriagePaths(errors);
 
   process.stdout.write('\nCheck 11: No CRUD skeleton headings in fenced blocks\n');

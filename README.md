@@ -318,8 +318,7 @@ migration that bumps the pin must edit that field, or upgraded consumers turn re
 
 ### CI lint checks (`node scripts/lint.mjs`)
 
-The lint script runs 21 checks (Checks 1-21, plus a budget-gate-embed sub-check
-after Check 9) on every CI run. Key checks relevant to context hygiene and agent
+The lint script runs 21 checks (Checks 1-21, plus sub-checks 2b, 10b) on every CI run. Key checks relevant to context hygiene and agent
 contracts:
 
 - **Check 2b (`checkSkillSets`)** -- asserts each stage agent's `Load skills` line
@@ -388,6 +387,10 @@ contracts:
   + `archive` + `followup`) contains the inline `context-budget-gate` skill load line.
   Hardcoded constant guards against accidental removal; the three excluded commands
   (`status`, `update`, `retro`) are not in the constant.
+- **Check 10b (`checkTriagePaths`)** -- asserts that the implement command's
+  `(human)` triage path anchors (P2 and P3 choices) are present in
+  `claude/commands/implement.md`, so the triage flow cannot silently lose its branch
+  points. Mirrors the Check 8 pattern for `pr.md`.
 - **Check 20 (`checkRequirementFirstLineModal`)** -- guards the OpenSpec
   `validate --strict` first-line rule at S-commit: flags any requirement whose
   first non-blank body line lacks `MUST`/`SHALL`, scanning both delta specs
@@ -402,8 +405,8 @@ contracts:
 
 All other checks (pin agreement, frontmatter, heading alignment, README command
 coverage, gate-tool/executor agreement, migration manifests, read-contract banners,
-PR reconciliation passes, version-check embed, triage path anchors) are enumerated
-in the header comment of `scripts/lint.mjs`.
+PR reconciliation passes, version-check embed) are enumerated in the header comment
+of `scripts/lint.mjs`.
 
 ### Developer scripts
 
