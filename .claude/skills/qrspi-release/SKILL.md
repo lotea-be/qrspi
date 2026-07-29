@@ -130,10 +130,23 @@ The tag push is the only outward-facing publish step. The skill performs it, but
 
    Never push the tag without an affirmative answer to this gate.
 
-### 7. Remind about the external marketplace step
+### 7. Hand off the external marketplace step
 The release does not reach installed users until the qrspi entry's `source` ref
-is bumped to `vVER` in the **separate** `lotea-be/ai-agent-marketplace` repo. This
-skill cannot do that (different repo) — print the reminder as the final line.
+is bumped to `vVER` in the **separate** `lotea-be/ai-agent-marketplace` repo. The
+release skill does not edit that repo itself, but a companion command automates the
+bump: `/qrspi-marketplace-bump` (skill `qrspi-marketplace-bump`) locates the
+marketplace repo as a sibling folder, verifies `vVER` is published, edits only the
+qrspi entry's ref, and opens a bump **PR** (never a direct push to the marketplace
+`main`).
+
+- **If the tag was pushed in step 6** (the human chose to publish), offer to run the
+  bump now via **AskUserQuestion** — "Bump the marketplace pin to `vVER` now?" with
+  choices "Run `/qrspi-marketplace-bump vVER` now" / "Not now — I'll do it later". On
+  the first choice, re-enter `/qrspi-marketplace-bump vVER` as a slash command on the
+  main loop. On the second, print the command for later.
+- **If the tag was NOT pushed** (human deferred the publish), do not offer the bump —
+  there is no published tag to pin to yet. Print the reminder that both the tag push
+  and `/qrspi-marketplace-bump vVER` remain to be done.
 
 ## Notes
 - **Local dev-tooling.** This command/skill lives under `.claude/` and is **not**
