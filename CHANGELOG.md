@@ -14,6 +14,10 @@ kit version.
 
 ## [Unreleased]
 
+_No unreleased changes._
+
+## [0.11.0] - 2026-07-29
+
 ### Added
 
 - **Architect authoring guidance + lint guards for the requirement first-line
