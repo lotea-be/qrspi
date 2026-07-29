@@ -13,7 +13,27 @@ _None._
 
 ## Proposed
 
-_None._
+### standardize-backlog-format — `proposed (change folder created 2026-07-29)` · **P2**
+
+**Why:** The kit's commands all *mutate* `openspec/backlog.md` — `questions`
+flips a row to `proposed`, `pr` promotes/appends an idea row under `## Ideas`,
+`archive` removes a row, `retro` may edit one — but **none define its schema**.
+The structure (the `## In progress` / `## Proposed` / `## Ideas` sections, the
+`### <id> — <status> · P<band>` heading, the `**Why:**` body, the `idea` /
+`proposed` / `in-progress` / `merged` status enum, `[[wikilink]]` cross-refs)
+lives only as prose inside *this* repo's own backlog. Nothing ships it to
+consumer repos and `scripts/lint.mjs` doesn't check it, so each repo
+reverse-engineers the shape from whatever its commands happened to write.
+Contrast `openspec/changes/<id>/`, which is fully schema-driven (`openspec
+status --json`, lint, templates); the backlog is the one QRSPI surface with
+no schema behind it. Fix, cheapest first: (1) ship a canonical
+`backlog.md` template in `openspec-templates/` so `/qrspi:init` seeds
+the sections + a row-format legend; (2) add a `lint.mjs` Check validating each
+row's heading shape, status enum, and required sections as the mechanical floor;
+defer the heavier per-file `backlog/<id>.md` model to post-1.0. Encodes the
+P1-P3 band convention [[backlog-prioritization]] already applies informally.
+Pairs with [[structured-surface-schema]] (the same "give an ad-hoc surface a
+real schema" move).
 
 ---
 
@@ -546,32 +566,6 @@ hidden-coupling surfacing — squarely the designer's "surface your assumptions"
 not a deployment-specific concern. Relates to the two-source-of-truth caution in
 [[optional-technology-specs]]. Surfaced by the abkf `dsr-self-service` consumer retro
 (2026-07-27).
-
-### standardize-backlog-format — `idea` · **P2**
-
-**Why:** The kit's commands all *mutate* `openspec/backlog.md` — `questions`
-flips a row to `proposed`, `pr` promotes/appends an idea row under `## Ideas`,
-`archive` removes a row, `retro` may edit one — but **none define its schema**.
-The structure (the `## In progress` / `## Proposed` / `## Ideas` sections, the
-`### <id> — <status> · P<band>` heading, the `**Why:**` body, the `idea` /
-`proposed` / `in-progress` / `merged` status enum, `[[wikilink]]` cross-refs)
-lives only as prose inside *this* repo's own backlog. Nothing ships it to
-consumer repos and `scripts/lint.mjs` doesn't check it, so each repo
-reverse-engineers the shape from whatever its commands happened to write — and
-even this repo already runs a second, unspecified shape (`openspec/backlog/<id>.md`
-companion files). Contrast `openspec/changes/<id>/`, which is fully
-schema-driven (`openspec status --json`, lint, templates); the backlog is the
-one QRSPI surface with no schema behind it. Fix, cheapest first: (1) ship a
-canonical `backlog.md` template in `openspec-templates/` so `/qrspi:init` seeds
-the sections + a row-format legend; (2) add a `lint.mjs` check validating each
-row's heading shape, status enum, and required sections as the mechanical floor.
-Weigh a heavier per-file `backlog/<id>.md` model (frontmatter, mirroring
-`changes/`) against the lighter template+lint path. Pairs with
-[[backlog-prioritization]] (which standardizes the *ordering* convention this
-would encode) and [[structured-surface-schema]] (the same "give an ad-hoc
-surface a real schema" move); a natural trigger is the archive flow in
-[[archive-requires-merged-pr]], which already rewrites the backlog on archive.
-Surfaced 2026-07-25.
 
 ### propose-bundling-ideas — `idea` · **P3**
 
