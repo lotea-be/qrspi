@@ -7,7 +7,7 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## In progress
 
-### architect-must-leads-requirement-first-line — `in-progress (Q, R, D, S, V, P, I complete)` · **P2**
+### architect-must-leads-requirement-first-line — `in-progress (PR #39 open)` · **P2**
 
 **Why:** OpenSpec `validate --strict` (1.4.1) only scans the **first line** of a
 requirement body for `MUST`/`SHALL`. An architect (stage S) that opens a
