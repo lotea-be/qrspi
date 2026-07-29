@@ -25,7 +25,7 @@ be a real-time %-read — it must be a **structural heuristic**.
 The desired end state: reset-and-resume is a blessed, first-class step at natural
 boundaries, and a shared **in-context stage-event counter** (the same
 conversational-flag mechanism the version-check flag and run-mode already use, no
-disk backing) drives a two-level nudge/soft-gate at the top of all eleven
+disk backing) drives a two-level nudge/soft-gate at the top of all ten
 long-session command entry points — so a marathon session self-interrupts before
 it degrades.
 
@@ -33,7 +33,7 @@ it degrades.
 
 **Goals:**
 - A single shared budget-gate mechanic (a new skill, mirroring `qrspi-version-check`)
-  embedded at the top of all 11 long-session commands, so wording stays in sync.
+  embedded at the top of all 10 long-session commands, so wording stays in sync.
 - An in-context stage-event counter with two calibrated thresholds: a once-fired
   **nudge** and a once-fired **soft gate** (never-suppressed AskUserQuestion).
 - A blessed post-archive reset offer (new archive step 7) and a post-followup-batch
@@ -177,17 +177,17 @@ imprecise "cross-session" (confirmed Q16). Also add a fourth bullet to the
 `context-budget-gate` as the runtime structural mechanism (the first non-static
 one). Answers Q11, Q12, Q16.
 
-### D11 — Scope: exactly the 11 commands; `status`/`update`/`retro` excluded; lint check IS in-scope
+### D11 — Scope: exactly the 10 commands; `status`/`update`/`retro` excluded; lint check IS in-scope
 The gate is embedded in the **8 stage commands + `archive.md` + `followup.md`**
 (PQ6). Excluded: `status` (a quick read, not a long-session driver), `update` and
 `retro` (out-of-flow utilities). Inclusion criterion: *commands that drive or sit
 inside a long orchestrator flow.* The effort-variant implementer **agents** need no
 gate — the gate lives in `implement.md` (the command), which they run under.
-A **new lint check** asserting all 11 command stems carry the embed line **is
+A **new lint check** asserting all 10 command stems carry the embed line **is
 in-scope** (mirrors Check 9's `VERSION_CHECK_COMMAND_STEMS`): a new
 `BUDGET_GATE_COMMAND_STEMS = [questions, research, design, structure, slices,
 plan, implement, pr, archive, followup]` with the whitespace-collapsed embed
-assertion. This prevents silent under-coverage across 11 sites. Answers Q7, Q26,
+assertion. This prevents silent under-coverage across 10 sites. Answers Q7, Q26,
 Q28, Q30, Q33.
 
 ### D12 — Reset instruction names `/clear` (auto-invoke verified infeasible) — post-PR amendment
@@ -220,7 +220,7 @@ still print-and-end-the-turn; only the printed instruction now says `/clear`.
 - `workflow`: 3rd "Never-suppressed gates" bullet (D6).
 
 ## Lint changes
-- New check: `BUDGET_GATE_COMMAND_STEMS` embed assertion over the 11 commands (D11).
+- New check: `BUDGET_GATE_COMMAND_STEMS` embed assertion over the 10 commands (D11).
   Note the interaction with the backlog's `lint-auto-mode-gate-coverage` idea — both
   assert step-presence in stage commands; flag so they don't later fight.
 
@@ -245,7 +245,7 @@ still print-and-end-the-turn; only the printed instruction now says `/clear`.
 - **Full-auto interruption.** The soft gate deliberately breaks the auto-chain
   (D6); a user who chose Full-auto for a 2-change marathon will be paused. This is
   intended — 98% context is the failure this change exists to prevent.
-- **11-site drift.** Mitigated by the single skill (D1) + the lint check (D11).
+- **10-site drift.** Mitigated by the single skill (D1) + the lint check (D11).
 - **Threshold calibration is a guess** from one data point — hence OQ1.
 
 ## Open questions for the human

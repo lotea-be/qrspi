@@ -13,7 +13,7 @@ consumers as a named-loaded skill, auto-registered via the plugin, requiring no
 `plugin.json` edit.
 
 #### Scenario: skill is loadable by consumers after install
-- **WHEN** a consumer invokes any of the 11 gate-scoped QRSPI commands and the
+- **WHEN** a consumer invokes any of the 10 gate-scoped QRSPI commands and the
   command body loads skill `context-budget-gate`
 - **THEN** `claude/skills/context-budget-gate/SKILL.md` is found, loaded, and
   its instructions are followed by the orchestrator.
@@ -23,9 +23,9 @@ consumers as a named-loaded skill, auto-registered via the plugin, requiring no
 - **THEN** `context-budget-gate/SKILL.md` is present in `claude/skills/` and
   NOT in `.claude/skills/`.
 
-### Requirement: Gate is embedded in exactly 11 command files after the version check
+### Requirement: Gate is embedded in exactly 10 command files after the version check
 The system MUST embed a load line for skill `context-budget-gate` in each of the
-11 gate-scoped command files (`claude/commands/questions.md`, `research.md`,
+10 gate-scoped command files (`claude/commands/questions.md`, `research.md`,
 `design.md`, `structure.md`, `slices.md`, `plan.md`, `implement.md`, `pr.md`,
 `followup.md`, `archive.md`), positioned after the `qrspi-version-check` load
 and before run-mode establishment. The three excluded commands (`status.md`,
