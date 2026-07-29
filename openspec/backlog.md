@@ -7,23 +7,7 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## In progress
 
-### architect-must-leads-requirement-first-line — `in-progress (PR #39 open)` · **P2**
-
-**Why:** OpenSpec `validate --strict` (1.4.1) only scans the **first line** of a
-requirement body for `MUST`/`SHALL`. An architect (stage S) that opens a
-requirement body with a wrapped `When …` clause and lets `MUST` fall to line 2
-authors a delta that reads fine, passes a non-strict eye, and passes lint — then
-**hard-stops the Implement stage** at the `openspec validate --strict` slice gate
-(CI runs strict), far from its cause. Observed 2026-07-28 implementing
-[[spec-sync-contract]] slice 1: three ADDED requirements each began `When …` with
-`MUST` on the next line; the implementer returned blocked and the orchestrator
-had to reorder each body so `MUST` leads. Fix: (1) add a bolded warning
-paragraph to `claude/agents/architect.md` before the delta-spec skeleton, and
-update `openspec-templates/spec-delta.template.md` with a counter-example; (2)
-optionally a `scripts/lint.mjs` check (Check 20) mirroring the strict first-line
-scan so the gotcha fails at S-commit, not mid-implement. Scope decided at Q
-(PQ1). Relates to [[researcher-apply-surface-gate]] (same "gate fires late at I"
-pattern).
+_None._
 
 ---
 
