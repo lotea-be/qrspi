@@ -6,7 +6,7 @@
 
 **Compute:** effort=low model=sonnet — no-code human-confirmation slice; the verdict is already written and validated
 
-- [ ] 1.1 (human) Open `openspec/changes/reassess-openspec-dependency/design.md` and confirm that decisions D1 (keep verdict), D2 (two failure legs), and D3 (config assertion goes inside existing Check 1, not a new check number) are the decisions you want on record before implementation of Slice 2 begins. (D1)
+- [x] 1.1 (human) Open `openspec/changes/reassess-openspec-dependency/design.md` and confirm that decisions D1 (keep verdict), D2 (two failure legs), and D3 (config assertion goes inside existing Check 1, not a new check number) are the decisions you want on record before implementation of Slice 2 begins. (D1) — confirmed: all three approved at the D review this session.
 
 ## 2. Pin-coupling guard, end-to-end
 
