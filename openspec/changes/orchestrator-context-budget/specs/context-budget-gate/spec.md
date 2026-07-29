@@ -134,9 +134,9 @@ auto-advancing to any next stage.
 
 #### Scenario: Reset now ends the turn with a resume path
 - **WHEN** the human selects "Reset now" at the soft-gate AskUserQuestion
-- **THEN** the skill prints the self-contained resume one-liner
-  (`/qrspi:<next-stage> <id>`) and ends the turn without auto-advancing to
-  any next stage.
+- **THEN** the skill prints the self-contained resume one-liner naming `/clear`
+  first (e.g. "Run `/clear`, then `/qrspi:<next-stage> <id>`") and ends the
+  turn without auto-advancing to any next stage.
 
 #### Scenario: Continue anyway sets the soft-gate flag and proceeds
 - **WHEN** the human selects "Continue anyway" at the soft-gate AskUserQuestion
@@ -161,19 +161,20 @@ without auto-advancing.
   backlog-capture offers, with a note that it cannot be suppressed in any
   run-mode.
 
-### Requirement: Resume one-liner is self-contained and points to the next stage
-The skill MUST construct the reset resume one-liner as a fresh-session entry
-point: `/qrspi:<next-stage> <id>` where `<next-stage>` is the stage the user was
-about to run and `<id>` is the current change id. The one-liner MUST be sufficient
-for the user to open a new session and resume without any additional context.
-An optional note that `/qrspi:status <id>` is available for orientation MAY
-follow the one-liner.
+### Requirement: Resume one-liner is self-contained and names /clear then the next stage
+The skill MUST construct the reset resume one-liner to lead with `/clear` (the
+lightweight in-place reset the human runs) followed by `/qrspi:<next-stage> <id>`
+where `<next-stage>` is the stage the user was about to run and `<id>` is the
+current change id. The one-liner MUST be sufficient for the user to reset and
+resume without any additional context. An optional note that `/qrspi:status <id>`
+is available for orientation MAY follow.
 
 #### Scenario: reset one-liner for a mid-flow stage is actionable
 - **WHEN** the soft gate fires during `/qrspi:implement my-change` and the user
   selects "Reset now"
-- **THEN** the printed resume path is `/qrspi:implement my-change` (or the next
-  slice equivalent), sufficient for a fresh session to continue.
+- **THEN** the printed resume path names `/clear` first and then
+  `/qrspi:implement my-change` (or the next slice equivalent), sufficient to
+  reset in place and continue.
 
 ### Requirement: context-hygiene skill gains a Marathon anti-pattern subsection
 The system MUST add a `## Marathon anti-pattern` subsection to

@@ -226,7 +226,7 @@ Steps:
    - **On "Yes -- print resume path and end turn":** print the following
      one-liner and **end the turn without auto-advancing**:
      ```
-     Start a fresh session and run /qrspi:status to see what is next.
+     Run /clear, then /qrspi:status to see what is next -- the change folder on disk is the truth.
      ```
    - **On "No -- stay in this session":** end the turn normally. No resume
      path is printed.

@@ -31,6 +31,8 @@ kit version.
   updated; and a new `checkBudgetGateEmbed` lint check asserts the embed across
   all 10 commands. Research confirmed no live context-% signal is available to
   command bodies, so the gate is a structural counter rather than a live gauge.
+  The reset instructions now explicitly name `/clear` as the lightweight
+  in-place reset the human runs before re-entering the next stage command.
 
 ## [0.11.0] - 2026-07-29
 

@@ -109,8 +109,7 @@ level:
 2. **On "Reset now -- I'll start fresh":**
    - Print the self-contained resume one-liner:
      ```
-     Start a fresh session and run /qrspi:<next-stage> <id> to continue.
-     /qrspi:status shows where you are. Run-mode is re-asked in the new session -- that is correct, not a bug; the change folder on disk is the truth.
+     Run /clear to reset this session in place, then /qrspi:<next-stage> <id> -- the change folder on disk is the truth; run-mode is re-asked (correct, not a bug). /qrspi:status shows where you are. (A full relaunch is only needed when the plugin files themselves changed.)
      ```
      (Substitute the actual next-stage name and change id. For stage I, use
      `implement <id>` -- the current slice carries forward. For stage PR, use

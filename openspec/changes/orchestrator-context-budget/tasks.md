@@ -38,8 +38,8 @@
 
 **Compute:** effort=low -- text-only prose refinement (skill + command + two delta specs + changelog); no logic change
 
-- [ ] 4.1 Update the `context-budget-gate` skill resume one-liner (Step 4 "Reset now" branch) to name `/clear` then `/qrspi:<next> <id>` (D8, D12)
-- [ ] 4.2 Update `claude/commands/archive.md` step-7 "Yes" branch resume line to name `/clear` then the next command (D9, D12)
-- [ ] 4.3 Update the resume-path wording in `specs/context-budget-gate/spec.md` and `specs/archive-workflow/spec.md` to mention `/clear` (D12)
-- [ ] 4.4 Refresh the CHANGELOG `[Unreleased]` entry to mention the `/clear`-named reset
-- [ ] 4.5 Run `node scripts/lint.mjs` (exit 0) and `openspec validate orchestrator-context-budget --strict` (valid)
+- [x] 4.1 Update the `context-budget-gate` skill resume one-liner (Step 4 "Reset now" branch) to name `/clear` then `/qrspi:<next> <id>` (D8, D12)
+- [x] 4.2 Update `claude/commands/archive.md` step-7 "Yes" branch resume line to name `/clear` then the next command (D9, D12)
+- [x] 4.3 Update the resume-path wording in `specs/context-budget-gate/spec.md` and `specs/archive-workflow/spec.md` to mention `/clear` (D12)
+- [x] 4.4 Refresh the CHANGELOG `[Unreleased]` entry to mention the `/clear`-named reset
+- [x] 4.5 Run `node scripts/lint.mjs` (exit 0) and `openspec validate orchestrator-context-budget --strict` (valid)
