@@ -7,23 +7,6 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## In progress
 
-### orchestrator-context-budget — `in-progress (PR #38 open)` · **P2**
-
-Bundles [[reset-and-resume-between-boundaries]] and [[orchestrator-context-budget-gate]]
-(both formerly `idea` under `## Ideas`) into one QRSPI flow. See those entries below for
-the full Why context; both are annotated as bundled here.
-
-**Why (combined):** The orchestrator accumulates context **unbounded across stages and
-changes** in one session -- subagent firewalling keeps each stage lean but does nothing
-for the orchestrator's own cross-stage accumulation. A consumer session hit **98% context
-(982k/1m)** at the D review of its second change. Fix in two halves: (1) structural
-reset-and-resume triggers at natural session boundaries (post-archive, post-followup
-batch) with explicit resume-path prose; (2) a live-% or structural-heuristic budget gate
-at the top of each stage command that nudges or soft-blocks before the orchestrator
-context degrades. The two halves converge if live-% read proves infeasible (both then
-reduce to a structural stages-run counter). Needs NO new harness primitive -- structural
-prose/triggers only.
-
 ### architect-must-leads-requirement-first-line — `in-progress (PR #39 open)` · **P2**
 
 **Why:** OpenSpec `validate --strict` (1.4.1) only scans the **first line** of a
@@ -187,6 +170,36 @@ cause. Fix: have the researcher load `repo-surface` and surface-gate its heading
 like the other artifact-producing agents (and/or run lint at R-commit time to catch
 it at the source). Surfaced 2026-07-27 while implementing
 [[unify-implement-paths-on-variants]] (its research.md tripped Check 14).
+
+### git-host-and-remote-awareness — `idea` · **P2**
+
+**Why:** Several kit commands infer the git host and PR mechanics ad hoc and assume a
+remote exists: `/qrspi:pr` and `/qrspi:archive` each independently pick a host CLI
+(`gh` for GitHub, `az repos` for Azure DevOps, `glab` for GitLab, defaulting to `gh`)
+and how to create/query PRs, and none handle a **remoteless** (local-only) repo cleanly.
+Make git-remote-and-vendor awareness a first-class, shared kit concern: detect (1)
+whether the repo has a remote at all, and (2) which vendor it is (GitHub / Azure DevOps /
+GitLab / Bitbucket / …), then expose the vendor-specific PR-create and PR-status commands
+from **one** place (a shared skill and/or the stack-cheatsheet `## PR & git workflow`
+block) so every command reuses it instead of re-deriving. Handle the **no-remote** case
+explicitly — skip push/PR steps and offer a local-only flow (local branch / patch /
+commit-to-current-branch) rather than failing on a missing `origin`. Matters for the
+public 1.0: a non-GitHub or remoteless stranger currently hits `gh`-assuming commands.
+Relates to [[standardize-recurring-ops-scripts]] (the PR-create/PR-status ops it would
+centralize) and [[automate-marketplace-source-bump]].
+
+### idea-capture-command — `idea` · **P3**
+
+**Why:** Adding a row to `openspec/backlog.md` today is ad hoc — hand-edited, or written
+inline by the Q/D/S "capture deferred work" flow and the `/qrspi:pr` / `/qrspi:followup`
+P3 promote path. There is no dedicated, on-demand way to **provision a new backlog idea**
+that guarantees the canonical shape (level-3 heading with kebab-slug + `idea` status +
+`P1`–`P3` band, a one-line `**Why:**`, dedup against existing rows, correct `## Ideas`
+placement). Add a small command/skill/agent — e.g. `/qrspi:idea <slug> <why>` — that
+appends a well-formed idea row using the same mechanic those flows already embed, so
+"jot this down for later" is a one-liner that cannot drift from the schema. Natural
+writer for the schema [[standardize-backlog-format]] defines, and pairs with
+[[backlog-prioritization]] (it can propose a band + placement on capture).
 
 ### standardize-recurring-ops-scripts — `idea` · **P2**
 
