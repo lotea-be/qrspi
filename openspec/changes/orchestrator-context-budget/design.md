@@ -205,6 +205,19 @@ lightweight in-place reset the *human* runs (cheaper than relaunching a terminal
 followed by `/qrspi:<next> <id>`. Observable change is text-only: the branches
 still print-and-end-the-turn; only the printed instruction now says `/clear`.
 
+**Companion finding (also infeasible):** a related ask — auto-*passing* the
+proposed `/qrspi:<next> <id>` command *into* the fresh post-`/clear` session so it
+runs without retyping — was likewise verified **infeasible** via `claude-code-guide`.
+A `SessionStart` hook does fire on `/clear` (matcher `clear`), but hook output can
+only **inject text** into the fresh context as a system reminder; it cannot execute
+or queue a slash command, and the model reads injected text as prose, not a
+directive. Achieving even the text-injection nudge would require a shipped hook
+**plus** a disk state handoff (so the hook knows the exact next command) — both
+crossing this change's Non-Goals (no new harness primitive, no disk state) for the
+marginal payoff of the human still typing the command. So the printed two-step
+instruction ("`/clear`, then `/qrspi:<next> <id>`") is the practical optimum; do
+not re-investigate.
+
 ## Command changes
 - All 8 stage commands: insert the budget-gate embed as the step **between** the
   version-check step and the run-mode step (D2).
