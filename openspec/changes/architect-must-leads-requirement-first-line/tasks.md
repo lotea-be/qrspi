@@ -15,11 +15,11 @@
 
 **Compute:** effort=medium — new lint function with multi-glob scanning, section-boundary parsing, fence-block suppression, and five-fixture self-test; well-defined spec but non-trivial parsing logic
 
-- [ ] 2.1 In `scripts/lint.mjs`: add `async function checkRequirementFirstLineModal()` after Check 19; implement the two-glob scanner (delta specs excluding `/archive/`, base specs), ADDED/MODIFIED inclusion and REMOVED exclusion logic, first-non-blank-body-line extraction, `[must-leads]` error push, fence-block suppression, and empty-body skip (D3, D4, D5, D6, D7, D8)
-- [ ] 2.2 In `scripts/lint.mjs`: embed the five-fixture inline self-test inside `checkRequirementFirstLineModal()` covering: passing body, failing body, REMOVED skip, base-spec violating body, and fence-skip guard (D3, D4, D5, D6, D7, D8)
-- [ ] 2.3 In `scripts/lint.mjs`: register `await checkRequirementFirstLineModal()` in `main()` with a `process.stdout.write('Check 20: ...')` label; update the check-inventory header comment to list Check 20 (D3, D4)
-- [ ] 2.4 Unit/integration test: `node scripts/lint.mjs` exits 0 on the clean tree; the inline self-test within Check 20 passes (no `[must-leads] SELF-TEST FAILED` line in stdout)
-- [ ] 2.5 (human) Checkpoint: `node scripts/lint.mjs` exits 0 on the clean working tree and prints `Check 20: OK`; the self-test passes inline; manually introduce a violating requirement body in a scratch delta-spec file, run lint, confirm `[must-leads]` error appears and exit code is non-zero; remove the scratch file
+- [x] 2.1 In `scripts/lint.mjs`: add `async function checkRequirementFirstLineModal()` after Check 19; implement the two-glob scanner (delta specs excluding `/archive/`, base specs), ADDED/MODIFIED inclusion and REMOVED exclusion logic, first-non-blank-body-line extraction, `[must-leads]` error push, fence-block suppression, and empty-body skip (D3, D4, D5, D6, D7, D8)
+- [x] 2.2 In `scripts/lint.mjs`: embed the five-fixture inline self-test inside `checkRequirementFirstLineModal()` covering: passing body, failing body, REMOVED skip, base-spec violating body, and fence-skip guard (D3, D4, D5, D6, D7, D8)
+- [x] 2.3 In `scripts/lint.mjs`: register `await checkRequirementFirstLineModal()` in `main()` with a `process.stdout.write('Check 20: ...')` label; update the check-inventory header comment to list Check 20 (D3, D4)
+- [x] 2.4 Unit/integration test: `node scripts/lint.mjs` exits 0 on the clean tree; the inline self-test within Check 20 passes (no `[must-leads] SELF-TEST FAILED` line in stdout)
+- [x] 2.5 (human) Checkpoint: `node scripts/lint.mjs` exits 0 on the clean working tree and prints `Check 20: OK`; the self-test passes inline; manually introduce a violating requirement body in a scratch delta-spec file, run lint, confirm `[must-leads]` error appears and exit code is non-zero; remove the scratch file — VERIFIED 2026-07-29: clean run exit 0 (Check 20 present, 0 self-test failures); scratch violating delta → exit 1 with `[must-leads] … requirement "Scratch violates the rule" … (found: "When the token is expired,")`; after removing scratch, exit 0 restored
 
 ## 3. Check 21: `checkFormatRulesParity` + inline self-test + stale cheatsheet fix
 
