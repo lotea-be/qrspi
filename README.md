@@ -311,6 +311,10 @@ hand-maintained locations:
 To bump the pin, update every `@fission-ai/openspec@<version>` occurrence in the
 hand-maintained files above. A CI lint job (`node scripts/lint.mjs`) asserts that
 all hand-maintained occurrences agree -- the lint will catch any missed location.
+Check 1 additionally requires `openspec/config.yaml` to *carry* an
+`openspec_version` key equal to the pin: both a missing key and a mismatched value
+fail the lint, so a pin bump must update `openspec/config.yaml` too (and any future
+migration that bumps the pin must edit that field, or upgraded consumers turn red).
 
 ### CI lint checks (`node scripts/lint.mjs`)
 
