@@ -310,7 +310,7 @@ all hand-maintained occurrences agree -- the lint will catch any missed location
 
 ### CI lint checks (`node scripts/lint.mjs`)
 
-The lint script runs 16 checks (Checks 1-16) on every CI run. Key checks relevant
+The lint script runs 21 checks (Checks 1-21) on every CI run. Key checks relevant
 to context hygiene and agent contracts:
 
 - **Check 2b (`checkSkillSets`)** -- asserts each stage agent's `Load skills` line
@@ -374,6 +374,17 @@ to context hygiene and agent contracts:
   reference `qrspi:spec-syncer`, and no kit-owned command/agent may delegate sync
   to `subagent_type: general-purpose`, so a future OpenSpec CLI regeneration
   cannot silently regress the ownership.
+- **Check 20 (`checkRequirementFirstLineModal`)** -- guards the OpenSpec
+  `validate --strict` first-line rule at S-commit: flags any requirement whose
+  first non-blank body line lacks `MUST`/`SHALL`, scanning both delta specs
+  (`## ADDED`/`## MODIFIED`, `## REMOVED` skipped, `/archive/` excluded) and base
+  specs (`## Requirements`), so a `When …`-leading body fails here rather than
+  mid-Implement at the strict slice gate. Includes a five-fixture inline self-test.
+- **Check 21 (`checkFormatRulesParity`)** -- asserts the `<!-- must-leads -->`
+  sentinel-delimited Format-rules block is byte-identical between
+  `claude/agents/architect.md` and `openspec-templates/spec-delta.template.md`,
+  failing on drift or a missing anchor so the hand-mirrored guidance cannot
+  silently diverge. Includes a three-fixture inline self-test.
 
 All other checks (pin agreement, frontmatter, heading alignment, README command
 coverage, gate-tool/executor agreement, migration manifests, read-contract banners,
