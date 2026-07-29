@@ -1138,3 +1138,17 @@ Recommend cutting it as **v1.0.0** (breaking namespace change). Full design,
 acronym mapping, migration bridge, and ordered file inventory:
 [openspec/backlog/rename-qrspi-to-qrnchi.md](backlog/rename-qrspi-to-qrnchi.md).
 Relates to [[retro-as-extension-plugin]] (consumer/maintainer boundary).
+
+### pr-stage-cheatsheet-freshness — `idea` · **P3**
+
+**Why:** The `<repo>-stack` cheatsheet skill drifts silently when kit source
+changes but the cheatsheet is not updated in the same change — e.g. the stale
+"Checks 1–14" range while `scripts/lint.mjs` is already at Check 19+ (surfaced
+2026-07-29 as OQ3 of `architect-must-leads-requirement-first-line`, fixed there
+by hand). There is no mechanical prompt to re-check it. Add an item to the
+**reviewer (stage PR)** final checklist that evaluates whether this change's
+edits warrant a stack-cheatsheet update (lint-check count, command list, stack
+conventions), flagging stale spots for the human rather than auto-editing — the
+review-gate analogue of the README "keep it current" rule. Relates to the
+`qrspi-readme-audit` skill (its README counterpart) and to
+[[standardize-recurring-ops-scripts]].
