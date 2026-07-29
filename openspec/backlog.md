@@ -45,17 +45,22 @@ into `per-slice-compute-tier` (proposed, in the QRSPI flow); and
 [[structured-surface-schema]] and [[extend-surface-taxonomy]] are kept
 contiguous below across the P2/P3 boundary.
 
-> **▶ Next up:** with `spec-sync-contract` **shipped** (PR #37, archived
-> 2026-07-28 — kit-owned `spec-syncer` agent, archive rewire, count-drop guard,
-> Checks 17/18/19) and the [[unify-implement-paths-on-variants]] +
-> [[commands-assert-cwd-change-folder]] bundle **shipped** (PR #36, archived
-> 2026-07-28 — the vestigial base implementer is gone and the **0.10.0** breaking
-> piece is done), the `orchestrator-context-budget` bundle is now **proposed**
-> (change folder created 2026-07-28 — see `## Proposed` above). Sequenced ahead of the P1
-> [[spec-anchored-code-comments]] by explicit decision (2026-07-27): the runway
-> **completes already-shipped mechanisms and freezes schemas** before the public
-> 1.0 cut, which outranks starting new P1 scope. `spec-anchored-code-comments`
-> remains the top **new-scope** priority after the 1.0 cut.
+> **▶ Next up:** the three road-to-1.0 runway items that were sequenced ahead all
+> **shipped and archived 2026-07-29** — `orchestrator-context-budget` (Tier 1),
+> `reassess-openspec-dependency` (Tier 1.25 — the KEEP-the-CLI verdict landed with
+> its pin-coupling guard), and `architect-must-leads-requirement-first-line`.
+> **Nothing is in progress or proposed.** The runway head is now **Tier 1.5
+> [[standardize-backlog-format]]**, with the newly-surfaced [[bump-openspec-pin]]
+> **sequenced into the runway as Tier 1.75** (2026-07-29): the KEEP verdict's direct
+> follow-on — land the OpenSpec pin that 1.0 will freeze on rather than freeze the
+> public debut on a knowingly-stale `1.4.1`. Both precede the
+> [[rename-qrspi-to-qrnchi]] rebrand. The P1 [[spec-anchored-code-comments]] —
+> previously deferred to 1.1 — is now **pulled into the runway as Tier 1.9**
+> (2026-07-29): its spec-id grammar is itself a schema change, so it must land
+> **before** the 1.0 freeze, not after. The runway's guiding rule is unchanged —
+> **complete already-shipped mechanisms and freeze schemas** before the public 1.0
+> cut — spec-anchored-code-comments now falls *inside* that rule rather than after
+> it, as the largest and last pre-rename bet.
 >
 > **Road to 1.0 (2026-07-27):** the [[rename-qrspi-to-qrnchi]] rebrand is the
 > vehicle for the first **stable v1.0.0** and public debut (submission to Anthropic's
@@ -64,45 +69,63 @@ contiguous below across the P2/P3 boundary.
 > **ahead of the rename**, filtered by one lens — *what would bite a stranger or
 > embarrass us in week one of a public 1.0* — not by band alone:
 >
-> - **Tier 1 — bites a stranger (do first):** `orchestrator-context-budget` (now
->   proposed — see `## Proposed` above; bundles [[reset-and-resume-between-boundaries]]
->   and [[orchestrator-context-budget-gate]]): a real consumer hit **98% context** at
->   the D review of their *second* change; nothing enforces the `context-hygiene`
->   budget, so a marathon session silently detonates — the sharpest edge for a plugin
->   whose premise is long multi-stage sessions. (The unify bundle that also sat in this
->   tier shipped 2026-07-28.)
+> - **Tier 1 — bites a stranger (do first): ✓ SHIPPED** — `orchestrator-context-budget`
+>   (bundled [[reset-and-resume-between-boundaries]] + [[orchestrator-context-budget-gate]];
+>   archived 2026-07-29). A real consumer hit **98% context** at the D review of their
+>   *second* change; nothing enforced the `context-hygiene` budget, so a marathon
+>   session silently detonated — the sharpest edge for a plugin whose premise is long
+>   multi-stage sessions. (The unify bundle that also sat in this tier shipped 2026-07-28.)
 > - **Tier 1.25 — settle the OpenSpec-dependency question before it's frozen at 1.0
->   (decision spike, 2026-07-28):** run R/D on [[reassess-openspec-dependency]] to a
->   **documented keep-CLI-vs-vendor verdict** ahead of the rename — *not* a commitment
->   to rename the workspace folder for 1.0. Motive: the rebrand's folded-in want of a
->   branded `qrnchi/` workspace root is **not** a free rename — verified 2026-07-28
->   that the OpenSpec CLI exposes **no configurable workspace-root name through 1.6.0**
->   (pin is 1.4.1; `init [path]` only sets a parent, no config/env key renames
->   `openspec/`), so a branded root forces **dropping the CLI** for a vendored
->   convention + validator — a change larger than the rebrand itself. The spike
->   de-risks 1.0: if the verdict is *keep the CLI*, the rebrand proceeds as designed
->   (`openspec/` stays, folder-branding deferred past 1.0); if *vendor*, that lands as
->   its own change and the rebrand waits on it. Either way 1.0 doesn't back into a big
->   migration by accident.
-> - **Tier 1.5 — freeze the last ad-hoc schema (cheap, good timing):**
+>   (decision spike): ✓ SHIPPED** — [[reassess-openspec-dependency]] archived 2026-07-29
+>   with a **documented KEEP-the-CLI verdict** (D1) and its pin-coupling guard. Motive:
+>   the rebrand's folded-in want of a branded `qrnchi/` workspace root is **not** a free
+>   rename — verified 2026-07-28 that the OpenSpec CLI exposes **no configurable
+>   workspace-root name through 1.6.0** (pin is 1.4.1; `init [path]` only sets a parent,
+>   no config/env key renames `openspec/`), so a branded root would force **dropping the
+>   CLI** for a vendored convention + validator. Verdict *keep the CLI*: the rebrand
+>   proceeds as designed (`openspec/` stays, folder-branding deferred past 1.0), and 1.0
+>   doesn't back into a big migration by accident.
+> - **Tier 1.5 — freeze the last ad-hoc schema (cheap, good timing) ← runway head:**
 >   [[standardize-backlog-format]], **template + lint floor only** (defer the heavier
 >   per-file `backlog/<id>.md` model to post-1.0). The backlog is the one QRSPI
 >   surface with no schema behind it; locking it is far cheaper before public
 >   installs write the ad-hoc shape than after. Encodes the P-band convention
 >   [[backlog-prioritization]] already applies informally.
+> - **Tier 1.75 — land the OpenSpec pin 1.0 will freeze on (sequenced into the runway
+>   2026-07-29):** [[bump-openspec-pin]], the KEEP verdict's (Tier 1.25) direct
+>   follow-on. 1.0 is a *schema-freeze + public-debut* point; freezing the public 1.0 on
+>   a knowingly-stale `1.4.1` while the CLI is at `1.6.0` is exactly the "would embarrass
+>   us in week one" case. **Spike-gated:** assess the 1.5/1.6 changelog for grammar /
+>   `validate` changes that touch delta specs *before* the mechanical bump — if that
+>   surfaces breaking behaviour the item grows and may itself slip. The bump must also
+>   carry `openspec/config.yaml`'s `openspec_version` + a migration-manifest `edit-file`
+>   step, since Tier 1.25's Check 1 coupling guard now turns red on upgraded consumers
+>   whose config still reads the old pin. No hard order vs. Tier 1.5 (both are cheap
+>   pre-rename readiness); the cheap-certain backlog freeze can run first while the pin
+>   spike runs.
+> - **Tier 1.9 — land the spec-id grammar before the schema freeze (pulled into the
+>   runway 2026-07-29):** [[spec-anchored-code-comments]] (**P1**). Previously deferred
+>   to 1.1, but the rationale for pulling it in is the freeze itself: giving specs a
+>   **stable identifier** a comment can cite is *itself a spec-grammar change*, so it
+>   belongs **before** the 1.0 schema freeze, not after — landing it in 1.1 would reopen
+>   frozen spec shape. The **largest** runway bet (needs the stable-spec-id design first,
+>   then implementer guidance + a `scripts/lint.mjs`-style check that code comments cite a
+>   spec id and nothing else). Sequenced last in the pre-rename runway; if its size
+>   threatens the 1.0 timeline, it is the first runway item to reconsider deferring.
 > - **Tier 2 — fixes "it's heavy" for newcomers:** [[init-conductor-plus-overview]]
 >   + [[flow-entry-right-sizing]] (onboarding is a feature when the audience is
 >   strangers, not colleagues who know the lore).
-> - **Deferred past 1.0:** [[spec-anchored-code-comments]] (P1 but large — 1.1
->   flagship, needs stable spec ids first); [[privacy-gdpr-surface]] and the
+> - **Deferred past 1.0:** [[privacy-gdpr-surface]] and the
 >   alignment-quality trio [[real-runtime-slice-checkpoints]] /
 >   [[architect-real-runtime-done-decomposition]] / [[designer-flag-shared-artifact-coupling]]
 >   (all still P2, just sequenced after the 1.0 cut). [[automate-marketplace-source-bump]]
 >   rides *with* the release mechanics, not before.
 >
-> Bands unchanged throughout; this records sequencing, not a re-banding. Supersedes
-> the prior 2026-07-27 abkf-handover sequencing (privacy + trio next) — those slip
-> behind the road-to-1.0 readiness work.
+> Bands unchanged throughout; this records sequencing, not a re-banding — the
+> 2026-07-29 additions keep [[bump-openspec-pin]] at **P3** and
+> [[spec-anchored-code-comments]] at **P1**, only moving them *into* the pre-rename
+> runway (Tiers 1.75 and 1.9). Supersedes the prior 2026-07-27 abkf-handover
+> sequencing (privacy + trio next) — those slip behind the road-to-1.0 readiness work.
 
 ### spec-anchored-code-comments — `idea` · **P1**
 
