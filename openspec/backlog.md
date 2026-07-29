@@ -7,7 +7,59 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## In progress
 
-_None._
+### reassess-openspec-dependency — `in-progress (draft PR #42 open)` · **P3**
+
+**Why:** The source only asks to "persist to disk," but the kit pins an external
+OpenSpec CLI (npx, a version pin spread across files, a CI lint to police it) to
+gain `openspec validate` on the delta specs. (`openspec/specs/` is now populated
+as of the 2026-06-19 archives, so the validated surface is real — re-weigh the
+dependency against a vendored folder convention + a small validator with that in
+mind.)
+
+**Folded-in concern — qrspi-branded workspace folder (2026-07-28):** a related
+want is renaming the `openspec/` workspace root to `qrspi/` for the road-to-1.0
+rebrand. It is *not* a free cosmetic rename: `openspec/` is the OpenSpec CLI's
+hardcoded workspace root (`openspec init`/`validate`/`status --json` and the
+generated archive/sync skills all assume it), so QRSPI cannot rename it
+unilaterally. Two paths, both landing here: (a) OpenSpec upstream adds a
+**configurable workspace root** (unverified whether the current CLI exposes
+this — needs checking against its config surface, `openspec/config.yaml`); or
+(b) dropping the CLI for the vendored convention + small validator this entry
+already weighs, at which point QRSPI owns the folder name outright. Ties to the
+[[rename-qrspi-to-qrnchi]] rebrand vehicle. Surfaced as a user question during
+the `spec-sync-contract` D stage.
+
+**Path (a) verified closed (2026-07-28).** Checked the OpenSpec CLI up to the
+latest **1.6.0** (pin is 1.4.1): there is **no configurable workspace-root name** —
+`init [path]` only sets a parent directory, and the `config` surface exposes only
+profile/delivery/telemetry keys, none renaming `openspec/`. The "resolved OpenSpec
+root" language is root *discovery*, not renaming. So a branded `qrnchi/` root
+requires **path (b), dropping the CLI** — a change larger than the rebrand itself.
+
+**Pulled forward as a decision spike (2026-07-28).** Sequenced into the road-to-1.0
+runway as **Tier 1.25** (see the ▶ Next-up note): run R/D to a documented
+keep-vs-vendor verdict *before* the rename, without committing 1.0 to the folder
+rename. Keeps its **P3** band — this records sequencing, not a re-banding.
+
+**Anchor of a bundle (taken up 2026-07-29).** Bundled with
+[[assert-openspec-version-pin-coupling]] — both hinge on the same keep-CLI-vs-vendor
+verdict. The spike's verdict decides that item's fate: *vendor* retires it (no pin
+to police); *keep* continues the flow through to build the pin-coupling guard. The
+verdict must therefore state, per option, what happens to the OpenSpec version-pin
+coupling.
+
+**Stage Q done (2026-07-29).** `questions.md` written; PQ1–PQ5 answered — prior
+lean **keep**, guard ships in this same flow on a keep verdict, branded-root rename
+is a soft (deferrable) want, R/D-analysis evidence bar (no prototype). Next: R.
+
+**Stages R–I done (2026-07-29).** Verdict is **KEEP** (D1). research.md, design.md
+(D1–D6), proposal.md + delta spec (`ci-quality-gates`), slices.md (2 slices), and
+tasks.md all landed. Slice 1 (verdict of record) + Slice 2 (pin-coupling guard as a
+new assertion inside lint Check 1 + inline self-test) implemented and verified by an
+observed red→green lint demo (absent key → error; wrong value → mismatch error;
+coupled → green). Three D5 cleanups captured as backlog ideas
+([[remove-superseded-generated-skills]], [[fix-openspec-workflow-skill-drift]],
+[[scan-github-ci-openspec-pin]]). Next: PR.
 
 ---
 
@@ -844,7 +896,13 @@ runs an 8-reviewer tier, but *un-scoped by surface* and with no lint/human floor
 this entry is the QRSPI-native, surface-scaled version. Surfaced 2026-07-27 while
 comparing QRSPI against the public `qrspi-plus` fork.
 
-### assert-openspec-version-pin-coupling — `idea` · **P3**
+### assert-openspec-version-pin-coupling — `bundled into reassess-openspec-dependency (2026-07-29)` · **P3**
+
+> **Bundled into `reassess-openspec-dependency`** (2026-07-29) — the spike's
+> keep-CLI-vs-vendor verdict decides this item's fate: a *vendor* verdict retires
+> it (no OpenSpec pin left to police), a *keep* verdict continues the flow through
+> to build this pin-coupling guard in the same run. Same load-bearing question, so
+> co-decided rather than built speculatively. See that entry.
 
 **Why:** `openspec/config.yaml` carries an `openspec_version` field recording the
 OpenSpec CLI version a consumer repo was scaffolded with, but its own comment
@@ -890,6 +948,61 @@ change) — since that prompt currently lives in the same un-editable generated
 `openspec-archive-change` skill. Relates to
 [[standardize-recurring-ops-scripts]] and [[retro-as-extension-plugin]] (both
 concern the consumer/maintainer + generated-artifact boundary).
+
+### remove-superseded-generated-skills — `idea` · **P3**
+
+**Why:** The two generated skills `openspec-archive-change` and
+`openspec-sync-specs` (both `generatedBy: "1.4.1"`) are functionally superseded —
+the kit re-implemented their logic in `archive.md` + `spec-syncer.md` and actively
+suppresses the generated sync path (its partial-merge rule contradicts the kit's
+wholesale-replacement contract). Under the **keep** verdict they stay *live* (their
+`list/status --json` calls still run inside the archive folder-move step), so
+deleting them is a real behavior change deserving its own flow, not a drive-by.
+Surfaced as a Non-Goal of [[reassess-openspec-dependency]] (stage D, 2026-07-29).
+
+### fix-openspec-workflow-skill-drift — `idea` · **P3**
+
+**Why:** The `openspec-workflow` skill references OpenSpec `@latest` while the kit
+pins `@1.4.1`, and carries a stale `openspec/templates/` layout entry — real
+doc-hygiene drift (research "Notable discrepancies"), separable from the
+pin-coupling guard. Surfaced as a Non-Goal of [[reassess-openspec-dependency]]
+(stage D, 2026-07-29).
+
+### scan-github-ci-openspec-pin — `idea` · **P3**
+
+**Why:** Lint Check 1 (`checkPinAgreement`) does not scan `.github/` for the
+OpenSpec pin, so the CI `ci.yml` pin is unchecked. Unlike `openspec/config.yaml`
+(silent drift, closed by [[reassess-openspec-dependency]]'s guard), a wrong CI pin
+fails loudly, so this is separable hygiene — add `.github/` to Check 1's scan.
+Surfaced as a Non-Goal of [[reassess-openspec-dependency]] (stage D, 2026-07-29).
+
+### simplify-pin-coupling-mismatch-branch — `idea` · **P3**
+
+**Why:** The pin-coupling guard shipped by [[reassess-openspec-dependency]] has a
+dedicated config-mismatch message (`configVersion !== agreedPin`, inside
+`checkPinAgreement`'s "all agree" branch) that is **unreachable in the real-repo
+path**: a wrong `openspec_version` in `openspec/config.yaml` is caught first by the
+pre-existing multi-version scan, so the dedicated message fires only via the
+in-memory self-test fixture. Either remove the redundant branch, or restructure so
+`config.yaml` is validated *solely* through the coupling assertion (so its specific,
+more actionable message surfaces instead of the generic "distinct versions" error).
+Not blocking — the guard's fail-loud intent is already met by the pre-existing
+error. Surfaced during PR review of [[reassess-openspec-dependency]] (2026-07-29).
+
+### bump-openspec-pin — `idea` · **P3**
+
+**Why:** The kit pins `@fission-ai/openspec@1.4.1` while the CLI has moved on
+(latest **1.6.0** as of the [[reassess-openspec-dependency]] research, 2026-07-29).
+The KEEP verdict (D1) commits the kit to the CLI through 1.0, so keeping the pin
+current is worth a look — but it is a separate, deliberate change, not free: bump
+every hand-maintained `@fission-ai/openspec@<version>` site (`init.md`, README, CI
+`ci.yml`) **and** `openspec/config.yaml`'s `openspec_version`, plus add a
+migration-manifest `edit-file` step for `openspec/config.yaml` — now *required*
+because [[reassess-openspec-dependency]]'s new Check 1 coupling guard turns red on
+upgraded consumers whose config still reads the old pin. Assess the 1.5/1.6
+changelog (any grammar / `validate` behaviour changes that affect delta specs)
+before bumping. Surfaced during PR review of [[reassess-openspec-dependency]]
+(2026-07-29).
 
 ### sync-modified-delta-scenario-loss — `idea` · **P2**
 
@@ -1069,40 +1182,6 @@ kit-only meta-tooling — audit whether anything else in the base plugin is
 maintainer-only (note `readme-audit` is already `.claude/`
 dev-tooling, not plugin-shipped, so likely already on the right side). Surfaced
 during `add-auto-mode`'s stage-I/PR retro.
-
-### reassess-openspec-dependency — `idea` · **P3**
-
-**Why:** The source only asks to "persist to disk," but the kit pins an external
-OpenSpec CLI (npx, a version pin spread across files, a CI lint to police it) to
-gain `openspec validate` on the delta specs. (`openspec/specs/` is now populated
-as of the 2026-06-19 archives, so the validated surface is real — re-weigh the
-dependency against a vendored folder convention + a small validator with that in
-mind.)
-
-**Folded-in concern — qrspi-branded workspace folder (2026-07-28):** a related
-want is renaming the `openspec/` workspace root to `qrspi/` for the road-to-1.0
-rebrand. It is *not* a free cosmetic rename: `openspec/` is the OpenSpec CLI's
-hardcoded workspace root (`openspec init`/`validate`/`status --json` and the
-generated archive/sync skills all assume it), so QRSPI cannot rename it
-unilaterally. Two paths, both landing here: (a) OpenSpec upstream adds a
-**configurable workspace root** (unverified whether the current CLI exposes
-this — needs checking against its config surface, `openspec/config.yaml`); or
-(b) dropping the CLI for the vendored convention + small validator this entry
-already weighs, at which point QRSPI owns the folder name outright. Ties to the
-[[rename-qrspi-to-qrnchi]] rebrand vehicle. Surfaced as a user question during
-the `spec-sync-contract` D stage.
-
-**Path (a) verified closed (2026-07-28).** Checked the OpenSpec CLI up to the
-latest **1.6.0** (pin is 1.4.1): there is **no configurable workspace-root name** —
-`init [path]` only sets a parent directory, and the `config` surface exposes only
-profile/delivery/telemetry keys, none renaming `openspec/`. The "resolved OpenSpec
-root" language is root *discovery*, not renaming. So a branded `qrnchi/` root
-requires **path (b), dropping the CLI** — a change larger than the rebrand itself.
-
-**Pulled forward as a decision spike (2026-07-28).** Sequenced into the road-to-1.0
-runway as **Tier 1.25** (see the ▶ Next-up note): run R/D to a documented
-keep-vs-vendor verdict *before* the rename, without committing 1.0 to the folder
-rename. Keeps its **P3** band — this records sequencing, not a re-banding.
 
 ### tutorial-mode-coaching-overlay — `idea` · **P3**
 

@@ -14,7 +14,19 @@ kit version.
 
 ## [Unreleased]
 
-_No unreleased changes._
+### Added
+
+- **OpenSpec version-pin coupling guard (`reassess-openspec-dependency`).**
+  Records the formal verdict to **keep** the `@fission-ai/openspec` CLI
+  dependency for 1.0 (its residual value — spec-delta grammar validation —
+  outweighs the vendor cost before the 1.0 cut; the workspace-root rename is
+  deferred as a soft want), and ships the coupling guard co-decided with it:
+  lint Check 1 (`checkPinAgreement`) now asserts that `openspec/config.yaml`
+  carries an `openspec_version` field equal to the agreed pin. This closes the
+  silent-drift gap where a repo scaffolded at an older CLI version went
+  unnoticed. Two failure legs (config key absent; present-but-mismatched),
+  covered by an inline three-fixture self-test in the Check 14/15 style. No new
+  check number and no new dependencies.
 
 ## [0.12.0] - 2026-07-29
 
