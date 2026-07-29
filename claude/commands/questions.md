@@ -12,7 +12,9 @@ Change id and short description: $ARGUMENTS
    unless the check itself must prompt or warn. This is the first step -- before the run-mode
    establishment and before any other work.
 
-2. Read or establish the run-mode by following the **Run-mode** procedure in
+2. **Context budget gate.** Load skill `context-budget-gate` and follow its instructions exactly.
+
+3. Read or establish the run-mode by following the **Run-mode** procedure in
    skill `workflow` before doing any other work.
 
 If `openspec/` does not exist, tell the user to run `/qrspi:init`

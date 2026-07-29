@@ -14,7 +14,25 @@ kit version.
 
 ## [Unreleased]
 
-_No unreleased changes._
+### Added
+
+- **In-session orchestrator context-budget gate (`orchestrator-context-budget`).**
+  Bounds the QRSPI orchestrator's own context growth *across stages within one
+  session* — the accumulation subagent firewalling does not bound (a real
+  consumer hit 98% context at the D review of its second change). A new
+  `context-budget-gate` skill tracks an in-context stage-event counter and fires
+  a one-line advisory **nudge at 8 events** and a **never-suppressed soft-gate
+  AskUserQuestion at 12** (dual-trigger: counter OR the orchestrator's own
+  qualitative self-assessment), embedded after `qrspi-version-check` in the 10
+  long-session commands (8 stage commands + `archive` + `followup`). `archive.md`
+  gains a step-7 "start a fresh session for the next change?" reset offer; the
+  `workflow` skill's never-suppressed-gates list and the `context-hygiene` skill
+  (new "Marathon anti-pattern" subsection, accurate cross-stage vocabulary) are
+  updated; and a new `checkBudgetGateEmbed` lint check asserts the embed across
+  all 10 commands. Research confirmed no live context-% signal is available to
+  command bodies, so the gate is a structural counter rather than a live gauge.
+  The reset instructions now explicitly name `/clear` as the lightweight
+  in-place reset the human runs before re-entering the next stage command.
 
 ## [0.11.0] - 2026-07-29
 

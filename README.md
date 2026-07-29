@@ -71,10 +71,14 @@ entries and update the repo's `openspec/` layout to a newer kit version),
 Skills (loaded automatically by commands, not invoked directly): `qrspi-version-check`
 (session-scoped version gate -- compares the repo marker against the installed kit
 and offers `/qrspi:update` when the repo is behind; runs once per session, silent
-when up-to-date); `repo-surface` (eleven-surface taxonomy -- see [Surface taxonomy](#surface-taxonomy)
-below -- read by every artifact-producing agent to decide which surface-gated sections
-to emit or omit; works with the repo's stack-cheatsheet `## Repo surface` block for
-deterministic inference, or falls back to prose inference).
+when up-to-date); `context-budget-gate` (in-context tool-call counter that nudges
+at 8 calls and soft-gates at 12 with an AskUserQuestion "Reset now" / "Continue anyway"
+choice; loaded by every stage command and the `archive`/`followup` boundary commands;
+fires in all run-modes and is never suppressed); `repo-surface` (eleven-surface taxonomy
+-- see [Surface taxonomy](#surface-taxonomy) below -- read by every artifact-producing
+agent to decide which surface-gated sections to emit or omit; works with the repo's
+stack-cheatsheet `## Repo surface` block for deterministic inference, or falls back to
+prose inference).
 
 Each artifact follows a **canonical OpenSpec shape** — see
 [`openspec-templates/`](openspec-templates/).
@@ -310,8 +314,9 @@ all hand-maintained occurrences agree -- the lint will catch any missed location
 
 ### CI lint checks (`node scripts/lint.mjs`)
 
-The lint script runs 21 checks (Checks 1-21) on every CI run. Key checks relevant
-to context hygiene and agent contracts:
+The lint script runs 21 checks (Checks 1-21, plus a budget-gate-embed sub-check
+after Check 9) on every CI run. Key checks relevant to context hygiene and agent
+contracts:
 
 - **Check 2b (`checkSkillSets`)** -- asserts each stage agent's `Load skills` line
   matches the approved per-stage skill-set registry in `scripts/skill-sets.mjs`.
@@ -374,6 +379,11 @@ to context hygiene and agent contracts:
   reference `qrspi:spec-syncer`, and no kit-owned command/agent may delegate sync
   to `subagent_type: general-purpose`, so a future OpenSpec CLI regeneration
   cannot silently regress the ownership.
+- **Check 10 budget-gate-embed (`checkBudgetGateEmbed`)** -- asserts that each of
+  the ten command files that carry the context-budget soft gate (the 8 stage commands
+  + `archive` + `followup`) contains the inline `context-budget-gate` skill load line.
+  Hardcoded constant guards against accidental removal; the three excluded commands
+  (`status`, `update`, `retro`) are not in the constant.
 - **Check 20 (`checkRequirementFirstLineModal`)** -- guards the OpenSpec
   `validate --strict` first-line rule at S-commit: flags any requirement whose
   first non-blank body line lacks `MUST`/`SHALL`, scanning both delta specs

@@ -7,6 +7,23 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## In progress
 
+### orchestrator-context-budget — `in-progress (PR #38 open)` · **P2**
+
+Bundles [[reset-and-resume-between-boundaries]] and [[orchestrator-context-budget-gate]]
+(both formerly `idea` under `## Ideas`) into one QRSPI flow. See those entries below for
+the full Why context; both are annotated as bundled here.
+
+**Why (combined):** The orchestrator accumulates context **unbounded across stages and
+changes** in one session -- subagent firewalling keeps each stage lean but does nothing
+for the orchestrator's own cross-stage accumulation. A consumer session hit **98% context
+(982k/1m)** at the D review of its second change. Fix in two halves: (1) structural
+reset-and-resume triggers at natural session boundaries (post-archive, post-followup
+batch) with explicit resume-path prose; (2) a live-% or structural-heuristic budget gate
+at the top of each stage command that nudges or soft-blocks before the orchestrator
+context degrades. The two halves converge if live-% read proves infeasible (both then
+reduce to a structural stages-run counter). Needs NO new harness primitive -- structural
+prose/triggers only.
+
 ### architect-must-leads-requirement-first-line — `in-progress (PR #39 open)` · **P2**
 
 **Why:** OpenSpec `validate --strict` (1.4.1) only scans the **first line** of a
@@ -66,7 +83,8 @@ contiguous below across the P2/P3 boundary.
 > Checks 17/18/19) and the [[unify-implement-paths-on-variants]] +
 > [[commands-assert-cwd-change-folder]] bundle **shipped** (PR #36, archived
 > 2026-07-28 — the vestigial base implementer is gone and the **0.10.0** breaking
-> piece is done), the next readiness item is the orchestrator-context pair below. Sequenced ahead of the P1
+> piece is done), the `orchestrator-context-budget` bundle is now **proposed**
+> (change folder created 2026-07-28 — see `## Proposed` above). Sequenced ahead of the P1
 > [[spec-anchored-code-comments]] by explicit decision (2026-07-27): the runway
 > **completes already-shipped mechanisms and freezes schemas** before the public
 > 1.0 cut, which outranks starting new P1 scope. `spec-anchored-code-comments`
@@ -79,12 +97,13 @@ contiguous below across the P2/P3 boundary.
 > **ahead of the rename**, filtered by one lens — *what would bite a stranger or
 > embarrass us in week one of a public 1.0* — not by band alone:
 >
-> - **Tier 1 — bites a stranger (do first):** the orchestrator-context pair —
->   [[reset-and-resume-between-boundaries]] then [[orchestrator-context-budget-gate]]
->   (a real consumer hit **98% context** at the D review of their *second* change;
->   nothing enforces the `context-hygiene` budget, so a marathon session silently
->   detonates — the sharpest edge for a plugin whose premise is long multi-stage
->   sessions). (The unify bundle that also sat in this tier shipped 2026-07-28.)
+> - **Tier 1 — bites a stranger (do first):** `orchestrator-context-budget` (now
+>   proposed — see `## Proposed` above; bundles [[reset-and-resume-between-boundaries]]
+>   and [[orchestrator-context-budget-gate]]): a real consumer hit **98% context** at
+>   the D review of their *second* change; nothing enforces the `context-hygiene`
+>   budget, so a marathon session silently detonates — the sharpest edge for a plugin
+>   whose premise is long multi-stage sessions. (The unify bundle that also sat in this
+>   tier shipped 2026-07-28.)
 > - **Tier 1.25 — settle the OpenSpec-dependency question before it's frozen at 1.0
 >   (decision spike, 2026-07-28):** run R/D on [[reassess-openspec-dependency]] to a
 >   **documented keep-CLI-vs-vendor verdict** ahead of the rename — *not* a commitment
@@ -202,7 +221,10 @@ script** — lint runs in this repo's CI, but a helper a stage command invokes
 at runtime ships into consumer repos and inherits their `gh`/auth availability and
 cross-platform concerns; be deliberate about that split.
 
-### reset-and-resume-between-boundaries — `idea` · **P2**
+### reset-and-resume-between-boundaries — `bundled into orchestrator-context-budget (proposed 2026-07-28)` · **P2**
+
+> **Bundled into `orchestrator-context-budget`** (proposed 2026-07-28) with
+> [[orchestrator-context-budget-gate]] — see the `## Proposed` entry above.
 
 **Why:** QRSPI firewalls *stage work* into subagents (`context-hygiene`), keeping
 the orchestrator lean **per stage** — but the orchestrator itself accumulates
@@ -231,7 +253,23 @@ primitive). Distinct axis from the archived `context-budget` (per-stage input/ou
 load) — this is cross-session orchestrator accumulation. Surfaced by the abkf
 consumer handover (2026-07-27).
 
-### orchestrator-context-budget-gate — `idea` · **P2**
+### upgrade-budget-gate-to-live-context-read — `idea` · **P3**
+
+**Why:** `orchestrator-context-budget` (proposed 2026-07-28) had to implement its
+budget gate as a **structural stage-event counter** because stage-R research
+confirmed no live harness signal exposes context-window utilization to a
+slash-command body (the version check reads only static files; the counter is a
+lower-bound heuristic). If a future Claude Code harness ever exposes a **live
+context-% read** to command bodies, upgrade the `context-budget-gate` skill from
+the counter to a real gauge (the counter becomes the fallback, or is retired).
+This is the live-% half of [[orchestrator-context-budget-gate]] that was found
+infeasible at design time — blocked on an external harness capability, hence P3.
+Surfaced 2026-07-28 during the `orchestrator-context-budget` D review.
+
+### orchestrator-context-budget-gate — `bundled into orchestrator-context-budget (proposed 2026-07-28)` · **P2**
+
+> **Bundled into `orchestrator-context-budget`** (proposed 2026-07-28) with
+> [[reset-and-resume-between-boundaries]] — see the `## Proposed` entry above.
 
 **Why:** The mechanism half of the context-overflow fix (abkf
 `QRSPI-HANDOVER-context-overflow.md`, 2026-07-27, proposal #1 — "the single thing

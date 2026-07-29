@@ -15,6 +15,8 @@ skill (do not hand-edit that skill — it is regenerated from the OpenSpec CLI).
 Argument (optional): $ARGUMENTS — the change id (kebab-case). If omitted, the
 skill will list active changes and prompt you to pick one.
 
+Load skill `context-budget-gate` and follow its instructions exactly.
+
 Steps:
 
 1. If `openspec/` does not exist, this repo was never bootstrapped — tell the
@@ -212,6 +214,22 @@ Steps:
      suggested PR-create command as the next step.
    - **Main chosen:** confirm the archive commit landed and was pushed on
      the current branch, with no new branch created.
+
+7. **Offer a fresh session for the next change (never suppressed).** After the
+   completion summary in step 6, always present this offer -- it is not
+   suppressible by run-mode (Full auto, Semi-auto, or Manual). Use the
+   **AskUserQuestion** tool:
+   - question: "Start a new session for the next change?"
+   - choices:
+     - "Yes -- print resume path and end turn"
+     - "No -- stay in this session"
+   - **On "Yes -- print resume path and end turn":** print the following
+     one-liner and **end the turn without auto-advancing**:
+     ```
+     Run /clear, then /qrspi:status to see what is next -- the change folder on disk is the truth.
+     ```
+   - **On "No -- stay in this session":** end the turn normally. No resume
+     path is printed.
 
 Repository signals you may use (to list in-flight and archived changes, use the
 **Glob** tool with patterns `openspec/changes/*` and

@@ -46,6 +46,11 @@
 //     questions, research, design, structure, slices, plan, implement, pr)
 //     must each contain the inline `qrspi-version-check` skill load line.
 //
+// 10 (budget-gate-embed). BUDGET-GATE EMBED -- the ten command files that carry
+//     the context-budget soft gate (8 stage commands + archive + followup) must
+//     each contain the inline `context-budget-gate` skill load line. The three
+//     excluded commands (status, update, retro) must not appear in the constant.
+//
 // 10. TRIAGE PATH ANCHORS -- claude/commands/followup.md must contain the
 //     three triage choice-label prefixes (P1/P2/P3) so a future rename cannot
 //     silently drop a path. Mirrors the Check 8 pattern for pr.md.
@@ -1412,6 +1417,72 @@ async function checkVersionCheckEmbed(errors) {
   if (violations === 0) {
     process.stdout.write(
       `  OK: all ${VERSION_CHECK_COMMAND_STEMS.length} stage command(s) contain the qrspi-version-check embed line\n`
+    );
+  }
+  return violations;
+}
+
+// ---- Check 10 (budget-gate-embed): BUDGET-GATE EMBED ----------------------
+//
+// Asserts that each of the ten QRSPI command files that carry the context-budget
+// soft gate contains the inline embed line:
+//
+//   Load skill `context-budget-gate` and follow its instructions exactly.
+//
+// The ten stems are: 8 stage commands (questions, research, design, structure,
+// slices, plan, implement, pr) + archive + followup.
+// 10 = 8 stage commands + archive + followup
+//
+// Excluded (must NOT be in the constant): status, update, retro (no gate).
+// Hardcoded for regression safety -- same rationale as VERSION_CHECK_COMMAND_STEMS.
+
+const BUDGET_GATE_COMMAND_STEMS = [
+  // 8 stage commands
+  'questions',
+  'research',
+  'design',
+  'structure',
+  'slices',
+  'plan',
+  'implement',
+  'pr',
+  // 2 boundary commands
+  'archive',
+  'followup',
+];
+
+const BUDGET_GATE_EMBED_LINE = 'Load skill `context-budget-gate` and follow its instructions exactly.';
+
+async function checkBudgetGateEmbed(errors) {
+  const commandsDir = path.join(root, 'claude', 'commands');
+  let violations = 0;
+
+  for (const stem of BUDGET_GATE_COMMAND_STEMS) {
+    const filePath = path.join(commandsDir, `${stem}.md`);
+    const rel = `claude/commands/${stem}.md`;
+
+    const text = await readFileOr(filePath, null);
+    if (text === null) {
+      errors.push(`[budget-gate-embed] ${rel}: file not found`);
+      violations++;
+      continue;
+    }
+
+    // Collapse runs of whitespace (including newlines) to a single space so
+    // that the embed sentence is matchable even when it wraps across two lines.
+    const collapsed = text.replace(/\s+/g, ' ');
+    if (!collapsed.includes(BUDGET_GATE_EMBED_LINE)) {
+      errors.push(
+        `[budget-gate-embed] ${rel}: missing inline context-budget-gate embed line` +
+        ` (expected to find: "${BUDGET_GATE_EMBED_LINE}")`
+      );
+      violations++;
+    }
+  }
+
+  if (violations === 0) {
+    process.stdout.write(
+      `  OK: all ${BUDGET_GATE_COMMAND_STEMS.length} command(s) contain the context-budget-gate embed line\n`
     );
   }
   return violations;
@@ -3212,6 +3283,9 @@ async function main() {
 
   process.stdout.write('\nCheck 9: Version-check embed\n');
   await checkVersionCheckEmbed(errors);
+
+  process.stdout.write('\nCheck 10 (budget-gate-embed): Budget-gate embed\n');
+  await checkBudgetGateEmbed(errors);
 
   process.stdout.write('\nCheck 10: Triage path anchors\n');
   await checkTriagePaths(errors);

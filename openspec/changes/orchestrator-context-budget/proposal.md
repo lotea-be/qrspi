@@ -18,9 +18,9 @@ resume path so restarting is low-friction.
 ## What Changes
 
 - New shared skill `claude/skills/context-budget-gate/SKILL.md` (mirrors
-  `qrspi-version-check` in structure), loaded by all 11 gate-scoped commands.
+  `qrspi-version-check` in structure), loaded by all 10 gate-scoped commands.
 - Gate insertion point: after the silent version check, before run-mode
-  establishment, in all 11 command files (8 stages + archive + followup).
+  establishment, in all 10 command files (8 stages + archive + followup).
 - In-context stage-event counter incremented per invocation (no disk state);
   dual-trigger: counter threshold OR orchestrator qualitative self-assessment.
 - Nudge fires once at 8 events (session flag suppresses re-nag); soft gate
@@ -33,7 +33,7 @@ resume path so restarting is low-friction.
 - `context-hygiene` skill gains a `## Marathon anti-pattern` subsection with
   updated vocabulary and a 4th mechanism bullet.
 - New lint Check `BUDGET_GATE_COMMAND_STEMS` asserts the embed line across
-  the 11 commands (mirrors Check 9).
+  the 10 commands (mirrors Check 9).
 
 ## Capabilities
 
@@ -41,12 +41,12 @@ resume path so restarting is low-friction.
 - `context-budget-gate`: In-session counter and self-assessment gate that
   fires a nudge at 8 stage-events and a never-suppressed soft gate at 12,
   with per-level fire-once behaviour, a self-contained resume path on reset,
-  and embedding across all 11 scoped commands -- creates
+  and embedding across all 10 scoped commands -- creates
   `specs/context-budget-gate/spec.md`.
 
 ### Modified Capabilities
 - `ci-quality-gates`: Adds a new lint check (`BUDGET_GATE_COMMAND_STEMS`)
-  that asserts the `context-budget-gate` embed line is present in all 11
+  that asserts the `context-budget-gate` embed line is present in all 10
   scoped command files (mirrors Check 9's `qrspi-version-check` pattern) --
   needs a delta spec.
 - `archive-workflow`: Adds step-7 reset offer after a successful archive;
@@ -61,7 +61,7 @@ resume path so restarting is low-friction.
   choice); never a hard block on forward progress.
 - Phases: phase 1 (single change, no epics).
 - Affected code / APIs / dependencies: `claude/skills/context-budget-gate/`
-  (new), `claude/commands/` (11 files), `claude/skills/context-hygiene/`,
+  (new), `claude/commands/` (10 files), `claude/skills/context-hygiene/`,
   `claude/skills/workflow/`, `scripts/lint.mjs`, `README.md`.
 
 ## Out of scope
