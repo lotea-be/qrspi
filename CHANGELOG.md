@@ -14,7 +14,22 @@ kit version.
 
 ## [Unreleased]
 
-_No unreleased changes._
+### Added
+
+- **Architect authoring guidance + lint guards for the requirement first-line
+  `MUST`/`SHALL` rule.** OpenSpec `validate --strict` (which CI runs as
+  `validate --all`) reads only a requirement body's **first physical line** for
+  `MUST`/`SHALL`, so a body that opens with a `When …` clause and wraps the modal
+  onto line 2 passes non-strict lint but hard-stops the Implement stage at CI's
+  strict gate — far from its cause. `claude/agents/architect.md` now carries a
+  bolded `**Warning —**` immediately before the delta-spec skeleton plus a
+  permitted/forbidden counter-example (mirrored byte-identically into
+  `openspec-templates/spec-delta.template.md`), and `scripts/lint.mjs` gains
+  **Check 20** (`checkRequirementFirstLineModal` — flags any requirement whose
+  first non-blank body line lacks `MUST`/`SHALL`, scanning both delta specs and
+  base specs) and **Check 21** (`checkFormatRulesParity` — asserts the two
+  mirrored Format-rules blocks stay byte-identical via `<!-- must-leads -->`
+  sentinels). The gotcha now fails at S-commit, not mid-implement.
 
 ## [0.10.1] - 2026-07-28
 
