@@ -940,6 +940,33 @@ change) — since that prompt currently lives in the same un-editable generated
 [[standardize-recurring-ops-scripts]] and [[retro-as-extension-plugin]] (both
 concern the consumer/maintainer + generated-artifact boundary).
 
+### remove-superseded-generated-skills — `idea` · **P3**
+
+**Why:** The two generated skills `openspec-archive-change` and
+`openspec-sync-specs` (both `generatedBy: "1.4.1"`) are functionally superseded —
+the kit re-implemented their logic in `archive.md` + `spec-syncer.md` and actively
+suppresses the generated sync path (its partial-merge rule contradicts the kit's
+wholesale-replacement contract). Under the **keep** verdict they stay *live* (their
+`list/status --json` calls still run inside the archive folder-move step), so
+deleting them is a real behavior change deserving its own flow, not a drive-by.
+Surfaced as a Non-Goal of [[reassess-openspec-dependency]] (stage D, 2026-07-29).
+
+### fix-openspec-workflow-skill-drift — `idea` · **P3**
+
+**Why:** The `openspec-workflow` skill references OpenSpec `@latest` while the kit
+pins `@1.4.1`, and carries a stale `openspec/templates/` layout entry — real
+doc-hygiene drift (research "Notable discrepancies"), separable from the
+pin-coupling guard. Surfaced as a Non-Goal of [[reassess-openspec-dependency]]
+(stage D, 2026-07-29).
+
+### scan-github-ci-openspec-pin — `idea` · **P3**
+
+**Why:** Lint Check 1 (`checkPinAgreement`) does not scan `.github/` for the
+OpenSpec pin, so the CI `ci.yml` pin is unchecked. Unlike `openspec/config.yaml`
+(silent drift, closed by [[reassess-openspec-dependency]]'s guard), a wrong CI pin
+fails loudly, so this is separable hygiene — add `.github/` to Check 1's scan.
+Surfaced as a Non-Goal of [[reassess-openspec-dependency]] (stage D, 2026-07-29).
+
 ### sync-modified-delta-scenario-loss — `idea` · **P2**
 
 > **Bundled into `spec-sync-contract`** (proposed) with
