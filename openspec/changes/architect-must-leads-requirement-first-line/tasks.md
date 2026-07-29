@@ -6,10 +6,10 @@
 
 **Compute:** effort=low — mechanical prose insertion into two files, no logic, no cross-file coordination beyond placing identical sentinel-delimited blocks
 
-- [ ] 1.1 In `claude/agents/architect.md`: add the `**Warning —**` paragraph immediately before the "New capability" skeleton, and wrap the existing Format-rules MUST/SHALL bullet with `<!-- must-leads:begin -->` / `<!-- must-leads:end -->` sentinel comments (D1, D2, D9)
-- [ ] 1.2 In `openspec-templates/spec-delta.template.md`: add the matching permitted/forbidden counter-example bullet and wrap it with `<!-- must-leads:begin -->` / `<!-- must-leads:end -->` sentinel comments (D2, D9)
-- [ ] 1.3 Unit/integration test: run `node scripts/lint.mjs` on the modified tree; confirm all existing checks pass and exit code is 0 (no new check exists yet, so no new failure is expected)
-- [ ] 1.4 (human) Checkpoint: `node scripts/lint.mjs` exits 0; open `claude/agents/architect.md` in a viewer and confirm the `**Warning —**` paragraph is visible immediately before the "New capability" skeleton, and that the sentinel comments appear around the counter-example bullet
+- [x] 1.1 In `claude/agents/architect.md`: add the `**Warning —**` paragraph immediately before the "New capability" skeleton, and wrap the existing Format-rules MUST/SHALL bullet with `<!-- must-leads:begin -->` / `<!-- must-leads:end -->` sentinel comments (D1, D2, D9)
+- [x] 1.2 In `openspec-templates/spec-delta.template.md`: add the matching permitted/forbidden counter-example bullet and wrap it with `<!-- must-leads:begin -->` / `<!-- must-leads:end -->` sentinel comments (D2, D9)
+- [x] 1.3 Unit/integration test: run `node scripts/lint.mjs` on the modified tree; confirm all existing checks pass and exit code is 0 (no new check exists yet, so no new failure is expected)
+- [x] 1.4 (human) Checkpoint: `node scripts/lint.mjs` exits 0; open `claude/agents/architect.md` in a viewer and confirm the `**Warning —**` paragraph is visible immediately before the "New capability" skeleton, and that the sentinel comments appear around the counter-example bullet — VERIFIED 2026-07-29: lint exit 0 (all 19 checks pass), warning at line 109 precedes "New capability" at line 111, sentinel blocks in architect.md and spec-delta.template.md are byte-identical
 
 ## 2. Check 20: `checkRequirementFirstLineModal` + inline self-test
 
