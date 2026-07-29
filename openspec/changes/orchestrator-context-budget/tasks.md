@@ -21,7 +21,7 @@
 - [x] 2.3 Insert the `context-budget-gate` load line after `qrspi-version-check` in `claude/commands/followup.md` (D2, D4)
 - [x] 2.4 Verify that `claude/skills/context-budget-gate/SKILL.md` (shipped in Slice 1) already instructs the once-per-invocation nudge rule for `/qrspi:followup`; make no additional skill edit if the rule is already present (D8)
 - [x] 2.5 Run `node scripts/lint.mjs` smoke pass; manually verify step-7 prose and embed positions in `archive.md` and `followup.md`
-- [ ] 2.6 (human) In a fresh `claude --plugin-dir /workspaces/git/qrspi` session, archive a throwaway fixture change; confirm the step-7 AskUserQuestion appears after the commit and selecting "Yes" prints `/qrspi:status` and ends the turn. Then in a separate session invoke `/qrspi:followup` on a change with 2+ follow-up items after crossing the nudge threshold (8 prior events); confirm the nudge fires at most once during that invocation.
+- [x] 2.6 (human) In a fresh `claude --plugin-dir /workspaces/git/qrspi` session, archive a throwaway fixture change; confirm the step-7 AskUserQuestion appears after the commit and selecting "Yes" prints `/qrspi:status` and ends the turn. Then in a separate session invoke `/qrspi:followup` on a change with 2+ follow-up items after crossing the nudge threshold (8 prior events); confirm the nudge fires at most once during that invocation.
 
 ## 3. Docs + guardrail
 
