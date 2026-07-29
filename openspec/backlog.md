@@ -7,7 +7,7 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## In progress
 
-### reassess-openspec-dependency — `in-progress (Q, R, D, S, V, P, I complete)` · **P3**
+### reassess-openspec-dependency — `in-progress (draft PR #42 open)` · **P3**
 
 **Why:** The source only asks to "persist to disk," but the kit pins an external
 OpenSpec CLI (npx, a version pin spread across files, a CI lint to police it) to
