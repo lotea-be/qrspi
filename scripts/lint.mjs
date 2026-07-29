@@ -2,7 +2,7 @@
 // ============================================================================
 //  scripts/lint.mjs -- CI quality gate for the QRSPI kit
 // ----------------------------------------------------------------------------
-//  Checks (run in order, all errors collected before exit -- Checks 1-19):
+//  Checks (run in order, all errors collected before exit -- Checks 1-21):
 //
 //  1. PIN AGREEMENT  -- every hand-maintained OpenSpec version occurrence
 //     must agree. generatedBy: lines in openspec-generated skill files are
@@ -129,6 +129,26 @@
 //     claude/commands/ or claude/agents/ contains `subagent_type:
 //     general-purpose` in proximity to a sync-context string. Registered after
 //     Check 18.
+//
+// 20. REQUIREMENT FIRST-LINE MUST/SHALL GUARD -- scans delta specs (excluding
+//     /archive/ paths) under openspec/changes/*/specs/**/spec.md and base specs
+//     under openspec/specs/**/spec.md. For delta files, scans requirement bodies
+//     under ## ADDED Requirements and ## MODIFIED Requirements only. For base
+//     files, scans bodies under ## Requirements. Flags any requirement whose
+//     first non-blank body line (up to the first #### Scenario: or the next
+//     ###/## boundary) contains neither MUST nor SHALL (case-sensitive). Skips
+//     empty bodies (no non-blank line before the boundary). Suppresses
+//     ### Requirement: lines inside fenced code blocks. Registered after Check 19.
+//
+// 21. FORMAT-RULES PARITY GUARD -- extracts the text delimited by
+//     <!-- must-leads:begin --> and <!-- must-leads:end --> sentinel comments
+//     from both claude/agents/architect.md and
+//     openspec-templates/spec-delta.template.md, and asserts the two extracted
+//     blocks are byte-identical. Fails closed: if either sentinel pair is
+//     missing or unbalanced the check pushes a [format-rules-parity] error and
+//     exits non-zero rather than silently passing. Carries an inline three-
+//     fixture self-test (match, drift, missing-anchor) run before file I/O.
+//     Registered after Check 20.
 //
 //  Exits 0 if all checks pass, 1 if any check reports a violation.
 //  Requires only Node.js built-ins (fs, path) -- no npm dependencies.
@@ -2813,6 +2833,420 @@ async function checkAuthoritativeSyncDelegator(errors) {
   return violations;
 }
 
+// ---- Check 20: REQUIREMENT FIRST-LINE MUST/SHALL GUARD ---------------------
+//
+// Scans two file classes for requirement bodies whose first non-blank line
+// lacks both MUST and SHALL (case-sensitive):
+//   - Delta specs: openspec/changes/*/specs/**/spec.md (excluding /archive/)
+//     Sections scanned: ## ADDED Requirements, ## MODIFIED Requirements
+//     Sections skipped: ## REMOVED Requirements
+//   - Base specs: openspec/specs/**/spec.md
+//     Sections scanned: ## Requirements
+//
+// Reports ALL violations without short-circuiting. Skips empty bodies.
+// Suppresses ### Requirement: lines inside fenced code blocks.
+// Carries an inline five-fixture self-test run before any file I/O.
+
+async function checkRequirementFirstLineModal(errors) {
+  // ---- INLINE SELF-TEST -------------------------------------------------------
+  // Five fixtures exercising the core parsing logic. Run before file I/O so a
+  // broken detector reddens CI immediately rather than silently passing.
+
+  // Helper: extract the first non-blank body line of the first requirement in
+  // the given section type ('added-modified' or 'base'). Returns null if the
+  // requirement body is empty or no requirement exists. Used only in the
+  // self-test.
+  function _stFirstBodyLine(text, mode) {
+    // mode: 'added-modified' -> scan ADDED/MODIFIED sections; 'base' -> scan ## Requirements
+    const lines = text.replace(/\r\n/g, '\n').split('\n');
+    let inTargetSection = false;
+    let inReq = false;
+    let inFence = false;
+    let fenceMark = '';
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+
+      // Fence tracking
+      const fenceMatch = line.match(/^(`{3,}|~{3,})/);
+      if (fenceMatch) {
+        const mark = fenceMatch[1][0];
+        const len = fenceMatch[1].length;
+        if (!inFence) {
+          inFence = true;
+          fenceMark = mark.repeat(len);
+        } else if (mark === fenceMark[0] && line.trimEnd() === fenceMark) {
+          inFence = false;
+          fenceMark = '';
+        }
+        continue;
+      }
+
+      if (inFence) continue;
+
+      // Section boundary
+      if (/^##\s/.test(line)) {
+        if (mode === 'added-modified') {
+          inTargetSection =
+            /^##\s+ADDED Requirements/.test(line) ||
+            /^##\s+MODIFIED Requirements/.test(line);
+        } else {
+          inTargetSection = /^##\s+Requirements\s*$/.test(line);
+        }
+        inReq = false;
+        continue;
+      }
+
+      if (!inTargetSection) continue;
+
+      // Requirement heading (not in fence)
+      if (/^###\s+Requirement:/.test(line)) {
+        inReq = true;
+        continue;
+      }
+
+      if (!inReq) continue;
+
+      // End of requirement body
+      if (/^####\s+Scenario:/.test(line) || /^###/.test(line) || /^##\s/.test(line)) {
+        return null; // empty body
+      }
+
+      // First non-blank line
+      if (line.trim() !== '') {
+        return line.trim();
+      }
+    }
+    return null;
+  }
+
+  // Fixture (a): body first line 'The system MUST ...' -> PASS (contains MUST)
+  const _stA = '## ADDED Requirements\n\n### Requirement: Foo\nThe system MUST do something.\n\n#### Scenario: S1\n';
+  const _stALine = _stFirstBodyLine(_stA, 'added-modified');
+  if (_stALine === null || !(_stALine.includes('MUST') || _stALine.includes('SHALL'))) {
+    errors.push('[must-leads] SELF-TEST FAILED: fixture (a) -- MUST-leading body was not accepted (got: ' + _stALine + ')');
+  }
+
+  // Fixture (b): first line 'When X ...' with MUST on line 2 -> FAIL
+  const _stB = '## MODIFIED Requirements\n\n### Requirement: Bar\nWhen X happens,\nthe system MUST respond.\n\n#### Scenario: S1\n';
+  const _stBLine = _stFirstBodyLine(_stB, 'added-modified');
+  if (_stBLine !== null && (_stBLine.includes('MUST') || _stBLine.includes('SHALL'))) {
+    errors.push('[must-leads] SELF-TEST FAILED: fixture (b) -- non-modal first line was not flagged (got: ' + _stBLine + ')');
+  }
+  if (_stBLine === null) {
+    errors.push('[must-leads] SELF-TEST FAILED: fixture (b) -- body returned null (empty) when it should have returned first line');
+  }
+
+  // Fixture (c): REMOVED requirement with one-line rationale -> SKIPPED
+  // The section is ## REMOVED Requirements; our scanner must not enter it.
+  const _stC = '## REMOVED Requirements\n\n### Requirement: Old\nThis was removed because it is no longer relevant.\n';
+  const _stCLine = _stFirstBodyLine(_stC, 'added-modified');
+  if (_stCLine !== null) {
+    errors.push('[must-leads] SELF-TEST FAILED: fixture (c) -- REMOVED requirement was not skipped (got: ' + _stCLine + ')');
+  }
+
+  // Fixture (d): base-spec-shaped fixture under ## Requirements with violating body -> FAIL
+  const _stD = '## Requirements\n\n### Requirement: Baz\nWhen the user logs in, something happens.\n\n#### Scenario: S1\n';
+  const _stDLine = _stFirstBodyLine(_stD, 'base');
+  if (_stDLine === null || _stDLine.includes('MUST') || _stDLine.includes('SHALL')) {
+    errors.push('[must-leads] SELF-TEST FAILED: fixture (d) -- base-spec violating body was not detected (got: ' + _stDLine + ')');
+  }
+
+  // Fixture (e): ### Requirement: inside a fenced block must NOT be treated as real
+  const _stE = '## ADDED Requirements\n\n```\n### Requirement: FencedFake\nThis should be ignored.\n```\n\n### Requirement: Real\nThe system MUST do the real thing.\n';
+  const _stELine = _stFirstBodyLine(_stE, 'added-modified');
+  // The fenced requirement must be skipped; the real requirement body leads with MUST -> should pass
+  if (_stELine === null || !(_stELine.includes('MUST') || _stELine.includes('SHALL'))) {
+    errors.push('[must-leads] SELF-TEST FAILED: fixture (e) -- fence-skip guard broken or real requirement not found (got: ' + _stELine + ')');
+  }
+  // ---- end self-test ----------------------------------------------------------
+
+  // Core scanner: given the lines of a spec file and a mode, collect all
+  // [must-leads] violations. Returns an array of { reqTitle, firstLine } objects.
+  // mode: 'delta' (scan ADDED+MODIFIED, skip REMOVED) | 'base' (scan ## Requirements)
+  function scanRequirementBodies(lines, mode) {
+    const hits = [];
+
+    let inTargetSection = false;
+    let inRemovedSection = false;
+    let inReq = false;
+    let reqTitle = '';
+    let inFence = false;
+    let fenceMark = '';
+
+    function flushReq() {
+      inReq = false;
+      reqTitle = '';
+    }
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+
+      // Fence open/close tracking (mirrors Check 11 / Check 14 pattern)
+      const fenceMatch = line.match(/^(`{3,}|~{3,})/);
+      if (fenceMatch) {
+        const mark = fenceMatch[1][0];
+        const len = fenceMatch[1].length;
+        if (!inFence) {
+          inFence = true;
+          fenceMark = mark.repeat(len);
+        } else if (mark === fenceMark[0] && line.trimEnd() === fenceMark) {
+          inFence = false;
+          fenceMark = '';
+        }
+        continue;
+      }
+
+      if (inFence) continue; // suppress all content inside fences
+
+      // ## section boundary
+      if (/^##\s/.test(line)) {
+        flushReq();
+        if (mode === 'delta') {
+          inRemovedSection = /^##\s+REMOVED Requirements/.test(line);
+          inTargetSection =
+            /^##\s+ADDED Requirements/.test(line) ||
+            /^##\s+MODIFIED Requirements/.test(line);
+        } else {
+          inRemovedSection = false;
+          inTargetSection = /^##\s+Requirements\s*$/.test(line);
+        }
+        continue;
+      }
+
+      if (inRemovedSection) continue; // skip REMOVED entirely
+
+      if (!inTargetSection) continue;
+
+      // ### Requirement: heading (outside fence)
+      if (/^###\s+Requirement:/.test(line)) {
+        flushReq();
+        const m = line.match(/^###\s+Requirement:\s+(.+?)\s*$/);
+        reqTitle = m ? m[1] : '(unknown)';
+        inReq = true;
+        continue;
+      }
+
+      if (!inReq) continue;
+
+      // End-of-body boundary: #### Scenario: or ### or ##
+      if (/^####\s+Scenario:/.test(line) || /^###/.test(line) || /^##\s/.test(line)) {
+        // Empty body -- skip without flagging; also end the requirement
+        flushReq();
+        // Rewind index so the ## / ### line is re-processed (it may be a new section/req)
+        i--;
+        continue;
+      }
+
+      // First non-blank body line
+      if (line.trim() !== '') {
+        const firstLine = line.trim();
+        if (!firstLine.includes('MUST') && !firstLine.includes('SHALL')) {
+          hits.push({ reqTitle, firstLine });
+        }
+        flushReq(); // one first-line per requirement is enough
+      }
+      // blank lines inside body: keep going until first non-blank or boundary
+    }
+
+    return hits;
+  }
+
+  // Walk a directory recursively and collect spec.md files
+  async function walkSpecFiles(dir, filterFn) {
+    const out = [];
+    async function walk(cur) {
+      let entries;
+      try {
+        entries = await fs.readdir(cur, { withFileTypes: true });
+      } catch {
+        return;
+      }
+      for (const e of entries) {
+        const full = path.join(cur, e.name);
+        if (e.isDirectory()) await walk(full);
+        else if (e.isFile() && e.name === 'spec.md') {
+          if (!filterFn || filterFn(full)) out.push(full);
+        }
+      }
+    }
+    await walk(dir);
+    return out;
+  }
+
+  const changesDir = path.join(root, 'openspec', 'changes');
+  const baseSpecsDir = path.join(root, 'openspec', 'specs');
+
+  let violations = 0;
+  let filesChecked = 0;
+
+  // --- Delta specs (exclude /archive/ paths) ---
+  const archiveSep = path.sep + 'archive' + path.sep;
+  const deltaFiles = await walkSpecFiles(changesDir, (f) => !f.includes(archiveSep));
+
+  for (const file of deltaFiles) {
+    const rel = path.relative(root, file);
+    const text = await readFileOr(file, null);
+    if (text === null) continue;
+
+    const lines = text.replace(/\r\n/g, '\n').split('\n');
+    const hits = scanRequirementBodies(lines, 'delta');
+    filesChecked++;
+
+    for (const { reqTitle, firstLine } of hits) {
+      const excerpt = firstLine.length > 60 ? firstLine.slice(0, 60) + '...' : firstLine;
+      errors.push(
+        `[must-leads] ${rel}: requirement "${reqTitle}" — first line of the body does not contain MUST or SHALL (found: "${excerpt}").`
+      );
+      violations++;
+    }
+  }
+
+  // --- Base specs ---
+  const baseFiles = await walkSpecFiles(baseSpecsDir, null);
+
+  for (const file of baseFiles) {
+    const rel = path.relative(root, file);
+    const text = await readFileOr(file, null);
+    if (text === null) continue;
+
+    const lines = text.replace(/\r\n/g, '\n').split('\n');
+    const hits = scanRequirementBodies(lines, 'base');
+    filesChecked++;
+
+    for (const { reqTitle, firstLine } of hits) {
+      const excerpt = firstLine.length > 60 ? firstLine.slice(0, 60) + '...' : firstLine;
+      errors.push(
+        `[must-leads] ${rel}: requirement "${reqTitle}" — first line of the body does not contain MUST or SHALL (found: "${excerpt}").`
+      );
+      violations++;
+    }
+  }
+
+  if (violations === 0) {
+    process.stdout.write(
+      `  OK: all requirement first-line MUST/SHALL guard checks passed across ${filesChecked} spec file(s)\n`
+    );
+  }
+  return violations;
+}
+
+// ---- Check 21: FORMAT-RULES PARITY GUARD ------------------------------------
+//
+// Extracts the text between <!-- must-leads:begin --> and <!-- must-leads:end -->
+// sentinels from both:
+//   claude/agents/architect.md
+//   openspec-templates/spec-delta.template.md
+// and asserts the two extracted blocks are byte-identical.
+//
+// Fails closed on a missing or unbalanced sentinel pair in either file:
+// a missing anchor is an error, never a silent pass.
+//
+// Carries an inline three-fixture self-test run before file I/O:
+//   (a) matching pair      -> PASS
+//   (b) drifted pair       -> FAIL
+//   (c) missing-anchor     -> FAIL
+
+async function checkFormatRulesParity(errors) {
+  const BEGIN_SENTINEL = '<!-- must-leads:begin -->';
+  const END_SENTINEL   = '<!-- must-leads:end -->';
+
+  // Helper: extract the text between the sentinel comments (exclusive of the
+  // sentinel lines themselves). Returns the extracted string, or null if either
+  // sentinel is missing or the begin occurs after the end.
+  function extractBlock(text) {
+    const beginIdx = text.indexOf(BEGIN_SENTINEL);
+    if (beginIdx === -1) return null;
+    const afterBegin = beginIdx + BEGIN_SENTINEL.length;
+    const endIdx = text.indexOf(END_SENTINEL, afterBegin);
+    if (endIdx === -1) return null;
+    return text.slice(afterBegin, endIdx);
+  }
+
+  // ---- INLINE SELF-TEST -------------------------------------------------------
+  // Three fixtures exercising extractBlock and the byte-identity assertion.
+  // Run before file I/O so a broken detector reddens CI immediately.
+
+  // Fixture (a): matching pair -> PASS (both blocks are identical)
+  const _stTextA1 = `${BEGIN_SENTINEL}\n- MUST line\n${END_SENTINEL}`;
+  const _stTextA2 = `${BEGIN_SENTINEL}\n- MUST line\n${END_SENTINEL}`;
+  const _stBlockA1 = extractBlock(_stTextA1);
+  const _stBlockA2 = extractBlock(_stTextA2);
+  if (_stBlockA1 === null || _stBlockA2 === null || _stBlockA1 !== _stBlockA2) {
+    errors.push('[format-rules-parity] SELF-TEST FAILED: fixture (a) -- matching pair was not accepted');
+  }
+
+  // Fixture (b): drifted pair -> FAIL (blocks differ)
+  const _stTextB1 = `${BEGIN_SENTINEL}\n- MUST line A\n${END_SENTINEL}`;
+  const _stTextB2 = `${BEGIN_SENTINEL}\n- MUST line B (drifted)\n${END_SENTINEL}`;
+  const _stBlockB1 = extractBlock(_stTextB1);
+  const _stBlockB2 = extractBlock(_stTextB2);
+  if (_stBlockB1 === null || _stBlockB2 === null || _stBlockB1 === _stBlockB2) {
+    errors.push('[format-rules-parity] SELF-TEST FAILED: fixture (b) -- drifted pair was not detected');
+  }
+
+  // Fixture (c): missing-anchor -> FAIL (extractBlock returns null)
+  const _stTextC = `no sentinels here`;
+  const _stBlockC = extractBlock(_stTextC);
+  if (_stBlockC !== null) {
+    errors.push('[format-rules-parity] SELF-TEST FAILED: fixture (c) -- missing anchor was not detected (got non-null)');
+  }
+  // ---- end self-test ----------------------------------------------------------
+
+  const architectPath = path.join(root, 'claude', 'agents', 'architect.md');
+  const templatePath  = path.join(root, 'openspec-templates', 'spec-delta.template.md');
+  const architectRel  = 'claude/agents/architect.md';
+  const templateRel   = 'openspec-templates/spec-delta.template.md';
+
+  const architectText = await readFileOr(architectPath, null);
+  const templateText  = await readFileOr(templatePath, null);
+
+  if (architectText === null) {
+    errors.push(`[format-rules-parity] ${architectRel}: file not found`);
+    return 1;
+  }
+  if (templateText === null) {
+    errors.push(`[format-rules-parity] ${templateRel}: file not found`);
+    return 1;
+  }
+
+  const architectBlock = extractBlock(architectText);
+  const templateBlock  = extractBlock(templateText);
+
+  let violations = 0;
+
+  if (architectBlock === null) {
+    errors.push(
+      `[format-rules-parity] ${architectRel}: missing or unbalanced ` +
+      `<!-- must-leads:begin --> / <!-- must-leads:end --> sentinel anchors`
+    );
+    violations++;
+  }
+
+  if (templateBlock === null) {
+    errors.push(
+      `[format-rules-parity] ${templateRel}: missing or unbalanced ` +
+      `<!-- must-leads:begin --> / <!-- must-leads:end --> sentinel anchors`
+    );
+    violations++;
+  }
+
+  if (violations === 0 && architectBlock !== templateBlock) {
+    errors.push(
+      `[format-rules-parity] ${architectRel} and ${templateRel} MUST-leads Format-rules blocks differ` +
+      ` -- edit both or neither.`
+    );
+    violations++;
+  }
+
+  if (violations === 0) {
+    process.stdout.write(
+      `  OK: Format-rules sentinel blocks in architect.md and spec-delta.template.md are byte-identical\n`
+    );
+  }
+  return violations;
+}
+
 // ---- main ------------------------------------------------------------------
 
 async function main() {
@@ -2882,6 +3316,12 @@ async function main() {
 
   process.stdout.write('\nCheck 19: Authoritative sync delegator\n');
   await checkAuthoritativeSyncDelegator(errors);
+
+  process.stdout.write('\nCheck 20: Requirement first-line MUST/SHALL guard\n');
+  await checkRequirementFirstLineModal(errors);
+
+  process.stdout.write('\nCheck 21: Format-rules parity (MUST-leads)\n');
+  await checkFormatRulesParity(errors);
 
   process.stdout.write('\n');
   if (errors.length === 0) {

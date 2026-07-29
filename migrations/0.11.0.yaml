@@ -1,0 +1,10 @@
+version: 0.11.0
+summary: >
+  Kit-internal change only — adds architect authoring guidance for the OpenSpec
+  first-line MUST/SHALL rule plus two new scripts/lint.mjs checks (Check 20
+  checkRequirementFirstLineModal, Check 21 checkFormatRulesParity). All changed
+  files are kit source (claude/agents/, openspec-templates/, scripts/), delivered
+  by the plugin update itself; no consumer openspec/ workspace file needs editing
+  (PQ5). No action required.
+automated: []
+manual: []

@@ -88,10 +88,14 @@ One line stating why it is removed. (No scenarios are needed under REMOVED.)
   operation). A mismatched title means sync cannot locate the requirement.
 - `## MODIFIED` requirements carry the **full** new requirement text, not just
   the changed sentence.
+<!-- must-leads:begin -->
 - The **first line** of every requirement body MUST contain `MUST` or `SHALL`.
   OpenSpec reads the requirement's *first physical line* as its statement, so a
   `MUST`/`SHALL` that wraps onto the second line does NOT count — keep it on line
   one (write `The skill MUST …`, not `When X …, the\nskill MUST …`).
+  - Permitted: `The system MUST reject a request when the token is expired.`
+  - Forbidden: `When the token is expired,` (line 1) / `the system MUST reject the request.` (line 2)
+<!-- must-leads:end -->
 - Every `### Requirement:` under `## ADDED` or `## MODIFIED` MUST have at least
   one `#### Scenario:` block using `- **WHEN** / **THEN**` bullets (`GIVEN` /
   `AND` optional).

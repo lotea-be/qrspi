@@ -106,6 +106,8 @@ slices preview) may follow `## Impact`, never replace a canonical section.
    `openspec-templates/spec-delta.template.md` (the kit ships the shape; there
    is no per-repo template to read).
 
+**Warning — the first line of every requirement body MUST contain `MUST` or `SHALL`.** OpenSpec's `validate --strict` (which CI runs as `validate --all`) reads only the requirement's first physical line as its statement. A body that opens with a `When …` / `If …` / `For each …` clause and lets `MUST` wrap onto line 2 passes non-strict `openspec validate <id>` but hard-stops the Implement stage at CI's strict gate — far from where you authored it. Write `The system MUST … when X`, never `When X, the system MUST …`.
+
 **New capability** — no base spec at `openspec/specs/<capability>/spec.md`
 exists yet. Write a full spec; every requirement goes under
 `## ADDED Requirements`:
@@ -186,10 +188,14 @@ non-strict `openspec validate <id>` does NOT check the MUST/SHALL rule; CI runs
   operation). A mismatched title means sync cannot locate the requirement.
 - `## MODIFIED` requirements carry the **full** new requirement text, not just
   the changed sentence.
+<!-- must-leads:begin -->
 - The **first line** of every requirement body MUST contain `MUST` or `SHALL`.
   OpenSpec reads the requirement's *first physical line* as its statement, so a
   `MUST`/`SHALL` that wraps onto the second line does NOT count — keep it on line
   one (write `The skill MUST …`, not `When X …, the\nskill MUST …`).
+  - Permitted: `The system MUST reject a request when the token is expired.`
+  - Forbidden: `When the token is expired,` (line 1) / `the system MUST reject the request.` (line 2)
+<!-- must-leads:end -->
 - Every `### Requirement:` under `## ADDED` or `## MODIFIED` MUST have at least
   one `#### Scenario:` block using `- **WHEN** / **THEN**` bullets (`GIVEN` /
   `AND` optional).
