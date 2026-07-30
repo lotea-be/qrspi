@@ -232,22 +232,44 @@ sample `bundled` row with a `>` pointer note.
   heading grammar, the status enum, the separator characters, and the
   standalone-vs-exempt body rule.
 
-### Requirement: Check 3 MUST declare backlog.template.md with an empty headings list
+### Requirement: Check 3 MUST enforce a drift guard between backlog.template.md and the init.md inline copy
 
-The system MUST add a `TEMPLATE_CANONICAL_HEADINGS` entry for
-`backlog.template.md` with `headings: []` (an empty array), so that the Check 3
-"every template is declared in the map" invariant remains satisfied without
-inventing a bogus agent mapping. An empty list MUST cause Check 3 to skip the
-heading-alignment assertion for that template (the same behaviour already used for
-`tasks.template.md`).
+The system MUST replace the `backlog.template.md` `headings:[]` skip entry in
+`TEMPLATE_CANONICAL_HEADINGS` with a real drift guard. The guard MUST assert that
+`claude/commands/init.md` contains the full template content inline (between
+`<!-- backlog-template:begin -->` and `<!-- backlog-template:end -->` sentinel
+markers inside a fenced block) and that the extracted block is byte-identical to
+`openspec-templates/backlog.template.md` (after CRLF normalization). A mismatch
+MUST cause Check 3 to push a `[heading] drift-guard:` violation and exit non-zero.
 
-#### Scenario: backlog.template.md declared in the map does not cause Check 3 to error
+This replaces the earlier empty-headings skip, which asserted nothing about the
+inline copy's content. The drift guard is required because `init.md` embeds the
+template content inline (runtime file-reads of the plugin bundle are non-portable),
+so the only way to catch drift is via CI comparison.
 
-- **WHEN** `openspec-templates/backlog.template.md` exists and `node scripts/lint.mjs`
-  is run
-- **THEN** Check 3 finds the entry in `TEMPLATE_CANONICAL_HEADINGS` with an empty
-  headings list, skips the agent-alignment assertion for that file, and reports
-  no violation.
+#### Scenario: inline copy matches template -- Check 3 passes
+
+- **WHEN** the fenced block in `claude/commands/init.md` between the sentinel
+  markers is byte-identical to `openspec-templates/backlog.template.md` and
+  `node scripts/lint.mjs` is run
+- **THEN** Check 3 reports `OK: backlog.template.md -> claude/commands/init.md
+  (drift-guard: inline copy matches template)` and pushes no violation.
+
+#### Scenario: inline copy drifts from template -- Check 3 fails
+
+- **WHEN** the fenced block in `claude/commands/init.md` between the sentinel
+  markers differs from `openspec-templates/backlog.template.md` (e.g. one line
+  was edited in the template but the inline copy was not updated) and
+  `node scripts/lint.mjs` is run
+- **THEN** Check 3 pushes a `[heading] drift-guard:` violation naming both files
+  and exits non-zero.
+
+#### Scenario: missing sentinel markers in init.md -- Check 3 fails
+
+- **WHEN** `claude/commands/init.md` does not contain both
+  `<!-- backlog-template:begin -->` and `<!-- backlog-template:end -->` markers
+  (or the fenced block between them is absent) and `node scripts/lint.mjs` is run
+- **THEN** Check 3 pushes a `[heading] drift-guard:` violation and exits non-zero.
 
 #### Scenario: undeclared template would fail Check 3
 
@@ -257,15 +279,24 @@ heading-alignment assertion for that template (the same behaviour already used f
 - **THEN** Check 3 reports the undeclared template as a violation, preserving the
   "every template is declared" invariant.
 
-### Requirement: /qrspi:init MUST seed openspec/backlog.md from the template when absent
+### Requirement: /qrspi:init MUST seed openspec/backlog.md from an inline copy when absent
 
 The system MUST update `claude/commands/init.md` so that, during the
 initialization flow, after writing `openspec/config.yaml`, the command seeds
-`openspec/backlog.md` from `openspec-templates/backlog.template.md` only if
-`openspec/backlog.md` is absent. The absence check MUST use the Glob tool (no
-shell-out). If `openspec/backlog.md` already exists the seeding step MUST be
-skipped silently. The seeded file MUST be staged in the existing `git add openspec/`
-commit step — no separate commit is introduced.
+`openspec/backlog.md` only if `openspec/backlog.md` is absent. The absence check
+MUST use the Glob tool (no shell-out). If `openspec/backlog.md` already exists the
+seeding step MUST be skipped silently. The seeded file MUST be staged in the
+existing `git add openspec/` commit step — no separate commit is introduced.
+
+The command MUST NOT read `openspec-templates/backlog.template.md` at runtime to
+obtain the seed content. At runtime the CWD is the consumer repo, so that relative
+path resolves to the consumer's working tree rather than the plugin bundle (the
+"learn my own install dir" portability trap -- confirmed by dogfood, slice 3).
+Instead, the command MUST embed the template content verbatim inline in its body,
+between `<!-- backlog-template:begin -->` and `<!-- backlog-template:end -->` sentinel
+markers inside a fenced block, and MUST Write that inline content to
+`openspec/backlog.md`. The inline copy MUST be kept in sync with
+`openspec-templates/backlog.template.md` via Check 3's drift guard.
 
 #### Scenario: init on a fresh repo seeds the backlog
 

@@ -715,25 +715,121 @@ const TEMPLATE_CANONICAL_HEADINGS = {
       '## REMOVED Requirements',
     ],
   },
-  // backlog.template.md: maps to NO agent -- no stage agent renders a backlog.
-  // Declared with an empty headings list so the Check 3 "every template is
-  // declared" invariant stays honest without inventing a bogus agent mapping
-  // (same treatment as tasks.template.md: empty list -> SKIP). The template's
-  // own content is validated by Check 22 via the verbatim-seed guarantee, not
-  // by Check 3 (D-Template / D7 no-content-scan decision).
+  // backlog.template.md: maps to claude/commands/init.md (a COMMAND, not an agent).
+  // /qrspi:init is the file that seeds openspec/backlog.md from an INLINE copy of
+  // the template embedded between <!-- backlog-template:begin --> and
+  // <!-- backlog-template:end --> sentinels in its body. Check 3 extracts that
+  // fenced block and compares it byte-for-byte to openspec-templates/backlog.template.md.
+  // This replaces the earlier headings:[] skip -- the drift guard is the strongest
+  // feasible check (full-content equality of the extracted block vs. the template
+  // file). Dogfood finding (slice 3): reading the template at runtime from a relative
+  // path is non-portable (the consumer repo's CWD is not the plugin dir), so the
+  // template content is embedded inline instead.
   'backlog.template.md': {
-    agent: '(none -- no stage agent renders a backlog)',
-    headings: [], // no fixed canonical headings -- Check 3 skips this template
+    agent: '(none -- no stage agent renders a backlog; drift guard targets claude/commands/init.md)',
+    headings: [],        // headings[] is unused for this entry; drift guard below handles it
+    driftGuard: {
+      commandFile: 'init.md',
+      beginSentinel: '<!-- backlog-template:begin -->',
+      endSentinel:   '<!-- backlog-template:end -->',
+    },
   },
 };
 
+// Extract the content of the fenced block (``` ... ```) between two sentinel
+// comment lines in a source file. Returns the inner text of the first fenced block
+// found between beginSentinel and endSentinel (exclusive of the fence lines
+// themselves), or null if either sentinel or the fenced block is absent.
+// The extraction trims a single leading newline after the opening fence marker
+// to match standard fenced-block formatting (the blank line before the first
+// content line is not part of the content).
+function extractSentinelBlock(text, beginSentinel, endSentinel) {
+  const begin = text.indexOf(beginSentinel);
+  if (begin === -1) return null;
+  const end = text.indexOf(endSentinel, begin);
+  if (end === -1) return null;
+
+  const between = text.slice(begin + beginSentinel.length, end);
+
+  // Find the opening fence (``` possibly followed by a language tag)
+  const fenceOpenRe = /^[ \t]*```[^\n]*\n/m;
+  const fenceOpenM = fenceOpenRe.exec(between);
+  if (!fenceOpenM) return null;
+
+  const afterOpen = between.slice(fenceOpenM.index + fenceOpenM[0].length);
+
+  // Find the closing fence (a line that is just ```)
+  const fenceCloseRe = /^[ \t]*```[ \t]*$/m;
+  const fenceCloseM = fenceCloseRe.exec(afterOpen);
+  if (!fenceCloseM) return null;
+
+  return afterOpen.slice(0, fenceCloseM.index);
+}
+
 async function checkHeadingAlignment(errors) {
   const agentsDir = path.join(root, 'claude', 'agents');
+  const commandsDir = path.join(root, 'claude', 'commands');
   let violations = 0;
 
-  for (const [templateFile, { agent: agentStem, headings: canonicalHeadings }] of Object.entries(TEMPLATE_CANONICAL_HEADINGS)) {
+  for (const [templateFile, entry] of Object.entries(TEMPLATE_CANONICAL_HEADINGS)) {
+    const { agent: agentStem, headings: canonicalHeadings, driftGuard } = entry;
+
+    // ---- Drift-guard branch (e.g. backlog.template.md -> init.md) --------------
+    // When a template entry declares a driftGuard, perform a full-content
+    // equality check between the extracted fenced block in a COMMAND file and
+    // the template source, instead of a heading-presence check in an agent file.
+    if (driftGuard) {
+      const { commandFile, beginSentinel, endSentinel } = driftGuard;
+      const commandPath = path.join(commandsDir, commandFile);
+      const commandRel = `claude/commands/${commandFile}`;
+      const commandText = await readFileOr(commandPath, null);
+      if (commandText === null) {
+        errors.push(`[heading] drift-guard: Cannot read ${commandRel} -- file not found`);
+        violations++;
+        continue;
+      }
+
+      const extracted = extractSentinelBlock(commandText, beginSentinel, endSentinel);
+      if (extracted === null) {
+        errors.push(
+          `[heading] drift-guard: ${commandRel} is missing the sentinel block` +
+          ` "${beginSentinel}" ... "${endSentinel}" (or the fenced block between them)`
+        );
+        violations++;
+        continue;
+      }
+
+      const templatePath = path.join(root, 'openspec-templates', templateFile);
+      const templateText = await readFileOr(templatePath, null);
+      if (templateText === null) {
+        errors.push(`[heading] drift-guard: Cannot read openspec-templates/${templateFile} -- file not found`);
+        violations++;
+        continue;
+      }
+
+      // Normalize line endings for the comparison (CRLF -> LF on both sides).
+      const extractedNorm = extracted.replace(/\r\n/g, '\n');
+      const templateNorm = templateText.replace(/\r\n/g, '\n');
+
+      if (extractedNorm !== templateNorm) {
+        errors.push(
+          `[heading] drift-guard: inline copy of ${templateFile} in ${commandRel}` +
+          ` has drifted from openspec-templates/${templateFile}` +
+          ` -- update the sentinel block between "${beginSentinel}" and "${endSentinel}"` +
+          ` to match the template file exactly`
+        );
+        violations++;
+      } else {
+        process.stdout.write(
+          `  OK: ${templateFile} -> ${commandRel} (drift-guard: inline copy matches template)\n`
+        );
+      }
+      continue;
+    }
+
+    // ---- Standard heading-presence branch (agent files) ----------------------
     if (canonicalHeadings.length === 0) {
-      // Nothing to check for this template (dynamic format)
+      // Nothing to check for this template (dynamic format, no drift guard)
       process.stdout.write(`  SKIP: ${templateFile} -> ${agentStem} (no fixed canonical headings)\n`);
       continue;
     }

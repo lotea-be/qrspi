@@ -196,13 +196,15 @@ the canonical preamble verbatim and its sample rows carry real `**Why:**` +
 `**Shape:**` bodies. **However** — the template lives at
 `openspec-templates/backlog.template.md`, which is **not** `openspec/backlog.md`,
 so Check 22 does not scan it directly. The template's correctness is guarded by
-(a) being seeded verbatim and (b) the Check-3 decision in D-Template. I do **not**
-extend Check 22 to scan the template's *content* — that would couple the live-file
-check to template internals; the template's structure is instead validated via
-Check 3 (D-Template, option: empty-heading skip). **Per OQ4, Check 22 does add a
-one-line *existence* assertion** (assertion 6, D2) that the template file is
-present — existence only, not content. That closes the template-missing gap while
-preserving the no-content-scan decoupling.
+(a) being seeded verbatim (the inline copy in `init.md` is byte-identical to the
+template file, enforced by Check 3's drift guard) and (b) the Check-3 decision in
+D-Template. I do **not** extend Check 22 to scan the template's *content* — that
+would couple the live-file check to template internals. **Per OQ4, Check 22 does
+add a one-line *existence* assertion** (assertion 6, D2) that the template file is
+present — existence only, not content. That closes the template-missing gap.
+The residual drift gap noted in the original design (a broken sample row in the
+template shipping undetected) is now closed by Check 3's full-content drift guard
+(D-Template section).
 
 ## Template surface
 
@@ -221,27 +223,47 @@ preserving the no-content-scan decoupling.
   assertion 5), and one sample `bundled` row with a `>` pointer note (documents
   the exempt class).
 
-**Check 3 handling (PQ-Q31/Q32).** Check 3 maps each `*.template.md` to an agent
-skeleton and asserts the agent body contains the template's canonical headings.
-`backlog.template.md` maps to **no agent** — no stage agent renders a backlog.
-Resolution: add a `TEMPLATE_CANONICAL_HEADINGS` entry for
-`backlog.template.md` with an **empty `headings: []` list** (agent stem is
-irrelevant and skipped), exactly as `tasks.template.md` is already handled
-(research: empty list → `SKIP`). This keeps the "every template is declared in
-the map" invariant honest without inventing a bogus agent mapping. Rejected:
-mapping it to `workflow` skill prose — Check 3 reads agent bodies, not skills;
-adding a skill-reading branch is scope creep for one file.
+**Check 3 handling (PQ-Q31/Q32 -- updated after dogfood).** Check 3 maps each
+`*.template.md` to a target file and asserts the inline copy is in sync with the
+template. `backlog.template.md` maps to **`claude/commands/init.md`** (a COMMAND,
+not an agent), because `init.md` embeds the template content inline between
+sentinel markers. The `TEMPLATE_CANONICAL_HEADINGS` entry now carries a `driftGuard`
+object (instead of an empty `headings: []` skip): `checkHeadingAlignment` detects
+this field and performs a **full-content byte-comparison** of the fenced block
+extracted between `<!-- backlog-template:begin -->` / `<!-- backlog-template:end -->`
+against `openspec-templates/backlog.template.md`. A mismatch makes Check 3 exit
+non-zero. This is the strongest feasible check — full-content equality of the
+extracted block vs. the template file.
+
+Initial design had `headings: []` (empty-heading skip, same as `tasks.template.md`),
+but that asserted nothing about the content. The inline-embed mechanism (required
+because runtime file-reads are non-portable) made a real drift guard both necessary
+and feasible: now that the content is in the command body, Check 3 can compare it.
+Rejected: mapping it to `workflow` skill prose — Check 3 reads agent/command bodies,
+not skills; adding a skill-reading branch is scope creep for one file.
 
 ## Command changes
 
 `claude/commands/init.md` (PQ6). Today `/qrspi:init` does **not** seed any
 template and does **not** create `openspec/backlog.md` (research confirmed). Add
-one step to the "not initialized" path: after writing `openspec/config.yaml`,
-seed `openspec/backlog.md` from `openspec-templates/backlog.template.md` **only
-if `openspec/backlog.md` is absent** (Glob check; skip silently if present — PQ6
-option (a)). Use the Glob tool for the presence check (house rule: no shell-out
-in command bodies). The seeded file is staged in the existing `git add openspec/`
-of step 4 — no new commit. No AskUserQuestion refresh prompt (PQ6 rejected (b)).
+one step to the "not initialized" path (step `b-quater`): after writing
+`openspec/config.yaml`, seed `openspec/backlog.md` **only if `openspec/backlog.md`
+is absent** (Glob check; skip silently if present — PQ6 option (a)).
+
+**Portability constraint (dogfood finding, slice 3 re-open):** a QRSPI command
+has no portable way to read its own plugin bundle's files at runtime. When the
+command runs, the CWD is the consumer repo; `openspec-templates/backlog.template.md`
+resolves to the consumer's working tree, not the plugin directory, so a runtime
+file-read silently fails to seed the file. The fix: embed the full canonical
+backlog-template content **inline** in `init.md` itself, between greppable
+sentinel markers (`<!-- backlog-template:begin -->` / `<!-- backlog-template:end -->`),
+inside a fenced block. The agent Writes that inline content verbatim to
+`openspec/backlog.md`. Check 3 (see D-Template below) enforces that the inline
+copy stays in sync with `openspec-templates/backlog.template.md`.
+
+Use the Glob tool for the presence check (house rule: no shell-out in command
+bodies). The seeded file is staged in the existing `git add openspec/` of step 4 —
+no new commit. No AskUserQuestion refresh prompt (PQ6 rejected (b)).
 
 **Per OQ2 (decided: add fenced examples),** the row-writing command bodies each
 gain a fenced canonical row example so they emit lint-clean rows deterministically:
@@ -349,11 +371,13 @@ The Structure stage will detail these; each ends in something demoable end-to-en
 - **Maiden `automated` edit-file step.** This change is the first to ship a non-
   empty `automated:` list, exercising a code path that has never run in
   production (research). Keep it trivial; lean on `manual` steps.
-- **Check 22 vs. template coupling.** I deliberately do **not** have Check 22 scan
-  the template (D7), so a drifted template would not be caught by Check 22 — only
-  by Check 3's (empty) mapping, which asserts nothing about backlog content. Residual
-  gap: a broken sample row in the template ships undetected until a consumer seeds
-  and runs lint. Accepted as a small, post-1.0-addressable gap (OQ4).
+- **Check 22 vs. template coupling.** Check 22 does not scan the template (D7);
+  but the residual gap (a drifted template shipping undetected) is now closed by
+  Check 3's full-content drift guard: Check 3 extracts the `init.md` inline copy
+  and compares it byte-for-byte to `openspec-templates/backlog.template.md`, so any
+  drift between the two files reddens CI immediately. The original "empty-heading
+  skip" (no content assertion) was replaced by this drift guard as part of the
+  inline-embed fix (slice 3 re-open, dogfood finding).
 
 ## Open questions for the human
 
