@@ -7,13 +7,7 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## In progress
 
-_None._
-
----
-
-## Proposed
-
-### standardize-backlog-format — `proposed (change folder created 2026-07-29)` · **P2**
+### standardize-backlog-format — `in-progress (Q, R, D, S, V, P, I complete)` · **P2**
 
 **Why:** The kit's commands all *mutate* `openspec/backlog.md` — `questions`
 flips a row to `proposed`, `pr` promotes/appends an idea row under `## Ideas`,
@@ -43,6 +37,12 @@ preamble, per-row grammar/enum, and Why+Shape on standalone rows; seed the
 template from `/qrspi:init` when absent; ship an additive-only migration
 manifest; and backfill the kit's own backlog + correct the drifted `workflow`
 prose. Defer the per-file `backlog/<id>.md` model to post-1.0.
+
+---
+
+## Proposed
+
+_None._
 
 ---
 
@@ -276,6 +276,28 @@ existing `### <slug>` row id in `openspec/backlog.md` or an archived change fold
 under `openspec/changes/archive/*-<slug>/`. Warn (not hard-fail) on the archived-
 row case if that proves noisy; hard-fail on a slug that resolves nowhere. Depends
 on [[standardize-backlog-format]] having landed the row-id grammar first.
+
+### migration-edit-file-idempotency-guard — `idea` · **P3**
+
+**Why:** [[standardize-backlog-format]] shipped the kit's first non-empty
+`automated:` migration step (an `edit-file` `insert_after` that adds the backlog
+legend comment). The `/qrspi:update` `edit-file` dispatcher has **no
+skip-if-present guard** (confirmed in the `qrspi-update` skill), so the insert is
+only *marker*-idempotent, not *content*-idempotent: if a consumer hits "Stop"
+mid-walk **after** the automated insert ran but **before** the marker bumps, a
+re-run replays the insert and duplicates the legend block. It is non-breaking
+(a cosmetic duplicated HTML comment, and the manifest text tells the human to
+delete it) but it is a real sharp edge that every future automated migration
+inherits. Surfaced by the `standardize-backlog-format` `/qrspi:update` dogfood
+(2026-07-30).
+
+**Shape:** Add an optional idempotency guard to the migration `edit-file` action
+schema — e.g. a `skip_if_contains: "<marker>"` (or `skip_if_present: true` keyed
+on the inserted `content`) field — and have the `/qrspi:update` dispatcher no-op
+the step when the anchor region already contains the content. Keeps additive
+`insert_after` steps safe to replay. Update the manifest schema doc in the
+`qrspi-update` skill and backfill the guard onto `migrations/0.13.0.yaml`'s
+legend insert.
 
 ### batch-archive-multiple-changes — `idea` · **P3**
 
@@ -682,6 +704,51 @@ and only trim genuinely low-surface changes — a right-sizer, not an escape hat
 is front-loading Q+R+D to beat the plan-reading illusion, so the gate MUST
 preserve "any data-model / API / auth / contract surface ⇒ full flow" and only
 trim genuinely low-surface changes. Surfaced 2026-07-25.
+
+### recycle-change-fold-new-requirements — `idea` · **P2**
+
+**Why:** When a completed QRSPI run doesn't satisfy — usually because the
+requirements were unclear up front or the human **realized new requirements during
+the run** — there is no blessed way to *re-enter the flow* with those requirements
+folded in. The only tools on hand are wrong for the job: piling `P1`/`P2`
+**followups** onto a done change patches symptoms while the real gap is **upstream**
+(a design assumption or a missing requirement), so fix mode "keeps mucking about"
+and the human restarts from scratch, losing every artifact the run produced. The
+missing move is a **recycle loop**: fold the newly-discovered requirements back into
+the change's *source* artifact and **re-run from the right earlier stage**, keeping
+the work that's still valid. This is the re-entry sibling of
+[[flow-entry-right-sizing]] (entry-side: *how heavy* a flow) — this decides *how far
+back* to loop when a run comes up short. It's lossless by construction: the change
+folder is truth, so re-entry is "edit the input, re-flow forward," not a rebuild
+([[reset-and-resume-between-boundaries]]).
+
+The load-bearing decision is **classifying the dissatisfaction**, which sets the
+re-entry point:
+- **Requirements were unclear / newly discovered** → fold them into `questions.md` /
+  the backlog idea's `**Why:**` and re-enter at **Q** (or **D**).
+- **A design assumption was wrong** (the plan was fine, the premise wasn't) → amend
+  `design.md` and re-enter at **D**, re-flowing S→V→P→I.
+- **Only structure/slicing missed** → re-enter at **S/V**.
+- **Small in-scope defect** → that's a **followup**, not a recycle
+  ([[fix-mode-capture-suggestions-found]]).
+- **Genuinely separate scope** → a **new change**, not a recycle.
+
+**Design tension (needs Q/D):** the sharp risk is **non-convergence** — each recycle
+can surface yet more requirements, so the loop needs a discipline (the human decides
+to re-enter; it's an *offer*, not automatic) and a clear "this is a new change now"
+cutoff. Also unresolved: whether recycling **rewrites** the existing artifacts or
+**versions** them (audit trail vs. clutter), and how it interacts with an
+**already-open PR** (re-open the branch and add slices, vs. supersede it) — the same
+seam [[pr-md-tracks-superseding-pr]] touches.
+
+**Shape:** A recycle command/guidance — e.g. `/qrspi:recycle <id>` or a choice
+offered at the point of dissatisfaction — that (1) classifies the gap
+(requirements-drift vs wrong-assumption vs structure-miss vs defect vs new-scope),
+(2) folds the new requirements into the matching input artifact, and (3) re-enters
+the flow at the resolved stage, preserving still-valid downstream artifacts and
+re-running forward. Keep it an **offer**, gate the "now it's a new change" cutoff,
+and reuse the lossless disk-is-truth re-run mechanic rather than rebuilding.
+Surfaced 2026-07-30.
 
 ### real-runtime-slice-checkpoints — `idea` · **P2**
 
@@ -1346,6 +1413,49 @@ exit obvious.
 (commit any edits already made, end the turn with a "re-run `/qrspi:pr` when ready"
 message), restoring symmetry with the regular-task loop. Mirror the wording into
 the `workflow`-skill choreography if the loop lives there.
+
+### fix-mode-capture-suggestions-found — `idea` · **P3**
+
+**Why:** Fix mode (`/qrspi:followup`, the `postpr-fix` skill) has contracts for
+*what it resolves* (a followup item already in scope) and *when to STOP* (net-new
+or design-level work → scope amendment / new change), but **nothing for the
+incidental suggestions the implementer finds *while* fixing** — the analog of the
+Q/D/S/PR "capture deferred work" offer that fix mode lacks. So a suggestion noticed
+mid-fix either gets silently folded into the atomic commit (the "fix quietly expands
+scope" failure the skill's own preamble names) or is dropped. The right handling
+turns on two axes — **causality** (did this fix cause it?) and **necessity** (is it
+required for *this* fix to be correct?):
+
+- **Aftereffect that's a regression/incompleteness of the fix** (broke a test, left
+  a contract half-updated, new edge case the fix itself now hits) → resolve **in the
+  same commit**. Not a suggestion — it's the fix's definition of done; the atomic
+  unit must be internally green, and you can't ship a break you just introduced.
+- **Aftereffect that's separable** (the fix *enabled/revealed* a distinct improvement
+  not needed for correctness) → **don't fold it in**; capture — but it has a
+  *stronger* claim to act-now than a random finding (freshest now, may not be
+  rediscoverable once the fix settles): a **new `followups.md` item** if it's
+  code-level on this PR's surface, else a **backlog idea** (offer).
+- **Not caused by the fix** (pre-existing, incidental) → **never fold in**; capture
+  by default — backlog idea (offer), or a `followups.md` item only if it's a genuine
+  open issue on this PR.
+
+The asymmetry: aftereffects bias toward *resolve-now* (correctness — deferring ships
+a known regression; discoverability — tied to the change just made), pre-existing
+findings bias toward *capture-and-defer* (already there, independently
+rediscoverable). One routing ladder cheapest→heaviest: **same commit** (regression)
+→ **new followup** (separable code on this PR) → **backlog idea** (broader) →
+**scope amendment / new change** (net-new or design-level — the skill's existing
+STOP guardrails).
+
+**Shape:** Add a **"Suggestions found while fixing"** section to
+`claude/skills/postpr-fix/SKILL.md` (and a pointer line in `claude/commands/
+followup.md`) encoding the causality×necessity routing ladder above, with the
+capture step reusing the same offer mechanic Q/D/S/PR use (and the writer
+[[idea-capture-command]] would provide, if built). Keep it an **offer, never
+auto-append** — consistent with the backlog-capture rule elsewhere. Relates to the
+archived `right-size-followup-handling` (which right-sizes *which* followups to take)
+and [[pr-human-task-loop-stop-option]] (both refine the post-PR fix loop). Surfaced
+2026-07-30.
 
 ### richer-askuserquestion-formats — `idea` · **P3**
 

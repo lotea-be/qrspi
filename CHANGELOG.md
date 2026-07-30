@@ -16,6 +16,29 @@ kit version.
 
 ### Added
 
+- **Backlog schema freeze (`standardize-backlog-format`).** Freezes the
+  `openspec/backlog.md` heading grammar (`### <id> -- \`<status>\` . **P<n>**`
+  with real em-dash U+2014 and middle-dot U+00B7), status enum (`idea`,
+  `proposed`, `in-progress`, `merged`, `bundled`), body-field rule
+  (`**Why:**` + `**Shape:**` required on standalone `idea`/`proposed` rows),
+  three-section presence (`## In progress`, `## Proposed`, `## Ideas`), and
+  P-band preamble under `## Ideas`. Ships: (1) `openspec-templates/backlog.template.md`
+  -- the canonical, self-documenting template that `/qrspi:init` seeds verbatim;
+  (2) lint Check 22 (`checkBacklogSchema`) with a five-assertion set and an
+  inline self-test fixture covering all four row-class cases; (3) a Check 3
+  drift guard that byte-compares the inline template copy in `init.md` against
+  the template file; (4) corrected `workflow` skill prose and fenced row
+  examples in `followup.md`, `pr.md`, `design.md`, `structure.md`, `slices.md`;
+  (5) the kit's own `openspec/backlog.md` backfilled with substantive
+  `**Shape:**` lines on all ~51 formerly-missing standalone rows; (6) a fix for
+  the Check-10 label collision (`checkTriagePaths` renumbered); and (7)
+  migration `0.13.0.yaml` that inserts the legend comment into existing consumer
+  backlogs (additive-only, no row rewrites) with manual steps for section-heading
+  and preamble additions. Consumers with no `openspec/backlog.md` are directed to
+  `/qrspi:init`; consumers with one gain the legend comment automatically on
+  `/qrspi:update`. This change requires a version bump at release (the migration
+  ships a non-empty `automated:` list for the first time in kit history).
+
 - **OpenSpec version-pin coupling guard (`reassess-openspec-dependency`).**
   Records the formal verdict to **keep** the `@fission-ai/openspec` CLI
   dependency for 1.0 (its residual value — spec-delta grammar validation —
