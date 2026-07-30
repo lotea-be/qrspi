@@ -41,7 +41,18 @@ Backlog: Slices does not change the row's status or section grouping --
 `openspec/backlog.md` has no `Next QRSPI command:` line to update (see
 skill `workflow`, "Backlog atomicity"); the row stays as stage Q left it
 until the Implement stage's final slice flips it. No backlog edit is
-needed here.
+needed here. For reference, the frozen heading grammar for any row written
+to the backlog (em-dash U+2014, middle-dot U+00B7) is:
+
+```markdown
+### <slug> — `idea` · **P<n>**
+
+**Why:** A one-line statement of the problem this idea would solve and why it is
+worth doing. Delete this sample row once you have real backlog items.
+
+**Shape:** A short sketch of the likely solution — the mechanism, the surfaces it
+touches, and the cheapest-first cut. This is design intent, not a full plan.
+```
 
 **Choreography (see skill `workflow`, "Stage choreography").** Follow
 the canonical *commit step* and *next-stage handoff* there, with these
