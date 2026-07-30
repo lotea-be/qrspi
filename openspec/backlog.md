@@ -35,11 +35,20 @@ P1-P3 band convention [[backlog-prioritization]] already applies informally.
 Pairs with [[structured-surface-schema]] (the same "give an ad-hoc surface a
 real schema" move).
 
+**Shape:** Freeze the row heading grammar (`### <id> — \`<status>\` · **P<n>**`,
+em-dash + middle-dot), the status enum, and the standalone-vs-bundled body rule
+in a canonical `openspec-templates/backlog.template.md`; add a `scripts/lint.mjs`
+Check (the mechanical floor) that validates section presence, the P-band
+preamble, per-row grammar/enum, and Why+Shape on standalone rows; seed the
+template from `/qrspi:init` when absent; ship an additive-only migration
+manifest; and backfill the kit's own backlog + correct the drifted `workflow`
+prose. Defer the per-file `backlog/<id>.md` model to post-1.0.
+
 ---
 
 ## Ideas
 
-Listed in priority order (highest first). Each carries a `P1`–`P3` band:
+Listed in priority order (highest first). Each carries a band — `P1`, `P2`, or `P3`:
 **P1** = correctness/safety of the live workflow, a highly visible defect in
 every generated artifact, or a systemic token/cost regression that recurs on
 every live run — do next;
@@ -198,6 +207,14 @@ like the other artifact-producing agents (and/or run lint at R-commit time to ca
 it at the source). Surfaced 2026-07-27 while implementing
 [[unify-implement-paths-on-variants]] (its research.md tripped Check 14).
 
+**Shape:** Add `repo-surface` to the researcher agent's `Load skills` line (and
+the `scripts/skill-sets.mjs` registry Check 2b enforces), then apply the same
+omit-comment/heading-suppression gate the questioner/designer/architect already
+run so a `## Data model` / `## API surface` heading is only emitted when the
+matching surface is present in the repo's `## Repo surface` block. Optionally add
+a lint run at R-commit time so the miss reddens at stage R rather than surfacing
+as a mid-implementation Check 14 hard-stop.
+
 ### git-host-and-remote-awareness — `idea` · **P2**
 
 **Why:** Several kit commands infer the git host and PR mechanics ad hoc and assume a
@@ -215,6 +232,14 @@ public 1.0: a non-GitHub or remoteless stranger currently hits `gh`-assuming com
 Relates to [[standardize-recurring-ops-scripts]] (the PR-create/PR-status ops it would
 centralize) and [[automate-marketplace-source-bump]].
 
+**Shape:** A shared kit skill (and/or a `## PR & git workflow` block in the
+stack-cheatsheet) that detects (1) remote presence and (2) vendor (GitHub / Azure
+DevOps / GitLab / Bitbucket) once, then exposes the vendor-specific PR-create and
+PR-status invocations from one place so `/qrspi:pr` and `/qrspi:archive` reuse it
+instead of each re-deriving `gh`/`az repos`/`glab`. Add an explicit no-remote
+branch that skips push/PR and offers a local-only path (local branch / patch /
+commit-to-current-branch) rather than failing on a missing `origin`.
+
 ### idea-capture-command — `idea` · **P3**
 
 **Why:** Adding a row to `openspec/backlog.md` today is ad hoc — hand-edited, or written
@@ -227,6 +252,14 @@ appends a well-formed idea row using the same mechanic those flows already embed
 "jot this down for later" is a one-liner that cannot drift from the schema. Natural
 writer for the schema [[standardize-backlog-format]] defines, and pairs with
 [[backlog-prioritization]] (it can propose a band + placement on capture).
+
+**Shape:** A small command/skill — e.g. `/qrspi:idea <slug> <why>` — that emits a
+canonical `### <slug> — \`idea\` · **P<n>**` row (using the frozen grammar from
+the backlog template) with a one-line `**Why:**` and a `**Shape:**`, dedups
+against existing rows by intent, proposes a band + `## Ideas` placement, and
+stages the edit. Reuses the same append mechanic the Q/D/S deferred-work flow and
+the `/qrspi:pr` / `/qrspi:followup` P3 path already embed, so it cannot drift from
+the schema. Depends on [[standardize-backlog-format]] having frozen the grammar.
 
 ### backlog-wikilink-resolution-lint — `idea` · **P3**
 
@@ -260,6 +293,14 @@ and land a single commit. Leans on the `spec-syncer`'s sequential-merge behavior
 relates to [[standardize-recurring-ops-scripts]] (the archive-ops helper family).
 Convenience/robustness, not a correctness gap — hence P3.
 
+**Shape:** A batch mode — `/qrspi:archive <id1> <id2> …` or an `--all-merged`
+sweep — that, in one atomic commit/PR: verifies each linked PR merged, folds each
+change's delta specs into the base **sequentially** (so overlapping capabilities
+like a shared `ci-quality-gates` accrete cleanly instead of git-conflicting via
+the `spec-syncer`'s sequential merge), moves all folders under
+`archive/<date>-<id>/`, and removes all backlog rows. Reuses the single-change
+archive step per id under one commit boundary.
+
 ### standardize-recurring-ops-scripts — `idea` · **P2**
 
 **Why (two payoffs — consistency *and* token cost):** Several QRSPI operations
@@ -282,6 +323,14 @@ status", "list open items in `tasks.md`/`followups.md`". Direct enabler for
 **unblocked** — both merged (archived 2026-07-15 and 2026-07-22), so the inline
 PR-status and open-item logic they introduced already exists and is ripe for
 extraction.
+
+**Shape:** Extend the `scripts/*.mjs` pattern `lint.mjs` established: extract the
+deterministic recurring ops into small Node helpers (Node, not shell, per the
+permission-checker constraint) that stage commands call instead of re-deriving —
+"does the linked PR show `merged`?", "create the PR from this title/body
+template", "flip a backlog entry's status", "list open items in
+`tasks.md`/`followups.md`". Split CI-only scripts (like lint) from runtime helpers
+that ship into consumer repos and inherit their `gh`/auth availability.
 
 **Scope boundary — mechanical, not judgment.** Script only ops with one correct
 answer; leave decisions (finish/defer/drop a task, reprioritize, approve a design)
@@ -338,6 +387,64 @@ This is the live-% half of [[orchestrator-context-budget-gate]] that was found
 infeasible at design time — blocked on an external harness capability, hence P3.
 Surfaced 2026-07-28 during the `orchestrator-context-budget` D review.
 
+**Shape:** Gated on a future harness capability: when a slash-command body can
+read live context-window utilization, upgrade the `context-budget-gate` skill to
+read the real gauge at its 8/12-event nudge/gate points and drive the thresholds
+off actual % instead of the stage-event counter — keeping the counter as the
+fallback (or retiring it) so existing consumers degrade gracefully.
+
+### context-gate-compact-and-passive-gauge — `idea` · **P3**
+
+**Why (two facets, one theme — make the reset gate less manual):** The
+`context-budget-gate` soft gate (fires ~12 stage-events) offers exactly one exit —
+`/clear` + resume — and drives off a crude in-context **stage-event counter** as a
+lower-bound proxy, because a slash-command body cannot read live context %
+([[upgrade-budget-gate-to-live-context-read]], blocked on that harness gap). Two
+improvements, cheapest first:
+
+1. **Offer `/compact` as a labeled alternative in the soft gate** (the immediate,
+   prose-only part). `/clear` dominates *by design* — QRSPI state is on disk, so a
+   clean reload beats keeping compaction's summary residue — but `/compact` is the
+   right call in the one case `/clear` loses data: **un-flushed in-session context**
+   (a discussion, a decision not yet written to `design.md`) the human hasn't
+   committed to the change folder. Add it as a clearly-secondary third choice
+   (`Reset now (clean, recommended)` / `Compact instead (keeps in-session context)` /
+   `Continue`), not a co-equal.
+
+2. **Two automatic aids the kit doesn't yet ship** (the "can we do this
+   automatically?" answer). Confirmed against current Claude Code docs: neither
+   `/clear` nor `/compact` can be model-invoked, and **no hook fires as context
+   approaches full** (auto-compact is silent). But — (a) a **statusLine** command
+   *does* receive live `context_window.used_percentage` + `exceeds_200k_tokens`, so a
+   kit-shipped statusline gives an always-on **passive gauge** — the real gauge
+   [[upgrade-budget-gate-to-live-context-read]] wanted, feasible **now** because the
+   statusline is a different surface than the (still-blind) command body; and (b) a
+   **SessionStart** hook (matchers `clear`/`compact`/`resume`) can auto-inject the
+   resume pointer (`/qrspi:status` output / "mid-change X at stage Y → run
+   `/qrspi:<next>`") so a reset **self-reorients** — the automatic form of
+   [[reset-and-resume-between-boundaries]]'s "one-command the resume path" want,
+   removing the "did I lose state?" friction that makes people avoid `/clear`. A
+   **PreCompact** hook (`auto`/`manual`) is the only touchpoint on compaction itself:
+   it can't convert compact→clear or fire on approach-to-full, but can log/warn
+   "state is on disk — `/clear`+resume beats compact here."
+
+**Design tensions (needs Q/D):** (1) hooks + statusLine live in `settings.json` — a
+**new distribution surface** the kit doesn't use today; confirm plugin-shipped
+hooks/statusline reach consumers automatically vs require an opt-in edit to the
+user's own settings (the exact "where does the hook live — plugin-shipped
+`settings.json`?" question [[hooks-as-mechanical-guards]] already flags). (2) The
+gauge is **passive/informational** — it won't gate or reset, so it *complements* the
+soft gate, not replaces it. (3) Keep `/compact` clearly secondary per the on-disk
+rationale above.
+
+**Shape:** Facet 1 is a prose edit to `claude/skills/context-budget-gate/SKILL.md`
+step 4 (add the third AskUserQuestion choice + its `/compact` branch). Facet 2 is a
+larger bet: ship a statusLine gauge script + a SessionStart(`clear`/`compact`/
+`resume`) hook that emits the resume `additionalContext`, resolving the
+plugin-vs-user-settings distribution question first. The cheap Facet 1 could ride
+the pre-1.0 runway before [[rename-qrspi-to-qrnchi]]; the hook/statusline aids are a
+larger, likely post-1.0 bet. Surfaced 2026-07-30.
+
 ### orchestrator-context-budget-gate — `bundled into orchestrator-context-budget (proposed 2026-07-28)` · **P2**
 
 > **Bundled into `orchestrator-context-budget`** (proposed 2026-07-28) with
@@ -383,6 +490,13 @@ is the compute-lever thesis (spend compute by marginal value) applied to the
 cost-per-quality frontier: it does not minimise tokens versus always-medium, but
 it beats always-high at equal or better gate quality.
 
+**Shape:** Add guidance (and/or a light mechanism) that escalates reasoning effort
+per-turn only at the judgment-heavy orchestrator gates — the D review and the
+S→V→P→I divergence self-assessment — e.g. extended-thinking triggers embedded in
+the stage-command bodies at exactly those points, leaving mechanical turns (Glob
+preconditions, commits, handoffs, backlog staging) cheap. Scope which gates
+warrant the bump rather than sprinkling triggers everywhere.
+
 **Design tension (needs Q/D):** per-turn thinking triggers are *prose-level* and
 cannot be mechanically enforced (the "persona, not mechanism" caution — cf.
 [[hooks-as-mechanical-guards]]); scope which gates genuinely warrant the bump
@@ -406,6 +520,12 @@ cluster with [[orchestrator-effort-targeting]] and
 [[compute-escalation-on-failure]]. Surfaced as a Non-Goal of
 `per-slice-compute-tier` (stage D, 2026-07-27).
 
+**Shape:** Extend the `effort=` vocabulary in the `**Compute:**` grammar (e.g.
+`xhigh` / `max`) and/or add a thinking-budget token, updating Check 13's value
+validation to accept them — paired with heuristics for when each tier is warranted.
+Each new effort tier needs its own static `implementer-<tier>` variant agent, so
+the scope is grammar + Check 13 + one agent file per added tier.
+
 ### compute-escalation-on-failure — `idea` · **P3**
 
 **Why:** When an implementer slice fails its build/tests at the slice boundary, the
@@ -421,6 +541,13 @@ escalate-silently-forever). Depends on `per-slice-compute-tier`'s tier mechanism
 Part of the adaptive-compute cluster with [[orchestrator-effort-targeting]] and
 [[richer-effort-vocab-and-thinking]]. Surfaced as an afterthought during
 `per-slice-compute-tier` stage-D review (2026-07-27).
+
+**Shape:** Orchestrator-driven retry: on a slice build/test failure at the
+boundary, re-spawn the same slice on a higher tier (bump effort and/or model up a
+defined ladder) before falling to the human hard-stop — escalate-then-ask, never
+escalate-silently-forever. Design the ladder order (effort vs model first), a max-
+retries / cost cap, and compatibility with the never-suppressed human gate.
+Depends on `per-slice-compute-tier`'s tier mechanism.
 
 <!-- unify-implement-paths-on-variants moved to ## Proposed (2026-07-27) -->
 <!-- commands-assert-cwd-change-folder bundled into unify (see ## Proposed) -->
@@ -441,6 +568,14 @@ holds a "no artifact-structure change" contract). Two related decompositions:
    stay purely machine-actionable (code + tests the implementer acts on) and the
    runtime-verification checkpoints collect in one place for the PR reconciliation
    gate and the dogfood flow. The implementer never reads tasks it cannot action.
+
+**Shape:** Split `tasks.md` into a top-level index plus per-slice detail files
+(e.g. `tasks/slice-<n>.md`) so each implementer invocation reads only its own
+slice, and lift the `(human)` checkpoint tasks into their own surface (e.g.
+`checkpoints.md`). Touches the planner (writes the split), the implementer
+Read-Matrix row, the reviewer (reads the full folder), progressive ticking + the
+per-slice commit flow, the PR human-task reconciliation gate, the `qrspi-dogfood`
+skill, `scripts/lint.mjs` checks that parse `tasks.md`, and `openspec-templates/`.
 
 **Coupling / design tension (needs Q/R/D):** touches the planner (writes the split
 files), the implementer Read-Matrix row, the reviewer (reads the full folder),
@@ -514,6 +649,13 @@ archive) — that's a natural trigger point to offer the reprioritization pass.
 (The `P1`–`P3` bands + priority ordering now used in this file are a first,
 hand-maintained cut of this convention.)
 
+**Shape:** Formalize the `P1`–`P3` band + priority-ordering convention this file
+already applies by hand (frozen by [[standardize-backlog-format]]'s schema), and
+make it self-maintaining: at each material backlog change (archive, add, modify)
+**propose** a re-evaluation pass to the user — an offer, never a silent reshuffle
+— hanging off the archive flow ([[archive-requires-merged-pr]] already edits the
+backlog on archive) as the natural trigger point.
+
 ### flow-entry-right-sizing — `idea` · **P2**
 
 **Why:** Nothing formally assesses, when a backlog idea is picked up, whether it
@@ -526,7 +668,16 @@ skips R but keeps the D alignment gate), recording the decision + rationale. Thi
 is the entry-side sibling of the archived `right-size-followup-handling` triage
 (which right-sizes POST-PR follow-ups), and the third axis of "what to do next"
 alongside [[backlog-prioritization]] (which idea) and [[propose-bundling-ideas]]
-(how much at once) — this one decides *how heavy* a flow. **Hard constraint
+(how much at once) — this one decides *how heavy* a flow.
+
+**Shape:** An explicit right-sizing gate at flow entry that assesses the chosen
+scope's surface/risk and routes it to full-flow vs a trimmed path (e.g. a middle
+tier that skips R but keeps the D alignment gate), recording the decision +
+rationale. The entry-side sibling of the archived `right-size-followup-handling`
+triage. Must preserve "any data-model / API / auth / contract surface ⇒ full flow"
+and only trim genuinely low-surface changes — a right-sizer, not an escape hatch.
+
+**Hard constraint
 (design tension):** it must be a right-sizer, not an escape hatch — QRSPI's thesis
 is front-loading Q+R+D to beat the plan-reading illusion, so the gate MUST
 preserve "any data-model / API / auth / contract surface ⇒ full flow" and only
@@ -551,6 +702,14 @@ Check-15 plugin-registration bug that lint was blind to until the dogfood). Sibl
 to [[architect-real-runtime-done-decomposition]] (decompose it — this one verifies
 it). Surfaced by the abkf `dsr-self-service` consumer retro (2026-07-27).
 
+**Shape:** Generalize the `vertical-slice` skill (and the architect/planner that
+emit checkpoints) with a rule: **any slice whose acceptance cannot be reached by
+the automated suite MUST carry a `(human)` checkpoint verifying it in the real
+target environment** (deployment/rollout, identity/secret wiring, external-API
+integration, plugin/agent registration). Stack-agnostic by construction — reuses
+the existing `(human)` runtime-verification checkpoint primitive, just makes it
+mandatory for automation-unreachable acceptance.
+
 ### architect-real-runtime-done-decomposition — `idea` · **P2**
 
 **Why:** The architect (S) decomposes a change into slices/tasks but tends to stop
@@ -568,6 +727,14 @@ would regress the kit's stack-agnostic, surface-gated design. Sibling to
 [[real-runtime-slice-checkpoints]] (verify it). Surfaced by the abkf
 `dsr-self-service` consumer retro (2026-07-27).
 
+**Shape:** Add generic architect (S) guidance to decompose **what "done in the
+real runtime" means for each new resource** — not just the code that produces it —
+so image distribution, identity registration, secret injection, and cross-context
+config parity arrive as planned slices/tasks rather than post-PR surprises. Keep
+the kernel generic; the specific cloud checklist belongs behind an
+`infra`/deployment **surface** (see [[extend-surface-taxonomy]]), not hardcoded
+into every architect run.
+
 ### designer-flag-shared-artifact-coupling — `idea` · **P2**
 
 **Why:** When a design reuses one artifact across multiple roles/contexts (in the
@@ -582,6 +749,13 @@ hidden-coupling surfacing — squarely the designer's "surface your assumptions"
 not a deployment-specific concern. Relates to the two-source-of-truth caution in
 [[optional-technology-specs]]. Surfaced by the abkf `dsr-self-service` consumer retro
 (2026-07-27).
+
+**Shape:** Add designer (D) guidance to **flag any artifact reused across multiple
+roles/contexts and require the design to state the coupling contract explicitly** —
+whether configuration/behaviour parity is maintained across the shared artifact, or
+the roles are split into separate slim startups. Stack-agnostic; lands as a prompt
+addition to the designer agent's "surface your assumptions" pass, emitting the
+coupling statement as a binding downstream constraint.
 
 ### propose-bundling-ideas — `idea` · **P3**
 
@@ -601,12 +775,25 @@ change (which bundled the input + output token levers into one flow). Kept
 adjacent to [[backlog-prioritization]] despite the band gap, per the
 "keep families contiguous" convention above. Surfaced 2026-07-24.
 
+**Shape:** At run-start / "what next?" time, add a convention that scans the
+backlog for bundle-worthy clusters (shared mechanism, complementary levers, or
+explicit "must be co-designed" cross-references) and **proposes** a bundle to the
+user — offer, never auto-bundle; the human picks the scope. Pairs with
+[[backlog-prioritization]] (that ranks *what*; this decides *how much* at once).
+
 ### enforce-research-ticket-hiding — `idea` · **P2**
 
 **Why:** Ticket-hiding (the source's most important rule) is enforced only by
 telling the researcher not to open `questions.md`, though it has Read on the whole
 repo -- the "persona, not mechanism" anti-pattern `context-hygiene` itself warns
 against. Consider a mechanical guard.
+
+**Shape:** Replace the prose-only ticket-hiding with a mechanical enforcement: a
+`PreToolUse` hook that blocks the researcher from reading `questions.md` / the
+change ticket, and/or an agent-definition tool restriction that structurally
+narrows the researcher's Read scope. Superseded in specifics by
+[[hooks-as-mechanical-guards]], which names the mechanism for the whole Read-Matrix
+family; this row is the ticket-hiding-specific instance.
 
 ### hooks-as-mechanical-guards — `idea` · **P2**
 
@@ -619,7 +806,16 @@ mechanical enforcement primitives QRSPI does not use: **`PreToolUse` hooks**
 `questions.md` or the change ticket), and **agent-definition tool restrictions**
 that structurally narrow a stage agent's toolset. Together they turn the Read
 Matrix from a request into a guard; a `Stop`/`PostToolUse` hook could also
-auto-run `node scripts/lint.mjs` after a stage commit. **Research before
+auto-run `node scripts/lint.mjs` after a stage commit.
+
+**Shape:** Adopt Claude Code's mechanical enforcement primitives where they pay
+off: `PreToolUse` hooks (in a plugin-shipped `settings.json`) that deny the
+researcher any Read of `questions.md` / the ticket, agent-definition tool
+restrictions that narrow a stage agent's toolset, and optionally a
+`Stop`/`PostToolUse` hook that runs lint after a stage commit. Decide per invariant
+whether a hook is worth it vs. left as prose, and where each hook/restriction lives.
+
+**Research before
 committing:** (a) which invariants are worth a hook vs. left as prose, and *where*
 each hook/restriction lives (plugin-shipped `settings.json`? per-agent
 frontmatter?); (b) token-usage-vs-quality — hooks add no model tokens (they run
@@ -639,6 +835,11 @@ Deferred from `kit-quality-hardening` as a separate governance concern (its Q7).
 `UNSTABLE` — confirming `main` has no required checks today. Pair this with the
 new `release.yml` so a tag can't publish on a red build either.
 
+**Shape:** Configure GitHub branch protection on `main` to require the CI checks
+(the `kit-quality-hardening` gates) before merge, add a `CODEOWNERS` file to route
+reviews, and gate `release.yml` so a tag cannot publish on a red build. Governance
+config + one repo file, no kit-source logic change.
+
 ### tutorial-mode-narrated-tour — `idea` · **P2**
 
 **Why:** Some users report not "getting" the eight-stage workflow from the docs
@@ -654,6 +855,13 @@ you to skip, so they misrepresent why the alignment stages matter. Reuses the
 `reference-example` asset already maintained. Pairs with
 `tutorial-mode-coaching-overlay` as the deeper, hands-on follow-up.
 
+**Shape:** A read-only, zero-footprint `/qrspi:tour` command that walks the
+already-shipped `example-greeting` reference change stage by stage, opening each
+real artifact and explaining it in situ ("here's what Research produced — notice
+it's ticket-blind, and why"). Teaches the mechanics (which command, what artifact,
+where the gates are) and the judgment (why alignment de-risks) without polluting
+the user's repo. Reuses the existing `reference-example` asset.
+
 ### lint-auto-mode-gate-coverage — `idea` · **P2**
 
 **Why:** `add-auto-mode` introduces a convention that every stage command must
@@ -664,6 +872,12 @@ per-gate auto-branch wiring stays consistent — the runtime suppression itself 
 not statically checkable. Surfaced by `add-auto-mode` stage D (offered, not built).
 Low-cost correctness guard (hence P2, not P3). Now **unblocked** — `add-auto-mode`
 merged 2026-07-06 (archived), so the convention it enforces is live.
+
+**Shape:** A structural `scripts/lint.mjs` Check that asserts every stage command
+references the run-mode procedure in the `workflow` skill and that the per-gate
+auto-branch wiring stays consistent — the static, mechanically-checkable half (the
+runtime suppression itself is not statically checkable). Mirrors the existing
+embed-presence Checks (9/10) in shape.
 
 ### automate-marketplace-source-bump — `idea` · **P2**
 
@@ -689,6 +903,15 @@ vs a `ref:`/`version:` key). Pairs with [[qrspi-release-auto-stub-manifest]]
 (the other release-time automation idea) and relates to
 [[assert-openspec-version-pin-coupling]]. Surfaced 2026-07-25.
 
+**Shape:** After the Publish step in `release.yml`, fire a `repository_dispatch`
+`qrspi-release` event carrying the version, handled by a workflow **in** the
+marketplace repo that opens a **PR** bumping its own pin (keeps qrspi ignorant of
+the marketplace manifest format and puts the write + token where they belong).
+Alternative: a fine-grained PAT / GitHub App token letting `release.yml` PR the
+marketplace directly. Hard constraints: PR not push (no unreviewed auto-ship), and
+run as an isolated `continue-on-error` job so a bump failure can't red a published
+release.
+
 ### privacy-gdpr-surface — `idea` · **P2**
 
 **Why:** Add a **`privacy` (GDPR) repo-surface** to the taxonomy so that, when a
@@ -706,6 +929,14 @@ personal-data change** (audit-logged? does erase reach the new field? lawful bas
 retention? minors? transfers? DPIA?). **Non-goal:** not legal advice / a DPO
 substitute — a structured "did you consider…" so the dimension is never silently
 skipped.
+
+**Shape:** Add a `privacy` (GDPR) entry to the `repo-surface` taxonomy that, when
+a repo declares it, has the Questioner/Designer/Architect emit privacy-specific
+sections (see the section mappings below). Ship the MVP consistent with existing
+surfaces (emit-whenever-declared, with an "N/A — no personal data" fast-path), and
+treat the smart per-change relevance trigger + a cheatsheet personal-data inventory
+block as fast-follow. Built-in (not consumer-extensible) since GDPR is broadly
+applicable.
 
 **Section mappings (from the handover):** Q → a `## Personal data & privacy` section
 (fields/categories incl. Art. 9 special-category, lawful basis, consent, retention,
@@ -756,6 +987,13 @@ can drift. Relates to [[optional-technology-specs]] (formal machine-validatable
 artifacts) and [[reassess-openspec-dependency]]. Surfaced 2026-07-24 as a
 Non-Goal of `repo-applicable-artifact-sections` (stage D).
 
+**Shape:** Promote the surface declaration from prose inference to a structured,
+machine-readable schema/DSL (e.g. typed `data-store: absent` fields in the
+stack-cheatsheet or a dedicated manifest) with a validator, so downstream tooling
+can consume surface flags programmatically. Weigh against the two-source-of-truth
+risk — a structured block plus the prose it duplicates can drift; prefer generating
+one from the other. Gated on prose inference proving unreliable at scale.
+
 ### extend-surface-taxonomy — `idea` · **P3**
 
 **Why:** [[repo-applicable-artifact-sections]] ships a closed 5-surface taxonomy
@@ -792,6 +1030,15 @@ question). Relates to [[structured-surface-schema]]. The kit's *own* self-surfac
 (the distinct "let this repo dogfood richer surfaces" flavor) split out into
 [[kit-self-surfaces]] as a higher-value standalone.
 
+**Shape:** Grow the closed `repo-surface` taxonomy one surface at a time, each
+added **together with** the artifact section(s) it gates (a surface that gates no
+emitted section is inert). Per cluster: a mapping row in `repo-surface`, the gated
+section(s) in the relevant agent skeleton(s)/template(s), and — if it introduces a
+heading a fenced skeleton must not hardcode — a Check 11 denylist entry. Each
+candidate cluster (cli, message-queue, background-jobs, object-storage, caching,
+observability, infra, ml-model, realtime) is a potential standalone change or a
+small bundle.
+
 ### rationalize-surface-taxonomy — `idea` · **P3**
 
 **Why:** The current `repo-surface` taxonomy is a flat list that mixes three
@@ -802,7 +1049,17 @@ repo-local kit ones (`lint-gate`, `template`, `migration-manifest`) — plus
 Rationalize it: (1) **group** the three plugin surfaces under one coarser
 `claude-plugin` / `llm-agent` surface; (2) **mark** `lint-gate` / `template` /
 `migration-manifest` explicitly as repo-local (kit-specific) rather than
-general-purpose; (3) **drop** `typed-nullable`. **Design tension (needs Q/D):**
+general-purpose; (3) **drop** `typed-nullable`.
+
+**Shape:** Regroup the flat `repo-surface` list into coherent families: fold the
+three plugin surfaces (`slash-command`, `stage-agent`, `skill`) under one coarser
+`claude-plugin` / `llm-agent` surface, mark `lint-gate` / `template` /
+`migration-manifest` explicitly as repo-local kit surfaces, and drop
+`typed-nullable`. Resolve first (design tension) whether collapsing three surfaces
+into one merges their inventory sections (coarser output) or needs sub-surface
+granularity to keep the per-artifact sections apart.
+
+**Design tension (needs Q/D):**
 each surface today gates a *distinct* artifact section, so collapsing three into
 one either merges their inventory sections (coarser research/design output) or
 needs sub-surface granularity to keep the per-artifact sections apart — resolve
@@ -823,6 +1080,15 @@ own artifact sections without forking the kit. Add a mechanism for a
 gates**, picked up per-repo at stage time (e.g. a consumer-side surface manifest
 the `repo-surface` skill merges with the built-in taxonomy), so custom surfaces
 flow through the questioner/designer/researcher gating without editing kit source.
+
+**Shape:** A consumer-side surface manifest that the `repo-surface` skill merges
+with the built-in taxonomy at stage time, letting a consumer declare its own
+surfaces and the section(s) each gates (e.g. a game engine's `scene-graph`) so
+custom surfaces flow through the questioner/designer/researcher gating without
+forking the kit. Either ship a validation path for consumer-defined headings or
+accept an "unenforced in the consumer" trade — the built-in Check 11 / Check 14
+arrays cannot see consumer headings.
+
 **Design tension (needs Q/R/D):** the built-in Check 11 / Check 14 lint arrays are
 the enforcement floor and cannot see consumer-defined headings, so consumer
 surfaces need either a shipped validation path or an accepted "unenforced in the
@@ -930,6 +1196,15 @@ change) — since that prompt currently lives in the same un-editable generated
 [[standardize-recurring-ops-scripts]] and [[retro-as-extension-plugin]] (both
 concern the consumer/maintainer + generated-artifact boundary).
 
+**Shape:** Have the kit-owned `/qrspi:archive` **command** perform the delta→main
+sync delegation itself with a dedicated least-privilege `spec-syncer` agent
+(Read/Edit + `openspec validate` on `openspec/specs/**` only) instead of deferring
+to the generated `openspec-archive-change` skill's `general-purpose` spawn — the
+agent's system prompt carries the delta-merge contract
+(ADDED/MODIFIED/REMOVED/renamed semantics, "never alter unrelated requirements")
+so the caller need not re-inject it, and the happy path can drop the near-redundant
+"Sync now / Archive without syncing" prompt.
+
 ### remove-superseded-generated-skills — `idea` · **P3**
 
 **Why:** The two generated skills `openspec-archive-change` and
@@ -941,6 +1216,13 @@ wholesale-replacement contract). Under the **keep** verdict they stay *live* (th
 deleting them is a real behavior change deserving its own flow, not a drive-by.
 Surfaced as a Non-Goal of [[reassess-openspec-dependency]] (stage D, 2026-07-29).
 
+**Shape:** Remove the two superseded generated skills `openspec-archive-change` and
+`openspec-sync-specs` and re-home their still-live `list/status --json` calls (used
+inside the archive folder-move step) into the kit-owned `archive.md` +
+`spec-syncer.md`, then drop the generated files from `plugin.json` / the skills
+dir. A deliberate behavior change (the generated paths still run today under the
+keep verdict), so it wants its own flow with a migration note.
+
 ### fix-openspec-workflow-skill-drift — `idea` · **P3**
 
 **Why:** The `openspec-workflow` skill references OpenSpec `@latest` while the kit
@@ -949,6 +1231,11 @@ doc-hygiene drift (research "Notable discrepancies"), separable from the
 pin-coupling guard. Surfaced as a Non-Goal of [[reassess-openspec-dependency]]
 (stage D, 2026-07-29).
 
+**Shape:** Correct the `openspec-workflow` skill's stale references — change the
+OpenSpec `@latest` mention to the pinned `@1.4.1` (matching Check 1's guarded pin)
+and fix the outdated `openspec/templates/` layout entry to the real path. A
+localized doc-hygiene edit to one skill file, no logic change.
+
 ### scan-github-ci-openspec-pin — `idea` · **P3**
 
 **Why:** Lint Check 1 (`checkPinAgreement`) does not scan `.github/` for the
@@ -956,6 +1243,11 @@ OpenSpec pin, so the CI `ci.yml` pin is unchecked. Unlike `openspec/config.yaml`
 (silent drift, closed by [[reassess-openspec-dependency]]'s guard), a wrong CI pin
 fails loudly, so this is separable hygiene — add `.github/` to Check 1's scan.
 Surfaced as a Non-Goal of [[reassess-openspec-dependency]] (stage D, 2026-07-29).
+
+**Shape:** Extend Check 1 (`checkPinAgreement`)'s scan set to include `.github/`
+(the CI `ci.yml` OpenSpec pin) so a wrong CI pin is caught alongside the other
+hand-maintained pin sites. A one-line addition to the check's file list, plus a
+fixture. Separable from the config-drift guard because a wrong CI pin fails loudly.
 
 ### simplify-pin-coupling-mismatch-branch — `idea` · **P3**
 
@@ -969,6 +1261,13 @@ in-memory self-test fixture. Either remove the redundant branch, or restructure 
 more actionable message surfaces instead of the generic "distinct versions" error).
 Not blocking — the guard's fail-loud intent is already met by the pre-existing
 error. Surfaced during PR review of [[reassess-openspec-dependency]] (2026-07-29).
+
+**Shape:** Either remove the unreachable `configVersion !== agreedPin` branch
+inside `checkPinAgreement`'s "all agree" path, or restructure so `config.yaml` is
+validated *solely* through the coupling assertion — so its specific, more
+actionable message surfaces instead of the generic "distinct versions" error the
+pre-existing multi-version scan raises first. A localized refactor of one check
+plus its self-test fixture.
 
 ### bump-openspec-pin — `idea` · **P3**
 
@@ -984,6 +1283,14 @@ upgraded consumers whose config still reads the old pin. Assess the 1.5/1.6
 changelog (any grammar / `validate` behaviour changes that affect delta specs)
 before bumping. Surfaced during PR review of [[reassess-openspec-dependency]]
 (2026-07-29).
+
+**Shape:** Spike-gated: first read the 1.5/1.6 changelog for grammar / `validate`
+changes that touch delta specs (if breaking, the item grows and may slip). Then
+bump every hand-maintained `@fission-ai/openspec@<version>` site (`init.md`,
+README, CI `ci.yml`) **and** `openspec/config.yaml`'s `openspec_version`, and add a
+migration-manifest `edit-file` step for `config.yaml` — required because the new
+Check 1 coupling guard reddens upgraded consumers whose config still reads the old
+pin.
 
 ### sync-modified-delta-scenario-loss — `idea` · **P2**
 
@@ -1010,6 +1317,13 @@ N scenarios?" gate). Belongs with the delta-merge contract in
 [[dedicated-spec-sync-agent]] (the natural home for encoding MODIFIED/REMOVED
 semantics once). P2 (correctness — silent loss of contract coverage), not P3.
 
+**Shape:** Cheapest first: (1) **architect guidance** — a MODIFIED requirement MUST
+re-state the scenarios it intends to keep, not just the deltas (OpenSpec's MODIFIED
+replaces a requirement wholesale, body + every scenario); (2) a **sync/lint guard**
+that warns when a MODIFIED requirement's post-sync scenario count is lower than the
+pre-sync main spec's ("did you mean to drop N scenarios?"). Belongs with the
+delta-merge contract in [[dedicated-spec-sync-agent]].
+
 ### pr-human-task-loop-stop-option — `idea` · **P3**
 
 **Why:** The PR reconciliation gate in `claude/commands/pr.md` is asymmetric. The
@@ -1026,6 +1340,12 @@ the loop wording lives there. Surfaced
 2026-07-23 during the PR stage of [[session-version-check-and-update-prompt]],
 whose change embeds many `(human)` live-session checks that made the missing
 exit obvious.
+
+**Shape:** Add a `Pause/Stop the review` choice to the `(human)`-task loop in
+`claude/commands/pr.md` that reuses the regular-task loop's early-exit commit
+(commit any edits already made, end the turn with a "re-run `/qrspi:pr` when ready"
+message), restoring symmetry with the regular-task loop. Mirror the wording into
+the `workflow`-skill choreography if the loop lives there.
 
 ### richer-askuserquestion-formats — `idea` · **P3**
 
@@ -1045,6 +1365,14 @@ those prompts. Relates to [[pr-human-task-loop-stop-option]] (both refine
 AskUserQuestion gate ergonomics). Part of the Claude Code capability cluster
 anchored by [[hooks-as-mechanical-guards]]. Surfaced 2026-07-25.
 
+**Shape:** Identify the specific gates that genuinely benefit from `multiSelect`
+(surface-subset "which of these N?" questions) or `preview` (design decisions with
+competing concrete shapes — a heading layout, a code snippet, a table form), then
+update the `workflow` skill choreography and the command bodies that prescribe
+those prompts. Not a blanket swap: `multiSelect` removes the deliberate
+one-at-a-time cadence the "offer, never auto-append" backlog rule and per-decision
+D review rely on, so those stay single-select.
+
 ### github-mcp-for-pr-ops — `idea` · **P3**
 
 **Why:** The PR and archive stages shell out to the `gh` CLI (PR-status check,
@@ -1053,6 +1381,14 @@ CLAUDE.md notes. A **GitHub MCP server** exposes those operations as structured
 tools instead of shell invocations — more portable, no `gh` binary/auth
 assumption in consumer repos. Direct alternative mechanism for the PR-status and
 PR-create helpers [[standardize-recurring-ops-scripts]] wants to extract.
+
+**Shape:** Replace the `gh`-CLI shell-outs in the PR and archive stages
+(PR-status check, `gh pr create`, the merge-gate query) with a GitHub MCP server's
+structured tools — more portable, no `gh` binary/auth assumption in consumer repos.
+A direct alternative mechanism to the Node-helper path
+[[standardize-recurring-ops-scripts]] proposes for the same ops; scope which ops
+actually benefit.
+
 **Research before committing:** (a) whether an MCP dependency is an acceptable
 consumer install burden vs. the Node-helper path, and which ops actually benefit;
 (b) token-usage-vs-quality — MCP tool schemas load into context (a token cost per
@@ -1066,7 +1402,16 @@ capability cluster ([[hooks-as-mechanical-guards]]). Surfaced 2026-07-25.
 `/qrspi-readme-audit` after source drift, the [[backlog-prioritization]]
 re-evaluation pass, and detecting stale in-flight changes. Claude Code
 **scheduled/cron agents (routines)** could run these on a cadence and open a PR or
-surface a summary. **Research before committing:** (a) which chores are safe to
+surface a summary.
+
+**Shape:** Use Claude Code scheduled/cron agents (routines) to run the "remember to
+do it" kit-maintenance chores on a cadence — `/qrspi-readme-audit` after source
+drift, the [[backlog-prioritization]] re-evaluation pass, stale-in-flight-change
+detection — opening a PR or surfacing a summary. Schedule definition lives in this
+repo only (maintainer tooling). Weigh a recurring cloud agent's per-run token cost
+against a cheaper event-triggered or on-demand check.
+
+**Research before committing:** (a) which chores are safe to
 automate vs. need a human in the loop, and where the schedule definition lives
 (this repo only — it is maintainer tooling, cf. [[retro-as-extension-plugin]]);
 (b) token-usage-vs-quality — a recurring cloud agent spends tokens every run
@@ -1080,7 +1425,15 @@ or on-demand check. Part of the Claude Code capability cluster
 API/library, letting the researcher use **WebSearch/WebFetch** to pull the
 official docs would ground the design in the real external contract rather than
 the agent's memory of it. Opt-in and bounded — most kit changes touch no external
-surface. **Research before committing:** (a) how to scope *when* R may go external
+surface.
+
+**Shape:** Let stage R optionally use WebSearch/WebFetch to pull an integrated
+third-party API/library's official docs, grounding the design in the real external
+contract. Opt-in and bounded (a research-area flag from the orchestrator?) so the
+ticket-blind discipline is preserved; summarise-then-discard fetched pages so they
+don't blow the R context budget [[context-budget]] guards.
+
+**Research before committing:** (a) how to scope *when* R may go external
 without eroding the ticket-blind discipline, and where the allowance is expressed
 (a research-area flag from the orchestrator?); (b) token-usage-vs-quality —
 fetched pages are large and can blow the R context budget [[context-budget]]
@@ -1098,6 +1451,12 @@ PR and reports "not merged" even after the replacement PR merged. Have
 `/qrspi:pr` update `pr.md` when it opens a superseding PR. Surfaced as a Non-Goal
 of `archive-requires-merged-pr` (its Q5).
 
+**Shape:** Have `/qrspi:pr`, when it opens a PR for a change that already has a
+`pr.md` pointing at a closed/unmerged PR, overwrite the `pr.md` PR reference (and
+URL/number/created fields) with the new superseding PR — so the archive merge-gate
+([[archive-requires-merged-pr]]) queries the current PR, not the stale one. A
+localized edit to the PR command's `pr.md`-write step.
+
 ### validate-pr-md-shape — `idea` · **P3**
 
 **Why:** `pr.md`'s canonical six-field shape (`PR:`/`URL:`/`Title:`/`Source
@@ -1107,6 +1466,13 @@ downstream consumers (the archive merge-gate in [[archive-requires-merged-pr]],
 which must parse the PR number defensively) to tolerate non-canonical shapes. Add
 a lint/guard that enforces the shape at source. Surfaced as a Non-Goal of
 `archive-requires-merged-pr`.
+
+**Shape:** A `scripts/lint.mjs` Check (or an archive-time guard) that asserts each
+`openspec/changes/<id>/pr.md` carries the canonical six fields
+(`PR:`/`URL:`/`Title:`/`Source branch:`/`Target branch:`/`Created:`, per
+`claude/commands/pr.md`) in the prescribed shape, so the archive merge-gate can
+parse the PR number without defensive tolerance. Enforce the shape at source rather
+than tolerating drift downstream.
 
 ### optional-technology-specs — `idea` · **P3**
 
@@ -1126,6 +1492,14 @@ specific formats as pluggable instances. Watch the two-source-of-truth risk —
 prefer generating from or cross-checking against the markdown spec rather than
 maintaining both by hand. Relates to [[reassess-openspec-dependency]].
 
+**Shape:** A per-change convention for **optionally** attaching one or more formal
+industry-standard artifacts alongside the markdown delta spec — OpenAPI (HTTP),
+gRPC `.proto` (RPC), Gherkin `.feature` (executable acceptance) — defining where
+they live and how they're validated. When present, QRSPI's validate step runs the
+matching linter/compiler (openapi validate, `protoc`, a Gherkin parser). The
+markdown requirement/scenario spec stays the human-review surface and the universal
+format; the formal artifacts are pluggable instances of one shared mechanism.
+
 ### multi-repo-central-specs — `idea` · **P3**
 
 **Why:** QRSPI is scoped per repo today — `openspec/` (specs, changes, backlog)
@@ -1135,6 +1509,13 @@ cross-repo specs and no shared backlog; each repo runs its own isolated flow.
 Support a multi-repo topology with a **central spec repository** that holds the
 shared/contract-level specs and backlog, with the individual sub-repos consuming
 or referencing them.
+
+**Shape:** Support a multi-repo topology with a **central spec repository** holding
+the shared/contract-level specs and backlog, with sub-repos consuming or
+referencing them — resolving first (see the open question) whether sub-repos also
+carry their own `openspec/` specs (central-only vs split vs mirror), each with a
+different drift/ownership story. Natural fit with [[optional-technology-specs]]:
+cross-repo contracts (OpenAPI, proto) are exactly what a central repo would hold.
 
 **Open question (unresolved):** whether the sub-repos should *also* carry their
 own `openspec/` specs. Options to weigh: (a) central-only — sub-repos hold no
@@ -1164,6 +1545,14 @@ maintainer-only (note `readme-audit` is already `.claude/`
 dev-tooling, not plugin-shipped, so likely already on the right side). Surfaced
 during `add-auto-mode`'s stage-I/PR retro.
 
+**Shape:** Split the retro tooling (`/qrspi:retro` command + `retrospective` skill)
+out of the base `qrspi` plugin into a **separate plugin that extends/depends on**
+the base, so the consumer-facing plugin stays lean (just the eight-stage workflow)
+and maintainers opt into the maintainer-only retro tooling. Open: does Claude
+Code's plugin model support plugin-to-plugin dependency, or just a standalone
+sibling sharing the marketplace? Audit whether other base-plugin tooling is
+maintainer-only too.
+
 ### tutorial-mode-coaching-overlay — `idea` · **P3**
 
 **Why:** Follow-up to `tutorial-mode-narrated-tour` once the tour format proves
@@ -1175,6 +1564,13 @@ productive work — the training wheels come off naturally as the first real cha
 ships. More invasive to build than the tour because it wraps the live command path
 rather than narrating a static artifact set.
 
+**Shape:** A `/qrspi:learn` mode (follow-up to `tutorial-mode-narrated-tour` once
+the tour format proves out) that runs the *real* stages on the user's *own* repo
+with extra inline coaching at each stage ("what's happening here / what to check
+before continuing") and explicit pauses at the human gates (design approval,
+commit, next-stage handoff). Wraps the live command path — more invasive than the
+static tour — so the training wheels come off as the first real change ships.
+
 ### qrspi-release-auto-stub-manifest — `idea` · **P3**
 
 **Why:** `/qrspi-release` precondition 4 halts when the release version's
@@ -1184,6 +1580,12 @@ hand. Have the release skill offer to auto-generate a "no consumer action" stub
 release doesn't require a manual file. Surfaced by `versioned-update-command`
 PR review (non-blocking).
 
+**Shape:** Have the `/qrspi-release` skill, at its precondition-4 check, offer to
+auto-generate a "no consumer action" stub `migrations/<version>.yaml` (empty
+`automated`/`manual`, placeholder `summary`) when the file is absent — so a routine
+release with no consumer migration doesn't require hand-writing the stub. A
+localized addition to the release skill's precondition step.
+
 ### update-walk-resume-idempotency — `idea` · **P3**
 
 **Why:** `/qrspi:update`'s hybrid walk has no mid-run checkpoint — aborting
@@ -1192,6 +1594,12 @@ non-idempotent steps (e.g. `append`) can double-apply. The skill warns about
 this today. Add per-version resume state (or a completed-versions marker) plus
 idempotency guidance for manifest authors. Surfaced by `versioned-update-command`
 PR review (non-blocking).
+
+**Shape:** Add a mid-run checkpoint to `/qrspi:update`'s hybrid walk — a
+per-version resume marker (or a completed-versions list) written after each
+version's steps apply — so an aborted walk resumes without re-applying already-run
+`edit-file` steps, plus idempotency guidance for manifest authors on
+non-idempotent actions (e.g. `append`). Complements today's warning-only prose.
 
 ### compute-annotation-presence-lint — `idea` · **P3**
 
@@ -1207,6 +1615,13 @@ because boundary-parsing is more involved than the value scan, and the runtime
 hard-stop is a sufficient backstop for now. Deferred as a Non-Goal of
 `per-slice-compute-knobs` (stage D, D6, 2026-07-25). Sibling to
 [[content-lint-output-contract]] (the same existence→content lint-promotion move).
+
+**Shape:** Promote Check 13 from value-validation-only to also assert
+**`**Compute:**` presence on every slice** — which requires parsing slice
+boundaries (`### Slice N` in `slices.md`, `## N.` in `tasks.md`) and confirming each
+block carries a `**Compute:**` line, so a slice authored without one fails lint
+instead of only tripping the runtime orchestrator hard-stop. Kept separate because
+boundary-parsing is more involved than the value scan.
 
 **Bundle:** proposed to ride with [[decompose-tasks-md-per-slice]] (P2) in one
 QRSPI run — that change builds the `tasks.md` slice-boundary parser this check
@@ -1225,6 +1640,12 @@ parses a machine-readable bound from the banner (e.g. `max-lines: N`) and assert
 the declared cap is present/consistent. Weigh the brittleness PQ3 flagged: a
 parsed cap is a second source of truth that can itself drift from the real return.
 Surfaced 2026-07-24 as a Non-Goal of `context-budget` (stage D).
+
+**Shape:** If output-contract drift appears in practice, promote Check 12 from
+existence-only to a content-level check that parses a machine-readable bound from
+each `> **Output contract**` banner (e.g. `max-lines: N`) and asserts the declared
+cap is present/consistent. Weigh the brittleness PQ3 flagged: a parsed cap is a
+second source of truth that can itself drift from the agent's real return.
 
 ### rename-qrspi-to-qrnchi — `idea` · **P3**
 
@@ -1263,3 +1684,9 @@ conventions), flagging stale spots for the human rather than auto-editing — th
 review-gate analogue of the README "keep it current" rule. Relates to the
 `qrspi-readme-audit` skill (its README counterpart) and to
 [[standardize-recurring-ops-scripts]].
+
+**Shape:** Add an item to the **reviewer (stage PR)** final checklist that
+evaluates whether this change's edits warrant a `<repo>-stack` cheatsheet update
+(lint-check count, command list, stack conventions) and flags stale spots for the
+human rather than auto-editing — the review-gate analogue of the README "keep it
+current" rule and the PR-stage counterpart to the `qrspi-readme-audit` skill.
