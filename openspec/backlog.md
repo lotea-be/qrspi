@@ -7,36 +7,7 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## In progress
 
-### standardize-backlog-format — `in-progress (PR #43 open)` · **P2**
-
-**Why:** The kit's commands all *mutate* `openspec/backlog.md` — `questions`
-flips a row to `proposed`, `pr` promotes/appends an idea row under `## Ideas`,
-`archive` removes a row, `retro` may edit one — but **none define its schema**.
-The structure (the `## In progress` / `## Proposed` / `## Ideas` sections, the
-`### <id> — <status> · P<band>` heading, the `**Why:**` body, the `idea` /
-`proposed` / `in-progress` / `merged` status enum, `[[wikilink]]` cross-refs)
-lives only as prose inside *this* repo's own backlog. Nothing ships it to
-consumer repos and `scripts/lint.mjs` doesn't check it, so each repo
-reverse-engineers the shape from whatever its commands happened to write.
-Contrast `openspec/changes/<id>/`, which is fully schema-driven (`openspec
-status --json`, lint, templates); the backlog is the one QRSPI surface with
-no schema behind it. Fix, cheapest first: (1) ship a canonical
-`backlog.md` template in `openspec-templates/` so `/qrspi:init` seeds
-the sections + a row-format legend; (2) add a `lint.mjs` Check validating each
-row's heading shape, status enum, and required sections as the mechanical floor;
-defer the heavier per-file `backlog/<id>.md` model to post-1.0. Encodes the
-P1-P3 band convention [[backlog-prioritization]] already applies informally.
-Pairs with [[structured-surface-schema]] (the same "give an ad-hoc surface a
-real schema" move).
-
-**Shape:** Freeze the row heading grammar (`### <id> — \`<status>\` · **P<n>**`,
-em-dash + middle-dot), the status enum, and the standalone-vs-bundled body rule
-in a canonical `openspec-templates/backlog.template.md`; add a `scripts/lint.mjs`
-Check (the mechanical floor) that validates section presence, the P-band
-preamble, per-row grammar/enum, and Why+Shape on standalone rows; seed the
-template from `/qrspi:init` when absent; ship an additive-only migration
-manifest; and backfill the kit's own backlog + correct the drifted `workflow`
-prose. Defer the per-file `backlog/<id>.md` model to post-1.0.
+_None._
 
 ---
 
