@@ -7,7 +7,7 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## In progress
 
-### standardize-backlog-format — `in-progress (Q, R, D, S, V, P, I complete)` · **P2**
+### standardize-backlog-format — `in-progress (PR #43 open)` · **P2**
 
 **Why:** The kit's commands all *mutate* `openspec/backlog.md` — `questions`
 flips a row to `proposed`, `pr` promotes/appends an idea row under `## Ideas`,
