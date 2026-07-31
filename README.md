@@ -318,7 +318,7 @@ migration that bumps the pin must edit that field, or upgraded consumers turn re
 
 ### CI lint checks (`node scripts/lint.mjs`)
 
-The lint script runs 21 checks (Checks 1-21, plus sub-checks 2b, 10b) on every CI run. Key checks relevant to context hygiene and agent
+The lint script runs 22 checks (Checks 1-22, plus sub-checks 2b, 10b) on every CI run. Key checks relevant to context hygiene and agent
 contracts:
 
 - **Check 2b (`checkSkillSets`)** -- asserts each stage agent's `Load skills` line
@@ -402,6 +402,12 @@ contracts:
   `claude/agents/architect.md` and `openspec-templates/spec-delta.template.md`,
   failing on drift or a missing anchor so the hand-mirrored guidance cannot
   silently diverge. Includes a three-fixture inline self-test.
+- **Check 22 (`checkBacklogSchema`)** -- freezes the `openspec/backlog.md` schema:
+  validates the three section headings, the P-band preamble, per-row heading
+  grammar (em-dash + middle-dot), the status-keyword enum, the `**Why:**` +
+  `**Shape:**` body rule scoped to standalone `idea`/`proposed` rows, and
+  template-file existence. Passes silently when the backlog is absent; carries a
+  four-fixture inline self-test.
 
 All other checks (pin agreement, frontmatter, heading alignment, README command
 coverage, gate-tool/executor agreement, migration manifests, read-contract banners,

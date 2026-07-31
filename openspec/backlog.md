@@ -289,15 +289,22 @@ re-run replays the insert and duplicates the legend block. It is non-breaking
 (a cosmetic duplicated HTML comment, and the manifest text tells the human to
 delete it) but it is a real sharp edge that every future automated migration
 inherits. Surfaced by the `standardize-backlog-format` `/qrspi:update` dogfood
-(2026-07-30).
+(2026-07-30). **Sibling concern — anchor fragility (PR review, 2026-07-31):** the
+same `0.13.0` legend step keys `insert_after: "# Backlog\n"`, and the dispatcher
+**hard-stops when the anchor is absent**. A consumer whose backlog has any other
+title (`# My Backlog`, no title line, etc.) hits that hard-stop at update time —
+the "guaranteed-present anchor" only holds for backlogs seeded by `/qrspi:init`.
+Deferred over adding a manual "rename your title first" step (PR decision).
 
 **Shape:** Add an optional idempotency guard to the migration `edit-file` action
 schema — e.g. a `skip_if_contains: "<marker>"` (or `skip_if_present: true` keyed
 on the inserted `content`) field — and have the `/qrspi:update` dispatcher no-op
 the step when the anchor region already contains the content. Keeps additive
-`insert_after` steps safe to replay. Update the manifest schema doc in the
-`qrspi-update` skill and backfill the guard onto `migrations/0.13.0.yaml`'s
-legend insert.
+`insert_after` steps safe to replay. Pair it with an **anchor-fallback** (or a
+guarded `manual` pre-step) so an absent/renamed title degrades to a manual
+instruction instead of a hard-stop. Update the manifest schema doc in the
+`qrspi-update` skill and backfill both onto `migrations/0.13.0.yaml`'s legend
+insert.
 
 ### batch-archive-multiple-changes — `idea` · **P3**
 

@@ -24,7 +24,7 @@ kit version.
   three-section presence (`## In progress`, `## Proposed`, `## Ideas`), and
   P-band preamble under `## Ideas`. Ships: (1) `openspec-templates/backlog.template.md`
   -- the canonical, self-documenting template that `/qrspi:init` seeds verbatim;
-  (2) lint Check 22 (`checkBacklogSchema`) with a five-assertion set and an
+  (2) lint Check 22 (`checkBacklogSchema`) with a six-assertion set and an
   inline self-test fixture covering all four row-class cases; (3) a Check 3
   drift guard that byte-compares the inline template copy in `init.md` against
   the template file; (4) corrected `workflow` skill prose and fenced row

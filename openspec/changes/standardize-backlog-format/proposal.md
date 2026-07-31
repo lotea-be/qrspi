@@ -38,9 +38,9 @@ delivers the legend comment to existing consumer repos.
   grammar and add fenced canonical row examples.
 - **Edit:** `claude/commands/init.md` — seed `openspec/backlog.md` from the
   template when absent (Glob presence check; skip silently if present).
-- **Edit:** `openspec-templates/proposal.template.md` — add Check 3
-  `TEMPLATE_CANONICAL_HEADINGS` entry for `backlog.template.md` with empty
-  `headings: []` (no agent maps to the backlog template).
+- **Edit:** `scripts/lint.mjs` — add a Check 3 `TEMPLATE_CANONICAL_HEADINGS`
+  entry for `backlog.template.md` (no agent maps to it; started as empty
+  `headings: []`, later became a `driftGuard` targeting `init.md`'s inline copy).
 - **New:** `migrations/<next-version>.yaml` — one `automated` `edit-file` step
   inserting the legend comment after the file title line; conditional/section
   steps as `manual`.
@@ -75,8 +75,9 @@ delivers the legend comment to existing consumer repos.
   absent; the check is enforced only in repos that already have the file.
 - Phases: phase 1 (Tier 1.5 road-to-1.0 readiness); single epic.
 - Affected code / APIs / dependencies: `scripts/lint.mjs` (Check 22 + Check-10
-  collision fix); `openspec-templates/` (new `backlog.template.md`; `proposal.template.md`
-  Check 3 entry); `claude/commands/init.md`, `followup.md`, `pr.md`, `design.md`,
+  collision fix + Check 3 `backlog.template.md` drift-guard entry);
+  `openspec-templates/` (new `backlog.template.md`);
+  `claude/commands/init.md`, `followup.md`, `pr.md`, `design.md`,
   `structure.md`, `slices.md`; `claude/skills/workflow/SKILL.md`;
   `openspec/backlog.md` (backfill); `README.md`; `CHANGELOG.md`;
   `migrations/<next-version>.yaml`.
