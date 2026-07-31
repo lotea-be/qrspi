@@ -6,11 +6,11 @@
 // Registry of the fixed, unconditional kit skills each stage agent is allowed
 // to load. The <repo>-stack cheatsheet name is Glob-discovered per-repo and
 // is explicitly excluded -- it must NOT appear here (neither required nor
-// forbidden). Derived from the approved design (D2, D5, D6):
+// forbidden). Derived from the approved design (D2, D5, D6, D11):
 //   researcher         -- trimmed: removed openspec-workflow (D1), added context-hygiene (D3)
-//   questioner         -- trimmed: removed openspec-workflow (D1), removed repo-surface (D1)
-//   designer           -- trimmed: removed openspec-workflow (D1)
-//   architect          -- unchanged: keeps openspec-workflow (spec-delta + validate)
+//   questioner         -- trimmed: removed openspec-workflow (D1), removed repo-surface (D1); added backlog-writer (D11)
+//   designer           -- trimmed: removed openspec-workflow (D1); added backlog-writer (D11)
+//   architect          -- unchanged: keeps openspec-workflow (spec-delta + validate); added backlog-writer (D11)
 //   planner            -- trimmed: removed openspec-workflow (D1)
 //   implementer-low    -- effort-variant: delegates all behaviour to implementer-core
 //   implementer-medium -- effort-variant: delegates all behaviour to implementer-core
@@ -18,9 +18,9 @@
 //   reviewer           -- unchanged: keeps openspec-workflow (archive / sync steps)
 export const SKILL_SET_EXPECTED = {
   researcher:          ['context-hygiene', 'repo-surface', 'workflow'],
-  questioner:          ['repo-surface', 'workflow'],
-  designer:            ['context-hygiene', 'repo-surface', 'workflow'],
-  architect:           ['openspec-workflow', 'repo-surface', 'vertical-slice', 'workflow'],
+  questioner:          ['backlog-writer', 'repo-surface', 'workflow'],
+  designer:            ['backlog-writer', 'context-hygiene', 'repo-surface', 'workflow'],
+  architect:           ['backlog-writer', 'openspec-workflow', 'repo-surface', 'vertical-slice', 'workflow'],
   planner:             ['repo-surface', 'vertical-slice', 'workflow'],
   'implementer-low':   ['implementer-core'],
   'implementer-medium': ['implementer-core'],

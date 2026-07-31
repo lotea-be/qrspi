@@ -36,11 +36,12 @@ exception (see workflow skill Read Matrix).
 
 ## What to do
 
-1. Load skills `workflow` and `repo-surface` if you have not already. Also
-   load the project's stack-cheatsheet skill if one exists for this repo
-   (use the Glob tool with pattern `.claude/skills/*/SKILL.md` to find it).
-   The `repo-surface` skill defines which sections to emit based on the
-   surfaces present in the repo; the stack cheatsheet declares those surfaces.
+1. Load skills `workflow`, `repo-surface`, and `backlog-writer` if you have
+   not already. Also load the project's stack-cheatsheet skill if one exists
+   for this repo (use the Glob tool with pattern `.claude/skills/*/SKILL.md`
+   to find it). The `repo-surface` skill defines which sections to emit based
+   on the surfaces present in the repo; the stack cheatsheet declares those
+   surfaces.
 2. Confirm `openspec/changes/<id>/` exists. Create it if missing.
 3. Read `requirements.md` and `tech-stack.md` to understand the product
    and stack context.
@@ -116,12 +117,11 @@ exception (see workflow skill Read Matrix).
    **capture deferred work**: from the "Sequencing & scope" answers and
    anything the human pushed out of scope, identify candidate *separable
    future changes* and offer each to the human one at a time
-   (AskUserQuestion: *Add as idea / Skip*), adding each accepted one as a
-   new `idea` row with a one-line *Why*. Follow the "Capturing deferred
-   work" rules in skill `workflow` (offer-never-auto-append, dedup
-   against existing rows, minimal row); do not add in-change follow-ups
-   here. Stage all of these edits together with `questions.md` in the same
-   commit — never as a follow-up.
+   (AskUserQuestion: *Add as idea / Skip*). For each accepted idea, follow
+   the `backlog-writer` skill procedure to dedup, derive a slug, propose a
+   P-band, collect a one-sentence Shape, construct, and stage the row. Do
+   not add in-change follow-ups here. Stage all of these edits together
+   with `questions.md` in the same commit — never as a follow-up.
 
 ## What to write
 

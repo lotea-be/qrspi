@@ -46,11 +46,15 @@ final message. Do NOT write `slices.md` during S, and do NOT touch
 
 ## What to do — Structure (S)
 
-1. Load skills `workflow`, `openspec-workflow`, `vertical-slice`, and
-   `repo-surface`, plus the project's stack-cheatsheet skill if it defines
-   one (use the Glob tool with pattern `.claude/skills/*/SKILL.md` to find
-   it). The `repo-surface` skill defines which sections to emit based on the
-   surfaces present in the repo; the stack cheatsheet declares those surfaces.
+1. Load skills `workflow`, `openspec-workflow`, `vertical-slice`,
+   `repo-surface`, and `backlog-writer`, plus the project's stack-cheatsheet
+   skill if it defines one (use the Glob tool with pattern
+   `.claude/skills/*/SKILL.md` to find it). The `repo-surface` skill defines
+   which sections to emit based on the surfaces present in the repo; the stack
+   cheatsheet declares those surfaces. Load `backlog-writer` for any
+   deferred-work capture: if structure or slice work surfaces separable ideas
+   that fall out of scope, delegate their row construction and staging to the
+   `backlog-writer` procedure rather than constructing rows inline.
 2. Read `openspec/changes/<id>/design.md`. `design.md` is the sole
    source of truth for technical decisions at this stage — it is the
    approved summary of questions, research, and design reasoning. Do

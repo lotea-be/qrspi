@@ -41,11 +41,11 @@
 
 **Compute:** effort=medium model=sonnet — mechanical prose migration across four files; pattern is established by Slice 3; no new design reasoning needed.
 
-- [ ] 4.1 Update `claude/agents/questioner.md` to load skill `backlog-writer` in its Load skills line and replace inline deferred-work-capture grammar prose with a delegation call to the skill procedure (D11)
-- [ ] 4.2 Update `claude/agents/designer.md` to load skill `backlog-writer` in its Load skills line and replace inline deferred-work-capture grammar prose with a delegation call to the skill procedure (D11)
-- [ ] 4.3 Update `claude/agents/architect.md` to load skill `backlog-writer` in its Load skills line and replace inline deferred-work-capture grammar prose with a delegation call to the skill procedure (D11)
-- [ ] 4.4 Update `claude/commands/followup.md` P3 promote path to load `backlog-writer` and follow its procedure (D11)
-- [ ] 4.5 Update `scripts/skill-sets.mjs` `SKILL_SET_EXPECTED` map to include `backlog-writer` in the skill set for questioner, designer, and architect (D11)
-- [ ] 4.6 Unit/integration test: `node scripts/lint.mjs` — Check 2 resolves `backlog-writer` for questioner, designer, and architect; no dangling skill references reported; full lint passes green (D11)
-- [ ] 4.7 Checkpoint (automated): `node scripts/lint.mjs` exits 0; Check 2 reports `OK` for questioner, designer, and architect against `backlog-writer`
+- [x] 4.1 Update `claude/agents/questioner.md` to load skill `backlog-writer` in its Load skills line and replace inline deferred-work-capture grammar prose with a delegation call to the skill procedure (D11)
+- [x] 4.2 Update `claude/agents/designer.md` to load skill `backlog-writer` in its Load skills line and replace inline deferred-work-capture grammar prose with a delegation call to the skill procedure (D11)
+- [x] 4.3 Update `claude/agents/architect.md` to load skill `backlog-writer` in its Load skills line and replace inline deferred-work-capture grammar prose with a delegation call to the skill procedure (D11)
+- [x] 4.4 Update `claude/commands/followup.md` P3 promote path to load `backlog-writer` and follow its procedure (D11)
+- [x] 4.5 Update `scripts/skill-sets.mjs` `SKILL_SET_EXPECTED` map to include `backlog-writer` in the skill set for questioner, designer, and architect (D11)
+- [x] 4.6 Unit/integration test: `node scripts/lint.mjs` — Check 2 resolves `backlog-writer` for questioner, designer, and architect; no dangling skill references reported; full lint passes green (D11)
+- [x] 4.7 Checkpoint (automated): `node scripts/lint.mjs` exits 0; Check 2 reports `OK` for questioner, designer, and architect against `backlog-writer`
 - [ ] 4.8 (human) Launch `claude --plugin-dir /workspaces/git/qrspi` in a throwaway consumer fixture; exercise one deferred-work-capture path (e.g. run `/qrspi:questions <id>` on a minimal change and let it surface a separable idea); confirm the resulting row matches the `backlog-writer` procedure (correct grammar, Check-22-valid) and that no inline grammar copy appears in the agent response. Also exercise the followup P3 path (`/qrspi:followup <id>` on a fixture with a deferred follow-up) and confirm it delegates to `backlog-writer`. (D11)
