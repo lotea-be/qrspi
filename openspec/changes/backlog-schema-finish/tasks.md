@@ -18,12 +18,12 @@
 
 **Compute:** effort=medium model=sonnet — new lint check with a pure resolver function and inline self-test; follows the established Check pattern in `scripts/lint.mjs`.
 
-- [ ] 2.1 Demote the five pre-existing bare dangling links in `openspec/backlog.md` to back-ticked plain text (`simplify-per-slice-model-selection`, `configurable-effort-and-thinking`, `per-slice-effort-via-agent-variants`, `haiku-model-tier`, `kit-self-surfaces`) (D6)
-- [ ] 2.2 Implement `resolveWikilinks(text, liveRowIds, archiveSlugs)` as a pure helper in `scripts/lint.mjs` (D5, D6)
-- [ ] 2.3 Implement `checkBacklogWikilinks` (Check 23) in `scripts/lint.mjs` using the dependency-free ESM pattern, calling `resolveWikilinks` with the live row IDs and archive folder slugs (D5, D6)
-- [ ] 2.4 Add an inline self-test to Check 23 covering all four cases: live-row hit, archive-folder hit, code-spanned meta-token must-not-fire, bare dangling slug must-fire (D5, D6)
-- [ ] 2.5 Unit/integration test: `node scripts/lint.mjs` exits 0 on the cleaned backlog with Check 23 `OK`; temporarily inject a bare `[[does-not-exist]]` into `openspec/backlog.md`, confirm non-zero exit naming the slug, then revert (D5, D6)
-- [ ] 2.6 Checkpoint (automated): `node scripts/lint.mjs` exits 0 with Check 23 `OK` after the cleanup; temporarily add a bare `[[does-not-exist]]` to `openspec/backlog.md`, confirm non-zero exit naming the slug, then revert (D5, D6)
+- [x] 2.1 Demote the five pre-existing bare dangling links in `openspec/backlog.md` to back-ticked plain text (`simplify-per-slice-model-selection`, `configurable-effort-and-thinking`, `per-slice-effort-via-agent-variants`, `haiku-model-tier`, `kit-self-surfaces`) (D6)
+- [x] 2.2 Implement `resolveWikilinks(text, liveRowIds, archiveSlugs)` as a pure helper in `scripts/lint.mjs` (D5, D6)
+- [x] 2.3 Implement `checkBacklogWikilinks` (Check 23) in `scripts/lint.mjs` using the dependency-free ESM pattern, calling `resolveWikilinks` with the live row IDs and archive folder slugs (D5, D6)
+- [x] 2.4 Add an inline self-test to Check 23 covering all four cases: live-row hit, archive-folder hit, code-spanned meta-token must-not-fire, bare dangling slug must-fire (D5, D6)
+- [x] 2.5 Unit/integration test: `node scripts/lint.mjs` exits 0 on the cleaned backlog with Check 23 `OK`; temporarily inject a bare `[[does-not-exist]]` into `openspec/backlog.md`, confirm non-zero exit naming the slug, then revert (D5, D6)
+- [x] 2.6 Checkpoint (automated): `node scripts/lint.mjs` exits 0 with Check 23 `OK` after the cleanup; temporarily add a bare `[[does-not-exist]]` to `openspec/backlog.md`, confirm non-zero exit naming the slug, then revert (D5, D6)
 
 ## 3. Idea capture on a shared writer
 

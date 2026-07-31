@@ -35,10 +35,10 @@ this ordering whenever an item is added, modified, or archived (see
 **Token/cost levers** (the recurring cost band, salient with burn climbing) are
 kept adjacent near the top so the cost story reads at a glance: the **input** and
 **output** levers shipped together as `context-budget` (merged and archived
-2026-07-24); [[simplify-per-slice-model-selection]] and
-[[configurable-effort-and-thinking]] shipped together as `per-slice-compute-knobs`
+2026-07-24); `simplify-per-slice-model-selection` and
+`configurable-effort-and-thinking` shipped together as `per-slice-compute-knobs`
 (merged and archived 2026-07-25), whose compute follow-ons
-[[per-slice-effort-via-agent-variants]] and [[haiku-model-tier]] are now bundled
+`per-slice-effort-via-agent-variants` and `haiku-model-tier` are now bundled
 into `per-slice-compute-tier` (proposed, in the QRSPI flow); and
 [[standardize-recurring-ops-scripts]]
 (reasoning/exploration) remains here. The
@@ -355,7 +355,7 @@ computing a deterministic fact by reading files and reasoning through an approac
 spends tokens each run that a single `node scripts/foo.mjs` call could return in
 one tool result; this is the fourth token lever alongside the input-load and
 output-payload levers (both shipped in `context-budget`) and compute
-([[configurable-effort-and-thinking]]) — it targets the **reasoning/exploration**
+(`configurable-effort-and-thinking`) — it targets the **reasoning/exploration**
 axis. The kit already proves the fix — [`scripts/lint.mjs`](scripts/lint.mjs) is a
 recurring mechanical task extracted to a Node script. Extend that pattern to the
 **deterministic** recurring ops so stage
@@ -551,8 +551,8 @@ thinking triggers in the stage-command bodies at exactly those points — so
 mechanical turns stay cheap and the expensive reasoning lands where it pays. This
 is the compute-lever thesis (spend compute by marginal value) applied to the
 **orchestrator's own turns**, complementing [[per-slice-compute-tier]] /
-[[per-slice-effort-via-agent-variants]] (which target the *subagent* slices) and
-[[configurable-effort-and-thinking]] (per-*stage* effort). It sits on the
+`per-slice-effort-via-agent-variants` (which target the *subagent* slices) and
+`configurable-effort-and-thinking` (per-*stage* effort). It sits on the
 cost-per-quality frontier: it does not minimise tokens versus always-medium, but
 it beats always-high at equal or better gate quality.
 
@@ -1171,7 +1171,7 @@ denylist entry. Surfaced 2026-07-24 during stage-I dogfooding of
 `repo-applicable-artifact-sections` (the "could the surface list be bigger?"
 question). Relates to [[structured-surface-schema]]. The kit's *own* self-surfaces
 (the distinct "let this repo dogfood richer surfaces" flavor) split out into
-[[kit-self-surfaces]] as a higher-value standalone.
+`kit-self-surfaces` as a higher-value standalone.
 
 **Shape:** Grow the closed `repo-surface` taxonomy one surface at a time, each
 added **together with** the artifact section(s) it gates (a surface that gates no

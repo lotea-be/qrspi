@@ -2,7 +2,7 @@
 // ============================================================================
 //  scripts/lint.mjs -- CI quality gate for the QRSPI kit
 // ----------------------------------------------------------------------------
-//  Checks (run in order, all errors collected before exit -- Checks 1-22):
+//  Checks (run in order, all errors collected before exit -- Checks 1-23):
 //
 //  1. PIN AGREEMENT  -- every hand-maintained OpenSpec version occurrence
 //     must agree. generatedBy: lines in openspec-generated skill files are
@@ -149,6 +149,16 @@
 //     exits non-zero rather than silently passing. Carries an inline three-
 //     fixture self-test (match, drift, missing-anchor) run before file I/O.
 //     Registered after Check 20.
+//
+// 23. BACKLOG WIKILINK RESOLUTION -- resolves every bare (non-code-span)
+//     [[slug]] occurrence file-wide in openspec/backlog.md. Slug grammar =
+//     [a-z0-9]+(?:-[a-z0-9]+)*. A slug resolves when it matches a live row id
+//     (a ### <id> heading in the backlog) OR an archived change folder under
+//     openspec/changes/archive/ (date-prefix stripped). Code-span occurrences
+//     (`[[slug]]`) are excluded and must not fire. Passes silently when the
+//     backlog file is absent. Uses a pure resolver resolveWikilinks() that
+//     takes the archive-slug list as a parameter; an inline self-test covers
+//     all four cases before any file I/O. Registered after Check 22.
 //
 //  Exits 0 if all checks pass, 1 if any check reports a violation.
 //  Requires only Node.js built-ins (fs, path) -- no npm dependencies.
@@ -3739,6 +3749,163 @@ async function checkBacklogSchema(errors) {
   return violations;
 }
 
+// ---- Check 23: BACKLOG WIKILINK RESOLUTION ---------------------------------
+//
+// Resolves every bare (non-code-span) [[slug]] occurrence in
+// openspec/backlog.md and asserts each slug is:
+//   (a) a live row id (a ### <id> heading in the file), OR
+//   (b) an archived change folder (openspec/changes/archive/*-<slug>/, date
+//       prefix stripped per pattern /^\d{4}-\d{2}-\d{2}-/).
+//
+// Slug grammar: [a-z0-9]+(?:-[a-z0-9]+)*  (matches the row-id grammar).
+// Code-span occurrences (inside `...`) are explicitly excluded and must NOT
+// fire, even when they contain the [[...]] syntax.
+//
+// Passes silently when openspec/backlog.md is absent.
+// Carries an inline four-fixture self-test run BEFORE any file I/O:
+//   (a) live-row hit       -> no violation
+//   (b) archive-folder hit -> no violation
+//   (c) code-spanned meta-token must-not-fire
+//   (d) bare dangling slug -> must fire
+
+// Pure resolver: takes text (the raw backlog content), a Set of live row ids,
+// and a Set of archive slugs (date-prefix-stripped folder names). Returns an
+// array of { slug, lineNum } objects for each bare [[slug]] that does not
+// resolve to either set.
+//
+// Resolution contract (D5, D7):
+//   1. Strip code-spans from each line before searching for [[...]].
+//   2. Match bare [[slug]] with slug grammar [a-z0-9]+(?:-[a-z0-9]+)*.
+//   3. A slug resolves if it is in liveRowIds OR in archiveSlugs.
+//   4. Any unresolved slug is a violation.
+function resolveWikilinks(text, liveRowIds, archiveSlugs) {
+  const violations = [];
+  const SLUG_RE = /\[\[([a-z0-9]+(?:-[a-z0-9]+)*)\]\]/g;
+  const CODE_SPAN_RE = /`[^`]*`/g;
+
+  const lines = text.replace(/\r\n/g, '\n').split('\n');
+  for (let i = 0; i < lines.length; i++) {
+    // Strip code-span occurrences so [[...]] inside backticks does not fire.
+    const stripped = lines[i].replace(CODE_SPAN_RE, (m) => ' '.repeat(m.length));
+
+    SLUG_RE.lastIndex = 0;
+    let m;
+    while ((m = SLUG_RE.exec(stripped)) !== null) {
+      const slug = m[1];
+      if (!liveRowIds.has(slug) && !archiveSlugs.has(slug)) {
+        violations.push({ slug, lineNum: i + 1 });
+      }
+    }
+  }
+  return violations;
+}
+
+async function checkBacklogWikilinks(errors) {
+  // ---- INLINE SELF-TEST -------------------------------------------------------
+  // Four fixtures exercising resolveWikilinks with a canned in-memory corpus
+  // and a synthetic archive-slug list. Run before file I/O so a broken detector
+  // reddens CI immediately.
+
+  const _stLiveRows = new Set(['live-row', 'another-live-row', 'context-gate-compact-and-passive-gauge', 'rename-qrspi-to-qrnchi', 'reset-and-resume-between-boundaries']);
+  const _stArchiveSlugs = new Set(['archived-change', 'kit-surface-dogfooding']);
+
+  let selfTestFailed = false;
+
+  // Fixture (a): live-row hit -> no violation
+  const _stA = '[[live-row]] is a live backlog idea.\n';
+  const _stAViolations = resolveWikilinks(_stA, _stLiveRows, _stArchiveSlugs);
+  if (_stAViolations.length !== 0) {
+    errors.push(
+      '[backlog-wikilinks] SELF-TEST FAILED: fixture (a) -- live-row wikilink was flagged as a violation (expected: no violation)'
+    );
+    selfTestFailed = true;
+  }
+
+  // Fixture (b): archive-folder hit -> no violation
+  const _stB = 'See [[archived-change]] for history.\n';
+  const _stBViolations = resolveWikilinks(_stB, _stLiveRows, _stArchiveSlugs);
+  if (_stBViolations.length !== 0) {
+    errors.push(
+      '[backlog-wikilinks] SELF-TEST FAILED: fixture (b) -- archive-folder wikilink was flagged as a violation (expected: no violation)'
+    );
+    selfTestFailed = true;
+  }
+
+  // Fixture (c): code-spanned meta-token must-not-fire
+  // A [[...]] inside backticks must be invisible to the checker.
+  const _stC = 'Use `[[does-not-exist]]` syntax (code span -- must not fire).\n';
+  const _stCViolations = resolveWikilinks(_stC, _stLiveRows, _stArchiveSlugs);
+  if (_stCViolations.length !== 0) {
+    errors.push(
+      '[backlog-wikilinks] SELF-TEST FAILED: fixture (c) -- code-spanned [[...]] was flagged (expected: must not fire)'
+    );
+    selfTestFailed = true;
+  }
+
+  // Fixture (d): bare dangling slug must fire
+  const _stD = 'Relates to [[does-not-exist]] and [[also-gone]].\n';
+  const _stDViolations = resolveWikilinks(_stD, _stLiveRows, _stArchiveSlugs);
+  if (_stDViolations.length !== 2) {
+    errors.push(
+      `[backlog-wikilinks] SELF-TEST FAILED: fixture (d) -- expected 2 violations for bare dangling slugs, got ${_stDViolations.length}`
+    );
+    selfTestFailed = true;
+  }
+  // ---- end self-test ----------------------------------------------------------
+
+  if (selfTestFailed) {
+    return 1;
+  }
+
+  const backlogPath = path.join(root, 'openspec', 'backlog.md');
+  const backlogRel = 'openspec/backlog.md';
+  const backlogText = await readFileOr(backlogPath, null);
+
+  if (backlogText === null) {
+    process.stdout.write(`  OK: ${backlogRel} absent -- Check 23 skipped\n`);
+    return 0;
+  }
+
+  // Collect live row ids from ### headings in the backlog.
+  // Row-id grammar: [a-z0-9]+(?:-[a-z0-9]+)*
+  const ROW_HEADING_RE = /^### ([a-z0-9]+(?:-[a-z0-9]+)*)/gm;
+  const liveRowIds = new Set();
+  let rm;
+  while ((rm = ROW_HEADING_RE.exec(backlogText)) !== null) {
+    liveRowIds.add(rm[1]);
+  }
+
+  // Collect archive slugs by stripping the leading date prefix from folder names
+  // under openspec/changes/archive/.
+  const archiveDir = path.join(root, 'openspec', 'changes', 'archive');
+  const DATE_PREFIX_RE = /^\d{4}-\d{2}-\d{2}-/;
+  const archiveSlugs = new Set();
+  for (const folderName of await listDirs(archiveDir)) {
+    const slug = folderName.replace(DATE_PREFIX_RE, '');
+    if (slug !== folderName) {
+      // Only include folders that actually had a date prefix
+      archiveSlugs.add(slug);
+    }
+  }
+
+  // Run resolver
+  const violations = resolveWikilinks(backlogText, liveRowIds, archiveSlugs);
+
+  if (violations.length === 0) {
+    process.stdout.write(
+      `  OK: ${backlogRel} -- all [[wikilinks]] resolve (${liveRowIds.size} live row(s), ${archiveSlugs.size} archive folder(s))\n`
+    );
+    return 0;
+  }
+
+  for (const { slug, lineNum } of violations) {
+    errors.push(
+      `[backlog-wikilinks] ${backlogRel}:${lineNum}: [[${slug}]] does not resolve to a live row id or an archived change folder`
+    );
+  }
+  return violations.length;
+}
+
 // ---- main ------------------------------------------------------------------
 
 async function main() {
@@ -3817,6 +3984,9 @@ async function main() {
 
   process.stdout.write('\nCheck 22: checkBacklogSchema (backlog schema guard)\n');
   await checkBacklogSchema(errors);
+
+  process.stdout.write('\nCheck 23: Backlog wikilink resolution\n');
+  await checkBacklogWikilinks(errors);
 
   process.stdout.write('\n');
   if (errors.length === 0) {
