@@ -39,6 +39,20 @@ kit version.
   `/qrspi:update`. This change requires a version bump at release (the migration
   ships a non-empty `automated:` list for the first time in kit history).
 
+- **Idea-capture command and shared backlog-writer skill (`backlog-schema-finish`, Slice 3).**
+  Adds `/qrspi:idea` -- a main-loop (no `agent:` frontmatter) command that drives an
+  interactive interview (derive slug, dedup by intent, P-band AskUserQuestion, one-sentence
+  Shape) and delegates row construction and staging to a new shared `backlog-writer` skill.
+  The skill owns the canonical Check-22-valid `idea`-row append procedure (dedup, P-band
+  proposal, row construction referencing the frozen grammar in
+  `openspec-templates/backlog.template.md`, and staging) so future consumers (questioner,
+  designer, architect, followup) can delegate to it rather than duplicating inline grammar.
+  `scripts/skill-sets.mjs` gains a `COMMAND_SKILL_SET_EXPECTED` export for command-scoped
+  skill registries; Check 2 (`checkFrontmatter`) is extended to resolve skill refs in
+  command bodies (not agents only); Check 2b (`checkSkillSets`) is extended to validate
+  the command skill-set registry. No version-check or budget-gate embed added to
+  `/qrspi:idea` per design (it is a non-stage, non-chaining helper).
+
 - **OpenSpec version-pin coupling guard (`reassess-openspec-dependency`).**
   Records the formal verdict to **keep** the `@fission-ai/openspec` CLI
   dependency for 1.0 (its residual value — spec-delta grammar validation —

@@ -551,7 +551,7 @@ async function checkFrontmatter(errors) {
   const commandFiles = await walkMd(commandsDir);
   for (const file of commandFiles) {
     const text = await readFileOr(file);
-    const { front } = splitFront(text);
+    const { front, body } = splitFront(text);
     const rel = path.relative(root, file);
     if (!getField(front, 'description')) {
       errors.push(`[frontmatter] ${rel}: missing 'description:' in frontmatter`);
@@ -571,6 +571,10 @@ async function checkFrontmatter(errors) {
         violations++;
       }
     }
+    // Resolve skill refs in command bodies (same resolution as agent bodies) --
+    // ensures any "Load skill `X`" reference in a command resolves to a real
+    // claude/skills/<X>/ directory.
+    violations += checkSkillRefs(body, rel, knownSkills, errors);
   }
 
   // --- Skills: require name: and description: ---
@@ -1359,7 +1363,7 @@ async function checkMigrationManifests(errors) {
 // Derived from the approved design (D2, D5, D6) -- imported from the shared
 // module scripts/skill-sets.mjs (single source of truth, D7) so that
 // scripts/context-footprint.mjs can reuse it without drift.
-import { SKILL_SET_EXPECTED } from './skill-sets.mjs';
+import { SKILL_SET_EXPECTED, COMMAND_SKILL_SET_EXPECTED } from './skill-sets.mjs';
 
 // ---- Check N (skill-sets): checkSkillSets -----------------------------------
 //
@@ -1444,6 +1448,58 @@ async function checkSkillSets(errors) {
       const parts = [];
       if (added.length > 0)   parts.push(`unexpected: ${added.map((n) => '`' + n + '`').join(', ')}`);
       if (missing.length > 0) parts.push(`missing: ${missing.map((n) => '`' + n + '`').join(', ')}`);
+      errors.push(`[skill-sets] ${rel}: skill-set mismatch -- ${parts.join('; ')}`);
+      violations++;
+    }
+  }
+
+  // --- Command skill-sets: validate COMMAND_SKILL_SET_EXPECTED ---
+  // Uses the broader "Load skill" regex (same as checkSkillRefs in Check 2)
+  // because command bodies use prose rather than numbered-step lines.
+  const commandsDir2 = path.join(root, 'claude', 'commands');
+  const loadReCmd = /(?:^|\n)(?:[^\n]*Load skills?\s[^\n]*)/g;
+  const theReCmd = /load the\s+`([A-Za-z0-9_-]+)`\s+skill/gi;
+  const backtickReCmd = /`([A-Za-z0-9_-]+)`/g;
+
+  for (const stem of Object.keys(COMMAND_SKILL_SET_EXPECTED)) {
+    const rel = `claude/commands/${stem}.md`;
+    const text = await readFileOr(path.join(commandsDir2, `${stem}.md`), null);
+    if (text === null) {
+      errors.push(`[skill-sets] ${rel}: file not found`);
+      violations++;
+      continue;
+    }
+    const { body: cmdBody } = splitFront(text);
+
+    // Harvest all "Load skill `X`" names from the command body.
+    const harvested2 = new Set();
+    loadReCmd.lastIndex = 0;
+    let lm2;
+    while ((lm2 = loadReCmd.exec(cmdBody)) !== null) {
+      const segment = lm2[0];
+      backtickReCmd.lastIndex = 0;
+      let bm2;
+      while ((bm2 = backtickReCmd.exec(segment)) !== null) {
+        harvested2.add(bm2[1]);
+      }
+    }
+    theReCmd.lastIndex = 0;
+    let tm2;
+    while ((tm2 = theReCmd.exec(cmdBody)) !== null) {
+      harvested2.add(tm2[1]);
+    }
+
+    // Filter out -stack names and compare.
+    const filtered2 = [...harvested2].filter((n) => !n.endsWith('-stack')).sort();
+    const expected2 = [...COMMAND_SKILL_SET_EXPECTED[stem]].sort();
+
+    const added2   = filtered2.filter((n) => !expected2.includes(n));
+    const missing2 = expected2.filter((n) => !filtered2.includes(n));
+
+    if (added2.length > 0 || missing2.length > 0) {
+      const parts = [];
+      if (added2.length > 0)   parts.push(`unexpected: ${added2.map((n) => '`' + n + '`').join(', ')}`);
+      if (missing2.length > 0) parts.push(`missing: ${missing2.map((n) => '`' + n + '`').join(', ')}`);
       errors.push(`[skill-sets] ${rel}: skill-set mismatch -- ${parts.join('; ')}`);
       violations++;
     }

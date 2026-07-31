@@ -27,3 +27,12 @@ export const SKILL_SET_EXPECTED = {
   'implementer-high':  ['implementer-core'],
   reviewer:            ['openspec-workflow', 'repo-surface', 'workflow'],
 };
+
+// Registry of the fixed kit skills each non-stage main-loop command is expected
+// to load. Validated by Check 2 (checkFrontmatter) skill-ref resolution -- each
+// listed skill must resolve to a real claude/skills/<name>/ directory. The
+// <repo>-stack cheatsheet is excluded from this map (same rationale as above).
+//   idea -- loads backlog-writer to delegate row construction and staging (D7, D11)
+export const COMMAND_SKILL_SET_EXPECTED = {
+  idea: ['backlog-writer'],
+};

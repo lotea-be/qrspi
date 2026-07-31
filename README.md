@@ -66,7 +66,8 @@ stack-cheatsheet skill — per-repo onboarding), `/qrspi:update` (walk migration
 entries and update the repo's `openspec/` layout to a newer kit version),
 `/qrspi:followup <id>` (post-PR fix loop),
 `/qrspi:archive <id>` (archive a change after its PR merges),
-`/qrspi:retro <id> <stage>` (retrospective that improves the prompts themselves).
+`/qrspi:retro <id> <stage>` (retrospective that improves the prompts themselves),
+`/qrspi:idea` (capture a new idea row in `openspec/backlog.md` via an interactive interview).
 
 Skills (loaded automatically by commands, not invoked directly): `qrspi-version-check`
 (session-scoped version gate -- compares the repo marker against the installed kit

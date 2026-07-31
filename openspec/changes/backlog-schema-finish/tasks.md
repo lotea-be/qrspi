@@ -29,12 +29,12 @@
 
 **Compute:** effort=medium model=sonnet — new skill file and new command file; the skill is procedure prose with clear spec; the command wires an interview flow following an existing pattern.
 
-- [ ] 3.1 Create `claude/skills/backlog-writer/SKILL.md` implementing the shared append procedure: dedup, P-band proposal, row construction referencing the frozen grammar in `openspec-templates/backlog.template.md` and Check 22, and staging (D7, D8, D11)
-- [ ] 3.2 Create `claude/commands/idea.md` with main-loop interview flow (no `agent:` frontmatter, no version-check or budget-gate embeds) (D7, D9, D11)
-- [ ] 3.3 Update `scripts/skill-sets.mjs` to register `backlog-writer` in the skill set for the `idea` command (D7, D9)
-- [ ] 3.4 Add `/qrspi:idea` to the README helpers listing (D9)
-- [ ] 3.5 Unit/integration test: `node scripts/lint.mjs` — Check 2 resolves `backlog-writer` for the `idea` command; Check 4 passes for `idea.md` ↔ README; Check 9 does not flag `idea.md` for missing version-check embed; budget-gate embed check does not flag `idea.md` (D7, D9, D11)
-- [ ] 3.6 Checkpoint (automated): `node scripts/lint.mjs` exits 0; Check 2, 4, 9, and budget-gate check all report `OK`
+- [x] 3.1 Create `claude/skills/backlog-writer/SKILL.md` implementing the shared append procedure: dedup, P-band proposal, row construction referencing the frozen grammar in `openspec-templates/backlog.template.md` and Check 22, and staging (D7, D8, D11)
+- [x] 3.2 Create `claude/commands/idea.md` with main-loop interview flow (no `agent:` frontmatter, no version-check or budget-gate embeds) (D7, D9, D11)
+- [x] 3.3 Update `scripts/skill-sets.mjs` to register `backlog-writer` in the skill set for the `idea` command (D7, D9)
+- [x] 3.4 Add `/qrspi:idea` to the README helpers listing (D9)
+- [x] 3.5 Unit/integration test: `node scripts/lint.mjs` — Check 2 resolves `backlog-writer` for the `idea` command; Check 4 passes for `idea.md` ↔ README; Check 9 does not flag `idea.md` for missing version-check embed; budget-gate embed check does not flag `idea.md` (D7, D9, D11)
+- [x] 3.6 Checkpoint (automated): `node scripts/lint.mjs` exits 0; Check 2, 4, 9, and budget-gate check all report `OK`
 - [ ] 3.7 (human) Launch `claude --plugin-dir /workspaces/git/qrspi` in a throwaway consumer fixture with a populated `openspec/backlog.md`; run `/qrspi:idea "add usage telemetry dashboard"`; confirm the command reads the backlog and surfaces near-matches (if any), offers proceed/abort, proposes a P-band via `AskUserQuestion`, prompts for a one-sentence shape, and stages a row; run `node scripts/lint.mjs` inside the fixture and confirm Check 22 reports no violation for the new row. Also run `/qrspi:idea` with no argument and confirm the intent prompt appears. (D7, D8, D9, D11)
 
 ## 4. Every append site on the shared writer (depends on Slice 3)
