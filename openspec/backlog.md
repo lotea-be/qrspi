@@ -13,7 +13,11 @@ _None._
 
 ## Proposed
 
-_None._
+### backlog-schema-finish — `proposed (change folder created 2026-07-31)` · **P3**
+
+**Why:** Finish the backlog-as-schema story that `standardize-backlog-format` started: add an idempotency guard to the migration `edit-file` dispatcher so `insert_after` steps are safe to replay (bundling [[migration-edit-file-idempotency-guard]]), extend the backlog lint to resolve `[[wikilink]]` cross-references so dangling slugs fail CI (bundling [[backlog-wikilink-resolution-lint]]), and add a `/qrspi:idea` command that provisions canonical, schema-conformant backlog rows on demand (bundling [[idea-capture-command]]). Non-Goal: the per-file `backlog/<id>.md` model is explicitly deferred to post-1.0 — this change does not reopen the frozen schema.
+
+**Shape:** Three independent slices: (1) add an optional `skip_if_contains` (or equivalent) field to the migration `edit-file` step schema + dispatcher, plus an anchor-fallback mechanism, and backfill onto `migrations/0.13.0.yaml`; (2) add a wikilink-resolution check (Check 23 or an extension of Check 22) to `scripts/lint.mjs` that asserts every `[[slug]]` resolves to a live backlog row or an archived change folder; (3) ship `claude/commands/idea.md` (a main-loop command) that deduplicates against existing rows, proposes a band and placement, confirms via AskUserQuestion, and stages the canonical schema-conformant row append. All three touch `scripts/lint.mjs`, the `qrspi-update` skill, and/or the README per Check 4.
 
 ---
 
@@ -224,7 +228,9 @@ commit-to-current-branch) rather than failing on a missing `origin`. Include the
 (replacing the hardcoded `chore/archive-<id>` in `archive.md`) — so a consumer
 overrides both from one configurable place.
 
-### idea-capture-command — `idea` · **P3**
+### idea-capture-command — `bundled into backlog-schema-finish (2026-07-31)` · **P3**
+
+> **Bundled into `backlog-schema-finish`** (proposed 2026-07-31) — see the `## Proposed` entry.
 
 **Why:** Adding a row to `openspec/backlog.md` today is ad hoc — hand-edited, or written
 inline by the Q/D/S "capture deferred work" flow and the `/qrspi:pr` / `/qrspi:followup`
@@ -245,7 +251,9 @@ stages the edit. Reuses the same append mechanic the Q/D/S deferred-work flow an
 the `/qrspi:pr` / `/qrspi:followup` P3 path already embed, so it cannot drift from
 the schema. Depends on [[standardize-backlog-format]] having frozen the grammar.
 
-### backlog-wikilink-resolution-lint — `idea` · **P3**
+### backlog-wikilink-resolution-lint — `bundled into backlog-schema-finish (2026-07-31)` · **P3**
+
+> **Bundled into `backlog-schema-finish`** (proposed 2026-07-31) — see the `## Proposed` entry.
 
 **Why:** [[standardize-backlog-format]] froze the row grammar and enum but left
 `[[wikilink]]` target resolution explicitly out of the new lint Check (a scoping
@@ -261,7 +269,9 @@ under `openspec/changes/archive/*-<slug>/`. Warn (not hard-fail) on the archived
 row case if that proves noisy; hard-fail on a slug that resolves nowhere. Depends
 on [[standardize-backlog-format]] having landed the row-id grammar first.
 
-### migration-edit-file-idempotency-guard — `idea` · **P3**
+### migration-edit-file-idempotency-guard — `bundled into backlog-schema-finish (2026-07-31)` · **P3**
+
+> **Bundled into `backlog-schema-finish`** (proposed 2026-07-31) — see the `## Proposed` entry.
 
 **Why:** [[standardize-backlog-format]] shipped the kit's first non-empty
 `automated:` migration step (an `edit-file` `insert_after` that adds the backlog
