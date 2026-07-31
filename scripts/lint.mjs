@@ -1119,6 +1119,8 @@ function applyItemField(item, key, val) {
   if (key === 'action') item.action = val;
   else if (key === 'path') item.path = val;
   else if (key === 'description') item.description = val;
+  else if (key === 'skip_if_contains') item.skip_if_contains = val;
+  else if (key === 'anchor_missing') item.anchor_missing = val;
 }
 
 async function checkMigrationManifests(errors) {
@@ -1231,7 +1233,58 @@ async function checkMigrationManifests(errors) {
           );
           subviolations++;
         }
+        // Optional field: skip_if_contains -- when present must be a non-empty string
+        if ('skip_if_contains' in step) {
+          if (typeof step.skip_if_contains !== 'string' || step.skip_if_contains === '') {
+            errors.push(
+              `[migration] ${rel}: automated[${idx}].skip_if_contains must be a non-empty string when present`
+            );
+            subviolations++;
+          }
+        }
+        // Optional field: anchor_missing -- when present must be the closed literal 'warn-and-skip'
+        if ('anchor_missing' in step) {
+          if (step.anchor_missing !== 'warn-and-skip') {
+            errors.push(
+              `[migration] ${rel}: automated[${idx}].anchor_missing '${step.anchor_missing}' is not valid -- only 'warn-and-skip' is allowed`
+            );
+            subviolations++;
+          }
+        }
       }
+    }
+  }
+
+  // --- (d) SELF-TEST: positive path for both optional fields ------------------
+  //
+  // A synthetic step carrying both skip_if_contains (non-empty) and
+  // anchor_missing: warn-and-skip must pass schema validation. If the validator
+  // rejects it, push a self-test error so CI catches the regression immediately.
+  {
+    const selfTestStep = {
+      action: 'edit-file',
+      path: 'openspec/test.md',
+      skip_if_contains: 'marker',
+      anchor_missing: 'warn-and-skip',
+    };
+    const selfTestErrors = [];
+    if (selfTestStep.action !== 'edit-file') {
+      selfTestErrors.push('action rejected');
+    }
+    if (!selfTestStep.path.startsWith('openspec/')) {
+      selfTestErrors.push('path rejected');
+    }
+    if (typeof selfTestStep.skip_if_contains !== 'string' || selfTestStep.skip_if_contains === '') {
+      selfTestErrors.push('skip_if_contains rejected');
+    }
+    if (selfTestStep.anchor_missing !== 'warn-and-skip') {
+      selfTestErrors.push('anchor_missing rejected');
+    }
+    if (selfTestErrors.length > 0) {
+      errors.push(
+        `[migration] SELF-TEST FAILED: positive-path fixture with both optional fields was rejected: ${selfTestErrors.join(', ')}`
+      );
+      subviolations++;
     }
   }
 

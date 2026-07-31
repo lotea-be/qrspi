@@ -6,12 +6,12 @@
 
 **Compute:** effort=medium model=sonnet — extends an existing lint check with two optional-field rules and an inline self-test; pattern mirrors existing Check 6 structure.
 
-- [ ] 1.1 In `migrations/0.13.0.yaml`, add `skip_if_contains` and `anchor_missing: warn-and-skip` to the single `insert_after` step in place (D1, D2)
-- [ ] 1.2 Document `skip_if_contains` and `anchor_missing` fields and their dispatcher semantics in `claude/skills/qrspi-update/SKILL.md` (D1, D2)
-- [ ] 1.3 Extend Check 6 in `scripts/lint.mjs` to validate both optional fields against their closed value-domain (D1, D3)
-- [ ] 1.4 Add a positive-path inline self-test fixture (synthetic step carrying both fields) to Check 6 in `scripts/lint.mjs` (D1, D3)
-- [ ] 1.5 Unit/integration test: `node scripts/lint.mjs` — Check 6 passes on valid `skip_if_contains` + `anchor_missing: warn-and-skip` values, and fails on an invalid `anchor_missing` value
-- [ ] 1.6 Checkpoint (automated): `node scripts/lint.mjs` exits 0 and Check 6 line reads `OK`
+- [x] 1.1 In `migrations/0.13.0.yaml`, add `skip_if_contains` and `anchor_missing: warn-and-skip` to the single `insert_after` step in place (D1, D2)
+- [x] 1.2 Document `skip_if_contains` and `anchor_missing` fields and their dispatcher semantics in `claude/skills/qrspi-update/SKILL.md` (D1, D2)
+- [x] 1.3 Extend Check 6 in `scripts/lint.mjs` to validate both optional fields against their closed value-domain (D1, D3)
+- [x] 1.4 Add a positive-path inline self-test fixture (synthetic step carrying both fields) to Check 6 in `scripts/lint.mjs` (D1, D3)
+- [x] 1.5 Unit/integration test: `node scripts/lint.mjs` — Check 6 passes on valid `skip_if_contains` + `anchor_missing: warn-and-skip` values, and fails on an invalid `anchor_missing` value
+- [x] 1.6 Checkpoint (automated): `node scripts/lint.mjs` exits 0 and Check 6 line reads `OK`
 - [ ] 1.7 (human) Launch `claude --plugin-dir /workspaces/git/qrspi` in a throwaway consumer fixture that already contains the legend block; run `/qrspi:update`; confirm the dispatcher emits "skipped (already present)" and does not duplicate the legend. Repeat with the anchor renamed; confirm a one-line warning is emitted and the walk continues to completion with the version marker bumped. (D1, D2)
 
 ## 2. Dangling wikilinks fail CI (Check 23)

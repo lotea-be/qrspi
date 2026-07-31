@@ -212,10 +212,13 @@ For each item in `automated` (processed in list order, without prompting):
      `find_all` string in the file with the `replace` string.
    - **`insert_after` + `content`:** Insert the `content` string
      immediately after the first occurrence of `insert_after` in the file.
-     If `insert_after` does not appear, stop and report.
+     If `insert_after` does not appear, stop and report -- unless the step
+     carries `anchor_missing: warn-and-skip` (see optional idempotency
+     fields below).
    - **`insert_before` + `content`:** Insert the `content` string
      immediately before the first occurrence of `insert_before` in the
-     file. If `insert_before` does not appear, stop and report.
+     file. If `insert_before` does not appear, stop and report -- unless
+     the step carries `anchor_missing: warn-and-skip` (see below).
    - **`append` + `content`:** Append the `content` string at the end of
      the file. No anchor required.
    - **`prepend` + `content`:** Prepend the `content` string at the
@@ -229,6 +232,50 @@ For each item in `automated` (processed in list order, without prompting):
 5. **Print a one-line confirmation** showing the step's `description` and
    the file path, so the human can see what was applied. Do NOT ask for
    confirmation -- this step is automated.
+
+#### Optional idempotency fields on `edit-file` steps
+
+Two optional fields make `edit-file` steps replayable and fault-tolerant.
+Both fields are optional; their absence leaves existing behavior unchanged.
+
+**`skip_if_contains: "<marker>"`** (content-idempotent replay)
+
+When present, its value MUST be a non-empty literal string. Before
+evaluating any anchor (`insert_after` / `insert_before`), perform a
+whole-file substring search of the target file's raw text for `<marker>`.
+If the marker is found, **skip the step entirely** -- emit a one-line note
+such as `"Skipped (already present): <description>"` and continue to the
+next step without modifying the file. This prevents duplicate content when
+a migration is accidentally re-applied or when the consumer already has the
+content from a manual edit.
+
+The substring search runs BEFORE the anchor search so that a consumer who
+already has the content is a clean skip regardless of whether the anchor
+line still exists in the file.
+
+**`anchor_missing: warn-and-skip`** (fault-tolerant degradation)
+
+When present, its value MUST be the closed literal `warn-and-skip` (the
+only valid value). When the step's `insert_after` or `insert_before` anchor
+is NOT found in the target file, instead of hard-stopping the walk:
+
+1. Emit a one-line human-readable warning naming the file, the missing
+   anchor text, and the step's `description`. Example:
+   `"Warning: anchor not found in openspec/backlog.md -- skipping step: <description>"`
+2. Skip the step and continue the walk.
+3. The version marker MUST still be bumped at end of walk after an
+   `anchor_missing`-skipped step -- the consumer is not permanently wedged.
+
+When `anchor_missing` is absent, the existing hard-stop behavior on a
+missing anchor is unchanged.
+
+**Processing order when both fields are present:**
+1. Evaluate `skip_if_contains` first (whole-file substring check).
+2. If the file already contains the marker, skip and continue (no anchor
+   search needed).
+3. Only if the marker is not found does the anchor search proceed; if the
+   anchor is missing and `anchor_missing: warn-and-skip` is set, warn and
+   skip rather than hard-stopping.
 
 Track the set of files edited by automated steps (for the staging tail in
 section 4.4).
