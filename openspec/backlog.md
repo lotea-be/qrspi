@@ -290,6 +290,27 @@ instruction instead of a hard-stop. Update the manifest schema doc in the
 `qrspi-update` skill and backfill both onto `migrations/0.13.0.yaml`'s legend
 insert.
 
+### archive-auto-create-pr — `idea` · **P3**
+
+**Why:** `/qrspi:archive` step 5's "New branch + push" path only **prints** the
+host PR-create command and explicitly says "do not run it automatically — just
+print it," while `/qrspi:pr` actually **creates** the PR (and records `#<N>` +
+URL). That inconsistency forces the human to copy-paste a `gh pr create` for
+every archive, when the archive PR is exactly as mechanical as the feature PR the
+same session already auto-opened. Surfaced 2026-07-31 dogfooding `/qrspi:archive`
+on `standardize-backlog-format` (the human asked why archive didn't just open the
+PR like the PR stage did).
+
+**Shape:** In `claude/commands/archive.md` step 5's "New branch + push" branch,
+after the `git push -u`, **run** the resolved host PR-create command (the
+`gh`/`az repos`/`glab` line from the stack-cheatsheet `## PR & git workflow`
+block, same resolver `/qrspi:pr` uses), capture the PR number + URL from its
+output, and report them in step 6 instead of re-printing the command. Mirror
+`/qrspi:pr`'s create-and-record step, including its mode-awareness (a Manual-mode
+"create now / show first" gate vs. auto-create in Full/Semi) so the two stages
+behave consistently. Update the README/archive-flow prose if it documents the
+print-only behaviour.
+
 ### batch-archive-multiple-changes — `idea` · **P3**
 
 **Why:** `/qrspi:archive` handles exactly **one** change per run; archiving several
