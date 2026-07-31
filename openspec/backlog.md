@@ -489,6 +489,28 @@ plugin-vs-user-settings distribution question first. The cheap Facet 1 could rid
 the pre-1.0 runway before [[rename-qrspi-to-qrnchi]]; the hook/statusline aids are a
 larger, likely post-1.0 bet. Surfaced 2026-07-30.
 
+### resume-pointer-at-message-end — `idea` · **P3**
+
+**Why:** When a QRSPI command offers a reset, the "how to continue" instruction
+should be the **last line** of the message so the human doesn't scroll up past the
+completion summary / AskUserQuestion residue to find it. The two gated exits already
+do this by construction — `context-budget-gate` step 4 and `archive` step 7 print
+the resume one-liner and immediately **END THE TURN** — but any *orchestrator*
+message that pairs a completion summary or stage handoff with a reset offer can bury
+the resume pointer mid-message, forcing a scroll. There is no stated presentation
+rule that the resume/continue pointer is always emitted last, so the placement is
+left to the model per message. Surfaced 2026-07-31 (human feedback while discussing
+the `/clear` reset flow: losing run-mode on `/clear` is expected, but having to
+scroll to find how to continue is avoidable friction).
+
+**Shape:** Add a one-line presentation rule to the reset-emitting bodies — the
+`context-budget-gate` skill, `archive.md`'s next-change offer, and the
+[[reset-and-resume-between-boundaries]] resume-path guidance — that the
+resume/continue one-liner is always the **final line** of the message, after any
+summary, with nothing following it. Cheap, prose-only. Pairs with
+[[context-gate-compact-and-passive-gauge]] (make the reset gate less manual) and
+[[reset-and-resume-between-boundaries]] (the resume-path content this positions).
+
 ### orchestrator-context-budget-gate — `bundled into orchestrator-context-budget (proposed 2026-07-28)` · **P2**
 
 > **Bundled into `orchestrator-context-budget`** (proposed 2026-07-28) with
