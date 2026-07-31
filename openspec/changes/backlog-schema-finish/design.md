@@ -282,6 +282,22 @@ write site. The skill stays **thin** (it references, not restates, the grammar),
 not create a second grammar source. Ordering: Slice 4 depends on Slice 3; Slices 1–2 are
 independent of both.
 
+**Scope amendment (stage I, 2026-07-31) — D11's site enumeration was wrong; adds Slice 5.**
+D11 attributed the **D** and **S** deferred-work capture to the `designer.md` and
+`architect.md` *agent* files. In fact the capture **offer + row construction** for those
+stages lives in the *command* bodies — `claude/commands/design.md` (step 4 "Capture deferred
+work") and `claude/commands/structure.md` — because the offer is an `AskUserQuestion`, which
+the stage agents cannot issue (only the main-loop orchestrator can). D11 also missed a sixth
+site entirely: `claude/commands/pr.md`'s "Promote to backlog idea" path, which builds an
+`idea` row inline. Slice 4 therefore wired `backlog-writer` onto agents that do not construct
+rows while the real inline grammar copies persisted in the command bodies (plus a referential
+copy in `claude/commands/slices.md`). **Slice 5** closes this: migrate the genuine
+command-level append sites (`design.md`, `structure.md`, `pr.md`) to load `backlog-writer` and
+delegate row construction, and trim the referential grammar copy in `slices.md` to a pointer.
+This makes D11's "true at every write site" guarantee actually hold. The agent-level
+registration Slice 4 added is retained (harmless; the agents load the skill, and the
+orchestrator that spawns them delegates to it).
+
 ## Command changes
 
 `/qrspi:idea` (new `claude/commands/idea.md`, main-loop, no `agent:` frontmatter): reads

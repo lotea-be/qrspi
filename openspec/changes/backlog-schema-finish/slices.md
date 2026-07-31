@@ -14,7 +14,9 @@ a new `/qrspi:idea` capture command backed by a shared `backlog-writer` skill
 Slices 1 and 2 are file-disjoint and fully independent — they can be
 implemented and committed in either order. Slices 3 and 4 are sequential: the
 `backlog-writer` skill that Slice 4 references must exist before Slice 4
-touches any agent or command file.
+touches any agent or command file. Slice 5 (added during stage I) likewise
+depends on Slice 3 and migrates the command-level append sites the original
+plan mis-attributed to the agent files — see its header for the correction.
 
 Because this is a kit-tooling repo with no web-app UI or data-store, the
 vertical-slice principle is applied as "each slice ships an independently
@@ -161,3 +163,44 @@ row grammar for appending a row. Check 2 passes for all three migrated agents.
   the agent response. Also exercise the followup P3 path (`/qrspi:followup <id>`
   on a fixture with a deferred follow-up) and confirm it delegates to
   `backlog-writer`. (D11)
+
+### Slice 5 — Command-level append sites on the shared writer (added stage I; depends on Slice 3)
+
+Added during stage I after implementation surfaced that D11's site enumeration
+was wrong: the real D/S capture offer + row construction live in the *command*
+bodies (`design.md`, `structure.md`), not the designer/architect agents (agents
+cannot issue the `AskUserQuestion` offer), and `pr.md`'s "Promote to backlog idea"
+path is a sixth site D11 missed. After this slice, no command or agent body embeds
+an inline copy of the frozen row grammar — the `backlog-writer` procedure and the
+frozen template are the only places it is expressed. (D11)
+
+- M: no mock layer — changes are prose migrations in command files. (D11)
+- F: n/a — no UI surface.
+- D: migrate `claude/commands/design.md` (step 4 "Capture deferred work") and
+  `claude/commands/structure.md` (capture step) to load `backlog-writer` and
+  delegate row construction instead of embedding the inline `### <slug> —
+  \`idea\` · **P<n>**` + `**Why:**`/`**Shape:**` block; migrate
+  `claude/commands/pr.md`'s "Promote to backlog idea" path the same way,
+  preserving the surrounding followups.md tick + commit orchestration; trim the
+  referential grammar block in `claude/commands/slices.md` to a pointer to the
+  frozen grammar; wire any command→skill registration Check 2 requires in
+  `scripts/skill-sets.mjs`. (D11)
+- T: `node scripts/lint.mjs` — Check 2 resolves `backlog-writer` for every
+  migrated command with no dangling skill reference; a scan for the inline
+  row-construction pattern outside `claude/skills/backlog-writer/` and
+  `openspec-templates/` finds no remaining copy; full lint passes green;
+  `openspec validate backlog-schema-finish --strict` passes. (D11)
+- **Compute:** effort=medium model=sonnet — mechanical prose migration across four
+  command files following the pattern established by Slices 3–4, but touches the
+  `pr.md` reconciliation path whose surrounding commit orchestration must be
+  preserved, and requires the skill-sets wiring; no new design reasoning.
+- Checkpoint (automated): `node scripts/lint.mjs` exits 0; Check 2 reports `OK`
+  for the migrated commands against `backlog-writer`; no inline row-grammar block
+  remains outside the skill/template.
+- Checkpoint (human): launch `claude --plugin-dir /workspaces/git/qrspi` in a
+  throwaway consumer fixture; exercise the D-stage capture (run `/qrspi:design
+  <id>` on a change whose Non-Goals name a separable future change and accept the
+  idea offer) and confirm the staged row is produced through the `backlog-writer`
+  procedure (Check-22-valid, no inline grammar in the command's own prose). Also
+  exercise the PR promote path (`/qrspi:pr <id>` with an open follow-up promoted
+  to backlog) and confirm it delegates to `backlog-writer`. (D11)

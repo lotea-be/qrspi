@@ -82,3 +82,41 @@ from the template independently.
 - **THEN** the skill prose points to `openspec-templates/backlog.template.md`
   and/or Check 22 as the authoritative grammar source, and does not contain a
   standalone copy of the heading grammar regex or the separator character list.
+
+### Requirement: command-level backlog-append sites MUST delegate to backlog-writer
+The system MUST ensure that every command body that appends an `idea` row to
+`openspec/backlog.md` — the D-stage capture in `claude/commands/design.md`, the
+S-stage capture in `claude/commands/structure.md`, and the "Promote to backlog
+idea" path in `claude/commands/pr.md` — loads `backlog-writer` and delegates row
+construction and staging to its procedure, rather than embedding an inline copy of
+the frozen heading grammar. These command bodies are the genuine orchestrator-level
+append sites for stages D and S (and the PR follow-up promote path), because the
+capture offer is an `AskUserQuestion` that only the main-loop orchestrator, not the
+stage agent, can issue. The referential grammar copy in `claude/commands/slices.md`
+(which does not itself append — stage V does not capture) MUST be trimmed to a
+pointer to the frozen grammar rather than a full inline block.
+
+#### Scenario: design.md D-stage capture delegates to backlog-writer
+- **WHEN** `claude/commands/design.md`'s "Capture deferred work" step is read
+- **THEN** it instructs loading `backlog-writer` and following its append procedure,
+  and does not contain a standalone inline `### <slug> — \`idea\` · **P<n>**` heading
+  grammar block with `**Why:**`/`**Shape:**` construction prose.
+
+#### Scenario: structure.md S-stage capture delegates to backlog-writer
+- **WHEN** `claude/commands/structure.md`'s capture step is read
+- **THEN** it instructs loading `backlog-writer` and following its append procedure,
+  and does not contain a standalone inline heading-grammar construction block.
+
+#### Scenario: pr.md promote-to-backlog path delegates to backlog-writer
+- **WHEN** `claude/commands/pr.md`'s "Promote to backlog idea" reconciliation path
+  is read
+- **THEN** it instructs loading `backlog-writer` and following its append procedure,
+  and does not contain a standalone inline heading-grammar construction block.
+
+#### Scenario: no inline grammar copy remains at any append site after migration
+- **WHEN** the kit source tree is scanned for the inline row-construction pattern
+  (`### <slug> — \`idea\`` followed by `**Why:**`/`**Shape:**` construction prose)
+  outside `claude/skills/backlog-writer/` and `openspec-templates/`
+- **THEN** no command or agent body contains such an inline block — the shared
+  `backlog-writer` procedure (and the frozen template) are the only places the row
+  grammar is expressed.

@@ -16,6 +16,7 @@
 - New `claude/commands/idea.md` — main-loop, no `agent:` frontmatter — as the first consumer of `backlog-writer`; registered in `README.md` helpers listing.
 - `scripts/skill-sets.mjs` updated to register `backlog-writer`.
 - The Q/D/S deferred-work capture prose (questioner, designer, architect agents) and the `followup.md` P3 promote path migrated to load `backlog-writer` and follow its procedure (Slice 4).
+- The command-level backlog-append sites migrated onto `backlog-writer` (Slice 5, added during stage I): `claude/commands/design.md` (D-stage capture) and `claude/commands/structure.md` (S-stage capture) — the real orchestrator-level append sites, since the `AskUserQuestion` offer cannot be issued by the stage agents — plus `claude/commands/pr.md`'s "Promote to backlog idea" path; the referential grammar copy in `claude/commands/slices.md` is trimmed to a pointer. Closes D11's "no inline grammar copy at any write site" guarantee.
 
 ## Capabilities
 
@@ -28,13 +29,13 @@
 - `kit-versioning`: `qrspi-update` SKILL.md gains two optional `edit-file` sub-fields and their dispatcher semantics — needs a delta spec.
 - `ci-quality-gates`: Check 6 extended (new field validation + positive self-test); Check 23 added (`checkBacklogWikilinks`) — needs a delta spec.
 - `backlog-schema`: Wikilink-resolution contract and backlog-writer append procedure folded in as requirements — needs a delta spec.
-- `qrspi-command-surface`: `/qrspi:idea` command added with README helpers listing + embed-exclusion decision — needs a delta spec.
+- `qrspi-command-surface`: `/qrspi:idea` command added with README helpers listing + embed-exclusion decision; the D/S/PR command-level append sites (`design.md`, `structure.md`, `pr.md`) migrated onto `backlog-writer` and the `slices.md` referential copy trimmed (Slice 5) — needs a delta spec.
 
 ## Impact
 
 - Breaking changes: no — all migration schema additions are optional; consumers on `0.13.0.yaml` get idempotency guards transparently; no existing Check 6 passes become failures.
-- Phases: single change, four slices; Slices 1–2 are file-disjoint and order-free; Slices 3–4 sequential (Slice 4 depends on Slice 3).
-- Affected code / APIs / dependencies: `claude/skills/qrspi-update/SKILL.md`, `migrations/0.13.0.yaml`, `scripts/lint.mjs` (Checks 6 + 23), `openspec/backlog.md` (D6 cleanup), `claude/skills/backlog-writer/SKILL.md` (new), `claude/commands/idea.md` (new), `scripts/skill-sets.mjs`, `README.md`, `claude/agents/questioner.md`, `designer.md`, `architect.md`, `claude/commands/followup.md`.
+- Phases: single change, five slices; Slices 1–2 are file-disjoint and order-free; Slices 3–4 sequential (Slice 4 depends on Slice 3); Slice 5 (added during stage I) depends on Slice 3 (the `backlog-writer` skill must exist).
+- Affected code / APIs / dependencies: `claude/skills/qrspi-update/SKILL.md`, `migrations/0.13.0.yaml`, `scripts/lint.mjs` (Checks 6 + 23), `openspec/backlog.md` (D6 cleanup), `claude/skills/backlog-writer/SKILL.md` (new), `claude/commands/idea.md` (new), `scripts/skill-sets.mjs`, `README.md`, `claude/agents/questioner.md`, `designer.md`, `architect.md`, `claude/commands/followup.md`, `claude/commands/design.md`, `claude/commands/structure.md`, `claude/commands/pr.md`, `claude/commands/slices.md`.
 
 ## Out of scope
 
