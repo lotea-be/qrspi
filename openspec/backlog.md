@@ -232,13 +232,26 @@ public 1.0: a non-GitHub or remoteless stranger currently hits `gh`-assuming com
 Relates to [[standardize-recurring-ops-scripts]] (the PR-create/PR-status ops it would
 centralize) and [[automate-marketplace-source-bump]].
 
+**Also fold in the branch-naming scheme.** Branch naming is today configurable in
+*one* place and hardcoded in another: the **feature branch** (`questions.md`) reads
+the project's convention from the stack-cheatsheet, defaulting to `features/<id>`,
+but the **archive branch** (`archive.md`) hardcodes `chore/archive-<id>` with no
+configurable hook. Both branch-name schemes (feature *and* archive) belong in the
+same shared `## PR & git workflow` block / skill this idea centralizes, defined once
+so a consumer overrides both from a single place — the same "prose, not schema"
+consolidation, applied to branch naming.
+
 **Shape:** A shared kit skill (and/or a `## PR & git workflow` block in the
 stack-cheatsheet) that detects (1) remote presence and (2) vendor (GitHub / Azure
 DevOps / GitLab / Bitbucket) once, then exposes the vendor-specific PR-create and
 PR-status invocations from one place so `/qrspi:pr` and `/qrspi:archive` reuse it
 instead of each re-deriving `gh`/`az repos`/`glab`. Add an explicit no-remote
 branch that skips push/PR and offers a local-only path (local branch / patch /
-commit-to-current-branch) rather than failing on a missing `origin`.
+commit-to-current-branch) rather than failing on a missing `origin`. Include the
+**branch-naming scheme** in that block — both the feature-branch pattern
+(`features/<id>` default, already cheatsheet-driven) and the archive-branch pattern
+(replacing the hardcoded `chore/archive-<id>` in `archive.md`) — so a consumer
+overrides both from one configurable place.
 
 ### idea-capture-command — `idea` · **P3**
 
@@ -1535,6 +1548,41 @@ automate vs. need a human in the loop, and where the schedule definition lives
 whether or not there is drift, so weigh cadence against a cheaper event-triggered
 or on-demand check. Part of the Claude Code capability cluster
 ([[hooks-as-mechanical-guards]]). Surfaced 2026-07-25.
+
+### sync-backlog-to-host-tracker — `idea` · **P3**
+
+**Why:** `openspec/backlog.md` is a flat, deliberately host-agnostic markdown file,
+but many teams live in their git host's **issue tracker** (GitHub Issues, Azure
+DevOps Work Items, GitLab Issues) and would want the backlog *there* — visible,
+assignable, linkable from PRs — rather than in a file only QRSPI reads. Offer an
+optional **backlog↔host-tracker sync** so a consumer can mirror backlog rows into
+their vendor's tracker (and reflect state back) instead of maintaining two disjoint
+lists by hand. This is an **extension of [[git-host-and-remote-awareness]], not a
+fold-in**: it *reuses* that idea's vendor-detection substrate — detect the vendor
+once, then issue-create/issue-update ops sit alongside its PR-create/PR-status ops —
+but operates on the **backlog surface**, a distinct concern from PR mechanics.
+Deliberately opt-in: the file stays the zero-dependency default (works remoteless,
+vendor-agnostic), and sync is for teams that want host-tracker visibility.
+
+**Design tensions (needs Q/R/D):** (1) **direction + source of truth** — one-way
+push from the file, or two-way sync? Is `backlog.md` authoritative or the host
+tracker? Two-way reintroduces the "marker rots across two systems" drift the kit
+otherwise avoids. (2) **mapping** — row → issue; the `idea`/`proposed`/
+`in-progress`/`merged` enum → issue state/labels; the `P1`–`P3` band → a priority
+label; `[[wikilinks]]` → issue cross-refs. This is **mechanical only once
+[[standardize-backlog-format]] freezes the row schema** — so it is sequenced behind
+that change. (3) **transport** — reuse [[github-mcp-for-pr-ops]]'s MCP surface (the
+same server exposes issue ops) vs. the vendor CLIs [[git-host-and-remote-awareness]]
+centralizes.
+
+**Shape:** An optional, opt-in sync (a command and/or a
+[[scheduled-backlog-hygiene]] cadence job) that maps canonical backlog rows to the
+detected vendor's issue tracker and back, reusing
+[[git-host-and-remote-awareness]]'s vendor-detection layer for the issue-op
+transport and [[standardize-backlog-format]]'s frozen schema for the field mapping.
+Keep the flat file the zero-dependency default; sync is additive. Decide direction
+(push-only MVP vs two-way) and source-of-truth explicitly before building. Surfaced
+2026-07-31.
 
 ### research-websearch-external — `idea` · **P3**
 
