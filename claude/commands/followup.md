@@ -167,19 +167,24 @@ leading/trailing hyphens. Example: "Rate-limit the new endpoint" becomes
 
 Open `openspec/backlog.md` and append one new `idea` row under the
 `## Ideas` section (create the section if it does not exist). The row
-format mirrors `pr.md`'s "Promote to backlog idea" mechanic exactly:
+format mirrors `pr.md`'s "Promote to backlog idea" mechanic exactly,
+using the frozen heading grammar (em-dash U+2014, middle-dot U+00B7):
 
 ```markdown
-### <slug> -- `idea` · **P3**
+### <slug> — `idea` · **P<n>**
 
-**Why:** <one-sentence reason drawn from the follow-up text explaining
-why this warrants a future change rather than being fixed here.>
+**Why:** A one-line statement of the problem this idea would solve and why it is
+worth doing. Delete this sample row once you have real backlog items.
+
+**Shape:** A short sketch of the likely solution — the mechanism, the surfaces it
+touches, and the cheapest-first cut. This is design intent, not a full plan.
 ```
 
-Use `idea` as the status and `· **P3**` as the priority band. Write the
-`**Why:**` paragraph in one sentence drawing from the follow-up content.
-Do NOT flip the parent change's existing backlog status line -- only the
-new `idea` row is added.
+Use `idea` as the status and `· **P3**` as the priority band (substitute
+the actual P-band when assigning). Write the `**Why:**` paragraph in one
+sentence drawing from the follow-up content, and add a `**Shape:**` line
+with a brief sketch of the likely solution. Do NOT flip the parent
+change's existing backlog status line -- only the new `idea` row is added.
 
 Tick the targeted `followups.md` entry by changing `- [ ]` to `- [x]`
 and appending the disposition note:

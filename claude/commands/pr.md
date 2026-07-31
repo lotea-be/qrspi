@@ -200,10 +200,22 @@ Semantics per choice:
   `- [x] <text> (dropped -- no longer needed)` in `followups.md`. Continue to
   the next entry. Stage this edit for the final commit (D7).
 - **Promote to backlog idea** -- append one new idea row to
-  `openspec/backlog.md` under the `## Ideas` section, matching the file's
-  existing format (level-3 heading with kebab-slug + status label + priority
-  band, followed by a `**Why:**` paragraph). Use `idea` as the status and
-  `P3` as the default priority band; derive the slug from the follow-up title.
+  `openspec/backlog.md` under the `## Ideas` section, using the frozen
+  heading grammar (em-dash U+2014, middle-dot U+00B7):
+
+  ```markdown
+  ### <slug> — `idea` · **P<n>**
+
+  **Why:** A one-line statement of the problem this idea would solve and why it is
+  worth doing. Delete this sample row once you have real backlog items.
+
+  **Shape:** A short sketch of the likely solution — the mechanism, the surfaces it
+  touches, and the cheapest-first cut. This is design intent, not a full plan.
+  ```
+
+  Use `idea` as the status and `P3` as the default priority band; derive
+  the slug from the follow-up title. Add both a `**Why:**` and a
+  `**Shape:**` line per the schema (standalone `idea` rows require both).
   Then change the entry in `followups.md` from `- [ ] <text>` to
   `- [x] <text> (promoted to backlog)`. Stage both edits for the final
   commit (D7). Continue to the next entry.

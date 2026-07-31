@@ -1,0 +1,41 @@
+version: 0.13.0
+summary: >
+  Freezes the backlog schema: canonical heading grammar (em-dash, middle-dot,
+  bold P-band), status enum, body-field rule (Why+Shape on standalone idea/proposed
+  rows), section-heading presence, and P-band preamble under ## Ideas. Ships
+  openspec-templates/backlog.template.md and Check 22 (checkBacklogSchema). Also
+  fixes the Check-10 label collision (checkTriagePaths renumbered). An additive
+  legend comment is inserted after the title line of openspec/backlog.md;
+  section-heading and preamble additions are manual steps.
+automated:
+  - description: >-
+      Insert the backlog schema legend comment after the title line of
+      openspec/backlog.md. This step is additive-only: it does not rewrite any
+      existing row content. If the legend comment block is already present, this
+      migration was already partially applied; the marker bump after a full run
+      prevents re-application, but if run twice remove the duplicate comment block.
+    action: edit-file
+    path: openspec/backlog.md
+    insert_after: "# Backlog\n"
+    content: "\n<!--\n  Backlog schema legend (frozen by standardize-backlog-format).\n\n  Heading grammar (one level-3 heading per row):\n\n      ### <id> — `<status>` · **P<n>**\n\n    id:       kebab-case slug (lowercase letters/digits, single hyphens).\n    —         an EM-DASH (U+2014), surrounded by single spaces. NOT --.\n    `<status>` the status field, backtick-wrapped. Leading keyword is\n               what the enum validates; any text after the keyword\n               (a note in parentheses, or `into <id> (<date>)`) is free.\n    ·          the separator is a MIDDLE-DOT (U+00B7), surrounded by\n               single spaces: ` · `.\n    **P<n>**   the priority band, bold, where <n> is 1, 2, or 3.\n\n  Status enum (the leading keyword only):\n\n      idea | proposed | in-progress | merged | bundled\n\n  Section headings (all three required):\n\n      ## In progress | ## Proposed | ## Ideas\n\n  Body rule:\n\n    idea / proposed rows MUST carry both **Why:** and **Shape:** lines.\n    bundled / merged rows are EXEMPT -- carry a `>` blockquote pointer.\n    in-progress rows are checked for grammar + enum only.\n\n  The ## Ideas section MUST open with a P-band preamble (P1, P2, P3).\n\n  See openspec-templates/backlog.template.md for the canonical template.\n-->\n"
+manual:
+  - >-
+    If your openspec/backlog.md is missing the `## In progress` heading, add it
+    (with a `_None._` placeholder if empty). If it is missing `## Proposed`, add
+    it. If it is missing `## Ideas`, add it. See
+    openspec-templates/backlog.template.md for the canonical section order and
+    content.
+  - >-
+    If your `## Ideas` section does not open with a P-band preamble line
+    mentioning P1, P2, and P3 before its first `### ` row, add one. The canonical
+    preamble text is in openspec-templates/backlog.template.md under `## Ideas`.
+  - >-
+    For each standalone `idea` or `proposed` row in your backlog that is missing
+    a `**Why:**` line, add one. For each such row missing a `**Shape:**` line,
+    add one with a short sketch of the likely solution. Bundled and merged rows
+    are exempt and need no body-field changes.
+  - >-
+    If your repo has no openspec/backlog.md at all, run `/qrspi:init` to seed one
+    from the canonical template (openspec-templates/backlog.template.md). Do not
+    create the file by hand -- the template satisfies all Check 22 assertions out
+    of the box.

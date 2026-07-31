@@ -522,12 +522,23 @@ Ask the human whether to keep going:
 
 ### Backlog atomicity
 
-A backlog row is a single heading with a backticked status --
-`### <id> -- \`<status> (<note>)\`` -- grouped under a `##` section per
-status (`## Proposed`, `## In progress`, `## Ideas`, ...). There is no
-separate `Status:` or `Next QRSPI command:` body line: the status word,
-its free-text parenthetical note, and the row's section grouping all live
-in that one heading, and any edit to them is an edit to that heading.
+A backlog row is a single heading with a backticked status, grouped under
+a `##` section per status (`## Proposed`, `## In progress`, `## Ideas`,
+...). The frozen heading grammar is:
+
+```
+### <id> — `<status>` · **P<n>**
+```
+
+where `—` is an em-dash (U+2014), `·` is a middle-dot (U+00B7), and
+`**P<n>**` is the bold priority band. See
+`openspec-templates/backlog.template.md` for the authoritative shape
+(legend comment, status enum, body rules, and sample rows).
+
+There is no separate `Status:` or `Next QRSPI command:` body line: the
+status word, its free-text parenthetical note, and the row's section
+grouping all live in that one heading, and any edit to them is an edit to
+that heading.
 
 When a stage's state change has a matching `openspec/backlog.md` edit (a
 status transition and/or section-grouping move, or a new `idea` row

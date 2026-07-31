@@ -2,7 +2,7 @@
 // ============================================================================
 //  scripts/lint.mjs -- CI quality gate for the QRSPI kit
 // ----------------------------------------------------------------------------
-//  Checks (run in order, all errors collected before exit -- Checks 1-21):
+//  Checks (run in order, all errors collected before exit -- Checks 1-22):
 //
 //  1. PIN AGREEMENT  -- every hand-maintained OpenSpec version occurrence
 //     must agree. generatedBy: lines in openspec-generated skill files are
@@ -715,15 +715,121 @@ const TEMPLATE_CANONICAL_HEADINGS = {
       '## REMOVED Requirements',
     ],
   },
+  // backlog.template.md: maps to claude/commands/init.md (a COMMAND, not an agent).
+  // /qrspi:init is the file that seeds openspec/backlog.md from an INLINE copy of
+  // the template embedded between <!-- backlog-template:begin --> and
+  // <!-- backlog-template:end --> sentinels in its body. Check 3 extracts that
+  // fenced block and compares it byte-for-byte to openspec-templates/backlog.template.md.
+  // This replaces the earlier headings:[] skip -- the drift guard is the strongest
+  // feasible check (full-content equality of the extracted block vs. the template
+  // file). Dogfood finding (slice 3): reading the template at runtime from a relative
+  // path is non-portable (the consumer repo's CWD is not the plugin dir), so the
+  // template content is embedded inline instead.
+  'backlog.template.md': {
+    agent: '(none -- no stage agent renders a backlog; drift guard targets claude/commands/init.md)',
+    headings: [],        // headings[] is unused for this entry; drift guard below handles it
+    driftGuard: {
+      commandFile: 'init.md',
+      beginSentinel: '<!-- backlog-template:begin -->',
+      endSentinel:   '<!-- backlog-template:end -->',
+    },
+  },
 };
+
+// Extract the content of the fenced block (``` ... ```) between two sentinel
+// comment lines in a source file. Returns the inner text of the first fenced block
+// found between beginSentinel and endSentinel (exclusive of the fence lines
+// themselves), or null if either sentinel or the fenced block is absent.
+// The extraction trims a single leading newline after the opening fence marker
+// to match standard fenced-block formatting (the blank line before the first
+// content line is not part of the content).
+function extractSentinelBlock(text, beginSentinel, endSentinel) {
+  const begin = text.indexOf(beginSentinel);
+  if (begin === -1) return null;
+  const end = text.indexOf(endSentinel, begin);
+  if (end === -1) return null;
+
+  const between = text.slice(begin + beginSentinel.length, end);
+
+  // Find the opening fence (``` possibly followed by a language tag)
+  const fenceOpenRe = /^[ \t]*```[^\n]*\n/m;
+  const fenceOpenM = fenceOpenRe.exec(between);
+  if (!fenceOpenM) return null;
+
+  const afterOpen = between.slice(fenceOpenM.index + fenceOpenM[0].length);
+
+  // Find the closing fence (a line that is just ```)
+  const fenceCloseRe = /^[ \t]*```[ \t]*$/m;
+  const fenceCloseM = fenceCloseRe.exec(afterOpen);
+  if (!fenceCloseM) return null;
+
+  return afterOpen.slice(0, fenceCloseM.index);
+}
 
 async function checkHeadingAlignment(errors) {
   const agentsDir = path.join(root, 'claude', 'agents');
+  const commandsDir = path.join(root, 'claude', 'commands');
   let violations = 0;
 
-  for (const [templateFile, { agent: agentStem, headings: canonicalHeadings }] of Object.entries(TEMPLATE_CANONICAL_HEADINGS)) {
+  for (const [templateFile, entry] of Object.entries(TEMPLATE_CANONICAL_HEADINGS)) {
+    const { agent: agentStem, headings: canonicalHeadings, driftGuard } = entry;
+
+    // ---- Drift-guard branch (e.g. backlog.template.md -> init.md) --------------
+    // When a template entry declares a driftGuard, perform a full-content
+    // equality check between the extracted fenced block in a COMMAND file and
+    // the template source, instead of a heading-presence check in an agent file.
+    if (driftGuard) {
+      const { commandFile, beginSentinel, endSentinel } = driftGuard;
+      const commandPath = path.join(commandsDir, commandFile);
+      const commandRel = `claude/commands/${commandFile}`;
+      const commandText = await readFileOr(commandPath, null);
+      if (commandText === null) {
+        errors.push(`[heading] drift-guard: Cannot read ${commandRel} -- file not found`);
+        violations++;
+        continue;
+      }
+
+      const extracted = extractSentinelBlock(commandText, beginSentinel, endSentinel);
+      if (extracted === null) {
+        errors.push(
+          `[heading] drift-guard: ${commandRel} is missing the sentinel block` +
+          ` "${beginSentinel}" ... "${endSentinel}" (or the fenced block between them)`
+        );
+        violations++;
+        continue;
+      }
+
+      const templatePath = path.join(root, 'openspec-templates', templateFile);
+      const templateText = await readFileOr(templatePath, null);
+      if (templateText === null) {
+        errors.push(`[heading] drift-guard: Cannot read openspec-templates/${templateFile} -- file not found`);
+        violations++;
+        continue;
+      }
+
+      // Normalize line endings for the comparison (CRLF -> LF on both sides).
+      const extractedNorm = extracted.replace(/\r\n/g, '\n');
+      const templateNorm = templateText.replace(/\r\n/g, '\n');
+
+      if (extractedNorm !== templateNorm) {
+        errors.push(
+          `[heading] drift-guard: inline copy of ${templateFile} in ${commandRel}` +
+          ` has drifted from openspec-templates/${templateFile}` +
+          ` -- update the sentinel block between "${beginSentinel}" and "${endSentinel}"` +
+          ` to match the template file exactly`
+        );
+        violations++;
+      } else {
+        process.stdout.write(
+          `  OK: ${templateFile} -> ${commandRel} (drift-guard: inline copy matches template)\n`
+        );
+      }
+      continue;
+    }
+
+    // ---- Standard heading-presence branch (agent files) ----------------------
     if (canonicalHeadings.length === 0) {
-      // Nothing to check for this template (dynamic format)
+      // Nothing to check for this template (dynamic format, no drift guard)
       process.stdout.write(`  SKIP: ${templateFile} -> ${agentStem} (no fixed canonical headings)\n`);
       continue;
     }
@@ -3326,6 +3432,260 @@ async function checkFormatRulesParity(errors) {
   return violations;
 }
 
+// ---- Check 22: BACKLOG SCHEMA GUARD ----------------------------------------
+//
+// Validates openspec/backlog.md against the frozen backlog schema (the
+// backlog-schema capability introduced by standardize-backlog-format). Six
+// assertions, all hard-fail (push to errors[]):
+//   (1) the three `## ` section headings are all present;
+//   (2) the `## Ideas` section carries a P-band preamble line mentioning
+//       P1, P2, and P3 before its first `### ` row;
+//   (3) every `### ` heading matches the frozen grammar regex;
+//   (4) each heading's status leading keyword is in the approved enum;
+//   (5) standalone (idea/proposed) rows carry BOTH `**Why:**` and `**Shape:**`
+//       in their body; bundled/merged rows are exempt; in-progress rows are
+//       grammar+enum only (classification is by status KEYWORD, not by the
+//       presence of a pointer note);
+//   (6) openspec-templates/backlog.template.md exists (existence-only).
+//
+// Passes SILENTLY when openspec/backlog.md is absent (a consumer or the kit
+// may legitimately have no backlog yet).
+//
+// The frozen heading grammar uses two non-ASCII code points, authored here
+// with explicit Unicode escapes so the check is robust to editor
+// normalization: — (em-dash) and · (middle-dot).
+//
+// Carries an inline four-fixture self-test run BEFORE any file I/O:
+//   (a) well-formed standalone idea row w/ Why+Shape -> passes
+//   (b) malformed heading (double-hyphen / missing band) -> grammar fires
+//   (c) standalone idea row missing **Shape:** -> body-field fires
+//   (d) bundled row with only a `>` pointer note -> does NOT fire (exempt)
+
+async function checkBacklogSchema(errors) {
+  // Frozen heading grammar (D3). Em-dash = —, middle-dot = ·.
+  // ^### <id> — `<status>` · **P<band>**$
+  const HEADING_RE =
+    /^### (?<id>[a-z0-9]+(?:-[a-z0-9]+)*) — `(?<status>[^`]+)` · \*\*P(?<band>[123])\*\*$/;
+  const STATUS_ENUM = new Set(['idea', 'proposed', 'in-progress', 'merged', 'bundled']);
+
+  // Parse a backlog body string into rows. Each row = { id, status, keyword,
+  // band, bodyLines, headingLine, valid }. `valid` is false when the heading
+  // does not match the frozen grammar.
+  function parseRows(text) {
+    const lines = text.replace(/\r\n/g, '\n').split('\n');
+    const rows = [];
+    let cur = null;
+    for (const line of lines) {
+      if (line.startsWith('### ')) {
+        if (cur) rows.push(cur);
+        const m = HEADING_RE.exec(line);
+        if (m) {
+          const status = m.groups.status;
+          const keyword = status.split(' ')[0];
+          cur = {
+            id: m.groups.id,
+            status,
+            keyword,
+            band: m.groups.band,
+            headingLine: line,
+            bodyLines: [],
+            valid: true,
+          };
+        } else {
+          // capture the id best-effort for the error message
+          const idGuess = (line.slice(4).split(' ')[0]) || '(unparseable)';
+          cur = {
+            id: idGuess,
+            status: null,
+            keyword: null,
+            band: null,
+            headingLine: line,
+            bodyLines: [],
+            valid: false,
+          };
+        }
+      } else if (cur) {
+        cur.bodyLines.push(line);
+      }
+    }
+    if (cur) rows.push(cur);
+    return rows;
+  }
+
+  // Grammar detector: returns the list of headingLines that fail the frozen
+  // grammar. A malformed heading (wrong separator, missing band) shows up as a
+  // row with valid === false.
+  function grammarViolations(rows) {
+    return rows.filter((r) => !r.valid);
+  }
+
+  // Body-field detector for a single standalone (idea/proposed) row: returns
+  // the list of missing field names ('**Why:**' / '**Shape:**').
+  function missingBodyFields(row) {
+    const body = row.bodyLines.join('\n');
+    const missing = [];
+    // A `**Why:**` line -- also accept a parenthetical qualifier the kit's own
+    // rows use, e.g. `**Why (two payoffs -- ...):**`. The bold span must open
+    // with `Why` and close with `:**` on the same line.
+    if (!/^\*\*Why[^\n]*:\*\*/m.test(body)) missing.push('**Why:**');
+    if (!/^\*\*Shape:\*\*/m.test(body)) missing.push('**Shape:**');
+    return missing;
+  }
+
+  // Classify by status KEYWORD (D6), NOT by presence of a pointer note.
+  function isStandalone(row) {
+    return row.keyword === 'idea' || row.keyword === 'proposed';
+  }
+
+  // ---- INLINE SELF-TEST -------------------------------------------------------
+  // Four synthetic fixtures exercising the grammar + body-field detectors and
+  // the exempt-class classification. Run before file I/O so a broken detector
+  // reddens CI immediately. On any failure, push an error and return early.
+
+  let selfTestFailed = false;
+
+  // Fixture (a): well-formed standalone idea row w/ Why+Shape -> passes.
+  const _stA =
+    '### foo-bar — `idea` · **P2**\n\n' +
+    '**Why:** because reasons.\n\n' +
+    '**Shape:** do the thing.\n';
+  const _stARows = parseRows(_stA);
+  if (
+    grammarViolations(_stARows).length !== 0 ||
+    _stARows.length !== 1 ||
+    !isStandalone(_stARows[0]) ||
+    missingBodyFields(_stARows[0]).length !== 0
+  ) {
+    errors.push('[backlog-schema] SELF-TEST FAILED: fixture (a) -- well-formed standalone idea row was not accepted');
+    selfTestFailed = true;
+  }
+
+  // Fixture (b): malformed heading (double-hyphen, missing band) -> grammar fires.
+  const _stB = '### foo-bar -- `idea`\n\n**Why:** x.\n\n**Shape:** y.\n';
+  const _stBRows = parseRows(_stB);
+  if (grammarViolations(_stBRows).length === 0) {
+    errors.push('[backlog-schema] SELF-TEST FAILED: fixture (b) -- malformed heading was not detected by the grammar checker');
+    selfTestFailed = true;
+  }
+
+  // Fixture (c): standalone idea row missing **Shape:** -> body-field fires.
+  const _stC = '### foo-bar — `idea` · **P2**\n\n**Why:** x only.\n';
+  const _stCRows = parseRows(_stC);
+  if (
+    _stCRows.length !== 1 ||
+    grammarViolations(_stCRows).length !== 0 ||
+    !isStandalone(_stCRows[0]) ||
+    !missingBodyFields(_stCRows[0]).includes('**Shape:**')
+  ) {
+    errors.push('[backlog-schema] SELF-TEST FAILED: fixture (c) -- missing Shape on a standalone idea row was not detected');
+    selfTestFailed = true;
+  }
+
+  // Fixture (d): bundled row with only a `>` pointer note -> does NOT fire (exempt).
+  const _stD =
+    '### foo-bar — `bundled into some-change (2026-01-15)` · **P2**\n\n' +
+    '> **Bundled into `some-change`** (2026-01-15) -- see the Proposed entry.\n';
+  const _stDRows = parseRows(_stD);
+  if (
+    _stDRows.length !== 1 ||
+    grammarViolations(_stDRows).length !== 0 ||
+    _stDRows[0].keyword !== 'bundled' ||
+    isStandalone(_stDRows[0])
+  ) {
+    errors.push('[backlog-schema] SELF-TEST FAILED: fixture (d) -- exempt bundled row was misclassified (false positive on the exempt class)');
+    selfTestFailed = true;
+  }
+  // ---- end self-test ----------------------------------------------------------
+
+  if (selfTestFailed) {
+    return 1;
+  }
+
+  const backlogPath = path.join(root, 'openspec', 'backlog.md');
+  const backlogRel = 'openspec/backlog.md';
+  const backlogText = await readFileOr(backlogPath, null);
+
+  // Assertion 6 is checked regardless of backlog presence? No -- per D2 the
+  // whole check passes silently when the backlog file is absent. The template
+  // existence assertion runs only when the backlog file is present.
+  if (backlogText === null) {
+    process.stdout.write(`  OK: ${backlogRel} absent -- Check 22 skipped\n`);
+    return 0;
+  }
+
+  let violations = 0;
+  const text = backlogText.replace(/\r\n/g, '\n');
+  const lines = text.split('\n');
+
+  // Assertion 1: three section headings present.
+  const REQUIRED_SECTIONS = ['## In progress', '## Proposed', '## Ideas'];
+  for (const section of REQUIRED_SECTIONS) {
+    if (!lines.some((l) => l.trim() === section)) {
+      errors.push(`[backlog-schema] ${backlogRel}: missing required section heading "${section}"`);
+      violations++;
+    }
+  }
+
+  // Assertion 2: P-band preamble under ## Ideas -- at least one line between the
+  // ## Ideas heading and its first ### row mentions all of P1, P2, P3.
+  const ideasIdx = lines.findIndex((l) => l.trim() === '## Ideas');
+  if (ideasIdx !== -1) {
+    let preambleOk = false;
+    for (let i = ideasIdx + 1; i < lines.length; i++) {
+      const l = lines[i];
+      if (l.startsWith('### ') || /^## (?!Ideas)/.test(l.trim())) break;
+      if (l.includes('P1') && l.includes('P2') && l.includes('P3')) {
+        preambleOk = true;
+        break;
+      }
+    }
+    if (!preambleOk) {
+      errors.push(`[backlog-schema] ${backlogRel}: ## Ideas section is missing a P-band preamble line mentioning P1, P2, and P3 before its first ### row`);
+      violations++;
+    }
+  }
+
+  // Assertions 3, 4, 5: per-row grammar, enum, and body fields.
+  const rows = parseRows(text);
+  for (const row of rows) {
+    // Assertion 3: grammar.
+    if (!row.valid) {
+      errors.push(`[backlog-schema] ${backlogRel}: heading does not match the frozen grammar: ${row.headingLine}`);
+      violations++;
+      continue; // no status parsed -- skip enum/body for this row
+    }
+    // Assertion 4: status keyword enum.
+    if (!STATUS_ENUM.has(row.keyword)) {
+      errors.push(`[backlog-schema] ${backlogRel}: row "${row.id}" has status keyword "${row.keyword}" not in {idea, proposed, in-progress, merged, bundled}`);
+      violations++;
+      continue;
+    }
+    // Assertion 5: body fields on standalone rows only.
+    if (isStandalone(row)) {
+      const missing = missingBodyFields(row);
+      if (missing.length > 0) {
+        errors.push(`[backlog-schema] ${backlogRel}: standalone ${row.keyword} row "${row.id}" is missing ${missing.join(' and ')} in its body`);
+        violations++;
+      }
+    }
+  }
+
+  // Assertion 6: backlog template file exists (existence-only, no content scan).
+  const templatePath = path.join(root, 'openspec-templates', 'backlog.template.md');
+  const templateExists = (await readFileOr(templatePath, null)) !== null;
+  if (!templateExists) {
+    errors.push('[backlog-schema] openspec-templates/backlog.template.md does not exist (required by assertion 6)');
+    violations++;
+  }
+
+  if (violations === 0) {
+    process.stdout.write(
+      `  OK: ${backlogRel} satisfies all six backlog-schema assertions (${rows.length} row(s) validated)\n`
+    );
+  }
+  return violations;
+}
+
 // ---- main ------------------------------------------------------------------
 
 async function main() {
@@ -3366,7 +3726,7 @@ async function main() {
   process.stdout.write('\nCheck 10 (budget-gate-embed): Budget-gate embed\n');
   await checkBudgetGateEmbed(errors);
 
-  process.stdout.write('\nCheck 10: Triage path anchors\n');
+  process.stdout.write('\nCheck 10b: Triage path anchors\n');
   await checkTriagePaths(errors);
 
   process.stdout.write('\nCheck 11: No CRUD skeleton headings in fenced blocks\n');
@@ -3401,6 +3761,9 @@ async function main() {
 
   process.stdout.write('\nCheck 21: Format-rules parity (MUST-leads)\n');
   await checkFormatRulesParity(errors);
+
+  process.stdout.write('\nCheck 22: checkBacklogSchema (backlog schema guard)\n');
+  await checkBacklogSchema(errors);
 
   process.stdout.write('\n');
   if (errors.length === 0) {
