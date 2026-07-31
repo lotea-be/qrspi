@@ -7,17 +7,17 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## In progress
 
-_None._
+### backlog-schema-finish — `in-progress (Q, R, D, S, V, P, I complete)` · **P3**
+
+**Why:** Finish the backlog-as-schema story that `standardize-backlog-format` started: add an idempotency guard to the migration `edit-file` dispatcher so `insert_after` steps are safe to replay (bundling [[migration-edit-file-idempotency-guard]]), extend the backlog lint to resolve `[[wikilink]]` cross-references so dangling slugs fail CI (bundling [[backlog-wikilink-resolution-lint]]), and add a `/qrspi:idea` command that provisions canonical, schema-conformant backlog rows on demand (bundling [[idea-capture-command]]). Non-Goal: the per-file `backlog/<id>.md` model is explicitly deferred to post-1.0 — this change does not reopen the frozen schema.
+
+**Shape:** Three independent slices: (1) add an optional `skip_if_contains` (or equivalent) field to the migration `edit-file` step schema + dispatcher, plus an anchor-fallback mechanism, and backfill onto `migrations/0.13.0.yaml`; (2) add a wikilink-resolution check (Check 23 or an extension of Check 22) to `scripts/lint.mjs` that asserts every `[[slug]]` resolves to a live backlog row or an archived change folder; (3) ship `claude/commands/idea.md` (a main-loop command) that deduplicates against existing rows, proposes a band and placement, confirms via AskUserQuestion, and stages the canonical schema-conformant row append. All three touch `scripts/lint.mjs`, the `qrspi-update` skill, and/or the README per Check 4.
 
 ---
 
 ## Proposed
 
-### backlog-schema-finish — `proposed (change folder created 2026-07-31)` · **P3**
-
-**Why:** Finish the backlog-as-schema story that `standardize-backlog-format` started: add an idempotency guard to the migration `edit-file` dispatcher so `insert_after` steps are safe to replay (bundling [[migration-edit-file-idempotency-guard]]), extend the backlog lint to resolve `[[wikilink]]` cross-references so dangling slugs fail CI (bundling [[backlog-wikilink-resolution-lint]]), and add a `/qrspi:idea` command that provisions canonical, schema-conformant backlog rows on demand (bundling [[idea-capture-command]]). Non-Goal: the per-file `backlog/<id>.md` model is explicitly deferred to post-1.0 — this change does not reopen the frozen schema.
-
-**Shape:** Three independent slices: (1) add an optional `skip_if_contains` (or equivalent) field to the migration `edit-file` step schema + dispatcher, plus an anchor-fallback mechanism, and backfill onto `migrations/0.13.0.yaml`; (2) add a wikilink-resolution check (Check 23 or an extension of Check 22) to `scripts/lint.mjs` that asserts every `[[slug]]` resolves to a live backlog row or an archived change folder; (3) ship `claude/commands/idea.md` (a main-loop command) that deduplicates against existing rows, proposes a band and placement, confirms via AskUserQuestion, and stages the canonical schema-conformant row append. All three touch `scripts/lint.mjs`, the `qrspi-update` skill, and/or the README per Check 4.
+_None._
 
 ---
 

@@ -53,6 +53,18 @@ kit version.
   the command skill-set registry. No version-check or budget-gate embed added to
   `/qrspi:idea` per design (it is a non-stage, non-chaining helper).
 
+- **Command-level append sites migrated to backlog-writer (`backlog-schema-finish`, Slice 5).**
+  Removes the inline frozen-grammar construction block from the three orchestrator-level
+  append sites -- `claude/commands/design.md` step 4 ("Capture deferred work"),
+  `claude/commands/structure.md` capture step, and `claude/commands/pr.md` "Promote to
+  backlog idea" path -- replacing each with a delegation to `Load skill backlog-writer` and
+  its append procedure. The surrounding offer/dedup/skip prose (design.md, structure.md) and
+  the `followups.md` tick + commit orchestration (pr.md) are preserved unchanged.
+  `claude/commands/slices.md`'s referential grammar copy is trimmed to a one-line pointer to
+  `openspec-templates/backlog.template.md` and Check 22 (stage V does not append, so no
+  delegation call is added). `backlog-writer` is now the single non-template location where
+  the row grammar is expressed.
+
 - **OpenSpec version-pin coupling guard (`reassess-openspec-dependency`).**
   Records the formal verdict to **keep** the `@fission-ai/openspec` CLI
   dependency for 1.0 (its residual value — spec-delta grammar validation —

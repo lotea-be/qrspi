@@ -52,19 +52,11 @@ its heading here.
 **Capture deferred work (before the commit):** Read `proposal.md`'s
 "Out of scope" section (and any out-of-scope items the design's Non-Goals
 carried forward). For each candidate *separable future change*, offer it
-to the human one at a time (AskUserQuestion: *Add as idea / Skip*) and add
-each accepted one as an `idea` row in `openspec/backlog.md` using the
-frozen heading grammar (em-dash U+2014, middle-dot U+00B7):
-
-```markdown
-### <slug> — `idea` · **P<n>**
-
-**Why:** A one-line statement of the problem this idea would solve and why it is
-worth doing. Delete this sample row once you have real backlog items.
-
-**Shape:** A short sketch of the likely solution — the mechanism, the surfaces it
-touches, and the cheapest-first cut. This is design intent, not a full plan.
-```
+to the human one at a time (AskUserQuestion: *Add as idea / Skip*). For
+each accepted one, load skill `backlog-writer` and follow its append
+procedure to add the row to `openspec/backlog.md`. The `backlog-writer`
+procedure handles dedup, slug derivation, P-band proposal, Shape
+collection, row construction using the frozen grammar, and staging.
 
 Follow the "Capturing deferred work" rules in skill `workflow`
 (offer-never-auto-append, dedup against existing rows, minimal row); do
