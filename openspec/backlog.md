@@ -727,6 +727,38 @@ is front-loading Q+R+D to beat the plan-reading illusion, so the gate MUST
 preserve "any data-model / API / auth / contract surface ⇒ full flow" and only
 trim genuinely low-surface changes. Surfaced 2026-07-25.
 
+### deferred-work-capture-fold-in-option — `idea` · **P3**
+
+**Why:** The Q/D/S "capture deferred work" flow (skill `workflow`, "Capturing deferred
+work") offers each surfaced Non-Goal exactly two dispositions — *Add as idea* or *Skip* —
+but a third is often the right call: **fold it into the current change**. Observed
+2026-07-31 on `backlog-schema-finish`, where a Non-Goal (extract the shared backlog-writer)
+was best pulled into the change as a new slice rather than deferred; the flow had no
+sanctioned "fold in" path, so it was handled ad hoc. A Non-Goal proposed-as-idea or skipped
+should also be foldable into the in-flight change (adding a slice) when it is cheap and
+thematically on-point.
+
+**Shape:** Extend the "Capturing deferred work" offer in skill `workflow` (and the Q/D/S
+command bodies) with a third disposition — *Fold in (add a slice to this change)* — beside
+*Add as idea* and *Skip*, with guidance on when folding in is appropriate (cheap, in-theme,
+no design re-alignment) vs. deferring. Relates to [[recycle-change-fold-new-requirements]]
+(re-entry folding) and [[flow-entry-right-sizing]] (scope sizing).
+
+### command-runtime-test-harness — `idea` · **P3**
+
+**Why:** Slash-command behaviour (a command body's interview / dedup / `AskUserQuestion`
+gate / staging flow — e.g. `/qrspi:idea`) has no mechanical test surface: `scripts/lint.mjs`
+is pure *static* Node, so today only Check 4's doc-coverage asserts a command exists, and
+runtime correctness rests entirely on `(human)` dogfood checkpoints. As the kit grows more
+main-loop commands, "the command still drives the right gates" is unverified between dogfood
+sessions. Surfaced 2026-07-31 during `backlog-schema-finish` design review (D9 / Risks:
+`/qrspi:idea` has no runtime lint).
+
+**Shape:** A harness that can drive a command body in a simulated session and assert its
+runtime flow (which `AskUserQuestion`s fire, what gets staged) beyond doc-coverage — likely
+a mock / record-replay session driver distinct from the static lint. Larger, likely post-1.0;
+needs its own Q/R/D. Partially automates the `(human)` dogfood checkpoint primitive.
+
 ### recycle-change-fold-new-requirements — `idea` · **P2**
 
 **Why:** When a completed QRSPI run doesn't satisfy — usually because the
