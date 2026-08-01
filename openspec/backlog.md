@@ -722,6 +722,20 @@ make it self-maintaining: at each material backlog change (archive, add, modify)
 — hanging off the archive flow ([[archive-requires-merged-pr]] already edits the
 backlog on archive) as the natural trigger point.
 
+**Bundle (proposed — one QRSPI run, 2026-08-01):** take up together with
+[[propose-bundling-ideas]] (P3) under this entry as anchor. Both hang off the
+**same on-material-backlog-change proposal pass**: an add/modify/archive triggers
+one pass that — when warranted — offers a re-rank (this) and/or a bundle-cluster
+proposal ([[propose-bundling-ideas]]), so the trigger + offer-shape (propose,
+never automatic) is built **once**, not twice. That shared write-time trigger is
+the coupling — a mechanistic one, not merely thematic — though the bundling idea
+also keeps its own pickup-time ("what next?") trigger. Leave
+[[flow-entry-right-sizing]] out: it fires at flow *entry* on a scope, not on the
+backlog file, so it shares no mechanism (avoids over-bundling — the named third
+axis stays standalone). **Open question for D:** the conditional-firing rule —
+when does a write shift ordering / form a cluster *enough* to fire — and whether
+the write-time and pickup-time scans are one convention or two.
+
 ### flow-entry-right-sizing — `idea` · **P2**
 
 **Why:** Nothing formally assesses, when a backlog idea is picked up, whether it
@@ -908,21 +922,32 @@ often share a theme, a mechanism, or a sequencing dependency and are cheaper to
 design and ship as **one QRSPI flow** (the eight-stage ceremony amortizes across
 the bundle, and co-designing coupled items avoids building a fragile mechanism
 twice). Today nothing prompts the agent to *look for* those bundles; it happens
-ad hoc. Add a convention: at run-start / "what next?" time, scan the backlog for
-bundle-worthy clusters (shared mechanism, complementary levers, explicit
-"must be co-designed" cross-references) and **propose** a bundle to the user —
-offer, never auto-bundle; the human picks the scope. Pairs with
+ad hoc. Add a convention that fires at **two moments**: (1) at run-start /
+"what next?" time (deciding how much scope to take on), and (2) **on a material
+backlog write** — an add or modify is exactly when a new cluster *forms*, so the
+scan belongs there too, sharing [[backlog-prioritization]]'s write-time trigger.
+At either point, scan the backlog for bundle-worthy clusters (shared mechanism,
+complementary levers, explicit "must be co-designed" cross-references) and
+**propose** a bundle to the user — offer, never auto-bundle; the human picks the
+scope. Fire the write-time scan **only when the write forms/strengthens a
+cluster** so a trivial add doesn't nag. Pairs with
 [[backlog-prioritization]] — that item ranks *what's next*; this one decides
 *how much* to take at once — and is itself dogfooded by the `context-budget`
 change (which bundled the input + output token levers into one flow). Kept
 adjacent to [[backlog-prioritization]] despite the band gap, per the
 "keep families contiguous" convention above. Surfaced 2026-07-24.
 
-**Shape:** At run-start / "what next?" time, add a convention that scans the
-backlog for bundle-worthy clusters (shared mechanism, complementary levers, or
-explicit "must be co-designed" cross-references) and **proposes** a bundle to the
-user — offer, never auto-bundle; the human picks the scope. Pairs with
-[[backlog-prioritization]] (that ranks *what*; this decides *how much* at once).
+**Shape:** Add a convention that scans the backlog for bundle-worthy clusters
+(shared mechanism, complementary levers, or explicit "must be co-designed"
+cross-references) and **proposes** a bundle to the user at **two trigger
+points** — run-start / "what next?" time *and* on a material backlog write
+(add/modify), the moment a cluster forms — offer, never auto-bundle; the human
+picks the scope. Make the write-time scan **conditional** (fire only when the
+write forms/strengthens a cluster) so a trivial add doesn't nag. Pairs with
+[[backlog-prioritization]] (that ranks *what*; this decides *how much* at once),
+sharing the material-write trigger. **Bundle:** proposed to ride with
+[[backlog-prioritization]] (P2, anchor) in one QRSPI run — see that entry's
+Bundle note.
 
 ### enforce-research-ticket-hiding — `idea` · **P2**
 
