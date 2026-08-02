@@ -37,10 +37,14 @@ Present the derived slug and the intent summary to the human using
 
 Accept the human's choice or substitution. Adjust until the slug is approved.
 
-If no seed argument was provided, first ask:
+If no seed argument was provided, first ask the human in **plain prose** for the
+idea intent and read their reply from the next message -- do NOT use
+`AskUserQuestion` for this. The intent is free text, not a choice among options,
+and `AskUserQuestion` requires 2-4 concrete options; a single "type here"
+placeholder option fails with an `Invalid tool parameters` error. Ask, in prose:
 
-- question: `What is the idea? (a short phrase or sentence describing the problem to solve):`
-- choices: `["<type the idea here>"]`
+> What is the idea? Give a short phrase or sentence describing the problem to
+> solve (e.g. "add usage telemetry dashboard").
 
 Use the response as the seed for slug derivation.
 
@@ -70,12 +74,13 @@ Follow the `backlog-writer` skill's **Step 4 -- Collect the one-sentence Shape**
 The **Why:** is derived from the idea intent established in Step 1. Confirm it
 with the human or let them refine it before collecting the Shape.
 
-Ask for the `**Why:**` line if not already established:
+Ask for the `**Why:**` line if not already established. Prompt in **plain prose**
+and read the reply -- do NOT use `AskUserQuestion` (the Why is free text, not a
+choice; a single placeholder option fails with an `Invalid tool parameters`
+error). Ask, in prose:
 
-Use **AskUserQuestion**:
-
-- question: `One-line **Why:** for "<slug>" (the problem this idea solves and why it is worth doing):`
-- choices: `["<type the one-line Why here>"]`
+> One-line **Why:** for "<slug>" -- the problem this idea solves and why it is
+> worth doing.
 
 Then follow the skill's Step 4 for the **Shape:** sentence.
 

@@ -61,13 +61,14 @@ Record the chosen band as `P1`, `P2`, or `P3`.
 
 ### Step 4 -- Collect the one-sentence Shape
 
-Use **AskUserQuestion** with:
+Prompt the human in **plain prose** for the one-sentence Shape and read their
+reply from the next message. Do NOT use `AskUserQuestion` for this: the Shape is
+free text, not a choice among options, and `AskUserQuestion` requires 2-4
+concrete options -- a single "type here" placeholder option fails with an
+`Invalid tool parameters` error. Ask, in prose:
 
-- question: `One-sentence **Shape:** for "<slug>" (the mechanism, surfaces it touches, cheapest-first cut -- no TBD placeholders):`
-- choices: (free-text -- use the free-text form, do not enumerate choices)
-
-If the AskUserQuestion tool requires a choices array, provide a single entry
-`["<type your one-sentence shape here>"]` and accept whatever the human types.
+> One-sentence **Shape:** for "<slug>" -- the mechanism, the surfaces it touches,
+> and the cheapest-first cut. No `TBD` placeholders.
 
 Do NOT accept a `TBD` answer. If the human provides `TBD` or equivalent, re-ask
 and explain that a valid Check-22 row requires a concrete `**Shape:**` sentence.

@@ -12,7 +12,7 @@
 - [x] 1.4 Add a positive-path inline self-test fixture (synthetic step carrying both fields) to Check 6 in `scripts/lint.mjs` (D1, D3)
 - [x] 1.5 Unit/integration test: `node scripts/lint.mjs` — Check 6 passes on valid `skip_if_contains` + `anchor_missing: warn-and-skip` values, and fails on an invalid `anchor_missing` value
 - [x] 1.6 Checkpoint (automated): `node scripts/lint.mjs` exits 0 and Check 6 line reads `OK`
-- [ ] 1.7 (human) Launch `claude --plugin-dir /workspaces/git/qrspi` in a throwaway consumer fixture that already contains the legend block; run `/qrspi:update`; confirm the dispatcher emits "skipped (already present)" and does not duplicate the legend. Repeat with the anchor renamed; confirm a one-line warning is emitted and the walk continues to completion with the version marker bumped. (D1, D2)
+- [x] 1.7 (human) Launch `claude --plugin-dir /workspaces/git/qrspi` in a throwaway consumer fixture that already contains the legend block; run `/qrspi:update`; confirm the dispatcher emits "skipped (already present)" and does not duplicate the legend. Repeat with the anchor renamed; confirm a one-line warning is emitted and the walk continues to completion with the version marker bumped. (D1, D2)
 
 ## 2. Dangling wikilinks fail CI (Check 23)
 
@@ -35,7 +35,7 @@
 - [x] 3.4 Add `/qrspi:idea` to the README helpers listing (D9)
 - [x] 3.5 Unit/integration test: `node scripts/lint.mjs` — Check 2 resolves `backlog-writer` for the `idea` command; Check 4 passes for `idea.md` ↔ README; Check 9 does not flag `idea.md` for missing version-check embed; budget-gate embed check does not flag `idea.md` (D7, D9, D11)
 - [x] 3.6 Checkpoint (automated): `node scripts/lint.mjs` exits 0; Check 2, 4, 9, and budget-gate check all report `OK`
-- [ ] 3.7 (human) Launch `claude --plugin-dir /workspaces/git/qrspi` in a throwaway consumer fixture with a populated `openspec/backlog.md`; run `/qrspi:idea "add usage telemetry dashboard"`; confirm the command reads the backlog and surfaces near-matches (if any), offers proceed/abort, proposes a P-band via `AskUserQuestion`, prompts for a one-sentence shape, and stages a row; run `node scripts/lint.mjs` inside the fixture and confirm Check 22 reports no violation for the new row. Also run `/qrspi:idea` with no argument and confirm the intent prompt appears. (D7, D8, D9, D11)
+- [x] 3.7 (human) Launch `claude --plugin-dir /workspaces/git/qrspi` in a throwaway consumer fixture with a populated `openspec/backlog.md`; run `/qrspi:idea "add usage telemetry dashboard"`; confirm the command reads the backlog and surfaces near-matches (if any), offers proceed/abort, proposes a P-band via `AskUserQuestion`, prompts for a one-sentence shape, and stages a row; run `node scripts/lint.mjs` inside the fixture and confirm Check 22 reports no violation for the new row. Also run `/qrspi:idea` with no argument and confirm the intent prompt appears. (D7, D8, D9, D11)
 
 ## 4. Every append site on the shared writer (depends on Slice 3)
 
