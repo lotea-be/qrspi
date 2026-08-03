@@ -64,6 +64,21 @@ Otherwise:
 7. Only AFTER all product questions are answered (or explicitly deferred
    by the user), print the final message.
 
+8. **Capture deferred work:** Read the candidate separable future changes
+   that the questioner agent identified and included in its returned
+   summary (see step 5 above — the agent surfaces these in its Final
+   message format). For each candidate, offer it to the human one at a
+   time (AskUserQuestion: *Add as idea / Skip*). For each accepted one,
+   load skill `backlog-writer` and follow its append procedure to add the
+   row to `openspec/backlog.md`. The `backlog-writer` procedure handles
+   dedup, slug derivation, P-band proposal, Shape collection, row
+   construction using the frozen grammar, and staging.
+
+   Follow the "Capturing deferred work" rules in skill `workflow`
+   (offer-never-auto-append, dedup against existing rows, minimal row); do
+   not promote in-change follow-ups. Skip silently if the questioner
+   returned no candidates.
+
 Repository signals you may use (to list in-flight and archived changes, use the
 **Glob** tool with patterns `openspec/changes/*` and
 `openspec/changes/archive/*` — do not shell out):
@@ -92,6 +107,8 @@ stage variables:
   it yourself; only flip it if the agent did not (re-editing it after the
   agent will fail with a "file modified since read" error).
 - Git add line: `git add openspec/changes/<id>/questions.md openspec/backlog.md`
+  — add `openspec/backlog.md` also covers any idea rows appended in step 8
+  (backlog atomicity).
 - Next-stage command: `/qrspi:research <id>` — invoke it as its own stage in
   the main loop (re-enter the slash command so its body runs on the
   orchestrator; do NOT spawn it as a subagent — that would bypass Research's

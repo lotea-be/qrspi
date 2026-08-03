@@ -114,14 +114,14 @@ exception (see workflow skill Read Matrix).
    answered, flip the matching `openspec/backlog.md` row's status from
    `idea` to `proposed (change folder created <YYYY-MM-DD>)` and update
    the *Likely shape* line so it reflects the answered scope. Then
-   **capture deferred work**: from the "Sequencing & scope" answers and
+   **identify deferred work**: from the "Sequencing & scope" answers and
    anything the human pushed out of scope, identify candidate *separable
-   future changes* and offer each to the human one at a time
-   (AskUserQuestion: *Add as idea / Skip*). For each accepted idea, follow
-   the `backlog-writer` skill procedure to dedup, derive a slug, propose a
-   P-band, collect a one-sentence Shape, construct, and stage the row. Do
-   not add in-change follow-ups here. Stage all of these edits together
-   with `questions.md` in the same commit — never as a follow-up.
+   future changes*. Do NOT offer them yourself via AskUserQuestion (a
+   subagent cannot issue that gate) and do NOT construct or stage rows
+   here. Instead, include the full list of candidate separable changes in
+   your returned Final message format (see below) so the orchestrator
+   (`questions.md` step 8) can offer them to the human and delegate to
+   `backlog-writer`. Do not include in-change follow-ups in this list.
 
 ## What to write
 
@@ -178,7 +178,12 @@ answers, return exactly:
 Wrote: openspec/changes/<id>/questions.md
 Question count: <N>
 Product questions answered: <N answered> / <N total>
+Candidate separable future changes: <comma-separated list of one-line descriptions, or "none">
 Next stage: /qrspi:research <id>
 ```
 
-Nothing else.
+The "Candidate separable future changes" line is required -- list each
+candidate as a brief intent phrase (e.g., "add per-user telemetry export,
+extract shared rate-limiter"). The orchestrator reads this line and offers
+each candidate to the human via AskUserQuestion. If there are no candidates,
+write `none`.
