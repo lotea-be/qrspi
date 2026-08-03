@@ -298,6 +298,22 @@ This makes D11's "true at every write site" guarantee actually hold. The agent-l
 registration Slice 4 added is retained (harmless; the agents load the skill, and the
 orchestrator that spawns them delegates to it).
 
+**Scope amendment (stage I, 2026-08-03) — Slice 5 missed the Q site; adds Slice 6.**
+Dogfooding the deferred-work capture (checkpoint 4.8) surfaced that the **Q-stage**
+capture has the *same* mis-placement Slice 5 fixed for D and S: the offer + append
+lives in the questioner **agent** (`questioner.md` step 9), which drives it via
+`AskUserQuestion` — a gate only the main-loop orchestrator can issue, not a subagent —
+and `claude/commands/questions.md` (the orchestrator) has **no** capture step at all.
+So the Q append site never reliably executes, and D11's "true at every write site"
+guarantee does not hold for Q. **Slice 6** closes this exactly as Slice 5 did for D/S:
+add a "Capture deferred work" step to `questions.md` that offers each candidate
+separable change (`AskUserQuestion`) and, on accept, loads `backlog-writer` to append;
+and trim `questioner.md` step 9 so the agent identifies candidate separable changes and
+surfaces them in its returned summary (for the orchestrator to offer) instead of issuing
+the offer itself. The questioner's `backlog-writer` registration is **retained**
+(harmless — same treatment Slice 5 gave the designer/architect agents). The agent still
+performs the `idea`→`proposed` status flip (a plain file edit, which a subagent can do).
+
 ## Command changes
 
 `/qrspi:idea` (new `claude/commands/idea.md`, main-loop, no `agent:` frontmatter): reads

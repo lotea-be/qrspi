@@ -204,3 +204,46 @@ frozen template are the only places it is expressed. (D11)
   procedure (Check-22-valid, no inline grammar in the command's own prose). Also
   exercise the PR promote path (`/qrspi:pr <id>` with an open follow-up promoted
   to backlog) and confirm it delegates to `backlog-writer`. (D11)
+
+### Slice 6 — Q-stage command-level capture on the shared writer (added stage I; depends on Slice 3)
+
+Added during stage I after dogfooding checkpoint 4.8 surfaced that Slice 5's site
+enumeration still missed the **Q stage**: the deferred-work capture offer + append
+lives in the questioner *agent* (`questioner.md` step 9), which drives it via
+`AskUserQuestion` — a gate only the main-loop orchestrator can issue, not a subagent —
+and `claude/commands/questions.md` (the orchestrator) has no capture step at all. This
+is the identical mis-placement Slice 5 fixed for D/S. After this slice, the Q append
+site is a genuine orchestrator-level site that delegates to `backlog-writer`, so D11's
+"true at every write site" guarantee finally holds for every stage that captures. (D11)
+
+- M: no mock layer — changes are prose migrations in a command + agent file. (D11)
+- F: n/a — no UI surface.
+- D: add a "Capture deferred work" step to `claude/commands/questions.md` (mirroring
+  `design.md` step 4) that reads the questioner's returned candidate separable changes,
+  offers each one at a time via `AskUserQuestion` (*Add as idea / Skip*), and on accept
+  loads `backlog-writer` and follows its append procedure — staged in the same commit as
+  `questions.md`; and trim `claude/agents/questioner.md` step 9 so the agent identifies
+  candidate separable changes and surfaces them in its returned summary for the
+  orchestrator instead of issuing the `AskUserQuestion` offer itself. Retain the
+  questioner's `backlog-writer` registration and its `idea`→`proposed` status flip
+  (a plain file edit a subagent can do). No `scripts/skill-sets.mjs` change — the
+  questioner already registers `backlog-writer` (Slice 4). (D11)
+- T: `node scripts/lint.mjs` — full lint passes green (Check 2 still resolves
+  `backlog-writer` for the questioner; no dangling skill reference); a scan for the
+  inline row-construction pattern outside `claude/skills/backlog-writer/` and
+  `openspec-templates/` still finds no remaining copy; `openspec validate
+  backlog-schema-finish --strict` passes. (D11)
+- **Compute:** effort=medium model=sonnet — mechanical prose migration across one
+  command + one agent file following the pattern established by Slice 5; no new design
+  reasoning, but the offer/return-summary split must be wired correctly so the
+  orchestrator receives candidates from the agent.
+- Checkpoint (automated): `node scripts/lint.mjs` exits 0; the inline-grammar scan
+  finds no copy outside the skill/template; `openspec validate backlog-schema-finish
+  --strict` passes.
+- Checkpoint (human): launch `claude --plugin-dir /workspaces/git/qrspi` in a
+  throwaway consumer fixture with a populated `openspec/backlog.md` and a minimal
+  in-flight change; run `/qrspi:questions <id>` and, when a sequencing/scope answer
+  names a separable future change, confirm the **orchestrator** (not the subagent)
+  offers it via `AskUserQuestion` and, on accept, stages a Check-22-valid row through
+  `backlog-writer` — with no `Invalid tool parameters` error and no inline grammar in
+  the command's own prose. (D11)

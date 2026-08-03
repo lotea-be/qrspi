@@ -85,16 +85,28 @@ from the template independently.
 
 ### Requirement: command-level backlog-append sites MUST delegate to backlog-writer
 The system MUST ensure that every command body that appends an `idea` row to
-`openspec/backlog.md` — the D-stage capture in `claude/commands/design.md`, the
-S-stage capture in `claude/commands/structure.md`, and the "Promote to backlog
-idea" path in `claude/commands/pr.md` — loads `backlog-writer` and delegates row
-construction and staging to its procedure, rather than embedding an inline copy of
-the frozen heading grammar. These command bodies are the genuine orchestrator-level
-append sites for stages D and S (and the PR follow-up promote path), because the
-capture offer is an `AskUserQuestion` that only the main-loop orchestrator, not the
-stage agent, can issue. The referential grammar copy in `claude/commands/slices.md`
-(which does not itself append — stage V does not capture) MUST be trimmed to a
-pointer to the frozen grammar rather than a full inline block.
+`openspec/backlog.md` — the Q-stage capture in `claude/commands/questions.md`, the
+D-stage capture in `claude/commands/design.md`, the S-stage capture in
+`claude/commands/structure.md`, and the "Promote to backlog idea" path in
+`claude/commands/pr.md` — loads `backlog-writer` and delegates row construction and
+staging to its procedure, rather than embedding an inline copy of the frozen heading
+grammar. These command bodies are the genuine orchestrator-level append sites for
+stages Q, D, and S (and the PR follow-up promote path), because the capture offer is
+an `AskUserQuestion` that only the main-loop orchestrator, not the stage agent, can
+issue. The questioner, designer, and architect agents retain their `backlog-writer`
+registration (harmless — they load the skill and identify candidate separable
+changes, but the orchestrator that spawns them owns the offer + append). The
+referential grammar copy in `claude/commands/slices.md` (which does not itself
+append — stage V does not capture) MUST be trimmed to a pointer to the frozen grammar
+rather than a full inline block.
+
+#### Scenario: questions.md Q-stage capture delegates to backlog-writer
+- **WHEN** `claude/commands/questions.md`'s deferred-work capture step is read
+- **THEN** it instructs the main-loop orchestrator to offer each candidate separable
+  change (via `AskUserQuestion`) and, on accept, load `backlog-writer` and follow its
+  append procedure; and the questioner agent (`claude/agents/questioner.md`) no longer
+  issues the capture `AskUserQuestion` offer itself (which a subagent cannot), instead
+  surfacing candidate separable changes in its returned summary for the orchestrator.
 
 #### Scenario: design.md D-stage capture delegates to backlog-writer
 - **WHEN** `claude/commands/design.md`'s "Capture deferred work" step is read
