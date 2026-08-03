@@ -74,13 +74,17 @@ Follow the `backlog-writer` skill's **Step 4 -- Collect the one-sentence Shape**
 The **Why:** is derived from the idea intent established in Step 1. Confirm it
 with the human or let them refine it before collecting the Shape.
 
-Ask for the `**Why:**` line if not already established. Prompt in **plain prose**
-and read the reply -- do NOT use `AskUserQuestion` (the Why is free text, not a
-choice; a single placeholder option fails with an `Invalid tool parameters`
-error). Ask, in prose:
+Establish the `**Why:**` line if not already set. **Propose a concrete one-line
+Why** derived from the idea intent, then confirm it per-idea via
+**AskUserQuestion** so the human can one-click accept or override:
 
-> One-line **Why:** for "<slug>" -- the problem this idea solves and why it is
-> worth doing.
+- question: `Why for "<slug>": "<your proposed one-line why>". Use this, or write your own?`
+- choices (exactly these two): `Use this why`, `Write my own`
+
+On **"Use this why"**, accept your proposed line. On **"Write my own"** (or the
+free-text "Other" reply), use the human's line. The two concrete options are
+**required** -- a single "type here" placeholder option fails with an
+`Invalid tool parameters` error.
 
 Then follow the skill's Step 4 for the **Shape:** sentence.
 

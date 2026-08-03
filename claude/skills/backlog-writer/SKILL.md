@@ -61,14 +61,20 @@ Record the chosen band as `P1`, `P2`, or `P3`.
 
 ### Step 4 -- Collect the one-sentence Shape
 
-Prompt the human in **plain prose** for the one-sentence Shape and read their
-reply from the next message. Do NOT use `AskUserQuestion` for this: the Shape is
-free text, not a choice among options, and `AskUserQuestion` requires 2-4
-concrete options -- a single "type here" placeholder option fails with an
-`Invalid tool parameters` error. Ask, in prose:
+First **propose a concrete one-sentence Shape** for `<slug>`, derived from the
+idea intent -- the mechanism, the surfaces it touches, and the cheapest-first
+cut. Then confirm it per-idea via **AskUserQuestion** so the human can one-click
+accept or override:
 
-> One-sentence **Shape:** for "<slug>" -- the mechanism, the surfaces it touches,
-> and the cheapest-first cut. No `TBD` placeholders.
+- question: `Shape for "<slug>": "<your proposed one-sentence shape>". Use this, or write your own?`
+- choices (exactly these two): `Use this shape`, `Write my own`
+
+On **"Use this shape"**, accept your proposed sentence as the `**Shape:**`. On
+**"Write my own"** (or the free-text "Other" reply the tool always offers), use
+the human's sentence instead. The two concrete options are **required**:
+`AskUserQuestion` rejects a single "type here" placeholder option with an
+`Invalid tool parameters` error, so always offer the proposed shape AND the
+write-my-own option -- never a lone free-text placeholder.
 
 Do NOT accept a `TBD` answer. If the human provides `TBD` or equivalent, re-ask
 and explain that a valid Check-22 row requires a concrete `**Shape:**` sentence.
