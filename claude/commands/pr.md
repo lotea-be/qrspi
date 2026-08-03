@@ -202,9 +202,10 @@ Semantics per choice:
 - **Promote to backlog idea** -- load skill `backlog-writer` and follow
   its append procedure to capture the follow-up as a new `idea` row in
   `openspec/backlog.md`. The `backlog-writer` procedure handles dedup,
-  slug derivation, P-band proposal, Shape collection, row construction
-  using the frozen grammar, and staging. Use the follow-up content as the
-  source for the `**Why:**` statement.
+  slug derivation, P-band proposal, Why collection, Shape collection, row
+  construction using the frozen grammar, and staging. Pass the follow-up
+  content as the idea intent so the skill's Why step can propose a
+  concrete Why for the human to confirm or override.
   Then change the entry in `followups.md` from `- [ ] <text>` to
   `- [x] <text> (promoted to backlog)`. Stage both edits for the final
   commit (D7). Continue to the next entry.

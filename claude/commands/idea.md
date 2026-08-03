@@ -68,30 +68,17 @@ On Proceed: continue with the confirmed slug and proceed to Step 3.
 Follow the `backlog-writer` skill's **Step 3 -- Propose a P-band**. Use
 **AskUserQuestion** with the three P-band choices as described in the skill.
 
-### Step 4 -- Shape prompt (skill Step 4)
+### Step 4 -- Why and Shape prompts (skill Steps 4-5)
 
-Follow the `backlog-writer` skill's **Step 4 -- Collect the one-sentence Shape**.
-The **Why:** is derived from the idea intent established in Step 1. Confirm it
-with the human or let them refine it before collecting the Shape.
+Follow the `backlog-writer` skill's **Step 4 -- Collect the one-sentence Why**
+and then **Step 5 -- Collect the one-sentence Shape**. The skill owns both
+propose-and-confirm prompts. Use the idea intent established in Step 1 as the
+seed for the skill's proposed Why and Shape sentences.
 
-Establish the `**Why:**` line if not already set. **Propose a concrete one-line
-Why** derived from the idea intent, then confirm it per-idea via
-**AskUserQuestion** so the human can one-click accept or override:
+### Step 5 -- Construct and stage (skill Steps 6-8)
 
-- question: `Why for "<slug>": "<your proposed one-line why>". Use this, or write your own?`
-- choices (exactly these two): `Use this why`, `Write my own`
-
-On **"Use this why"**, accept your proposed line. On **"Write my own"** (or the
-free-text "Other" reply), use the human's line. The two concrete options are
-**required** -- a single "type here" placeholder option fails with an
-`Invalid tool parameters` error.
-
-Then follow the skill's Step 4 for the **Shape:** sentence.
-
-### Step 5 -- Construct and stage (skill Steps 5-7)
-
-Follow the `backlog-writer` skill's **Step 5 -- Construct the row** through
-**Step 7 -- Stage the edit**. Pass the confirmed slug, P-band, Why line, and
+Follow the `backlog-writer` skill's **Step 6 -- Construct the row** through
+**Step 8 -- Stage the edit**. Pass the confirmed slug, P-band, Why line, and
 Shape sentence to the skill steps.
 
 The skill will apply the edit to `openspec/backlog.md` using the Edit tool.

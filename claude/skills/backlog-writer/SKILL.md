@@ -59,7 +59,27 @@ Use **AskUserQuestion** with:
 
 Record the chosen band as `P1`, `P2`, or `P3`.
 
-### Step 4 -- Collect the one-sentence Shape
+### Step 4 -- Collect the one-sentence Why
+
+First **propose a concrete one-line Why** for `<slug>`, derived from the idea
+intent -- the problem it solves, the pain it removes, or the value it unlocks.
+Then confirm it per-idea via **AskUserQuestion** so the human can one-click
+accept or override:
+
+- question: `Why for "<slug>": "<your proposed one-line why>". Use this, or write your own?`
+- choices (exactly these two): `Use this why`, `Write my own`
+
+On **"Use this why"**, accept your proposed line as the `**Why:**`. On
+**"Write my own"** (or the free-text "Other" reply the tool always offers), use
+the human's line instead. The two concrete options are **required**:
+`AskUserQuestion` rejects a single "type here" placeholder option with an
+`Invalid tool parameters` error, so always offer the proposed why AND the
+write-my-own option -- never a lone free-text placeholder.
+
+Do NOT accept a `TBD` answer. If the human provides `TBD` or equivalent, re-ask
+and explain that a valid Check-22 row requires a concrete `**Why:**` sentence.
+
+### Step 5 -- Collect the one-sentence Shape
 
 First **propose a concrete one-sentence Shape** for `<slug>`, derived from the
 idea intent -- the mechanism, the surfaces it touches, and the cheapest-first
@@ -79,16 +99,16 @@ write-my-own option -- never a lone free-text placeholder.
 Do NOT accept a `TBD` answer. If the human provides `TBD` or equivalent, re-ask
 and explain that a valid Check-22 row requires a concrete `**Shape:**` sentence.
 
-### Step 5 -- Construct the row
+### Step 6 -- Construct the row
 
 Build the row using the frozen grammar from `openspec-templates/backlog.template.md`:
 
 ```
 ### <slug> -- `idea` * **P<n>**
 
-**Why:** <one-line problem statement supplied earlier>
+**Why:** <one-line why from Step 4>
 
-**Shape:** <one-sentence shape from Step 4>
+**Shape:** <one-sentence shape from Step 5>
 ```
 
 Important grammar details (the em-dash and middle-dot are load-bearing for
@@ -104,7 +124,7 @@ fenced code block without risking copy errors. When constructing the actual row:
 - Replace `--` in the heading line above with U+2014 (em-dash).
 - Replace `*` in the heading line above with U+00B7 (middle-dot).
 
-### Step 6 -- Locate the insertion point in ## Ideas
+### Step 7 -- Locate the insertion point in ## Ideas
 
 The new row goes under the `## Ideas` section. Insert it:
 - After the P-band preamble block (the paragraph that describes P1/P2/P3) and
@@ -117,7 +137,7 @@ If the `## Ideas` section does not exist in the file, abort and report the
 error -- do NOT create the section; the file is malformed and the human must
 fix it.
 
-### Step 7 -- Stage the edit
+### Step 8 -- Stage the edit
 
 Apply the edit to `openspec/backlog.md` using the Edit tool. Do NOT commit --
 the caller is responsible for including the edit in the correct commit.

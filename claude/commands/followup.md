@@ -162,10 +162,12 @@ follow-up; then apply the next-follow-up offer below.
 
 Load skill `backlog-writer` and follow its append procedure to capture the
 follow-up as a new `idea` row in `openspec/backlog.md`. The `backlog-writer`
-procedure handles dedup, slug derivation, P-band proposal, Shape collection,
-row construction using the frozen grammar, and staging. Use the follow-up
-content as the source for the `**Why:**` statement. Do NOT flip the parent
-change's existing backlog status line -- only the new `idea` row is added.
+procedure handles dedup, slug derivation, P-band proposal, Why collection,
+Shape collection, row construction using the frozen grammar, and staging.
+Pass the follow-up content as the idea intent so the skill's Why step can
+propose a concrete Why for the human to confirm or override. Do NOT flip the
+parent change's existing backlog status line -- only the new `idea` row is
+added.
 
 Tick the targeted `followups.md` entry by changing `- [ ]` to `- [x]`
 and appending the disposition note:
