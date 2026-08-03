@@ -7,7 +7,7 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## In progress
 
-### backlog-schema-finish — `in-progress (Q, R, D, S, V, P, I complete)` · **P3**
+### backlog-schema-finish — `in-progress (PR #46 open)` · **P3**
 
 **Why:** Finish the backlog-as-schema story that `standardize-backlog-format` started: add an idempotency guard to the migration `edit-file` dispatcher so `insert_after` steps are safe to replay (bundling [[migration-edit-file-idempotency-guard]]), extend the backlog lint to resolve `[[wikilink]]` cross-references so dangling slugs fail CI (bundling [[backlog-wikilink-resolution-lint]]), and add a `/qrspi:idea` command that provisions canonical, schema-conformant backlog rows on demand (bundling [[idea-capture-command]]). Non-Goal: the per-file `backlog/<id>.md` model is explicitly deferred to post-1.0 — this change does not reopen the frozen schema.
 
