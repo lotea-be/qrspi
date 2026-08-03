@@ -12,10 +12,15 @@ dedup by intent — read the backlog, identify near-matches by intent (not exact
 wording), and offer the human an AskUserQuestion choice of proceed or abort if a
 near-match exists; (2) propose P-band placement — offer the P-band (`P1`, `P2`,
 or `P3`) and `## Ideas` section placement interactively via `AskUserQuestion`;
-(3) construct the row — build a `### <slug> — \`idea\` · **P<n>**` heading (real
-em-dash U+2014, middle-dot U+00B7, bold band token) with `**Why:**` (from the
-captured intent) and `**Shape:**` (from an interactive prompt) body fields; (4)
-stage the append — write the row under `## Ideas` and stage the file. The skill
+(3) collect the body fields and construct the row — collect **both** `**Why:**`
+and `**Shape:**` as a **per-idea** interactive propose-and-confirm prompt
+(propose a concrete value derived from the captured intent, then offer the human
+`Use this` / `Write my own` via `AskUserQuestion`, processing **one idea at a
+time** — never batching several ideas' Why/Shape prose into a single plain-text
+prompt, and never offering a lone free-text placeholder option), then build a
+`### <slug> — \`idea\` · **P<n>**` heading (real em-dash U+2014, middle-dot
+U+00B7, bold band token) carrying those `**Why:**` and `**Shape:**` body fields;
+(4) stage the append — write the row under `## Ideas` and stage the file. The skill
 MUST reference the frozen row grammar (the backlog template and Check 22 remain
 the single sources of truth) rather than restating it; the skill is the procedure,
 not the grammar.
@@ -37,6 +42,14 @@ not the grammar.
 - **THEN** the procedure includes an explicit step to propose a P-band and
   `## Ideas` placement via `AskUserQuestion` (always interactive; no positional
   argument bypasses this step).
+
+#### Scenario: every free-text body field is collected per-idea via propose-and-confirm
+- **WHEN** `claude/skills/backlog-writer/SKILL.md` is read
+- **THEN** the procedure collects **both** the `**Why:**` and the `**Shape:**` as a
+  per-idea `AskUserQuestion` propose-and-confirm step (a proposed value plus a
+  `Use this` / `Write my own` choice, never a lone free-text placeholder),
+  processing one idea at a time, and does not instruct batching multiple ideas'
+  Why or Shape prose into a single plain-text prompt.
 
 #### Scenario: row produced by the skill satisfies Check 22
 - **WHEN** a caller follows the backlog-writer procedure and the resulting row is

@@ -247,3 +247,49 @@ site is a genuine orchestrator-level site that delegates to `backlog-writer`, so
   offers it via `AskUserQuestion` and, on accept, stages a Check-22-valid row through
   `backlog-writer` — with no `Invalid tool parameters` error and no inline grammar in
   the command's own prose. (D11)
+
+### Slice 7 — Per-idea propose-and-confirm for every free-text field (added post-PR; depends on Slice 3)
+
+Added post-PR from a PR #46 follow-up after dogfooding surfaced that the shared
+writer prompts inconsistently: `backlog-writer` owns an interactive per-idea
+propose-and-confirm for **Shape** but treats **Why** as "supplied earlier", so
+`/qrspi:idea` bolted on its own Why prompt while the Q/D/S/followup/pr append
+sites inherited none — and multi-idea capture passes batched the Why prose in
+plain text. After this slice the skill owns **both** Why and Shape as per-idea
+`AskUserQuestion` propose-and-confirm steps (`Use this` / `Write my own`, one idea
+at a time, never a batched plain-text prompt), and every caller inherits it by
+delegation. (D12)
+
+- M: no mock layer — changes are prose edits to a skill + a command, plus an
+  audit of the caller command bodies. (D12)
+- F: n/a — no UI surface.
+- D: add a **Collect the one-sentence Why** step to
+  `claude/skills/backlog-writer/SKILL.md` — a per-idea propose-and-confirm
+  `AskUserQuestion` (`Use this why` / `Write my own`) mirroring the existing Shape
+  step, ordered **before** the Shape step; update the skill's row-construction step
+  to source the Why from that step (not "supplied earlier"). Collapse
+  `claude/commands/idea.md`'s Step 4 Why prompt into a delegation to the skill's
+  new Why step (remove the duplicate inline prompt). Audit the caller append sites
+  — `claude/commands/questions.md`, `design.md`, `structure.md`, `pr.md`, and
+  `claude/commands/followup.md` (P3) — and adjust any that pre-establish or batch
+  the Why prose so they pass the captured intent to the skill and let the skill run
+  the per-idea prompt. (D12)
+- T: `node scripts/lint.mjs` — full lint passes green (Check 2 still resolves
+  `backlog-writer`; no dangling skill reference; the inline row-construction scan
+  still finds no copy outside `claude/skills/backlog-writer/` and
+  `openspec-templates/`); `openspec validate backlog-schema-finish --strict`
+  passes. (D12)
+- **Compute:** effort=medium model=sonnet — prose edits to one skill + one command
+  plus an audit of the caller sites, following the propose-and-confirm pattern the
+  Shape step already establishes; no new design reasoning beyond D12.
+- Checkpoint (automated): `node scripts/lint.mjs` exits 0; `openspec validate
+  backlog-schema-finish --strict` passes.
+- Checkpoint (human): launch `claude --plugin-dir /workspaces/git/qrspi` in a
+  throwaway consumer fixture with a populated `openspec/backlog.md`; run a
+  deferred-work capture that accepts **two or more** candidate ideas in one pass
+  (e.g. `/qrspi:design <id>` on a change whose Non-Goals name several separable
+  changes) and confirm the Why **and** the Shape are each prompted **per idea** via
+  a `Use this` / `Write my own` `AskUserQuestion` — never one plain-text prompt
+  covering multiple ideas. Also run `/qrspi:idea "<intent>"` and confirm the Why
+  prompt now comes from the shared skill (single propose-and-confirm, no duplicate).
+  (D12)

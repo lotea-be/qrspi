@@ -314,6 +314,41 @@ the offer itself. The questioner's `backlog-writer` registration is **retained**
 (harmless — same treatment Slice 5 gave the designer/architect agents). The agent still
 performs the `idea`→`proposed` status flip (a plain file edit, which a subagent can do).
 
+### D12 — Every free-text body field (Why, Shape) is collected per-idea via propose-and-confirm; the skill owns it (Slice 7)
+
+Scope amendment (post-PR, 2026-08-03), from a PR #46 follow-up. Dogfooding the
+deferred-work capture surfaced that the shared writer prompts **inconsistently**:
+the `backlog-writer` skill owns an interactive per-idea propose-and-confirm for
+**Shape** (its Step 4), but treats **Why** as "supplied earlier / from the
+captured intent" (skill Step 5). As a result `/qrspi:idea` had to add its *own*
+per-idea Why prompt (its Step 4), while every other append site (the Q/D/S
+deferred-work capture, `followup.md` P3, `pr.md` promote) inherited **no** Why
+prompt at all — and when several candidate ideas were accepted in one capture
+pass, the Why prose was requested for **multiple ideas at once in plain text**,
+the exact friction the human reported.
+
+Decision: the `backlog-writer` skill owns the collection of **every** free-text
+body field — **Why and Shape** — as a **per-idea** `AskUserQuestion`
+propose-and-confirm step. For each field, on each idea, the skill proposes a
+concrete value derived from the captured intent, then offers the human
+`Use this` / `Write my own` (the two-concrete-options rule — never a lone
+free-text placeholder, which errors with `Invalid tool parameters`). The skill
+processes **one idea at a time**; batching multiple ideas' Why/Shape prose into
+a single plain-text prompt is prohibited. `/qrspi:idea`'s duplicate Why step
+collapses to a delegation to the skill, and every existing caller inherits the
+uniform behaviour by delegating — no caller establishes or batches the Why
+itself. Rejected: leaving the Why non-interactive at the capture sites (the drift
+the user hit); a single batched multi-idea prose prompt (breaks per-idea confirm
+and is the reported friction).
+
+This refines D8's interview description (which named only Shape as interactive)
+and reinforces D11's "one shared procedure at every write site" guarantee by
+making the *prompting behaviour*, not only the row grammar, uniform. Adds
+**Slice 7**. This is a UX/prose contract of the shared skill; it touches no route,
+DTO, or data-model surface, so `node scripts/lint.mjs` (Check 2 registration,
+Check 22 row validity) plus the `(human)` dogfood checkpoint remain the
+acceptance.
+
 ## Command changes
 
 `/qrspi:idea` (new `claude/commands/idea.md`, main-loop, no `agent:` frontmatter): reads
