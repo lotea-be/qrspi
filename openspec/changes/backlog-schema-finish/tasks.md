@@ -1,0 +1,86 @@
+# Tasks — backlog-schema-finish
+
+> Stage P of QRSPI. Tick boxes as you implement. Order matters.
+
+## 1. Replayable, fault-tolerant migration
+
+**Compute:** effort=medium model=sonnet — extends an existing lint check with two optional-field rules and an inline self-test; pattern mirrors existing Check 6 structure.
+
+- [x] 1.1 In `migrations/0.13.0.yaml`, add `skip_if_contains` and `anchor_missing: warn-and-skip` to the single `insert_after` step in place (D1, D2)
+- [x] 1.2 Document `skip_if_contains` and `anchor_missing` fields and their dispatcher semantics in `claude/skills/qrspi-update/SKILL.md` (D1, D2)
+- [x] 1.3 Extend Check 6 in `scripts/lint.mjs` to validate both optional fields against their closed value-domain (D1, D3)
+- [x] 1.4 Add a positive-path inline self-test fixture (synthetic step carrying both fields) to Check 6 in `scripts/lint.mjs` (D1, D3)
+- [x] 1.5 Unit/integration test: `node scripts/lint.mjs` — Check 6 passes on valid `skip_if_contains` + `anchor_missing: warn-and-skip` values, and fails on an invalid `anchor_missing` value
+- [x] 1.6 Checkpoint (automated): `node scripts/lint.mjs` exits 0 and Check 6 line reads `OK`
+- [x] 1.7 (human) Launch `claude --plugin-dir /workspaces/git/qrspi` in a throwaway consumer fixture that already contains the legend block; run `/qrspi:update`; confirm the dispatcher emits "skipped (already present)" and does not duplicate the legend. Repeat with the anchor renamed; confirm a one-line warning is emitted and the walk continues to completion with the version marker bumped. (D1, D2)
+
+## 2. Dangling wikilinks fail CI (Check 23)
+
+**Compute:** effort=medium model=sonnet — new lint check with a pure resolver function and inline self-test; follows the established Check pattern in `scripts/lint.mjs`.
+
+- [x] 2.1 Demote the five pre-existing bare dangling links in `openspec/backlog.md` to back-ticked plain text (`simplify-per-slice-model-selection`, `configurable-effort-and-thinking`, `per-slice-effort-via-agent-variants`, `haiku-model-tier`, `kit-self-surfaces`) (D6)
+- [x] 2.2 Implement `resolveWikilinks(text, liveRowIds, archiveSlugs)` as a pure helper in `scripts/lint.mjs` (D5, D6)
+- [x] 2.3 Implement `checkBacklogWikilinks` (Check 23) in `scripts/lint.mjs` using the dependency-free ESM pattern, calling `resolveWikilinks` with the live row IDs and archive folder slugs (D5, D6)
+- [x] 2.4 Add an inline self-test to Check 23 covering all four cases: live-row hit, archive-folder hit, code-spanned meta-token must-not-fire, bare dangling slug must-fire (D5, D6)
+- [x] 2.5 Unit/integration test: `node scripts/lint.mjs` exits 0 on the cleaned backlog with Check 23 `OK`; temporarily inject a bare `[[does-not-exist]]` into `openspec/backlog.md`, confirm non-zero exit naming the slug, then revert (D5, D6)
+- [x] 2.6 Checkpoint (automated): `node scripts/lint.mjs` exits 0 with Check 23 `OK` after the cleanup; temporarily add a bare `[[does-not-exist]]` to `openspec/backlog.md`, confirm non-zero exit naming the slug, then revert (D5, D6)
+
+## 3. Idea capture on a shared writer
+
+**Compute:** effort=medium model=sonnet — new skill file and new command file; the skill is procedure prose with clear spec; the command wires an interview flow following an existing pattern.
+
+- [x] 3.1 Create `claude/skills/backlog-writer/SKILL.md` implementing the shared append procedure: dedup, P-band proposal, row construction referencing the frozen grammar in `openspec-templates/backlog.template.md` and Check 22, and staging (D7, D8, D11)
+- [x] 3.2 Create `claude/commands/idea.md` with main-loop interview flow (no `agent:` frontmatter, no version-check or budget-gate embeds) (D7, D9, D11)
+- [x] 3.3 Update `scripts/skill-sets.mjs` to register `backlog-writer` in the skill set for the `idea` command (D7, D9)
+- [x] 3.4 Add `/qrspi:idea` to the README helpers listing (D9)
+- [x] 3.5 Unit/integration test: `node scripts/lint.mjs` — Check 2 resolves `backlog-writer` for the `idea` command; Check 4 passes for `idea.md` ↔ README; Check 9 does not flag `idea.md` for missing version-check embed; budget-gate embed check does not flag `idea.md` (D7, D9, D11)
+- [x] 3.6 Checkpoint (automated): `node scripts/lint.mjs` exits 0; Check 2, 4, 9, and budget-gate check all report `OK`
+- [x] 3.7 (human) Launch `claude --plugin-dir /workspaces/git/qrspi` in a throwaway consumer fixture with a populated `openspec/backlog.md`; run `/qrspi:idea "add usage telemetry dashboard"`; confirm the command reads the backlog and surfaces near-matches (if any), offers proceed/abort, proposes a P-band via `AskUserQuestion`, prompts for a one-sentence shape, and stages a row; run `node scripts/lint.mjs` inside the fixture and confirm Check 22 reports no violation for the new row. Also run `/qrspi:idea` with no argument and confirm the intent prompt appears. (D7, D8, D9, D11)
+
+## 4. Every append site on the shared writer (depends on Slice 3)
+
+**Compute:** effort=medium model=sonnet — mechanical prose migration across four files; pattern is established by Slice 3; no new design reasoning needed.
+
+- [x] 4.1 Update `claude/agents/questioner.md` to load skill `backlog-writer` in its Load skills line and replace inline deferred-work-capture grammar prose with a delegation call to the skill procedure (D11)
+- [x] 4.2 Update `claude/agents/designer.md` to load skill `backlog-writer` in its Load skills line and replace inline deferred-work-capture grammar prose with a delegation call to the skill procedure (D11)
+- [x] 4.3 Update `claude/agents/architect.md` to load skill `backlog-writer` in its Load skills line and replace inline deferred-work-capture grammar prose with a delegation call to the skill procedure (D11)
+- [x] 4.4 Update `claude/commands/followup.md` P3 promote path to load `backlog-writer` and follow its procedure (D11)
+- [x] 4.5 Update `scripts/skill-sets.mjs` `SKILL_SET_EXPECTED` map to include `backlog-writer` in the skill set for questioner, designer, and architect (D11)
+- [x] 4.6 Unit/integration test: `node scripts/lint.mjs` — Check 2 resolves `backlog-writer` for questioner, designer, and architect; no dangling skill references reported; full lint passes green (D11)
+- [x] 4.7 Checkpoint (automated): `node scripts/lint.mjs` exits 0; Check 2 reports `OK` for questioner, designer, and architect against `backlog-writer`
+- [x] 4.8 (human) Launch `claude --plugin-dir /workspaces/git/qrspi` in a throwaway consumer fixture; exercise one deferred-work-capture path (e.g. run `/qrspi:questions <id>` on a minimal change and let it surface a separable idea); confirm the resulting row matches the `backlog-writer` procedure (correct grammar, Check-22-valid) and that no inline grammar copy appears in the agent response. Also exercise the followup P3 path (`/qrspi:followup <id>` on a fixture with a deferred follow-up) and confirm it delegates to `backlog-writer`. (D11)
+
+## 5. Command-level append sites on the shared writer (added stage I; depends on Slice 3)
+
+**Compute:** effort=medium model=sonnet — mechanical prose migration across four command files following the Slice 3–4 pattern, but touches the `pr.md` reconciliation path whose surrounding commit orchestration must be preserved and requires the skill-sets wiring; no new design reasoning.
+
+- [x] 5.1 Migrate `claude/commands/design.md` step 4 ("Capture deferred work") to load `backlog-writer` and delegate row construction, removing the inline `### <slug> — \`idea\` · **P<n>**` + `**Why:**`/`**Shape:**` block while preserving the offer/dedup/skip-if-nothing prose (D11)
+- [x] 5.2 Migrate `claude/commands/structure.md`'s capture step the same way — load `backlog-writer`, remove the inline grammar block, preserve surrounding capture semantics (D11)
+- [x] 5.3 Migrate `claude/commands/pr.md`'s "Promote to backlog idea" path to load `backlog-writer` and delegate row construction, removing the inline grammar block while preserving the surrounding `followups.md` tick + commit orchestration (D11)
+- [x] 5.4 Trim the referential grammar block in `claude/commands/slices.md` to a pointer to the frozen grammar (template + Check 22) — stage V does not append, so no delegation call is needed, only removal of the full inline copy (D11)
+- [x] 5.5 Wire any command→skill registration Check 2 requires in `scripts/skill-sets.mjs` for the migrated commands (D11)
+- [x] 5.6 Unit/integration test: `node scripts/lint.mjs` — Check 2 resolves `backlog-writer` for every migrated command with no dangling skill reference; a scan for the inline row-construction pattern outside `claude/skills/backlog-writer/` and `openspec-templates/` finds no remaining copy; `openspec validate backlog-schema-finish --strict` passes (D11)
+- [x] 5.7 Checkpoint (automated): `node scripts/lint.mjs` exits 0; Check 2 reports `OK` for the migrated commands against `backlog-writer`; no inline row-grammar block remains outside the skill/template
+- [x] 5.8 (human) Launch `claude --plugin-dir /workspaces/git/qrspi` in a throwaway consumer fixture; exercise the D-stage capture (run `/qrspi:design <id>` on a change whose Non-Goals name a separable future change and accept the idea offer) and confirm the staged row is produced through the `backlog-writer` procedure (Check-22-valid, no inline grammar in the command's own prose). Also exercise the PR promote path (`/qrspi:pr <id>` with an open follow-up promoted to backlog) and confirm it delegates to `backlog-writer`. (D11)
+
+## 6. Q-stage command-level capture on the shared writer (added stage I; depends on Slice 3)
+
+**Compute:** effort=medium model=sonnet — mechanical prose migration across one command + one agent file following the Slice 5 pattern; no new design reasoning, but the offer/return-summary split between orchestrator and agent must be wired correctly.
+
+- [x] 6.1 Add a "Capture deferred work" step to `claude/commands/questions.md` (mirroring `design.md` step 4): read the questioner's returned candidate separable changes, offer each one at a time via `AskUserQuestion` (*Add as idea / Skip*), and on accept load `backlog-writer` and follow its append procedure; stage the row in the same commit as `questions.md` (D11)
+- [x] 6.2 Trim `claude/agents/questioner.md` step 9 so the agent identifies candidate separable future changes and surfaces them in its returned summary for the orchestrator, instead of issuing the `AskUserQuestion` offer itself; retain the `backlog-writer` load line and the `idea`→`proposed` status flip (D11)
+- [x] 6.3 Unit/integration test: `node scripts/lint.mjs` — full lint passes green; Check 2 still resolves `backlog-writer` for the questioner with no dangling skill reference; the inline row-construction scan finds no copy outside `claude/skills/backlog-writer/` and `openspec-templates/`; `openspec validate backlog-schema-finish --strict` passes (D11)
+- [x] 6.4 Checkpoint (automated): `node scripts/lint.mjs` exits 0; inline-grammar scan clean; `openspec validate backlog-schema-finish --strict` passes
+- [x] 6.5 (human) Launch `claude --plugin-dir /workspaces/git/qrspi` in a throwaway consumer fixture with a populated `openspec/backlog.md` and a minimal in-flight change; run `/qrspi:questions <id>` and, when a sequencing/scope answer names a separable future change, confirm the **orchestrator** (not the subagent) offers it via `AskUserQuestion` and, on accept, stages a Check-22-valid row through `backlog-writer` — no `Invalid tool parameters` error, no inline grammar in the command's own prose. (D11)
+
+## 7. Per-idea propose-and-confirm for every free-text field (added post-PR; depends on Slice 3)
+
+**Compute:** effort=medium model=sonnet — prose edits to one skill + one command plus an audit of the caller sites, following the propose-and-confirm pattern the Shape step already establishes; no new design reasoning beyond D12.
+
+- [x] 7.1 Add a "Collect the one-sentence Why" step to `claude/skills/backlog-writer/SKILL.md` — a per-idea propose-and-confirm `AskUserQuestion` (`Use this why` / `Write my own`, never a lone free-text placeholder) mirroring the existing Shape step, ordered **before** the Shape step (D12)
+- [x] 7.2 Update the skill's row-construction step to source the `**Why:**` from the new Step (not "supplied earlier"), keeping the reference to the frozen grammar intact (D12)
+- [x] 7.3 Collapse `claude/commands/idea.md`'s Step 4 Why prompt into a delegation to the skill's new Why step (remove the duplicate inline prompt; keep the interview wiring) (D12)
+- [x] 7.4 Audit the caller append sites — `claude/commands/questions.md`, `design.md`, `structure.md`, `pr.md`, and `claude/commands/followup.md` (P3) — and adjust any that pre-establish or batch the Why prose so they pass the captured intent to the skill and let the skill run the per-idea prompt (D12)
+- [x] 7.5 Unit/integration test: `node scripts/lint.mjs` passes green (Check 2 resolves `backlog-writer`; no dangling skill reference; inline row-construction scan finds no copy outside `claude/skills/backlog-writer/` and `openspec-templates/`); `openspec validate backlog-schema-finish --strict` passes (D12)
+- [x] 7.6 Checkpoint (automated): `node scripts/lint.mjs` exits 0; `openspec validate backlog-schema-finish --strict` passes
+- [ ] 7.7 (human) Launch `claude --plugin-dir /workspaces/git/qrspi` in a throwaway consumer fixture with a populated `openspec/backlog.md`; run a deferred-work capture that accepts **two or more** candidate ideas in one pass and confirm the Why **and** the Shape are each prompted **per idea** via a `Use this` / `Write my own` `AskUserQuestion` — never one plain-text prompt covering multiple ideas. Also run `/qrspi:idea "<intent>"` and confirm the Why prompt now comes from the shared skill (single propose-and-confirm, no duplicate). (D12)

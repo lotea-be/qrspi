@@ -36,11 +36,12 @@ exception (see workflow skill Read Matrix).
 
 ## What to do
 
-1. Load skills `workflow` and `repo-surface` if you have not already. Also
-   load the project's stack-cheatsheet skill if one exists for this repo
-   (use the Glob tool with pattern `.claude/skills/*/SKILL.md` to find it).
-   The `repo-surface` skill defines which sections to emit based on the
-   surfaces present in the repo; the stack cheatsheet declares those surfaces.
+1. Load skills `workflow`, `repo-surface`, and `backlog-writer` if you have
+   not already. Also load the project's stack-cheatsheet skill if one exists
+   for this repo (use the Glob tool with pattern `.claude/skills/*/SKILL.md`
+   to find it). The `repo-surface` skill defines which sections to emit based
+   on the surfaces present in the repo; the stack cheatsheet declares those
+   surfaces.
 2. Confirm `openspec/changes/<id>/` exists. Create it if missing.
 3. Read `requirements.md` and `tech-stack.md` to understand the product
    and stack context.
@@ -113,15 +114,14 @@ exception (see workflow skill Read Matrix).
    answered, flip the matching `openspec/backlog.md` row's status from
    `idea` to `proposed (change folder created <YYYY-MM-DD>)` and update
    the *Likely shape* line so it reflects the answered scope. Then
-   **capture deferred work**: from the "Sequencing & scope" answers and
+   **identify deferred work**: from the "Sequencing & scope" answers and
    anything the human pushed out of scope, identify candidate *separable
-   future changes* and offer each to the human one at a time
-   (AskUserQuestion: *Add as idea / Skip*), adding each accepted one as a
-   new `idea` row with a one-line *Why*. Follow the "Capturing deferred
-   work" rules in skill `workflow` (offer-never-auto-append, dedup
-   against existing rows, minimal row); do not add in-change follow-ups
-   here. Stage all of these edits together with `questions.md` in the same
-   commit — never as a follow-up.
+   future changes*. Do NOT offer them yourself via AskUserQuestion (a
+   subagent cannot issue that gate) and do NOT construct or stage rows
+   here. Instead, include the full list of candidate separable changes in
+   your returned Final message format (see below) so the orchestrator
+   (`questions.md` step 8) can offer them to the human and delegate to
+   `backlog-writer`. Do not include in-change follow-ups in this list.
 
 ## What to write
 
@@ -178,7 +178,12 @@ answers, return exactly:
 Wrote: openspec/changes/<id>/questions.md
 Question count: <N>
 Product questions answered: <N answered> / <N total>
+Candidate separable future changes: <comma-separated list of one-line descriptions, or "none">
 Next stage: /qrspi:research <id>
 ```
 
-Nothing else.
+The "Candidate separable future changes" line is required -- list each
+candidate as a brief intent phrase (e.g., "add per-user telemetry export,
+extract shared rate-limiter"). The orchestrator reads this line and offers
+each candidate to the human via AskUserQuestion. If there are no candidates,
+write `none`.

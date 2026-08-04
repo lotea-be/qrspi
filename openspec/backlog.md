@@ -7,7 +7,11 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## In progress
 
-_None._
+### backlog-schema-finish — `in-progress (PR #46 open)` · **P3**
+
+**Why:** Finish the backlog-as-schema story that `standardize-backlog-format` started: add an idempotency guard to the migration `edit-file` dispatcher so `insert_after` steps are safe to replay (bundling [[migration-edit-file-idempotency-guard]]), extend the backlog lint to resolve `[[wikilink]]` cross-references so dangling slugs fail CI (bundling [[backlog-wikilink-resolution-lint]]), and add a `/qrspi:idea` command that provisions canonical, schema-conformant backlog rows on demand (bundling [[idea-capture-command]]). Non-Goal: the per-file `backlog/<id>.md` model is explicitly deferred to post-1.0 — this change does not reopen the frozen schema.
+
+**Shape:** Three independent slices: (1) add an optional `skip_if_contains` (or equivalent) field to the migration `edit-file` step schema + dispatcher, plus an anchor-fallback mechanism, and backfill onto `migrations/0.13.0.yaml`; (2) add a wikilink-resolution check (Check 23 or an extension of Check 22) to `scripts/lint.mjs` that asserts every `[[slug]]` resolves to a live backlog row or an archived change folder; (3) ship `claude/commands/idea.md` (a main-loop command) that deduplicates against existing rows, proposes a band and placement, confirms via AskUserQuestion, and stages the canonical schema-conformant row append. All three touch `scripts/lint.mjs`, the `qrspi-update` skill, and/or the README per Check 4.
 
 ---
 
@@ -31,10 +35,10 @@ this ordering whenever an item is added, modified, or archived (see
 **Token/cost levers** (the recurring cost band, salient with burn climbing) are
 kept adjacent near the top so the cost story reads at a glance: the **input** and
 **output** levers shipped together as `context-budget` (merged and archived
-2026-07-24); [[simplify-per-slice-model-selection]] and
-[[configurable-effort-and-thinking]] shipped together as `per-slice-compute-knobs`
+2026-07-24); `simplify-per-slice-model-selection` and
+`configurable-effort-and-thinking` shipped together as `per-slice-compute-knobs`
 (merged and archived 2026-07-25), whose compute follow-ons
-[[per-slice-effort-via-agent-variants]] and [[haiku-model-tier]] are now bundled
+`per-slice-effort-via-agent-variants` and `haiku-model-tier` are now bundled
 into `per-slice-compute-tier` (proposed, in the QRSPI flow); and
 [[standardize-recurring-ops-scripts]]
 (reasoning/exploration) remains here. The
@@ -110,14 +114,15 @@ contiguous below across the P2/P3 boundary.
 >   rides along as a cheap correctness guard. Outranks Tier 2 onboarding on the
 >   stranger-lens, so it is sequenced ahead of it.
 > - **Tier 1.7 — finish the backlog-schema story the freeze just unblocked (bundle,
->   2026-07-31):** [[backlog-prioritization]] (P2, driver) bundling
->   [[idea-capture-command]] (P3) + [[backlog-wikilink-resolution-lint]] (P3) as one
->   QRSPI run — all three ride Tier 1.5's frozen grammar + Check 22 parser (the
->   ordering convention, the capture writer, the cross-ref guard). Same logic that
->   justified Tier 1.5: freeze the backlog surface **before** public installs write
->   the ad-hoc shape. The related [[migration-edit-file-idempotency-guard]] (P3) — a
->   separate #43-dogfood follow-on on the `/qrspi:update` dispatcher, not the backlog
->   grammar — can ride the same update but stays its own concern. Cheap; can run
+>   2026-07-31):** taken up as `backlog-schema-finish`, which bundles
+>   [[idea-capture-command]] (P3) + [[backlog-wikilink-resolution-lint]] (P3) +
+>   [[migration-edit-file-idempotency-guard]] (P3) as one QRSPI run — the first two
+>   ride Tier 1.5's frozen grammar + Check 22 parser (the capture writer, the
+>   cross-ref guard), and the `/qrspi:update` dispatcher guard rides along from the
+>   same #43 dogfood. Same logic that justified Tier 1.5: freeze the backlog surface
+>   **before** public installs write the ad-hoc shape. [[backlog-prioritization]] (P2)
+>   — the original driver — was pulled out of this bundle and now pairs with
+>   [[propose-bundling-ideas]] on its own write-time proposal pass. Cheap; can run
 >   parallel to the large Tier 1.9 design.
 > - **Tier 1.75 — land the OpenSpec pin 1.0 will freeze on (sequenced into the runway
 >   2026-07-29):** [[bump-openspec-pin]], the KEEP verdict's (Tier 1.25) direct
@@ -272,7 +277,9 @@ this item is the larger standalone (vendor detection + no-remote path +
 branch-naming fold-in), so researcher-gate lands cheap and first while this is
 designed. Reassessed 2026-07-31.
 
-### idea-capture-command — `idea` · **P3**
+### idea-capture-command — `bundled into backlog-schema-finish (2026-07-31)` · **P3**
+
+> **Bundled into `backlog-schema-finish`** (proposed 2026-07-31) — see the `## Proposed` entry.
 
 **Why:** Adding a row to `openspec/backlog.md` today is ad hoc — hand-edited, or written
 inline by the Q/D/S "capture deferred work" flow and the `/qrspi:pr` / `/qrspi:followup`
@@ -293,7 +300,9 @@ stages the edit. Reuses the same append mechanic the Q/D/S deferred-work flow an
 the `/qrspi:pr` / `/qrspi:followup` P3 path already embed, so it cannot drift from
 the schema. Depends on [[standardize-backlog-format]] having frozen the grammar.
 
-### backlog-wikilink-resolution-lint — `idea` · **P3**
+### backlog-wikilink-resolution-lint — `bundled into backlog-schema-finish (2026-07-31)` · **P3**
+
+> **Bundled into `backlog-schema-finish`** (proposed 2026-07-31) — see the `## Proposed` entry.
 
 **Why:** [[standardize-backlog-format]] froze the row grammar and enum but left
 `[[wikilink]]` target resolution explicitly out of the new lint Check (a scoping
@@ -309,7 +318,9 @@ under `openspec/changes/archive/*-<slug>/`. Warn (not hard-fail) on the archived
 row case if that proves noisy; hard-fail on a slug that resolves nowhere. Depends
 on [[standardize-backlog-format]] having landed the row-id grammar first.
 
-### migration-edit-file-idempotency-guard — `idea` · **P3**
+### migration-edit-file-idempotency-guard — `bundled into backlog-schema-finish (2026-07-31)` · **P3**
+
+> **Bundled into `backlog-schema-finish`** (proposed 2026-07-31) — see the `## Proposed` entry.
 
 **Why:** [[standardize-backlog-format]] shipped the kit's first non-empty
 `automated:` migration step (an `edit-file` `insert_after` that adds the backlog
@@ -393,7 +404,7 @@ computing a deterministic fact by reading files and reasoning through an approac
 spends tokens each run that a single `node scripts/foo.mjs` call could return in
 one tool result; this is the fourth token lever alongside the input-load and
 output-payload levers (both shipped in `context-budget`) and compute
-([[configurable-effort-and-thinking]]) — it targets the **reasoning/exploration**
+(`configurable-effort-and-thinking`) — it targets the **reasoning/exploration**
 axis. The kit already proves the fix — [`scripts/lint.mjs`](scripts/lint.mjs) is a
 recurring mechanical task extracted to a Node script. Extend that pattern to the
 **deterministic** recurring ops so stage
@@ -527,6 +538,28 @@ plugin-vs-user-settings distribution question first. The cheap Facet 1 could rid
 the pre-1.0 runway before [[rename-qrspi-to-qrnchi]]; the hook/statusline aids are a
 larger, likely post-1.0 bet. Surfaced 2026-07-30.
 
+### resume-pointer-at-message-end — `idea` · **P3**
+
+**Why:** When a QRSPI command offers a reset, the "how to continue" instruction
+should be the **last line** of the message so the human doesn't scroll up past the
+completion summary / AskUserQuestion residue to find it. The two gated exits already
+do this by construction — `context-budget-gate` step 4 and `archive` step 7 print
+the resume one-liner and immediately **END THE TURN** — but any *orchestrator*
+message that pairs a completion summary or stage handoff with a reset offer can bury
+the resume pointer mid-message, forcing a scroll. There is no stated presentation
+rule that the resume/continue pointer is always emitted last, so the placement is
+left to the model per message. Surfaced 2026-07-31 (human feedback while discussing
+the `/clear` reset flow: losing run-mode on `/clear` is expected, but having to
+scroll to find how to continue is avoidable friction).
+
+**Shape:** Add a one-line presentation rule to the reset-emitting bodies — the
+`context-budget-gate` skill, `archive.md`'s next-change offer, and the
+[[reset-and-resume-between-boundaries]] resume-path guidance — that the
+resume/continue one-liner is always the **final line** of the message, after any
+summary, with nothing following it. Cheap, prose-only. Pairs with
+[[context-gate-compact-and-passive-gauge]] (make the reset gate less manual) and
+[[reset-and-resume-between-boundaries]] (the resume-path content this positions).
+
 ### orchestrator-context-budget-gate — `bundled into orchestrator-context-budget (proposed 2026-07-28)` · **P2**
 
 > **Bundled into `orchestrator-context-budget`** (proposed 2026-07-28) with
@@ -567,8 +600,8 @@ thinking triggers in the stage-command bodies at exactly those points — so
 mechanical turns stay cheap and the expensive reasoning lands where it pays. This
 is the compute-lever thesis (spend compute by marginal value) applied to the
 **orchestrator's own turns**, complementing [[per-slice-compute-tier]] /
-[[per-slice-effort-via-agent-variants]] (which target the *subagent* slices) and
-[[configurable-effort-and-thinking]] (per-*stage* effort). It sits on the
+`per-slice-effort-via-agent-variants` (which target the *subagent* slices) and
+`configurable-effort-and-thinking` (per-*stage* effort). It sits on the
 cost-per-quality frontier: it does not minimise tokens versus always-medium, but
 it beats always-high at equal or better gate quality.
 
@@ -738,19 +771,19 @@ make it self-maintaining: at each material backlog change (archive, add, modify)
 — hanging off the archive flow ([[archive-requires-merged-pr]] already edits the
 backlog on archive) as the natural trigger point.
 
-**Bundle (backlog-schema-finish — Tier 1.7, unblocked by
-[[standardize-backlog-format]] 2026-07-31):** take up with [[idea-capture-command]]
-and [[backlog-wikilink-resolution-lint]] as **one QRSPI run** — this item is the
-anchor/driver. All three consume the frozen row grammar + Check 22 parser #43 just
-shipped: this item formalizes the P-band ordering the schema encodes,
-[[idea-capture-command]] writes new rows in that grammar, and
-[[backlog-wikilink-resolution-lint]] extends Check 22 to resolve `[[wikilinks]]`.
-Bundling amortizes the eight-stage ceremony across the whole backlog-schema surface
-and co-designs the three parser consumers once instead of building the boundary
-work thrice. Sequenced into the pre-1.0 runway on the same "freeze before public
-installs write the ad-hoc shape" logic that justified Tier 1.5; the related
-[[migration-edit-file-idempotency-guard]] (`/qrspi:update` dispatcher, a different
-mechanism) is sequence-adjacent but stays its own concern. Reassessed 2026-07-31.
+**Bundle (proposed — one QRSPI run, 2026-08-01):** take up together with
+[[propose-bundling-ideas]] (P3) under this entry as anchor. Both hang off the
+**same on-material-backlog-change proposal pass**: an add/modify/archive triggers
+one pass that — when warranted — offers a re-rank (this) and/or a bundle-cluster
+proposal ([[propose-bundling-ideas]]), so the trigger + offer-shape (propose,
+never automatic) is built **once**, not twice. That shared write-time trigger is
+the coupling — a mechanistic one, not merely thematic — though the bundling idea
+also keeps its own pickup-time ("what next?") trigger. Leave
+[[flow-entry-right-sizing]] out: it fires at flow *entry* on a scope, not on the
+backlog file, so it shares no mechanism (avoids over-bundling — the named third
+axis stays standalone). **Open question for D:** the conditional-firing rule —
+when does a write shift ordering / form a cluster *enough* to fire — and whether
+the write-time and pickup-time scans are one convention or two.
 
 ### flow-entry-right-sizing — `idea` · **P2**
 
@@ -778,6 +811,38 @@ and only trim genuinely low-surface changes — a right-sizer, not an escape hat
 is front-loading Q+R+D to beat the plan-reading illusion, so the gate MUST
 preserve "any data-model / API / auth / contract surface ⇒ full flow" and only
 trim genuinely low-surface changes. Surfaced 2026-07-25.
+
+### deferred-work-capture-fold-in-option — `idea` · **P3**
+
+**Why:** The Q/D/S "capture deferred work" flow (skill `workflow`, "Capturing deferred
+work") offers each surfaced Non-Goal exactly two dispositions — *Add as idea* or *Skip* —
+but a third is often the right call: **fold it into the current change**. Observed
+2026-07-31 on `backlog-schema-finish`, where a Non-Goal (extract the shared backlog-writer)
+was best pulled into the change as a new slice rather than deferred; the flow had no
+sanctioned "fold in" path, so it was handled ad hoc. A Non-Goal proposed-as-idea or skipped
+should also be foldable into the in-flight change (adding a slice) when it is cheap and
+thematically on-point.
+
+**Shape:** Extend the "Capturing deferred work" offer in skill `workflow` (and the Q/D/S
+command bodies) with a third disposition — *Fold in (add a slice to this change)* — beside
+*Add as idea* and *Skip*, with guidance on when folding in is appropriate (cheap, in-theme,
+no design re-alignment) vs. deferring. Relates to [[recycle-change-fold-new-requirements]]
+(re-entry folding) and [[flow-entry-right-sizing]] (scope sizing).
+
+### command-runtime-test-harness — `idea` · **P3**
+
+**Why:** Slash-command behaviour (a command body's interview / dedup / `AskUserQuestion`
+gate / staging flow — e.g. `/qrspi:idea`) has no mechanical test surface: `scripts/lint.mjs`
+is pure *static* Node, so today only Check 4's doc-coverage asserts a command exists, and
+runtime correctness rests entirely on `(human)` dogfood checkpoints. As the kit grows more
+main-loop commands, "the command still drives the right gates" is unverified between dogfood
+sessions. Surfaced 2026-07-31 during `backlog-schema-finish` design review (D9 / Risks:
+`/qrspi:idea` has no runtime lint).
+
+**Shape:** A harness that can drive a command body in a simulated session and assert its
+runtime flow (which `AskUserQuestion`s fire, what gets staged) beyond doc-coverage — likely
+a mock / record-replay session driver distinct from the static lint. Larger, likely post-1.0;
+needs its own Q/R/D. Partially automates the `(human)` dogfood checkpoint primitive.
 
 ### recycle-change-fold-new-requirements — `idea` · **P2**
 
@@ -906,21 +971,32 @@ often share a theme, a mechanism, or a sequencing dependency and are cheaper to
 design and ship as **one QRSPI flow** (the eight-stage ceremony amortizes across
 the bundle, and co-designing coupled items avoids building a fragile mechanism
 twice). Today nothing prompts the agent to *look for* those bundles; it happens
-ad hoc. Add a convention: at run-start / "what next?" time, scan the backlog for
-bundle-worthy clusters (shared mechanism, complementary levers, explicit
-"must be co-designed" cross-references) and **propose** a bundle to the user —
-offer, never auto-bundle; the human picks the scope. Pairs with
+ad hoc. Add a convention that fires at **two moments**: (1) at run-start /
+"what next?" time (deciding how much scope to take on), and (2) **on a material
+backlog write** — an add or modify is exactly when a new cluster *forms*, so the
+scan belongs there too, sharing [[backlog-prioritization]]'s write-time trigger.
+At either point, scan the backlog for bundle-worthy clusters (shared mechanism,
+complementary levers, explicit "must be co-designed" cross-references) and
+**propose** a bundle to the user — offer, never auto-bundle; the human picks the
+scope. Fire the write-time scan **only when the write forms/strengthens a
+cluster** so a trivial add doesn't nag. Pairs with
 [[backlog-prioritization]] — that item ranks *what's next*; this one decides
 *how much* to take at once — and is itself dogfooded by the `context-budget`
 change (which bundled the input + output token levers into one flow). Kept
 adjacent to [[backlog-prioritization]] despite the band gap, per the
 "keep families contiguous" convention above. Surfaced 2026-07-24.
 
-**Shape:** At run-start / "what next?" time, add a convention that scans the
-backlog for bundle-worthy clusters (shared mechanism, complementary levers, or
-explicit "must be co-designed" cross-references) and **proposes** a bundle to the
-user — offer, never auto-bundle; the human picks the scope. Pairs with
-[[backlog-prioritization]] (that ranks *what*; this decides *how much* at once).
+**Shape:** Add a convention that scans the backlog for bundle-worthy clusters
+(shared mechanism, complementary levers, or explicit "must be co-designed"
+cross-references) and **proposes** a bundle to the user at **two trigger
+points** — run-start / "what next?" time *and* on a material backlog write
+(add/modify), the moment a cluster forms — offer, never auto-bundle; the human
+picks the scope. Make the write-time scan **conditional** (fire only when the
+write forms/strengthens a cluster) so a trivial add doesn't nag. Pairs with
+[[backlog-prioritization]] (that ranks *what*; this decides *how much* at once),
+sharing the material-write trigger. **Bundle:** proposed to ride with
+[[backlog-prioritization]] (P2, anchor) in one QRSPI run — see that entry's
+Bundle note.
 
 ### enforce-research-ticket-hiding — `idea` · **P2**
 
@@ -1169,7 +1245,7 @@ denylist entry. Surfaced 2026-07-24 during stage-I dogfooding of
 `repo-applicable-artifact-sections` (the "could the surface list be bigger?"
 question). Relates to [[structured-surface-schema]]. The kit's *own* self-surfaces
 (the distinct "let this repo dogfood richer surfaces" flavor) split out into
-[[kit-self-surfaces]] as a higher-value standalone.
+`kit-self-surfaces` as a higher-value standalone.
 
 **Shape:** Grow the closed `repo-surface` taxonomy one surface at a time, each
 added **together with** the artifact section(s) it gates (a surface that gates no

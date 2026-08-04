@@ -39,6 +39,67 @@ kit version.
   `/qrspi:update`. This change requires a version bump at release (the migration
   ships a non-empty `automated:` list for the first time in kit history).
 
+- **Idea-capture command and shared backlog-writer skill (`backlog-schema-finish`, Slice 3).**
+  Adds `/qrspi:idea` -- a main-loop (no `agent:` frontmatter) command that drives an
+  interactive interview (derive slug, dedup by intent, P-band AskUserQuestion, one-sentence
+  Shape) and delegates row construction and staging to a new shared `backlog-writer` skill.
+  The skill owns the canonical Check-22-valid `idea`-row append procedure (dedup, P-band
+  proposal, row construction referencing the frozen grammar in
+  `openspec-templates/backlog.template.md`, and staging) so future consumers (questioner,
+  designer, architect, followup) can delegate to it rather than duplicating inline grammar.
+  `scripts/skill-sets.mjs` gains a `COMMAND_SKILL_SET_EXPECTED` export for command-scoped
+  skill registries; Check 2 (`checkFrontmatter`) is extended to resolve skill refs in
+  command bodies (not agents only); Check 2b (`checkSkillSets`) is extended to validate
+  the command skill-set registry. No version-check or budget-gate embed added to
+  `/qrspi:idea` per design (it is a non-stage, non-chaining helper).
+
+- **Command-level append sites migrated to backlog-writer (`backlog-schema-finish`, Slice 5).**
+  Removes the inline frozen-grammar construction block from the three orchestrator-level
+  append sites -- `claude/commands/design.md` step 4 ("Capture deferred work"),
+  `claude/commands/structure.md` capture step, and `claude/commands/pr.md` "Promote to
+  backlog idea" path -- replacing each with a delegation to `Load skill backlog-writer` and
+  its append procedure. The surrounding offer/dedup/skip prose (design.md, structure.md) and
+  the `followups.md` tick + commit orchestration (pr.md) are preserved unchanged.
+  `claude/commands/slices.md`'s referential grammar copy is trimmed to a one-line pointer to
+  `openspec-templates/backlog.template.md` and Check 22 (stage V does not append, so no
+  delegation call is added). `backlog-writer` is now the single non-template location where
+  the row grammar is expressed.
+
+- **Replayable, fault-tolerant migration dispatcher (`backlog-schema-finish`, Slice 1).**
+  `migrations/0.13.0.yaml`'s legend-insert step gains two optional fields --
+  `skip_if_contains` (content-idempotency guard: skip the insert when the anchor region
+  already contains the marker text, so a re-run does not duplicate the legend) and
+  `anchor_missing: warn-and-skip` (graceful degradation: emit a one-line warning and
+  continue the walk instead of hard-failing when the anchor heading has been renamed or
+  removed). `claude/skills/qrspi-update/SKILL.md` documents the dispatcher semantics for
+  both fields, and lint Check 6 is extended to validate them against their closed
+  value-domain with a positive-path inline self-test fixture.
+
+- **Dangling backlog wikilinks fail CI (`backlog-schema-finish`, Slice 2).** New lint
+  Check 23 (`checkBacklogWikilinks`) resolves every bare `[[slug]]` cross-reference in
+  `openspec/backlog.md` against the live row IDs and the date-stripped
+  `openspec/changes/archive/` folder slugs, failing CI (naming the offending slug) on any
+  dangling reference; code-spanned meta-tokens are exempt. A pure `resolveWikilinks`
+  helper backs the check, with an inline self-test covering live-row hit, archive-folder
+  hit, code-span must-not-fire, and bare-dangling must-fire. Five pre-existing bare
+  dangling links in the kit's own backlog are demoted to back-ticked plain text so CI
+  passes immediately.
+
+- **Agent- and Q-stage append sites migrated to backlog-writer (`backlog-schema-finish`, Slices 4 & 6).**
+  Completes the migration begun in Slices 3 and 5: the three stage agents
+  (`claude/agents/questioner.md`, `designer.md`, `architect.md`) and the
+  `claude/commands/followup.md` P3 promote path now load `backlog-writer` and delegate
+  row construction rather than carrying inline deferred-work-capture grammar (Slice 4).
+  `claude/commands/questions.md` gains a "Capture deferred work" step that offers each
+  candidate separable change via `AskUserQuestion` at the orchestrator level, and the
+  questioner agent's step 9 is trimmed to surface candidates in its returned summary
+  instead of issuing the offer itself (the subagent cannot reach `AskUserQuestion`);
+  Slice 6. `scripts/skill-sets.mjs` registers `backlog-writer` for the questioner,
+  designer, and architect skill sets. With these two slices, every backlog-append site
+  across the kit delegates to the single shared `backlog-writer` skill -- the D11
+  guarantee that no inline row-construction grammar copy survives outside the skill and
+  the frozen template.
+
 - **OpenSpec version-pin coupling guard (`reassess-openspec-dependency`).**
   Records the formal verdict to **keep** the `@fission-ai/openspec` CLI
   dependency for 1.0 (its residual value — spec-delta grammar validation —

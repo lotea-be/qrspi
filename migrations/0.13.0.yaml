@@ -16,6 +16,8 @@ automated:
       prevents re-application, but if run twice remove the duplicate comment block.
     action: edit-file
     path: openspec/backlog.md
+    skip_if_contains: "Backlog schema legend (frozen by standardize-backlog-format)."
+    anchor_missing: warn-and-skip
     insert_after: "# Backlog\n"
     content: "\n<!--\n  Backlog schema legend (frozen by standardize-backlog-format).\n\n  Heading grammar (one level-3 heading per row):\n\n      ### <id> — `<status>` · **P<n>**\n\n    id:       kebab-case slug (lowercase letters/digits, single hyphens).\n    —         an EM-DASH (U+2014), surrounded by single spaces. NOT --.\n    `<status>` the status field, backtick-wrapped. Leading keyword is\n               what the enum validates; any text after the keyword\n               (a note in parentheses, or `into <id> (<date>)`) is free.\n    ·          the separator is a MIDDLE-DOT (U+00B7), surrounded by\n               single spaces: ` · `.\n    **P<n>**   the priority band, bold, where <n> is 1, 2, or 3.\n\n  Status enum (the leading keyword only):\n\n      idea | proposed | in-progress | merged | bundled\n\n  Section headings (all three required):\n\n      ## In progress | ## Proposed | ## Ideas\n\n  Body rule:\n\n    idea / proposed rows MUST carry both **Why:** and **Shape:** lines.\n    bundled / merged rows are EXEMPT -- carry a `>` blockquote pointer.\n    in-progress rows are checked for grammar + enum only.\n\n  The ## Ideas section MUST open with a P-band preamble (P1, P2, P3).\n\n  See openspec-templates/backlog.template.md for the canonical template.\n-->\n"
 manual:

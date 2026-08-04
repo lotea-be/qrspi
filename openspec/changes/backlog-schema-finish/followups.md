@@ -1,0 +1,7 @@
+# Follow-ups -- backlog-schema-finish
+
+> Post-PR fix queue. Resolve with `/qrspi:followup backlog-schema-finish`. Archived with the
+> change; every box should be ticked before archival.
+
+- [x] **Every free-text field (Why, Shape) must be prompted per-idea via propose-and-confirm, never batched in plain text.** Dogfooding surfaced that `backlog-writer` collects Shape per-idea but treats Why as "supplied earlier", so multi-idea capture passes asked for several ideas' Why prose in one plain-text prompt. The skill must own both Why and Shape as per-idea `AskUserQuestion` propose-and-confirm steps (`Use this` / `Write my own`, one idea at a time). (source: PR review) (re-aligned in place -- slice 7)
+- [ ] **Confirm the `(human)` runtime checkpoints in a live `--plugin-dir` session.** Tasks 1.7, 3.7, 4.8, 5.8, 6.5, and 7.7 are `(human)` checkpoints (7.7 is newly un-ticked; the others are marked Confirm-done in `tasks.md`), but each exercises runtime behaviour (migration dispatcher idempotency/anchor-fallback, the `/qrspi:idea` interview, the `backlog-writer` delegation at each capture site, the Q-stage orchestrator-level offer, and the per-idea Why/Shape propose-and-confirm on a multi-idea capture) that the static lint cannot verify. Before archival, confirm each was observed to pass in a throwaway consumer fixture via `claude --plugin-dir /workspaces/git/qrspi` (see the `qrspi-dogfood` skill), or drop this item if the ticks already reflect observed passes. (source: PR review)

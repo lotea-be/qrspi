@@ -160,31 +160,14 @@ follow-up; then apply the next-follow-up offer below.
 
 **On P3 -- defer to backlog idea.**
 
-Derive a kebab-slug from the follow-up title: lowercase the title, replace
-spaces and punctuation with hyphens, collapse consecutive hyphens, strip
-leading/trailing hyphens. Example: "Rate-limit the new endpoint" becomes
-`rate-limit-the-new-endpoint`.
-
-Open `openspec/backlog.md` and append one new `idea` row under the
-`## Ideas` section (create the section if it does not exist). The row
-format mirrors `pr.md`'s "Promote to backlog idea" mechanic exactly,
-using the frozen heading grammar (em-dash U+2014, middle-dot U+00B7):
-
-```markdown
-### <slug> — `idea` · **P<n>**
-
-**Why:** A one-line statement of the problem this idea would solve and why it is
-worth doing. Delete this sample row once you have real backlog items.
-
-**Shape:** A short sketch of the likely solution — the mechanism, the surfaces it
-touches, and the cheapest-first cut. This is design intent, not a full plan.
-```
-
-Use `idea` as the status and `· **P3**` as the priority band (substitute
-the actual P-band when assigning). Write the `**Why:**` paragraph in one
-sentence drawing from the follow-up content, and add a `**Shape:**` line
-with a brief sketch of the likely solution. Do NOT flip the parent
-change's existing backlog status line -- only the new `idea` row is added.
+Load skill `backlog-writer` and follow its append procedure to capture the
+follow-up as a new `idea` row in `openspec/backlog.md`. The `backlog-writer`
+procedure handles dedup, slug derivation, P-band proposal, Why collection,
+Shape collection, row construction using the frozen grammar, and staging.
+Pass the follow-up content as the idea intent so the skill's Why step can
+propose a concrete Why for the human to confirm or override. Do NOT flip the
+parent change's existing backlog status line -- only the new `idea` row is
+added.
 
 Tick the targeted `followups.md` entry by changing `- [ ]` to `- [x]`
 and appending the disposition note:

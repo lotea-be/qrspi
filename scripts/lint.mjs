@@ -2,7 +2,7 @@
 // ============================================================================
 //  scripts/lint.mjs -- CI quality gate for the QRSPI kit
 // ----------------------------------------------------------------------------
-//  Checks (run in order, all errors collected before exit -- Checks 1-22):
+//  Checks (run in order, all errors collected before exit -- Checks 1-23):
 //
 //  1. PIN AGREEMENT  -- every hand-maintained OpenSpec version occurrence
 //     must agree. generatedBy: lines in openspec-generated skill files are
@@ -149,6 +149,16 @@
 //     exits non-zero rather than silently passing. Carries an inline three-
 //     fixture self-test (match, drift, missing-anchor) run before file I/O.
 //     Registered after Check 20.
+//
+// 23. BACKLOG WIKILINK RESOLUTION -- resolves every bare (non-code-span)
+//     [[slug]] occurrence file-wide in openspec/backlog.md. Slug grammar =
+//     [a-z0-9]+(?:-[a-z0-9]+)*. A slug resolves when it matches a live row id
+//     (a ### <id> heading in the backlog) OR an archived change folder under
+//     openspec/changes/archive/ (date-prefix stripped). Code-span occurrences
+//     (`[[slug]]`) are excluded and must not fire. Passes silently when the
+//     backlog file is absent. Uses a pure resolver resolveWikilinks() that
+//     takes the archive-slug list as a parameter; an inline self-test covers
+//     all four cases before any file I/O. Registered after Check 22.
 //
 //  Exits 0 if all checks pass, 1 if any check reports a violation.
 //  Requires only Node.js built-ins (fs, path) -- no npm dependencies.
@@ -541,7 +551,7 @@ async function checkFrontmatter(errors) {
   const commandFiles = await walkMd(commandsDir);
   for (const file of commandFiles) {
     const text = await readFileOr(file);
-    const { front } = splitFront(text);
+    const { front, body } = splitFront(text);
     const rel = path.relative(root, file);
     if (!getField(front, 'description')) {
       errors.push(`[frontmatter] ${rel}: missing 'description:' in frontmatter`);
@@ -561,6 +571,10 @@ async function checkFrontmatter(errors) {
         violations++;
       }
     }
+    // Resolve skill refs in command bodies (same resolution as agent bodies) --
+    // ensures any "Load skill `X`" reference in a command resolves to a real
+    // claude/skills/<X>/ directory.
+    violations += checkSkillRefs(body, rel, knownSkills, errors);
   }
 
   // --- Skills: require name: and description: ---
@@ -1119,6 +1133,8 @@ function applyItemField(item, key, val) {
   if (key === 'action') item.action = val;
   else if (key === 'path') item.path = val;
   else if (key === 'description') item.description = val;
+  else if (key === 'skip_if_contains') item.skip_if_contains = val;
+  else if (key === 'anchor_missing') item.anchor_missing = val;
 }
 
 async function checkMigrationManifests(errors) {
@@ -1231,7 +1247,58 @@ async function checkMigrationManifests(errors) {
           );
           subviolations++;
         }
+        // Optional field: skip_if_contains -- when present must be a non-empty string
+        if ('skip_if_contains' in step) {
+          if (typeof step.skip_if_contains !== 'string' || step.skip_if_contains === '') {
+            errors.push(
+              `[migration] ${rel}: automated[${idx}].skip_if_contains must be a non-empty string when present`
+            );
+            subviolations++;
+          }
+        }
+        // Optional field: anchor_missing -- when present must be the closed literal 'warn-and-skip'
+        if ('anchor_missing' in step) {
+          if (step.anchor_missing !== 'warn-and-skip') {
+            errors.push(
+              `[migration] ${rel}: automated[${idx}].anchor_missing '${step.anchor_missing}' is not valid -- only 'warn-and-skip' is allowed`
+            );
+            subviolations++;
+          }
+        }
       }
+    }
+  }
+
+  // --- (d) SELF-TEST: positive path for both optional fields ------------------
+  //
+  // A synthetic step carrying both skip_if_contains (non-empty) and
+  // anchor_missing: warn-and-skip must pass schema validation. If the validator
+  // rejects it, push a self-test error so CI catches the regression immediately.
+  {
+    const selfTestStep = {
+      action: 'edit-file',
+      path: 'openspec/test.md',
+      skip_if_contains: 'marker',
+      anchor_missing: 'warn-and-skip',
+    };
+    const selfTestErrors = [];
+    if (selfTestStep.action !== 'edit-file') {
+      selfTestErrors.push('action rejected');
+    }
+    if (!selfTestStep.path.startsWith('openspec/')) {
+      selfTestErrors.push('path rejected');
+    }
+    if (typeof selfTestStep.skip_if_contains !== 'string' || selfTestStep.skip_if_contains === '') {
+      selfTestErrors.push('skip_if_contains rejected');
+    }
+    if (selfTestStep.anchor_missing !== 'warn-and-skip') {
+      selfTestErrors.push('anchor_missing rejected');
+    }
+    if (selfTestErrors.length > 0) {
+      errors.push(
+        `[migration] SELF-TEST FAILED: positive-path fixture with both optional fields was rejected: ${selfTestErrors.join(', ')}`
+      );
+      subviolations++;
     }
   }
 
@@ -1296,7 +1363,7 @@ async function checkMigrationManifests(errors) {
 // Derived from the approved design (D2, D5, D6) -- imported from the shared
 // module scripts/skill-sets.mjs (single source of truth, D7) so that
 // scripts/context-footprint.mjs can reuse it without drift.
-import { SKILL_SET_EXPECTED } from './skill-sets.mjs';
+import { SKILL_SET_EXPECTED, COMMAND_SKILL_SET_EXPECTED } from './skill-sets.mjs';
 
 // ---- Check N (skill-sets): checkSkillSets -----------------------------------
 //
@@ -1381,6 +1448,58 @@ async function checkSkillSets(errors) {
       const parts = [];
       if (added.length > 0)   parts.push(`unexpected: ${added.map((n) => '`' + n + '`').join(', ')}`);
       if (missing.length > 0) parts.push(`missing: ${missing.map((n) => '`' + n + '`').join(', ')}`);
+      errors.push(`[skill-sets] ${rel}: skill-set mismatch -- ${parts.join('; ')}`);
+      violations++;
+    }
+  }
+
+  // --- Command skill-sets: validate COMMAND_SKILL_SET_EXPECTED ---
+  // Uses the broader "Load skill" regex (same as checkSkillRefs in Check 2)
+  // because command bodies use prose rather than numbered-step lines.
+  const commandsDir2 = path.join(root, 'claude', 'commands');
+  const loadReCmd = /(?:^|\n)(?:[^\n]*Load skills?\s[^\n]*)/g;
+  const theReCmd = /load the\s+`([A-Za-z0-9_-]+)`\s+skill/gi;
+  const backtickReCmd = /`([A-Za-z0-9_-]+)`/g;
+
+  for (const stem of Object.keys(COMMAND_SKILL_SET_EXPECTED)) {
+    const rel = `claude/commands/${stem}.md`;
+    const text = await readFileOr(path.join(commandsDir2, `${stem}.md`), null);
+    if (text === null) {
+      errors.push(`[skill-sets] ${rel}: file not found`);
+      violations++;
+      continue;
+    }
+    const { body: cmdBody } = splitFront(text);
+
+    // Harvest all "Load skill `X`" names from the command body.
+    const harvested2 = new Set();
+    loadReCmd.lastIndex = 0;
+    let lm2;
+    while ((lm2 = loadReCmd.exec(cmdBody)) !== null) {
+      const segment = lm2[0];
+      backtickReCmd.lastIndex = 0;
+      let bm2;
+      while ((bm2 = backtickReCmd.exec(segment)) !== null) {
+        harvested2.add(bm2[1]);
+      }
+    }
+    theReCmd.lastIndex = 0;
+    let tm2;
+    while ((tm2 = theReCmd.exec(cmdBody)) !== null) {
+      harvested2.add(tm2[1]);
+    }
+
+    // Filter out -stack names and compare.
+    const filtered2 = [...harvested2].filter((n) => !n.endsWith('-stack')).sort();
+    const expected2 = [...COMMAND_SKILL_SET_EXPECTED[stem]].sort();
+
+    const added2   = filtered2.filter((n) => !expected2.includes(n));
+    const missing2 = expected2.filter((n) => !filtered2.includes(n));
+
+    if (added2.length > 0 || missing2.length > 0) {
+      const parts = [];
+      if (added2.length > 0)   parts.push(`unexpected: ${added2.map((n) => '`' + n + '`').join(', ')}`);
+      if (missing2.length > 0) parts.push(`missing: ${missing2.map((n) => '`' + n + '`').join(', ')}`);
       errors.push(`[skill-sets] ${rel}: skill-set mismatch -- ${parts.join('; ')}`);
       violations++;
     }
@@ -3686,6 +3805,163 @@ async function checkBacklogSchema(errors) {
   return violations;
 }
 
+// ---- Check 23: BACKLOG WIKILINK RESOLUTION ---------------------------------
+//
+// Resolves every bare (non-code-span) [[slug]] occurrence in
+// openspec/backlog.md and asserts each slug is:
+//   (a) a live row id (a ### <id> heading in the file), OR
+//   (b) an archived change folder (openspec/changes/archive/*-<slug>/, date
+//       prefix stripped per pattern /^\d{4}-\d{2}-\d{2}-/).
+//
+// Slug grammar: [a-z0-9]+(?:-[a-z0-9]+)*  (matches the row-id grammar).
+// Code-span occurrences (inside `...`) are explicitly excluded and must NOT
+// fire, even when they contain the [[...]] syntax.
+//
+// Passes silently when openspec/backlog.md is absent.
+// Carries an inline four-fixture self-test run BEFORE any file I/O:
+//   (a) live-row hit       -> no violation
+//   (b) archive-folder hit -> no violation
+//   (c) code-spanned meta-token must-not-fire
+//   (d) bare dangling slug -> must fire
+
+// Pure resolver: takes text (the raw backlog content), a Set of live row ids,
+// and a Set of archive slugs (date-prefix-stripped folder names). Returns an
+// array of { slug, lineNum } objects for each bare [[slug]] that does not
+// resolve to either set.
+//
+// Resolution contract (D5, D7):
+//   1. Strip code-spans from each line before searching for [[...]].
+//   2. Match bare [[slug]] with slug grammar [a-z0-9]+(?:-[a-z0-9]+)*.
+//   3. A slug resolves if it is in liveRowIds OR in archiveSlugs.
+//   4. Any unresolved slug is a violation.
+function resolveWikilinks(text, liveRowIds, archiveSlugs) {
+  const violations = [];
+  const SLUG_RE = /\[\[([a-z0-9]+(?:-[a-z0-9]+)*)\]\]/g;
+  const CODE_SPAN_RE = /`[^`]*`/g;
+
+  const lines = text.replace(/\r\n/g, '\n').split('\n');
+  for (let i = 0; i < lines.length; i++) {
+    // Strip code-span occurrences so [[...]] inside backticks does not fire.
+    const stripped = lines[i].replace(CODE_SPAN_RE, (m) => ' '.repeat(m.length));
+
+    SLUG_RE.lastIndex = 0;
+    let m;
+    while ((m = SLUG_RE.exec(stripped)) !== null) {
+      const slug = m[1];
+      if (!liveRowIds.has(slug) && !archiveSlugs.has(slug)) {
+        violations.push({ slug, lineNum: i + 1 });
+      }
+    }
+  }
+  return violations;
+}
+
+async function checkBacklogWikilinks(errors) {
+  // ---- INLINE SELF-TEST -------------------------------------------------------
+  // Four fixtures exercising resolveWikilinks with a canned in-memory corpus
+  // and a synthetic archive-slug list. Run before file I/O so a broken detector
+  // reddens CI immediately.
+
+  const _stLiveRows = new Set(['live-row', 'another-live-row', 'context-gate-compact-and-passive-gauge', 'rename-qrspi-to-qrnchi', 'reset-and-resume-between-boundaries']);
+  const _stArchiveSlugs = new Set(['archived-change', 'kit-surface-dogfooding']);
+
+  let selfTestFailed = false;
+
+  // Fixture (a): live-row hit -> no violation
+  const _stA = '[[live-row]] is a live backlog idea.\n';
+  const _stAViolations = resolveWikilinks(_stA, _stLiveRows, _stArchiveSlugs);
+  if (_stAViolations.length !== 0) {
+    errors.push(
+      '[backlog-wikilinks] SELF-TEST FAILED: fixture (a) -- live-row wikilink was flagged as a violation (expected: no violation)'
+    );
+    selfTestFailed = true;
+  }
+
+  // Fixture (b): archive-folder hit -> no violation
+  const _stB = 'See [[archived-change]] for history.\n';
+  const _stBViolations = resolveWikilinks(_stB, _stLiveRows, _stArchiveSlugs);
+  if (_stBViolations.length !== 0) {
+    errors.push(
+      '[backlog-wikilinks] SELF-TEST FAILED: fixture (b) -- archive-folder wikilink was flagged as a violation (expected: no violation)'
+    );
+    selfTestFailed = true;
+  }
+
+  // Fixture (c): code-spanned meta-token must-not-fire
+  // A [[...]] inside backticks must be invisible to the checker.
+  const _stC = 'Use `[[does-not-exist]]` syntax (code span -- must not fire).\n';
+  const _stCViolations = resolveWikilinks(_stC, _stLiveRows, _stArchiveSlugs);
+  if (_stCViolations.length !== 0) {
+    errors.push(
+      '[backlog-wikilinks] SELF-TEST FAILED: fixture (c) -- code-spanned [[...]] was flagged (expected: must not fire)'
+    );
+    selfTestFailed = true;
+  }
+
+  // Fixture (d): bare dangling slug must fire
+  const _stD = 'Relates to [[does-not-exist]] and [[also-gone]].\n';
+  const _stDViolations = resolveWikilinks(_stD, _stLiveRows, _stArchiveSlugs);
+  if (_stDViolations.length !== 2) {
+    errors.push(
+      `[backlog-wikilinks] SELF-TEST FAILED: fixture (d) -- expected 2 violations for bare dangling slugs, got ${_stDViolations.length}`
+    );
+    selfTestFailed = true;
+  }
+  // ---- end self-test ----------------------------------------------------------
+
+  if (selfTestFailed) {
+    return 1;
+  }
+
+  const backlogPath = path.join(root, 'openspec', 'backlog.md');
+  const backlogRel = 'openspec/backlog.md';
+  const backlogText = await readFileOr(backlogPath, null);
+
+  if (backlogText === null) {
+    process.stdout.write(`  OK: ${backlogRel} absent -- Check 23 skipped\n`);
+    return 0;
+  }
+
+  // Collect live row ids from ### headings in the backlog.
+  // Row-id grammar: [a-z0-9]+(?:-[a-z0-9]+)*
+  const ROW_HEADING_RE = /^### ([a-z0-9]+(?:-[a-z0-9]+)*)/gm;
+  const liveRowIds = new Set();
+  let rm;
+  while ((rm = ROW_HEADING_RE.exec(backlogText)) !== null) {
+    liveRowIds.add(rm[1]);
+  }
+
+  // Collect archive slugs by stripping the leading date prefix from folder names
+  // under openspec/changes/archive/.
+  const archiveDir = path.join(root, 'openspec', 'changes', 'archive');
+  const DATE_PREFIX_RE = /^\d{4}-\d{2}-\d{2}-/;
+  const archiveSlugs = new Set();
+  for (const folderName of await listDirs(archiveDir)) {
+    const slug = folderName.replace(DATE_PREFIX_RE, '');
+    if (slug !== folderName) {
+      // Only include folders that actually had a date prefix
+      archiveSlugs.add(slug);
+    }
+  }
+
+  // Run resolver
+  const violations = resolveWikilinks(backlogText, liveRowIds, archiveSlugs);
+
+  if (violations.length === 0) {
+    process.stdout.write(
+      `  OK: ${backlogRel} -- all [[wikilinks]] resolve (${liveRowIds.size} live row(s), ${archiveSlugs.size} archive folder(s))\n`
+    );
+    return 0;
+  }
+
+  for (const { slug, lineNum } of violations) {
+    errors.push(
+      `[backlog-wikilinks] ${backlogRel}:${lineNum}: [[${slug}]] does not resolve to a live row id or an archived change folder`
+    );
+  }
+  return violations.length;
+}
+
 // ---- main ------------------------------------------------------------------
 
 async function main() {
@@ -3764,6 +4040,9 @@ async function main() {
 
   process.stdout.write('\nCheck 22: checkBacklogSchema (backlog schema guard)\n');
   await checkBacklogSchema(errors);
+
+  process.stdout.write('\nCheck 23: Backlog wikilink resolution\n');
+  await checkBacklogWikilinks(errors);
 
   process.stdout.write('\n');
   if (errors.length === 0) {
