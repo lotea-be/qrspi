@@ -53,11 +53,17 @@ contiguous below across the P2/P3 boundary.
 > **shipped and archived 2026-07-29** — `orchestrator-context-budget` (Tier 1),
 > `reassess-openspec-dependency` (Tier 1.25 — the KEEP-the-CLI verdict landed with
 > its pin-coupling guard), and `architect-must-leads-requirement-first-line`.
-> **Nothing is in progress or proposed.** The runway head is now **Tier 1.5
-> [[standardize-backlog-format]]**, with the newly-surfaced [[bump-openspec-pin]]
-> **sequenced into the runway as Tier 1.75** (2026-07-29): the KEEP verdict's direct
-> follow-on — land the OpenSpec pin that 1.0 will freeze on rather than freeze the
-> public debut on a knowingly-stale `1.4.1`. Both precede the
+> **Tier 1.5 [[standardize-backlog-format]] shipped 2026-07-31 — merged (PR #43) and
+> archived (PR #44)** — so the runway head advances and nothing is now in progress or
+> proposed. A **2026-07-31 reassessment** pulls two clusters into the runway that the
+> prior sequencing missed, both filtered by the same stranger-lens: **Tier 1.6
+> stranger-hardening** ([[git-host-and-remote-awareness]] +
+> [[researcher-apply-surface-gate]]) and **Tier 1.7 the backlog-schema-finish bundle**
+> ([[backlog-prioritization]] driving [[idea-capture-command]] +
+> [[backlog-wikilink-resolution-lint]]), the latter unblocked by Tier 1.5. The
+> newly-surfaced [[bump-openspec-pin]] stays **Tier 1.75** (2026-07-29): the KEEP
+> verdict's direct follow-on — land the OpenSpec pin that 1.0 will freeze on rather
+> than freeze the public debut on a knowingly-stale `1.4.1`. All precede the
 > [[rename-qrspi-to-qrnchi]] rebrand. The P1 [[spec-anchored-code-comments]] —
 > previously deferred to 1.1 — is now **pulled into the runway as Tier 1.9**
 > (2026-07-29): its spec-id grammar is itself a schema change, so it must land
@@ -89,12 +95,34 @@ contiguous below across the P2/P3 boundary.
 >   CLI** for a vendored convention + validator. Verdict *keep the CLI*: the rebrand
 >   proceeds as designed (`openspec/` stays, folder-branding deferred past 1.0), and 1.0
 >   doesn't back into a big migration by accident.
-> - **Tier 1.5 — freeze the last ad-hoc schema (cheap, good timing) ← runway head:**
->   [[standardize-backlog-format]], **template + lint floor only** (defer the heavier
->   per-file `backlog/<id>.md` model to post-1.0). The backlog is the one QRSPI
->   surface with no schema behind it; locking it is far cheaper before public
->   installs write the ad-hoc shape than after. Encodes the P-band convention
->   [[backlog-prioritization]] already applies informally.
+> - **Tier 1.5 — freeze the last ad-hoc schema (cheap, good timing) — ✓ SHIPPED
+>   2026-07-31 (merged PR #43 + archived PR #44):** [[standardize-backlog-format]],
+>   **template + lint floor only** (defer the heavier per-file `backlog/<id>.md`
+>   model to post-1.0). The backlog is the one QRSPI surface with no schema behind
+>   it; locking it is far cheaper before public installs write the ad-hoc shape than
+>   after. Encodes the P-band convention [[backlog-prioritization]] already applies
+>   informally.
+> - **Tier 1.6 — stranger-hardening (pulled into the runway 2026-07-31) ← runway
+>   head:** [[git-host-and-remote-awareness]] (P2) + [[researcher-apply-surface-gate]]
+>   (P2) — the sharpest "bites a stranger in week one" gap the prior sequencing
+>   missed. git-host's own rationale flags it directly ("Matters for the public 1.0:
+>   a non-GitHub or remoteless stranger currently hits `gh`-assuming commands"), and
+>   researcher-gate fixes a real mid-implementation Check 14 hard-stop that any
+>   non-web (CLI/library) repo trips. A **sequencing cluster, not one co-design run**:
+>   researcher-gate is cheap and lands first; git-host is the larger standalone (and
+>   folds in the branch-naming consolidation). [[lint-auto-mode-gate-coverage]] (P2)
+>   rides along as a cheap correctness guard. Outranks Tier 2 onboarding on the
+>   stranger-lens, so it is sequenced ahead of it.
+> - **Tier 1.7 — finish the backlog-schema story the freeze just unblocked (bundle,
+>   2026-07-31):** [[backlog-prioritization]] (P2, driver) bundling
+>   [[idea-capture-command]] (P3) + [[backlog-wikilink-resolution-lint]] (P3) as one
+>   QRSPI run — all three ride Tier 1.5's frozen grammar + Check 22 parser (the
+>   ordering convention, the capture writer, the cross-ref guard). Same logic that
+>   justified Tier 1.5: freeze the backlog surface **before** public installs write
+>   the ad-hoc shape. The related [[migration-edit-file-idempotency-guard]] (P3) — a
+>   separate #43-dogfood follow-on on the `/qrspi:update` dispatcher, not the backlog
+>   grammar — can ride the same update but stays its own concern. Cheap; can run
+>   parallel to the large Tier 1.9 design.
 > - **Tier 1.75 — land the OpenSpec pin 1.0 will freeze on (sequenced into the runway
 >   2026-07-29):** [[bump-openspec-pin]], the KEEP verdict's (Tier 1.25) direct
 >   follow-on. 1.0 is a *schema-freeze + public-debut* point; freezing the public 1.0 on
@@ -118,7 +146,9 @@ contiguous below across the P2/P3 boundary.
 >   threatens the 1.0 timeline, it is the first runway item to reconsider deferring.
 > - **Tier 2 — fixes "it's heavy" for newcomers:** [[init-conductor-plus-overview]]
 >   + [[flow-entry-right-sizing]] (onboarding is a feature when the audience is
->   strangers, not colleagues who know the lore).
+>   strangers, not colleagues who know the lore); consider adding
+>   [[tutorial-mode-narrated-tour]] (P2, the zero-footprint `/qrspi:tour`) as a third
+>   co-designable onboarding item.
 > - **Deferred past 1.0:** [[privacy-gdpr-surface]] and the
 >   alignment-quality trio [[real-runtime-slice-checkpoints]] /
 >   [[architect-real-runtime-done-decomposition]] / [[designer-flag-shared-artifact-coupling]]
@@ -128,8 +158,14 @@ contiguous below across the P2/P3 boundary.
 > Bands unchanged throughout; this records sequencing, not a re-banding — the
 > 2026-07-29 additions keep [[bump-openspec-pin]] at **P3** and
 > [[spec-anchored-code-comments]] at **P1**, only moving them *into* the pre-rename
-> runway (Tiers 1.75 and 1.9). Supersedes the prior 2026-07-27 abkf-handover
-> sequencing (privacy + trio next) — those slip behind the road-to-1.0 readiness work.
+> runway (Tiers 1.75 and 1.9). The **2026-07-31 additions** likewise re-sequence
+> only — [[git-host-and-remote-awareness]], [[researcher-apply-surface-gate]],
+> [[backlog-prioritization]] and [[lint-auto-mode-gate-coverage]] stay **P2**, and
+> [[idea-capture-command]] / [[backlog-wikilink-resolution-lint]] /
+> [[migration-edit-file-idempotency-guard]] stay **P3**; they move *into* the
+> pre-rename runway (Tiers 1.6–1.7) without a band change. Supersedes the prior
+> 2026-07-27 abkf-handover sequencing (privacy + trio next) — those slip behind the
+> road-to-1.0 readiness work.
 
 ### spec-anchored-code-comments — `idea` · **P1**
 
@@ -227,6 +263,18 @@ commit-to-current-branch) rather than failing on a missing `origin`. Include the
 (`features/<id>` default, already cheatsheet-driven) and the archive-branch pattern
 (replacing the hardcoded `chore/archive-<id>` in `archive.md`) — so a consumer
 overrides both from one configurable place.
+
+**Runway (stranger-hardening — Tier 1.6, pulled in 2026-07-31):** sequenced into the
+pre-1.0 runway as the sharpest "bites a stranger in week one" gap the prior
+sequencing missed — a non-GitHub or remoteless stranger hits `gh`-assuming commands
+the moment they run `/qrspi:pr` or `/qrspi:archive`, exactly the first-impression
+failure a public 1.0 invites. Clustered with [[researcher-apply-surface-gate]] (the
+cheap sibling — fixes a non-web-repo Check 14 hard-stop) and
+[[lint-auto-mode-gate-coverage]] (a cheap correctness guard) as the pre-1.0
+stranger-hardening pass. This is a **sequencing cluster, not one co-design run**:
+this item is the larger standalone (vendor detection + no-remote path +
+branch-naming fold-in), so researcher-gate lands cheap and first while this is
+designed. Reassessed 2026-07-31.
 
 ### idea-capture-command — `bundled into backlog-schema-finish (2026-07-31)` · **P3**
 
