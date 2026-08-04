@@ -114,14 +114,15 @@ contiguous below across the P2/P3 boundary.
 >   rides along as a cheap correctness guard. Outranks Tier 2 onboarding on the
 >   stranger-lens, so it is sequenced ahead of it.
 > - **Tier 1.7 — finish the backlog-schema story the freeze just unblocked (bundle,
->   2026-07-31):** [[backlog-prioritization]] (P2, driver) bundling
->   [[idea-capture-command]] (P3) + [[backlog-wikilink-resolution-lint]] (P3) as one
->   QRSPI run — all three ride Tier 1.5's frozen grammar + Check 22 parser (the
->   ordering convention, the capture writer, the cross-ref guard). Same logic that
->   justified Tier 1.5: freeze the backlog surface **before** public installs write
->   the ad-hoc shape. The related [[migration-edit-file-idempotency-guard]] (P3) — a
->   separate #43-dogfood follow-on on the `/qrspi:update` dispatcher, not the backlog
->   grammar — can ride the same update but stays its own concern. Cheap; can run
+>   2026-07-31):** taken up as `backlog-schema-finish`, which bundles
+>   [[idea-capture-command]] (P3) + [[backlog-wikilink-resolution-lint]] (P3) +
+>   [[migration-edit-file-idempotency-guard]] (P3) as one QRSPI run — the first two
+>   ride Tier 1.5's frozen grammar + Check 22 parser (the capture writer, the
+>   cross-ref guard), and the `/qrspi:update` dispatcher guard rides along from the
+>   same #43 dogfood. Same logic that justified Tier 1.5: freeze the backlog surface
+>   **before** public installs write the ad-hoc shape. [[backlog-prioritization]] (P2)
+>   — the original driver — was pulled out of this bundle and now pairs with
+>   [[propose-bundling-ideas]] on its own write-time proposal pass. Cheap; can run
 >   parallel to the large Tier 1.9 design.
 > - **Tier 1.75 — land the OpenSpec pin 1.0 will freeze on (sequenced into the runway
 >   2026-07-29):** [[bump-openspec-pin]], the KEEP verdict's (Tier 1.25) direct
