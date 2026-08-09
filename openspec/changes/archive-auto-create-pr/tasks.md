@@ -6,11 +6,11 @@
 
 **Compute:** effort=low model=haiku — single-file prose rewrites against a fully specified contract; zero branching logic or cross-file coordination beyond README prose
 
-- [ ] 1.1 Edit `claude/commands/archive.md` step-5 new-branch sub-path: replace print-only sentences with mode-aware create gate (Manual AskUserQuestion; Full/Semi auto-create), host-CLI reuse from step 3, title-only `--body ""` create targeting default branch, stdout capture of `#<N>` and URL, and graceful-degrade prose on failure (D1, D2, D3, D4, D5)
-- [ ] 1.2 Edit `claude/commands/archive.md` step-6 "New branch chosen" bullet: replace "repeat the suggested PR-create command" with "report the created archive PR (`#<N>` + URL)"; add fallback wording for show-command-first and create-failed paths (D3, D5)
-- [ ] 1.3 Update `README.md` archive-flow prose to reflect auto-create behaviour rather than print-only
-- [ ] 1.4 Unit/integration test: run `node scripts/lint.mjs` — all checks must exit 0 with no regression
-- [ ] 1.5 Checkpoint: open `claude/commands/archive.md` and confirm step 5 contains the mode-aware create gate prose and step 6 contains capture-and-report wording (not print-only); open `README.md` and confirm the archive-flow description no longer says the command prints the PR-create command; confirm `node scripts/lint.mjs` exits 0
+- [x] 1.1 Edit `claude/commands/archive.md` step-5 new-branch sub-path: replace print-only sentences with mode-aware create gate (Manual AskUserQuestion; Full/Semi auto-create), host-CLI reuse from step 3, title-only `--body ""` create targeting default branch, stdout capture of `#<N>` and URL, and graceful-degrade prose on failure (D1, D2, D3, D4, D5)
+- [x] 1.2 Edit `claude/commands/archive.md` step-6 "New branch chosen" bullet: replace "repeat the suggested PR-create command" with "report the created archive PR (`#<N>` + URL)"; add fallback wording for show-command-first and create-failed paths (D3, D5)
+- [x] 1.3 Update `README.md` archive-flow prose to reflect auto-create behaviour rather than print-only (no change needed: README has no step-level prose describing the print-only behaviour)
+- [x] 1.4 Unit/integration test: run `node scripts/lint.mjs` — all checks must exit 0 with no regression
+- [x] 1.5 Checkpoint: open `claude/commands/archive.md` and confirm step 5 contains the mode-aware create gate prose and step 6 contains capture-and-report wording (not print-only); open `README.md` and confirm the archive-flow description no longer says the command prints the PR-create command; confirm `node scripts/lint.mjs` exits 0
 
 ## 2. Dogfood runtime verification
 
