@@ -7,13 +7,7 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## In progress
 
-_None._
-
----
-
-## Proposed
-
-### archive-auto-create-pr — `proposed (QRSPI flow — Q done 2026-08-04)` · **P3**
+### archive-auto-create-pr — `in-progress (Q, R, D, S, V, P, I complete)` · **P3**
 
 **Why:** `/qrspi:archive` step 5's "New branch + push" path only **prints** the
 host PR-create command and explicitly says "do not run it automatically — just
@@ -33,6 +27,12 @@ output, and report them in step 6 instead of re-printing the command. Mirror
 "create now / show first" gate vs. auto-create in Full/Semi) so the two stages
 behave consistently. Update the README/archive-flow prose if it documents the
 print-only behaviour.
+
+---
+
+## Proposed
+
+_None._
 
 ---
 
