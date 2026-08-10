@@ -1785,6 +1785,26 @@ genuinely post-PR-shaped issues go to `followups.md`. (2) Make the "Record the
 PR link" backlog note conditional on draft-ness: `in-progress (draft PR #<N>
 open)` only when opened as a draft, else `in-progress (PR #<N> open)`.
 
+### plan-emits-changelog-task — `idea` · **P3**
+
+**Why:** `CLAUDE.md` and the stack-cheatsheet both mandate a `## [Unreleased]`
+`CHANGELOG.md` entry for any change to shipped kit behaviour, but the planner
+(stage P) never emits a task for it — it is a cross-cutting housekeeping step
+not tied to any one slice, so the slice→task translation drops it. Surfaced
+dogfooding `archive-auto-create-pr` (see its `retrospective.md`, stage P): the
+missing entry went unnoticed through Implement and was caught by the reviewer
+at PR time as a *blocking* open issue — the latest, most expensive place to
+catch a one-line doc requirement.
+
+**Shape:** In `claude/agents/planner.md` (and/or `claude/commands/plan.md`), add
+a standing rule: when the change alters shipped kit behaviour
+(command/agent/skill/template/lint edit), append a housekeeping task to
+`tasks.md` — "Add a `## [Unreleased]` entry to `CHANGELOG.md` describing this
+change" — so the requirement is satisfied during Implement, not caught at PR
+review. Skip only for pure docs/backlog-only changes that need no CHANGELOG
+line. Relates to [[pr-stage-open-issue-triage]] (the PR-stage half of the same
+CHANGELOG-gap story).
+
 ### optional-technology-specs — `idea` · **P3**
 
 **Why:** QRSPI delta specs today are stack-agnostic `Requirement` + `Scenario`

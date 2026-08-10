@@ -48,3 +48,36 @@ idea `pr-stage-open-issue-triage` (P3), in the same retro commit.
   repo (single source of truth under `claude/`; only `scripts/*.mjs` exist).
   That is a `claude/commands/retro.md` / retrospective-skill staleness, out of
   scope for a PR-stage retro — capture separately.
+
+---
+
+# Retrospective — archive-auto-create-pr / stage P
+
+> Generated 2026-08-10. Stage completed in commit 4bdc775 (tasks.md).
+
+## Friction observed
+
+1. **No CHANGELOG task emitted.** `CLAUDE.md` ("Record the change under
+   `## [Unreleased]` in `CHANGELOG.md`") and the stack-cheatsheet ("Record all
+   feature changes under `## [Unreleased]` in `CHANGELOG.md`") both mandate a
+   CHANGELOG entry for any change to shipped kit behaviour. The planner turned
+   `slices.md` into an 11-task `tasks.md` but never included a task to add that
+   entry — it is a cross-cutting housekeeping step not tied to any one slice, so
+   nothing in the slice→task translation produced it. The gap went unnoticed
+   through Implement and was only caught by the reviewer at PR time as a
+   *blocking* open issue — the latest and most expensive place to catch a
+   one-line doc requirement. The planner is the natural owner: it assembles the
+   full task list and is where a standing housekeeping task belongs.
+
+## Proposed edits
+
+| # | File | Edit |
+|---|------|------|
+| 1 | `claude/agents/planner.md` (and/or `claude/commands/plan.md`) | Add a standing rule: when the change alters shipped kit behaviour (a command/agent/skill/template/lint edit), append a housekeeping task to `tasks.md` — "Add a `## [Unreleased]` entry to `CHANGELOG.md` describing this change" — so the CHANGELOG requirement is satisfied during Implement, not caught at PR review. Skip only for pure docs/backlog-only changes that need no CHANGELOG line. |
+
+## Deferred
+
+- Whether this task belongs to the planner (P) or the slices architect (V) is a
+  judgement; proposed on the planner here because it owns full-list assembly.
+  If a broader "housekeeping tasks" pass is wanted, that is a larger design
+  question for its own change.
