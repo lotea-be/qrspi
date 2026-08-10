@@ -7,7 +7,7 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## In progress
 
-### archive-auto-create-pr — `in-progress (Q, R, D, S, V, P, I complete)` · **P3**
+### archive-auto-create-pr — `in-progress (PR #48 open)` · **P3**
 
 **Why:** `/qrspi:archive` step 5's "New branch + push" path only **prints** the
 host PR-create command and explicitly says "do not run it automatically — just
