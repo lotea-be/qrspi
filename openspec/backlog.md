@@ -1763,6 +1763,28 @@ a lint/guard that enforces the shape at source. Surfaced as a Non-Goal of
 parse the PR number without defensive tolerance. Enforce the shape at source rather
 than tolerating drift downstream.
 
+### pr-stage-open-issue-triage — `idea` · **P3**
+
+**Why:** Two `claude/commands/pr.md` rough edges surfaced dogfooding
+`archive-auto-create-pr`'s PR stage (see its `retrospective.md`). (1) The
+"Seed the follow-up queue" step routes **every** reviewer open issue to
+`followups.md` (post-PR) and the reviewer defaults to a **draft** PR when the
+list is non-empty — but some open issues are trivial, in-scope, must-fix-
+before-merge gaps (e.g. a missing CHANGELOG `## [Unreleased]` entry that
+CLAUDE.md mandates), where fixing in-stage and opening a normal PR is strictly
+better than deferring a knowingly-broken PR to a followup. The command has no
+sanctioned "fix it now" branch, so the orchestrator has to deviate from its
+letter. (2) The backlog note is hardcoded to `in-progress (draft PR #<N> open)`
+even when a **ready** (non-draft) PR is opened, making the note inaccurate.
+
+**Shape:** In `claude/commands/pr.md`: (1) add a triage line to "Seed the
+follow-up queue" — before seeding, for each reviewer open issue, if it is a
+trivial in-scope gap that MUST be fixed before merge, fix it in-stage, commit
+atomically, and treat it as resolved (no followup, no forced draft); only
+genuinely post-PR-shaped issues go to `followups.md`. (2) Make the "Record the
+PR link" backlog note conditional on draft-ness: `in-progress (draft PR #<N>
+open)` only when opened as a draft, else `in-progress (PR #<N> open)`.
+
 ### optional-technology-specs — `idea` · **P3**
 
 **Why:** QRSPI delta specs today are stack-agnostic `Requirement` + `Scenario`
