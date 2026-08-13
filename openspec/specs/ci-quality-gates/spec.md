@@ -187,10 +187,13 @@ a hardcoded `MAIN_LOOP_ONLY` set (at minimum `{'AskUserQuestion'}`) and, for
 each `claude/commands/*.md`, flags a violation if the command's frontmatter
 declares a non-builtin `agent:` AND the command's body **reaches** a tool in
 `MAIN_LOOP_ONLY`. A body reaches such a tool either **directly** (the tool name
-appears in the body text) or **transitively** (the body references the
-`workflow` "Stage choreography" procedures — commit step / next-stage
-handoff / approval gate — which invoke a main-loop-only tool on the command's
-behalf). Builtins (`build`, `agent`) MUST be excluded from the check. Check 5
+appears in the body text) or **transitively** (the body references a skill that
+carries the "Stage choreography" procedures — `stage-choreography`, or the
+legacy `workflow` home — together with one of those procedure names: commit
+step / next-stage handoff / approval gate, which invoke a main-loop-only tool on
+the command's behalf). Both skill names MUST be accepted, so a command that
+cites the procedures under their current home is caught rather than passing
+silently. Builtins (`build`, `agent`) MUST be excluded from the check. Check 5
 MUST be registered in `scripts/lint.mjs` after Check 4 using the same
 dependency-free ESM pattern (async function pushing to `errors[]`,
 `process.stdout.write('Check 5: ...')` label in `main()`).
@@ -208,6 +211,15 @@ dependency-free ESM pattern (async function pushing to `errors[]`,
   handoff (which invoke `AskUserQuestion`), and the lint job runs
 - **THEN** Check 5 reports a violation, because the body transitively reaches a
   main-loop-only tool that would be trapped in the subagent.
+
+#### Scenario: stage command traps gates transitively via stage-choreography
+- **WHEN** a `claude/commands/*.md` file declares `agent: researcher` (a
+  non-builtin) AND its body names neither `AskUserQuestion` nor the `workflow`
+  skill, but references the `stage-choreography` commit step / next-stage
+  handoff, and the lint job runs
+- **THEN** Check 5 reports a violation, because `stage-choreography` is the
+  current home of those procedures and reaching them from a subagent traps the
+  same main-loop-only tool.
 
 #### Scenario: stage commands after fix pass Check 5
 - **WHEN** the nine stage commands have had `agent:` and the fork directive
@@ -1135,7 +1147,7 @@ The system MUST include a Check 22 (`checkBacklogSchema`) registered in
 `scripts/lint.mjs` after Check 21, using the same dependency-free ESM pattern
 (async function pushing to `errors[]`, `process.stdout.write('Check 22: ...')`
 label in `main()`). Check 22 MUST pass silently when `openspec/backlog.md` is
-absent, and MUST hard-fail (push to `errors[]`, exit non-zero) on any of six
+absent, and MUST hard-fail (push to `errors[]`, exit non-zero) on any of seven
 assertions when the file is present: (1) the three `## ` section headings
 `## In progress`, `## Proposed`, and `## Ideas` are all present; (2) at least
 one line between the `## Ideas` heading and its first `### ` row contains all
@@ -1147,13 +1159,19 @@ backtick status field is one of `{idea, proposed, in-progress, merged, bundled}`
 `**Why:**` and `**Shape:**` in its body — `bundled`/`merged` rows are exempt,
 `in-progress` rows are checked only for grammar and enum; (6) the file
 `openspec-templates/backlog.template.md` exists (existence-only; no content
-scan). Check 22 MUST carry an inline self-test fixture (well-formed row; malformed
-heading; missing Shape on standalone row; exempt bundled row) that runs before
+scan); (7) each row whose status leading keyword is `idea`, `proposed`, or
+`in-progress` sits under the matching `## ` section (`## Ideas`, `## Proposed`,
+`## In progress` respectively) — a status flip is also a section move, so the
+two MUST agree; `bundled` and `merged` rows are exempt because a `bundled` row
+stays parked under its originating section and a `merged` row is transient until
+`/qrspi:archive` removes it. Check 22 MUST carry an inline self-test fixture
+(well-formed row; malformed heading; missing Shape on standalone row; exempt
+bundled row; a `proposed` row stranded under `## Ideas`) that runs before
 file I/O.
 
-#### Scenario: compliant backlog passes all six assertions
+#### Scenario: compliant backlog passes all seven assertions
 
-- **WHEN** `openspec/backlog.md` is present and satisfies all six assertions
+- **WHEN** `openspec/backlog.md` is present and satisfies all seven assertions
   and `node scripts/lint.mjs` is run
 - **THEN** Check 22 reports `OK` and does not contribute to a non-zero exit.
 
@@ -1193,11 +1211,27 @@ file I/O.
   `node scripts/lint.mjs` is run (and `openspec/backlog.md` is present)
 - **THEN** Check 22 pushes a template-existence violation and exits non-zero.
 
+#### Scenario: in-place status flip leaves a mis-grouped row and fails assertion 7
+
+- **WHEN** a stage flips a row's status from `idea` to `proposed` without moving
+  it out of `## Ideas`, and `node scripts/lint.mjs` is run
+- **THEN** Check 22 pushes a section-grouping violation naming the row id, its
+  status, its current section, and the section it belongs under, and exits
+  non-zero.
+
+#### Scenario: bundled row under ## Ideas passes assertion 7 (exempt)
+
+- **WHEN** `openspec/backlog.md` has a `bundled` row sitting under `## Ideas`
+  and `node scripts/lint.mjs` is run
+- **THEN** Check 22 does NOT flag the bundled row for a section-grouping
+  violation.
+
 #### Scenario: inline self-test catches a broken Check 22 detector
 
 - **WHEN** Check 22's inline self-test runs at the top of `checkBacklogSchema`
-- **THEN** all four fixture assertions (well-formed pass; malformed heading fires;
-  missing Shape fires; exempt bundled does not fire) behave as specified; if any
+- **THEN** all five fixture assertions (well-formed pass; malformed heading fires;
+  missing Shape fires; exempt bundled does not fire; stranded `proposed` row
+  fires) behave as specified; if any
   self-test assertion fails, a self-test error is pushed to the errors array.
 
 ### Requirement: Check-10 label collision between checkBudgetGateEmbed and checkTriagePaths MUST be resolved

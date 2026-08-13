@@ -124,6 +124,38 @@ kit version.
   extensions fixes it at the source (tracked files renormalised in a separate,
   content-free commit), and Check 21 now EOL-normalises before comparing, with a
   fourth self-test fixture (CRLF/LF pair must pass) guarding that behaviour.
+- **Dangling references left by the `workflow` / `stage-choreography` split.**
+  Splitting the orchestrator procedures out of `workflow` left six pointers
+  aimed at their old home:
+  - **Check 5 was blinded.** `reachesMainLoopOnlyTool` gated transitive
+    `AskUserQuestion` reach on the body naming the `workflow` skill, but all
+    three choreography markers moved. A command with a non-builtin `agent:`
+    citing the commit step in `stage-choreography` would have trapped a
+    main-loop-only gate inside a subagent with CI silent. Both skill names are
+    now accepted.
+  - **Check 22 gained assertion 7 (status-vs-section grouping).** A status flip
+    is also a section move, but nothing verified it: a `proposed` row left
+    sitting under `## Ideas` passed the grammar, enum, and body-field
+    assertions. Rows keyed `idea` / `proposed` / `in-progress` must now sit
+    under `## Ideas` / `## Proposed` / `## In progress`; `bundled` and `merged`
+    stay exempt. Adds a fifth self-test fixture.
+  - **`claude/agents/questioner.md`** now states the section-move obligation
+    inline on its mandatory `idea` to `proposed` flip. The questioner is a
+    subagent, so it cannot load the orchestrator-only `stage-choreography`
+    where that rule now lives, and `backlog-writer` only covers inserting a
+    *new* `idea` row.
+  - **`claude/skills/workflow/SKILL.md`** no longer calls the backlog "a flat
+    list" — it is grouped under a `##` section per status, as
+    `stage-choreography` already stated.
+  - **`claude/skills/retrospective/SKILL.md`** routes stage friction to the
+    right file: its governing-files table gained a `stage-choreography` row
+    plus a rubric for picking between the two, and `claude/commands/retro.md`
+    now loads that skill so the retro can read the text it proposes edits to.
+  - **`CONTRIBUTING.md`**, the two dangling in-file cross-references in
+    `stage-choreography`, and the "seven stage subagents" counts in
+    `.claude/skills/qrspi-stack/SKILL.md` and `.claude-plugin/plugin.json`
+    (nine) are corrected. Base specs under `openspec/specs/**` are repointed to
+    match.
 
 ## [0.13.0] - 2026-08-13
 

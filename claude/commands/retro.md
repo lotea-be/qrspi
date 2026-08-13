@@ -16,8 +16,12 @@ id is unknown and stop.
 
 Otherwise:
 
-1. Load skills `retrospective`, `workflow`, and
-   `openspec-workflow`.
+1. Load skills `retrospective`, `workflow`, `stage-choreography`, and
+   `openspec-workflow`. Friction about an orchestrator procedure (a gate
+   that fired twice, a handoff that did not advance, a precondition that
+   was skipped, a commit that bundled the wrong files) is governed by
+   `stage-choreography`, not `workflow` — you must be able to read the
+   text you are proposing edits to.
 2. Read the artifact the stage just wrote (e.g. `questions.md` for
    stage Q, `research.md` for stage R, etc.) plus the
    command/agent/skill files that govern that stage. The table in the

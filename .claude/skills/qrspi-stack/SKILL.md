@@ -24,7 +24,7 @@ description: Stack cheatsheet for qrspi -- languages, runtime versions, framewor
 .claude-plugin/plugin.json   -- plugin manifest (name, version, commands, agents, skills paths)
 claude/
   commands/                  -- slash commands (/qrspi:* etc.)
-  agents/                    -- seven QRSPI stage subagents
+  agents/                    -- nine QRSPI stage subagents + the spec-syncer helper
   skills/                    -- kit-shipped shared skills (auto-registered via plugin)
 .claude/
   skills/                    -- project-scoped skills (not shipped in plugin)
