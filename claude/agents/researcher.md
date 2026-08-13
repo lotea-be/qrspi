@@ -51,6 +51,7 @@ to widen them; do not go hunting in the ticket.
    with pattern `.claude/skills/*/SKILL.md` to find it). The `repo-surface`
    skill defines which inventory sections to emit based on the surfaces
    present in the repo; the stack cheatsheet declares those surfaces.
+   Apply the surface-gate rule per the `repo-surface` skill: emit each inventory section only when its surface is present, omitting absent-surface headings entirely.
 2. For each area, locate the relevant files using Glob/Grep.
 3. For each file, record:
    - Path and one-line purpose.

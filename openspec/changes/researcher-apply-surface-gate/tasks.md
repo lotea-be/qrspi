@@ -6,9 +6,9 @@
 
 **Compute:** effort=low model=haiku — single-sentence insertion at a pinned position in one markdown file; zero branching logic, zero cross-file coordination.
 
-- [ ] 1.1 In `claude/agents/researcher.md`, locate `## What to do` step 1 and insert the sentence "Apply the surface-gate rule per the `repo-surface` skill: emit each inventory section only when its surface is present, omitting absent-surface headings entirely." immediately after the existing sentence that states `repo-surface` defines which inventory sections to emit. (D1)
-- [ ] 1.2 Unit/integration test: read the edited file and confirm (a) the sentence appears inside step 1, (b) it immediately follows the existing `repo-surface` sentence, and (c) it is not formatted as a new numbered step. (D1)
-- [ ] 1.3 Run `node scripts/lint.mjs` and confirm it exits 0 with no new errors. (D1)
+- [x] 1.1 In `claude/agents/researcher.md`, locate `## What to do` step 1 and insert the sentence "Apply the surface-gate rule per the `repo-surface` skill: emit each inventory section only when its surface is present, omitting absent-surface headings entirely." immediately after the existing sentence that states `repo-surface` defines which inventory sections to emit. (D1)
+- [x] 1.2 Unit/integration test: read the edited file and confirm (a) the sentence appears inside step 1, (b) it immediately follows the existing `repo-surface` sentence, and (c) it is not formatted as a new numbered step. (D1)
+- [x] 1.3 Run `node scripts/lint.mjs` and confirm it exits 0 with no new errors. (D1)
 - [ ] 1.4 (human) Run `grep -n "surface-gate rule per the" claude/agents/researcher.md` and confirm it returns exactly one match located inside step 1. Visually confirm the surrounding step context looks correct.
 
 ## 2. Add Check 24 (checkResearcherGateInstruction) to lint.mjs
