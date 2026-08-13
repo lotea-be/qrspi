@@ -2,7 +2,8 @@
 // ============================================================================
 //  scripts/lint.mjs -- CI quality gate for the QRSPI kit
 // ----------------------------------------------------------------------------
-//  Checks (run in order, all errors collected before exit -- Checks 1-23):
+//  Checks (run in order, all errors collected before exit -- Checks 1-24,
+//  plus sub-checks 2b and 10b):
 //
 //  1. PIN AGREEMENT  -- every hand-maintained OpenSpec version occurrence
 //     must agree. generatedBy: lines in openspec-generated skill files are
@@ -31,12 +32,13 @@
 //     be schema-valid (required keys, edit-file-only action, openspec/-scoped
 //     paths); openspec/.qrspi-version (if present) must be bare SemVer.
 //
-//  7. READ-CONTRACT BANNER AGREEMENT -- each of the seven QRSPI stage agents
+//  7. READ-CONTRACT BANNER AGREEMENT -- each of the nine QRSPI stage agents
 //     carries a `> **Read contract** -- Reads: ...` banner whose Reads: field
 //     must EQUAL that agent's row in the approved read matrix (banner-keyed
 //     positive check). Handles the architect two-mode (S/V) contract and the
-//     reviewer full-folder special case; scoped strictly to the seven stage
-//     agents (never /qrspi:update or qrspi-update).
+//     reviewer full-folder special case; scoped strictly to the nine stage
+//     agents (six stage agents plus the three implementer effort variants --
+//     never /qrspi:update or qrspi-update).
 //
 //  8. PR RECONCILIATION PASSES STRUCTURE -- claude/commands/pr.md must carry
 //     the tasks-pass and follow-ups-pass section headings and their required
@@ -66,7 +68,7 @@
 //     to be PRESENT; Check 11 requires surface-GATED headings to be ABSENT
 //     from fenced blocks -- disjoint heading sets AND disjoint scopes.
 //
-// 12. OUTPUT-CONTRACT BANNER PRESENCE -- each of the seven stage agents must
+// 12. OUTPUT-CONTRACT BANNER PRESENCE -- each of the nine stage agents must
 //     carry a `> **Output contract**` banner line (presence-only check;
 //     the banner text is human-authored). Mirrors the scope and pattern of
 //     Check 7. Registered after Check 11.
@@ -144,11 +146,21 @@
 //     <!-- must-leads:begin --> and <!-- must-leads:end --> sentinel comments
 //     from both claude/agents/architect.md and
 //     openspec-templates/spec-delta.template.md, and asserts the two extracted
-//     blocks are byte-identical. Fails closed: if either sentinel pair is
-//     missing or unbalanced the check pushes a [format-rules-parity] error and
-//     exits non-zero rather than silently passing. Carries an inline three-
-//     fixture self-test (match, drift, missing-anchor) run before file I/O.
-//     Registered after Check 20.
+//     blocks are identical once EOL-normalised (CRLF -> LF), so a mixed-EOL
+//     checkout is not reported as drift. Fails closed: if either sentinel pair
+//     is missing or unbalanced the check pushes a [format-rules-parity] error
+//     and exits non-zero rather than silently passing. Carries an inline four-
+//     fixture self-test (match, drift, missing-anchor, CRLF/LF pair) run before
+//     file I/O. Registered after Check 20.
+//
+// 22. BACKLOG SCHEMA GUARD -- freezes the openspec/backlog.md schema: the three
+//     section headings (## In progress / ## Proposed / ## Ideas), the P-band
+//     preamble under ## Ideas, the per-row heading grammar (em-dash U+2014 +
+//     middle-dot U+00B7 + bold P-band), the status-keyword enum, the **Why:** +
+//     **Shape:** body rule scoped to standalone idea/proposed rows, and the
+//     existence of openspec-templates/backlog.template.md. Passes silently when
+//     the backlog file is absent. Carries an inline four-fixture self-test.
+//     Registered after Check 21.
 //
 // 23. BACKLOG WIKILINK RESOLUTION -- resolves every bare (non-code-span)
 //     [[slug]] occurrence file-wide in openspec/backlog.md. Slug grammar =
@@ -159,6 +171,12 @@
 //     backlog file is absent. Uses a pure resolver resolveWikilinks() that
 //     takes the archive-slug list as a parameter; an inline self-test covers
 //     all four cases before any file I/O. Registered after Check 22.
+//
+// 24. RESEARCHER GATE-INSTRUCTION PRESENCE -- asserts the researcher agent's
+//     `## What to do` step 1 carries the surface-gate instruction phrase
+//     (`surface-gate rule per the \`repo-surface\` skill`) via a stable-substring
+//     match, so the stage-R gate instruction cannot silently regress. Carries an
+//     inline two-fixture self-test. Registered after Check 23.
 //
 //  Exits 0 if all checks pass, 1 if any check reports a violation.
 //  Requires only Node.js built-ins (fs, path) -- no npm dependencies.
@@ -3458,17 +3476,24 @@ async function checkFormatRulesParity(errors) {
   // Helper: extract the text between the sentinel comments (exclusive of the
   // sentinel lines themselves). Returns the extracted string, or null if either
   // sentinel is missing or the begin occurs after the end.
+  //
+  // The extracted block is EOL-normalised (CRLF -> LF) before it is returned, so
+  // the identity assertion below compares content and not line endings. Without
+  // this, a checkout that hands one file CRLF and the other LF -- the state the
+  // repo was in before `* text=auto` landed in .gitattributes -- fails the check
+  // on a difference no diff can show. Normalising EOL costs nothing in detection
+  // power: a pure line-ending difference is not Format-rules drift.
   function extractBlock(text) {
     const beginIdx = text.indexOf(BEGIN_SENTINEL);
     if (beginIdx === -1) return null;
     const afterBegin = beginIdx + BEGIN_SENTINEL.length;
     const endIdx = text.indexOf(END_SENTINEL, afterBegin);
     if (endIdx === -1) return null;
-    return text.slice(afterBegin, endIdx);
+    return text.slice(afterBegin, endIdx).replace(/\r\n/g, '\n');
   }
 
   // ---- INLINE SELF-TEST -------------------------------------------------------
-  // Three fixtures exercising extractBlock and the byte-identity assertion.
+  // Four fixtures exercising extractBlock and the identity assertion.
   // Run before file I/O so a broken detector reddens CI immediately.
 
   // Fixture (a): matching pair -> PASS (both blocks are identical)
@@ -3494,6 +3519,17 @@ async function checkFormatRulesParity(errors) {
   const _stBlockC = extractBlock(_stTextC);
   if (_stBlockC !== null) {
     errors.push('[format-rules-parity] SELF-TEST FAILED: fixture (c) -- missing anchor was not detected (got non-null)');
+  }
+
+  // Fixture (d): same content, different line endings (CRLF vs LF) -> PASS.
+  // Guards the EOL normalisation in extractBlock: a mixed-EOL checkout must not
+  // be reported as Format-rules drift.
+  const _stTextD1 = `${BEGIN_SENTINEL}\r\n- MUST line\r\n${END_SENTINEL}`;
+  const _stTextD2 = `${BEGIN_SENTINEL}\n- MUST line\n${END_SENTINEL}`;
+  const _stBlockD1 = extractBlock(_stTextD1);
+  const _stBlockD2 = extractBlock(_stTextD2);
+  if (_stBlockD1 === null || _stBlockD2 === null || _stBlockD1 !== _stBlockD2) {
+    errors.push('[format-rules-parity] SELF-TEST FAILED: fixture (d) -- CRLF/LF pair with identical content was reported as drift');
   }
   // ---- end self-test ----------------------------------------------------------
 
@@ -3545,7 +3581,7 @@ async function checkFormatRulesParity(errors) {
 
   if (violations === 0) {
     process.stdout.write(
-      `  OK: Format-rules sentinel blocks in architect.md and spec-delta.template.md are byte-identical\n`
+      `  OK: Format-rules sentinel blocks in architect.md and spec-delta.template.md are identical (EOL-normalised)\n`
     );
   }
   return violations;

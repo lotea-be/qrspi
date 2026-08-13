@@ -60,6 +60,26 @@ kit version.
     instructing existing consumers to re-run `/qrspi:stack` or hand-add the
     field.
 
+### Fixed
+
+- **`scripts/lint.mjs` header block now matches the code.** The banner said
+  "Checks 1-23" for a 24-check script, described Checks 7 and 12 as covering
+  "seven" stage agents where both assert nine (the six stage agents plus the
+  three implementer effort variants), and skipped Checks 22 and 24 in its
+  enumeration entirely. Comment-only -- no check behaviour changed.
+- **README template count.** The repo-layout tree called `openspec-templates/`
+  "the 5 canonical artifact templates"; it ships seven -- the five change
+  artifacts plus `spec-delta` and `backlog`.
+- **Line endings pinned to LF (`.gitattributes`).** The repo carried no rule for
+  `.md`, so 27 tracked files sat CRLF in the index while the other 363 sat LF.
+  Check 21 (`checkFormatRulesParity`) compares two markdown blocks
+  byte-for-byte and passed only because both of its files happened to land on
+  the CRLF side -- normalising either one would have reddened CI over characters
+  no diff can show. `* text=auto` plus explicit `eol=lf` for the payload
+  extensions fixes it at the source (tracked files renormalised in a separate,
+  content-free commit), and Check 21 now EOL-normalises before comparing, with a
+  fourth self-test fixture (CRLF/LF pair must pass) guarding that behaviour.
+
 ## [0.13.0] - 2026-08-13
 
 ### Added

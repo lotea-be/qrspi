@@ -185,7 +185,9 @@ qrspi/
     agents/                  #   10 subagent definitions (6 stage agents + 3 implementer effort variants + 1 archive spec-syncer helper)
     commands/                #   /qrspi:* slash commands
     skills/                  #   workflow + convention skills (stack-agnostic)
-  openspec-templates/        # the 5 canonical artifact templates (shared)
+  openspec-templates/        # the 7 canonical templates (shared): the 5 change
+                             #   artifacts (questions, research, design, proposal,
+                             #   tasks) + spec-delta + backlog
   .claude/                   # kit-DEV tooling, project scope, NOT shipped to users:
                              #   /qrspi-readme-audit, /qrspi-release,
                              #   /qrspi-dogfood commands + skills (only useful in THIS repo)
@@ -436,10 +438,13 @@ contracts:
   specs (`## Requirements`), so a `When …`-leading body fails here rather than
   mid-Implement at the strict slice gate. Includes a five-fixture inline self-test.
 - **Check 21 (`checkFormatRulesParity`)** -- asserts the `<!-- must-leads -->`
-  sentinel-delimited Format-rules block is byte-identical between
+  sentinel-delimited Format-rules block is identical between
   `claude/agents/architect.md` and `openspec-templates/spec-delta.template.md`,
   failing on drift or a missing anchor so the hand-mirrored guidance cannot
-  silently diverge. Includes a three-fixture inline self-test.
+  silently diverge. Blocks are EOL-normalised (CRLF -> LF) before comparison, so
+  a mixed-line-ending checkout is not misreported as drift -- `.gitattributes`
+  pins the repo to LF, and this makes the check robust if it ever doesn't.
+  Includes a four-fixture inline self-test.
 - **Check 22 (`checkBacklogSchema`)** -- freezes the `openspec/backlog.md` schema:
   validates the three section headings, the P-band preamble, per-row heading
   grammar (em-dash + middle-dot), the status-keyword enum, the `**Why:**` +
