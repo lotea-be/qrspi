@@ -42,15 +42,10 @@
 ### <area>
 - `path/to/file` — purpose. Exports: `Foo`. Depends on: ...
 
-## Notable discrepancies
-- None.
-
-## Implicit contracts and conventions
-- ...
-
-## Open gaps
-- [ ] Could not determine ...
-- [ ] Need human input on ...
+<!-- Surface-gated inventory sections emit here (between File map and Notable
+     discrepancies), each only when its controlling surface is present per the
+     repo-surface skill mapping. The researcher injects the headings dynamically;
+     the per-surface markers below signal which section each surface gates. -->
 
 <!-- SURFACE-GATED: data-store surface. Omit this section entirely (no heading,
      no "Not applicable") when the repo has no data-store surface. -->
@@ -81,3 +76,13 @@
 
 <!-- SURFACE-GATED: migration-manifest surface. Omit this section entirely (no heading,
      no "Not applicable") when the repo has no migration-manifest surface. -->
+
+## Notable discrepancies
+- None.
+
+## Implicit contracts and conventions
+- ...
+
+## Open gaps
+- [ ] Could not determine ...
+- [ ] Need human input on ...
