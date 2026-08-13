@@ -1,0 +1,8 @@
+# CODEOWNERS for lotea-be/qrspi
+#
+# Owners listed here are automatically requested for review when a PR
+# touches matching paths. Last matching pattern wins.
+# Docs: https://docs.github.com/articles/about-code-owners
+
+# Default owner for everything in the repo.
+*       @braekstuv
