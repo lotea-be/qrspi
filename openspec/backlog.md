@@ -7,42 +7,7 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## In progress
 
-### researcher-apply-surface-gate — `in-progress (PR #50 open)` · **P2**
-
-**Why:** The `questioner`, `designer`, and `architect` agents apply the
-`repo-surface` surface-gate (emitting the omit-comment and suppressing
-surface-specific headings absent from the repo's `## Repo surface` block), but the
-`researcher` (stage R) does **not** -- it emitted a `## Data model` heading in a
-repo with no `data-store` surface, which `scripts/lint.mjs` Check 14
-(surface-applicability) rejects. The failure only surfaces at stage-I lint (R-stage
-commits don't run lint), so it lands as a mid-implementation hard-stop far from its
-cause. Fix: have the researcher load `repo-surface` and surface-gate its headings
-like the other artifact-producing agents (and/or run lint at R-commit time to catch
-it at the source). Surfaced 2026-07-27 while implementing
-[[unify-implement-paths-on-variants]] (its research.md tripped Check 14).
-
-**Shape:** Add an explicit "Apply the surface-gate rule" instruction to the
-researcher agent's `## What to do` step 1 (the concise-pointer form per PQ1 answer).
-`scripts/skill-sets.mjs` already lists `repo-surface` in the researcher's set (no
-registry edit needed). R-commit-time lint deferred per PQ2 answer. No migration
-manifest needed per PQ3 answer.
-
-### git-host-and-remote-awareness — `in-progress (draft PR #51 open)` · **P2**
-
-**Why:** `/qrspi:pr` and `/qrspi:archive` each independently inferred the git host
-and picked a PR CLI, none handled a remoteless (local-only) repo cleanly, and
-branch naming was cheatsheet-driven in one place (`questions.md` feature branch)
-yet hardcoded in another (`archive.md`'s `chore/archive-<id>`) — a stranger on a
-non-GitHub or remoteless repo hit `gh`-assuming commands.
-
-**Shape:** Shipped a shared `git-host-workflow` skill (loaded by `/qrspi:questions`,
-`/qrspi:pr`, `/qrspi:archive`) centralizing vendor resolution
-(cheatsheet-override-first, else live-derive; GitHub + Azure DevOps + GitLab —
-Bitbucket deferred to [[bitbucket-pr-vendor-support]]), a `## PR & git workflow`
-Branch-naming sub-block (`feature`/`archive` slots), a no-remote local-only menu
-(local branch / patch / commit-to-current) with a human-confirmed merge-back, and
-prompt-once/write-back for missing fields backed by a `manual` `0.14.0.yaml`
-migration. See `openspec/changes/git-host-and-remote-awareness/`.
+_None._
 
 ---
 
@@ -235,11 +200,6 @@ the two-source-of-truth caution in [[optional-technology-specs]]. **P1 like
 [[repo-applicable-artifact-sections]]:** a highly visible artifact-quality defect
 (ugly process references baked into shipped code) rather than a live-workflow
 correctness gap. Surfaced 2026-07-24.
-
-### git-host-and-remote-awareness — `bundled into in-progress (2026-08-13)` · **P2**
-
-> **Moved to `## In progress`** (Q–I complete 2026-08-13) — see the
-> `## In progress` entry above.
 
 ### idea-capture-command — `bundled into backlog-schema-finish (2026-07-31)` · **P3**
 
