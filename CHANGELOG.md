@@ -14,6 +14,10 @@ kit version.
 
 ## [Unreleased]
 
+_No unreleased changes._
+
+## [0.13.0] - 2026-08-13
+
 ### Added
 
 - **Backlog schema freeze (`standardize-backlog-format`).** Freezes the
