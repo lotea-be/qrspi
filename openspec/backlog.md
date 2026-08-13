@@ -28,136 +28,66 @@ every live run — do next;
 this ordering whenever an item is added, modified, or archived (see
 [[backlog-prioritization]]).
 
-**Token/cost levers** (the recurring cost band, salient with burn climbing) are
-kept adjacent near the top so the cost story reads at a glance: the **input** and
-**output** levers shipped together as `context-budget` (merged and archived
-2026-07-24); `simplify-per-slice-model-selection` and
-`configurable-effort-and-thinking` shipped together as `per-slice-compute-knobs`
-(merged and archived 2026-07-25), whose compute follow-ons
-`per-slice-effort-via-agent-variants` and `haiku-model-tier` are now bundled
-into `per-slice-compute-tier` (proposed, in the QRSPI flow); and
-[[standardize-recurring-ops-scripts]]
-(reasoning/exploration) remains here. The
-**surface-taxonomy family** spun off [[repo-applicable-artifact-sections]]:
-`enforce-artifact-surface-applicability` and `kit-self-surfaces` shipped as
-`kit-surface-dogfooding` (merged and archived 2026-07-25); the remaining
-[[privacy-gdpr-surface]] (P2, the highest-value surface-extension instance),
-[[structured-surface-schema]] and [[extend-surface-taxonomy]] are kept
-contiguous below across the P2/P3 boundary.
+Related rows are kept **contiguous** so a family reads at a glance: the remaining
+**token/cost lever** [[standardize-recurring-ops-scripts]] (the
+reasoning/exploration axis) sits near the top, and the **surface-taxonomy family**
+— [[privacy-gdpr-surface]] (the highest-value surface-extension instance),
+[[structured-surface-schema]], [[extend-surface-taxonomy]] — stays contiguous
+below across the P2/P3 boundary.
 
-> **▶ Next up: [[bump-openspec-pin]] (Tier 1.75) — the runway head.** The
-> pre-rename runway has now cleared every head item ahead of it:
-> `orchestrator-context-budget` (Tier 1), `reassess-openspec-dependency` (Tier 1.25
-> — the KEEP-the-CLI verdict + pin-coupling guard), and
-> `architect-must-leads-requirement-first-line` shipped/archived **2026-07-29**;
-> **Tier 1.5 [[standardize-backlog-format]]** shipped **2026-07-31** (merged PR #43,
-> archived PR #44); **Tier 1.7 the `backlog-schema-finish` bundle**
-> ([[idea-capture-command]] + [[backlog-wikilink-resolution-lint]] +
-> [[migration-edit-file-idempotency-guard]]) shipped **2026-08-04** (merged PR #46,
-> archived PR #47); and **Tier 1.6 stranger-hardening**
-> ([[git-host-and-remote-awareness]] + [[researcher-apply-surface-gate]]) shipped
-> **2026-08-13** (merged PRs #51/#50, archived batch PR #53). Nothing is now in
-> progress or proposed. That leaves **two** pre-rename runway items: **Tier 1.75
-> [[bump-openspec-pin]]** (the head — the KEEP verdict's direct follow-on: land the
-> OpenSpec pin 1.0 will freeze on rather than freeze the public debut on a
-> knowingly-stale `1.4.1`; spike-gated on the 1.5/1.6 changelog), then the P1 **Tier
-> 1.9 [[spec-anchored-code-comments]]** (the largest, last pre-rename bet — its
-> spec-id grammar is itself a schema change that must land *before* the 1.0 freeze,
-> not after). Both precede the [[rename-qrspi-to-qrnchi]] rebrand. The runway's
-> guiding rule is unchanged — **complete already-shipped mechanisms and freeze
-> schemas** before the public 1.0 cut.
+> **▶ Next up: the Tier 1 pin-family bundle, anchored on [[bump-openspec-pin]].**
+> Nothing is in progress or proposed.
 >
-> **Road to 1.0 (2026-07-27):** the [[rename-qrspi-to-qrnchi]] rebrand is the
-> vehicle for the first **stable v1.0.0** and public debut (submission to Anthropic's
-> `claude-plugins-community` marketplace). Because 1.0 is a *schema-freeze* and
-> first-impression-at-scale point, a short runway of readiness work is sequenced
-> **ahead of the rename**, filtered by one lens — *what would bite a stranger or
-> embarrass us in week one of a public 1.0* — not by band alone:
+> **Road to 1.0:** the [[rename-qrspi-to-qrnchi]] rebrand is the vehicle for the
+> first **stable v1.0.0** and public debut (submission to Anthropic's
+> `claude-plugins-community` marketplace). Because 1.0 is a *schema-freeze* and a
+> first-impression-at-scale point, a short runway is sequenced **ahead of the
+> rename**, filtered by one lens — *what would bite a stranger or embarrass us in
+> week one of a public 1.0* — not by band alone. Guiding rule: **complete
+> already-shipped mechanisms and freeze schemas** before the public 1.0 cut.
 >
-> - **Tier 1 — bites a stranger (do first): ✓ SHIPPED** — `orchestrator-context-budget`
->   (bundled [[reset-and-resume-between-boundaries]] + [[orchestrator-context-budget-gate]];
->   archived 2026-07-29). A real consumer hit **98% context** at the D review of their
->   *second* change; nothing enforced the `context-hygiene` budget, so a marathon
->   session silently detonated — the sharpest edge for a plugin whose premise is long
->   multi-stage sessions. (The unify bundle that also sat in this tier shipped 2026-07-28.)
-> - **Tier 1.25 — settle the OpenSpec-dependency question before it's frozen at 1.0
->   (decision spike): ✓ SHIPPED** — [[reassess-openspec-dependency]] archived 2026-07-29
->   with a **documented KEEP-the-CLI verdict** (D1) and its pin-coupling guard. Motive:
->   the rebrand's folded-in want of a branded `qrnchi/` workspace root is **not** a free
->   rename — verified 2026-07-28 that the OpenSpec CLI exposes **no configurable
->   workspace-root name through 1.6.0** (pin is 1.4.1; `init [path]` only sets a parent,
->   no config/env key renames `openspec/`), so a branded root would force **dropping the
->   CLI** for a vendored convention + validator. Verdict *keep the CLI*: the rebrand
->   proceeds as designed (`openspec/` stays, folder-branding deferred past 1.0), and 1.0
->   doesn't back into a big migration by accident.
-> - **Tier 1.5 — freeze the last ad-hoc schema (cheap, good timing) — ✓ SHIPPED
->   2026-07-31 (merged PR #43 + archived PR #44):** [[standardize-backlog-format]],
->   **template + lint floor only** (defer the heavier per-file `backlog/<id>.md`
->   model to post-1.0). The backlog is the one QRSPI surface with no schema behind
->   it; locking it is far cheaper before public installs write the ad-hoc shape than
->   after. Encodes the P-band convention [[backlog-prioritization]] already applies
->   informally.
-> - **Tier 1.6 — stranger-hardening: ✓ SHIPPED 2026-08-13** (merged PRs #51/#50,
->   archived batch PR #53) — [[git-host-and-remote-awareness]] (P2) +
->   [[researcher-apply-surface-gate]] (P2), the sharpest "bites a stranger in week
->   one" gap the prior sequencing missed. git-host centralized vendor resolution +
->   the no-remote local flow; researcher-gate fixed the mid-implementation Check 14
->   hard-stop (now Check 24 guards it). Landed as a sequencing cluster:
->   researcher-gate first (cheap), then git-host (the larger standalone, folding in
->   the branch-naming consolidation). [[lint-auto-mode-gate-coverage]] (P2) did not
->   ride along and remains open.
-> - **Tier 1.7 — finish the backlog-schema story the freeze unblocked: ✓ SHIPPED
->   2026-08-04** (merged PR #46, archived PR #47) — taken up as `backlog-schema-finish`,
->   which bundled [[idea-capture-command]] (P3) + [[backlog-wikilink-resolution-lint]]
->   (P3) + [[migration-edit-file-idempotency-guard]] (P3) as one QRSPI run: the first
->   two rode Tier 1.5's frozen grammar + Check 22 parser (the `/qrspi:idea` writer,
->   the wikilink cross-ref guard now Check 23), and the `/qrspi:update` dispatcher
->   idempotency guard rode along. [[backlog-prioritization]] (P2) — the original
->   driver — was pulled out and now pairs with [[propose-bundling-ideas]] on its own
->   write-time proposal pass.
-> - **Tier 1.75 — land the OpenSpec pin 1.0 will freeze on ← runway head:**
->   [[bump-openspec-pin]], the KEEP verdict's (Tier 1.25) direct
->   follow-on. 1.0 is a *schema-freeze + public-debut* point; freezing the public 1.0 on
->   a knowingly-stale `1.4.1` while the CLI is at `1.6.0` is exactly the "would embarrass
->   us in week one" case. **Spike-gated:** assess the 1.5/1.6 changelog for grammar /
->   `validate` changes that touch delta specs *before* the mechanical bump — if that
->   surfaces breaking behaviour the item grows and may itself slip. The bump must also
->   carry `openspec/config.yaml`'s `openspec_version` + a migration-manifest `edit-file`
->   step, since Tier 1.25's Check 1 coupling guard now turns red on upgraded consumers
->   whose config still reads the old pin. No hard order vs. Tier 1.5 (both are cheap
->   pre-rename readiness); the cheap-certain backlog freeze can run first while the pin
->   spike runs.
-> - **Tier 1.9 — land the spec-id grammar before the schema freeze (pulled into the
->   runway 2026-07-29):** [[spec-anchored-code-comments]] (**P1**). Previously deferred
->   to 1.1, but the rationale for pulling it in is the freeze itself: giving specs a
->   **stable identifier** a comment can cite is *itself a spec-grammar change*, so it
->   belongs **before** the 1.0 schema freeze, not after — landing it in 1.1 would reopen
->   frozen spec shape. The **largest** runway bet (needs the stable-spec-id design first,
->   then implementer guidance + a `scripts/lint.mjs`-style check that code comments cite a
->   spec id and nothing else). Sequenced last in the pre-rename runway; if its size
->   threatens the 1.0 timeline, it is the first runway item to reconsider deferring.
-> - **Tier 2 — fixes "it's heavy" for newcomers:** [[init-conductor-plus-overview]]
+> - **Tier 1 — land the OpenSpec pin 1.0 will freeze on (pin-family bundle) ←
+>   runway head:** [[bump-openspec-pin]] (anchor) taken up as **one QRSPI run** with
+>   [[scan-github-ci-openspec-pin]], [[fix-openspec-workflow-skill-drift]] and
+>   [[simplify-pin-coupling-mismatch-branch]]. Freezing the public 1.0 on a
+>   knowingly-stale `1.4.1` while the CLI is at **`1.9.0`** is exactly the "would
+>   embarrass us in week one" case. **Spike-gated:** assess the 1.5→1.9 changelog for
+>   grammar / `validate` changes that touch delta specs *before* the mechanical bump
+>   — if that surfaces breaking behaviour the item grows and may slip.
+>
+>   **Why these four are one run:** they all edit the same two things — Check 1
+>   (`checkPinAgreement`) and the hand-maintained pin sites — and the bump walks into
+>   three of them. It must edit `ci.yml`, which Check 1 does not scan; it must edit
+>   `openspec-workflow/SKILL.md`, whose `@latest` reference escapes Check 1's
+>   `openspec@<semver>` regex entirely; and it exercises the very branch the simplify
+>   row refactors. Separately, that reopens Check 1 and the pin sites four times.
+> - **Tier 2 — cheap recurring-friction guards:** [[lint-auto-mode-gate-coverage]]
+>   plus the **CHANGELOG pair**, [[plan-emits-changelog-task]] +
+>   [[pr-stage-open-issue-triage]], bundled and raised **P3 → P2**. The pair is two
+>   halves of one story: the planner never emits the `## [Unreleased]` task CLAUDE.md
+>   mandates, and the PR stage has no sanctioned "fix it now" branch for the trivial
+>   in-scope gap that results — so a one-line doc requirement gets caught at PR
+>   review, the most expensive place to catch it, run after run. All three are
+>   prose-or-lint and cheap; can run parallel to the large Tier 3 design.
+> - **Tier 3 — land the spec-id grammar before the schema freeze:**
+>   [[spec-anchored-code-comments]] (**P1**). Giving specs a **stable identifier** a
+>   comment can cite is *itself a spec-grammar change*, so it belongs **before** the
+>   1.0 freeze — landing it in 1.1 would reopen frozen spec shape. The **largest**
+>   runway bet (stable-spec-id design, then implementer guidance + a
+>   `scripts/lint.mjs`-style check that code comments cite a spec id and nothing
+>   else). Sequenced last; if its size threatens the 1.0 timeline, it is the first
+>   runway item to reconsider deferring.
+> - **Tier 4 — fixes "it's heavy" for newcomers:** [[init-conductor-plus-overview]]
 >   + [[flow-entry-right-sizing]] (onboarding is a feature when the audience is
 >   strangers, not colleagues who know the lore); consider adding
->   [[tutorial-mode-narrated-tour]] (P2, the zero-footprint `/qrspi:tour`) as a third
+>   [[tutorial-mode-narrated-tour]] (the zero-footprint `/qrspi:tour`) as a third
 >   co-designable onboarding item.
-> - **Deferred past 1.0:** [[privacy-gdpr-surface]] and the
->   alignment-quality trio [[real-runtime-slice-checkpoints]] /
->   [[architect-real-runtime-done-decomposition]] / [[designer-flag-shared-artifact-coupling]]
->   (all still P2, just sequenced after the 1.0 cut). [[automate-marketplace-source-bump]]
->   rides *with* the release mechanics, not before.
->
-> Bands unchanged throughout; this records sequencing, not a re-banding — the
-> 2026-07-29 additions keep [[bump-openspec-pin]] at **P3** and
-> [[spec-anchored-code-comments]] at **P1**, only moving them *into* the pre-rename
-> runway (Tiers 1.75 and 1.9). The **2026-07-31 additions** likewise re-sequence
-> only — [[git-host-and-remote-awareness]], [[researcher-apply-surface-gate]],
-> [[backlog-prioritization]] and [[lint-auto-mode-gate-coverage]] stay **P2**, and
-> [[idea-capture-command]] / [[backlog-wikilink-resolution-lint]] /
-> [[migration-edit-file-idempotency-guard]] stay **P3**; they move *into* the
-> pre-rename runway (Tiers 1.6–1.7) without a band change. Supersedes the prior
-> 2026-07-27 abkf-handover sequencing (privacy + trio next) — those slip behind the
-> road-to-1.0 readiness work.
+> - **Deferred past 1.0:** [[privacy-gdpr-surface]] and the alignment-quality trio
+>   [[real-runtime-slice-checkpoints]] /
+>   [[architect-real-runtime-done-decomposition]] /
+>   [[designer-flag-shared-artifact-coupling]] (all still P2, just sequenced after
+>   the 1.0 cut). [[automate-marketplace-source-bump]] rides *with* the release
+>   mechanics, not before.
 
 ### spec-anchored-code-comments — `idea` · **P1**
 
@@ -196,78 +126,6 @@ the two-source-of-truth caution in [[optional-technology-specs]]. **P1 like
 (ugly process references baked into shipped code) rather than a live-workflow
 correctness gap. Surfaced 2026-07-24.
 
-### idea-capture-command — `bundled into backlog-schema-finish (2026-07-31)` · **P3**
-
-> **Bundled into `backlog-schema-finish`** (proposed 2026-07-31) — see the `## Proposed` entry.
-
-**Why:** Adding a row to `openspec/backlog.md` today is ad hoc — hand-edited, or written
-inline by the Q/D/S "capture deferred work" flow and the `/qrspi:pr` / `/qrspi:followup`
-P3 promote path. There is no dedicated, on-demand way to **provision a new backlog idea**
-that guarantees the canonical shape (level-3 heading with kebab-slug + `idea` status +
-`P1`–`P3` band, a one-line `**Why:**`, dedup against existing rows, correct `## Ideas`
-placement). Add a small command/skill/agent — e.g. `/qrspi:idea <slug> <why>` — that
-appends a well-formed idea row using the same mechanic those flows already embed, so
-"jot this down for later" is a one-liner that cannot drift from the schema. Natural
-writer for the schema [[standardize-backlog-format]] defines, and pairs with
-[[backlog-prioritization]] (it can propose a band + placement on capture).
-
-**Shape:** A small command/skill — e.g. `/qrspi:idea <slug> <why>` — that emits a
-canonical `### <slug> — \`idea\` · **P<n>**` row (using the frozen grammar from
-the backlog template) with a one-line `**Why:**` and a `**Shape:**`, dedups
-against existing rows by intent, proposes a band + `## Ideas` placement, and
-stages the edit. Reuses the same append mechanic the Q/D/S deferred-work flow and
-the `/qrspi:pr` / `/qrspi:followup` P3 path already embed, so it cannot drift from
-the schema. Depends on [[standardize-backlog-format]] having frozen the grammar.
-
-### backlog-wikilink-resolution-lint — `bundled into backlog-schema-finish (2026-07-31)` · **P3**
-
-> **Bundled into `backlog-schema-finish`** (proposed 2026-07-31) — see the `## Proposed` entry.
-
-**Why:** [[standardize-backlog-format]] froze the row grammar and enum but left
-`[[wikilink]]` target resolution explicitly out of the new lint Check (a scoping
-call at its D stage). So a `[[dangling-idea]]` cross-reference to a row that never
-existed — or that was archived and removed — passes lint silently, and the backlog
-accumulates broken links no check catches. This is the same "marker rots" failure
-the schema change set out to prevent, one layer up at the cross-reference level.
-
-**Shape:** Extend the backlog lint (Check 22's successor, or a sibling Check) to
-collect every `[[<slug>]]` occurrence and assert each resolves to either an
-existing `### <slug>` row id in `openspec/backlog.md` or an archived change folder
-under `openspec/changes/archive/*-<slug>/`. Warn (not hard-fail) on the archived-
-row case if that proves noisy; hard-fail on a slug that resolves nowhere. Depends
-on [[standardize-backlog-format]] having landed the row-id grammar first.
-
-### migration-edit-file-idempotency-guard — `bundled into backlog-schema-finish (2026-07-31)` · **P3**
-
-> **Bundled into `backlog-schema-finish`** (proposed 2026-07-31) — see the `## Proposed` entry.
-
-**Why:** [[standardize-backlog-format]] shipped the kit's first non-empty
-`automated:` migration step (an `edit-file` `insert_after` that adds the backlog
-legend comment). The `/qrspi:update` `edit-file` dispatcher has **no
-skip-if-present guard** (confirmed in the `qrspi-update` skill), so the insert is
-only *marker*-idempotent, not *content*-idempotent: if a consumer hits "Stop"
-mid-walk **after** the automated insert ran but **before** the marker bumps, a
-re-run replays the insert and duplicates the legend block. It is non-breaking
-(a cosmetic duplicated HTML comment, and the manifest text tells the human to
-delete it) but it is a real sharp edge that every future automated migration
-inherits. Surfaced by the `standardize-backlog-format` `/qrspi:update` dogfood
-(2026-07-30). **Sibling concern — anchor fragility (PR review, 2026-07-31):** the
-same `0.13.0` legend step keys `insert_after: "# Backlog\n"`, and the dispatcher
-**hard-stops when the anchor is absent**. A consumer whose backlog has any other
-title (`# My Backlog`, no title line, etc.) hits that hard-stop at update time —
-the "guaranteed-present anchor" only holds for backlogs seeded by `/qrspi:init`.
-Deferred over adding a manual "rename your title first" step (PR decision).
-
-**Shape:** Add an optional idempotency guard to the migration `edit-file` action
-schema — e.g. a `skip_if_contains: "<marker>"` (or `skip_if_present: true` keyed
-on the inserted `content`) field — and have the `/qrspi:update` dispatcher no-op
-the step when the anchor region already contains the content. Keeps additive
-`insert_after` steps safe to replay. Pair it with an **anchor-fallback** (or a
-guarded `manual` pre-step) so an absent/renamed title degrades to a manual
-instruction instead of a hard-stop. Update the manifest schema doc in the
-`qrspi-update` skill and backfill both onto `migrations/0.13.0.yaml`'s legend
-insert.
-
 ### batch-archive-multiple-changes — `idea` · **P3**
 
 **Why:** `/qrspi:archive` handles exactly **one** change per run; archiving several
@@ -290,7 +148,16 @@ change's delta specs into the base **sequentially** (so overlapping capabilities
 like a shared `ci-quality-gates` accrete cleanly instead of git-conflicting via
 the `spec-syncer`'s sequential merge), moves all folders under
 `archive/<date>-<id>/`, and removes all backlog rows. Reuses the single-change
-archive step per id under one commit boundary.
+archive step per id under one commit boundary. Second hand-done batch observed
+2026-08-13 (`researcher-apply-surface-gate` + `git-host-and-remote-awareness`,
+PR #53).
+
+**Row removal must reach bundled sub-items:** the archive flow removes the
+*anchor* row but leaves behind the stubs of items that shipped inside the bundle,
+so they accumulate as dead entries. Whatever performs the removal (here, or the
+[[backlog-prioritization]] write-time pass) must sweep them **and** re-point their
+surviving `[[wikilinks]]` at the parent change — a bundled slug has no archive
+folder of its own, so Check 23 fails otherwise.
 
 ### standardize-recurring-ops-scripts — `idea` · **P2**
 
@@ -339,38 +206,6 @@ cross-platform concerns; be deliberate about that split.
 
 **Shape:** Extend the centralized resolver (skill + PR & git workflow block) with Bitbucket detection and its CLI-or-API PR-create/PR-status invocations, reusing the vendor-dispatch seam the parent change establishes.
 
-### reset-and-resume-between-boundaries — `bundled into orchestrator-context-budget (proposed 2026-07-28)` · **P2**
-
-> **Bundled into `orchestrator-context-budget`** (proposed 2026-07-28) with
-> [[orchestrator-context-budget-gate]] — see the `## Proposed` entry above.
-
-**Why:** QRSPI firewalls *stage work* into subagents (`context-hygiene`), keeping
-the orchestrator lean **per stage** — but the orchestrator itself accumulates
-**unbounded across stages and changes** in one session: every AskUserQuestion +
-answer, every stage-handoff commit + bash output, every subagent return summary,
-every Full-auto pause and hard-stop. `context-hygiene` *says* keep the orchestrator
-under ~40% and reset at 60%, but nothing enforces it, so a marathon session blows
-past it silently (a consumer session hit **982k/1m = 98%, 95.8% "Messages"** at the
-D review of its *second* change — abkf `QRSPI-HANDOVER-context-overflow.md`,
-2026-07-27; this repo's own compute-tier session is the same shape). The fix is
-cheap because **the orchestrator conversation is disposable and the change folder is
-truth** — each stage reads only its input artifact from disk, so a fresh session
-resumes losslessly at any boundary. Make reset-and-resume a **blessed, first-class
-step** at the natural boundaries (no harness capability needed — these are
-*structural* triggers): (1) after `/qrspi:archive`, actively recommend a new session
-before the next `/qrspi:questions` — starting change N+1 in the same orchestrator is
-the single biggest contributor; (2) document/one-command the resume path ("fresh
-session, `/qrspi:<next> <id>`") so reset is routine hygiene not a "did I lose state?"
-scare — `/qrspi:status` partly does this; (3) nudge a reset after a
-`/qrspi:followup` batch (the handover's deploy saga ran ~10+ followups ≈ half the
-message volume); (4) harden `context-hygiene`'s prose to name the marathon
-anti-pattern explicitly (subagent firewalling does NOT bound cross-session
-accumulation). Sibling to [[orchestrator-context-budget-gate]] (the live-%
-nudge/gate mechanism — this item is the structural half that needs no new harness
-primitive). Distinct axis from the archived `context-budget` (per-stage input/output
-load) — this is cross-session orchestrator accumulation. Surfaced by the abkf
-consumer handover (2026-07-27).
-
 ### upgrade-budget-gate-to-live-context-read — `idea` · **P3**
 
 **Why:** `orchestrator-context-budget` (proposed 2026-07-28) had to implement its
@@ -380,7 +215,7 @@ slash-command body (the version check reads only static files; the counter is a
 lower-bound heuristic). If a future Claude Code harness ever exposes a **live
 context-% read** to command bodies, upgrade the `context-budget-gate` skill from
 the counter to a real gauge (the counter becomes the fallback, or is retired).
-This is the live-% half of [[orchestrator-context-budget-gate]] that was found
+This is the live-% half of the gate [[orchestrator-context-budget]] shipped, found
 infeasible at design time — blocked on an external harness capability, hence P3.
 Surfaced 2026-07-28 during the `orchestrator-context-budget` D review.
 
@@ -419,7 +254,7 @@ improvements, cheapest first:
    **SessionStart** hook (matchers `clear`/`compact`/`resume`) can auto-inject the
    resume pointer (`/qrspi:status` output / "mid-change X at stage Y → run
    `/qrspi:<next>`") so a reset **self-reorients** — the automatic form of
-   [[reset-and-resume-between-boundaries]]'s "one-command the resume path" want,
+   the "one-command the resume path" want [[orchestrator-context-budget]] shipped,
    removing the "did I lose state?" friction that makes people avoid `/clear`. A
    **PreCompact** hook (`auto`/`manual`) is the only touchpoint on compaction itself:
    it can't convert compact→clear or fire on approach-to-full, but can log/warn
@@ -458,35 +293,11 @@ scroll to find how to continue is avoidable friction).
 
 **Shape:** Add a one-line presentation rule to the reset-emitting bodies — the
 `context-budget-gate` skill, `archive.md`'s next-change offer, and the
-[[reset-and-resume-between-boundaries]] resume-path guidance — that the
+reset-and-resume guidance [[orchestrator-context-budget]] shipped — that the
 resume/continue one-liner is always the **final line** of the message, after any
 summary, with nothing following it. Cheap, prose-only. Pairs with
 [[context-gate-compact-and-passive-gauge]] (make the reset gate less manual) and
-[[reset-and-resume-between-boundaries]] (the resume-path content this positions).
-
-### orchestrator-context-budget-gate — `bundled into orchestrator-context-budget (proposed 2026-07-28)` · **P2**
-
-> **Bundled into `orchestrator-context-budget`** (proposed 2026-07-28) with
-> [[reset-and-resume-between-boundaries]] — see the `## Proposed` entry above.
-
-**Why:** The mechanism half of the context-overflow fix (abkf
-`QRSPI-HANDOVER-context-overflow.md`, 2026-07-27, proposal #1 — "the single thing
-that would have prevented this"): at the top of each `/qrspi:<stage>` command
-(alongside the version check), read the harness **context utilization %** and, above
-a threshold (~60%), emit a one-line "reset recommended" notice pointing at the
-resume path; above ~80%, a soft gate (AskUserQuestion: *reset now / continue*).
-**Load-bearing unknown (needs R/D):** whether a slash-command body can actually read
-live context utilization mid-run — the version-check reads a *static* file
-(`installed_plugins.json`); live context % is a different capability that may not be
-exposed to command bodies. If it is not, this degrades to a **structural heuristic**
-(a stages-run / followups-run counter maintained in orchestrator context) — which is
-exactly the trigger [[reset-and-resume-between-boundaries]] already uses, so the two
-converge if the %-read proves infeasible. Could rise to **P1** if a live-% read is
-feasible (a recurring systemic cost/quality regression on every long session —
-reasoning degrades near the ceiling before autocompact fires). Sibling to
-[[reset-and-resume-between-boundaries]] (the structural half, buildable now) and
-[[orchestrator-effort-targeting]] (both manage the orchestrator's own resources).
-Surfaced by the abkf consumer handover (2026-07-27).
+[[orchestrator-context-budget]] (the shipped resume-path content this positions).
 
 ### orchestrator-effort-targeting — `idea` · **P3**
 
@@ -763,7 +574,7 @@ the work that's still valid. This is the re-entry sibling of
 [[flow-entry-right-sizing]] (entry-side: *how heavy* a flow) — this decides *how far
 back* to loop when a run comes up short. It's lossless by construction: the change
 folder is truth, so re-entry is "edit the input, re-flow forward," not a rebuild
-([[reset-and-resume-between-boundaries]]).
+(the disk-is-truth resume path [[orchestrator-context-budget]] shipped).
 
 The load-bearing decision is **classifying the dissatisfaction**, which sets the
 re-entry point:
@@ -950,16 +761,20 @@ Anchors the Claude Code capability cluster with [[github-mcp-for-pr-ops]],
 ### repo-branch-protection — `idea` · **P2**
 
 **Why:** The CI gates added by `kit-quality-hardening` are only advisory until
-the `main` branch requires them; a `CODEOWNERS` file would also route reviews.
-Deferred from `kit-quality-hardening` as a separate governance concern (its Q7).
-**Fresh evidence (2026-06-19):** PR #5 merged while its CI run was still
-`UNSTABLE` — confirming `main` has no required checks today. Pair this with the
-new `release.yml` so a tag can't publish on a red build either.
+the `main` branch requires them. Deferred from `kit-quality-hardening` as a
+separate governance concern (its Q7). **Fresh evidence (2026-06-19):** PR #5
+merged while its CI run was still `UNSTABLE` — confirming `main` has no required
+checks today. Pair this with the `release.yml` so a tag can't publish on a red
+build either.
+
+**Partially shipped (2026-08-13):** the `CODEOWNERS` half landed independently in
+PR #52 (`.github/CODEOWNERS`, `@braekstuv` as default owner), so review routing is
+done. What remains is the part that needs repo *settings*, not a repo *file*.
 
 **Shape:** Configure GitHub branch protection on `main` to require the CI checks
-(the `kit-quality-hardening` gates) before merge, add a `CODEOWNERS` file to route
-reviews, and gate `release.yml` so a tag cannot publish on a red build. Governance
-config + one repo file, no kit-source logic change.
+(the `kit-quality-hardening` gates) before merge, and gate `release.yml` so a tag
+cannot publish on a red build. Governance config only now that `CODEOWNERS`
+exists — no kit-source logic change.
 
 ### tutorial-mode-narrated-tour — `idea` · **P2**
 
@@ -1000,6 +815,59 @@ auto-branch wiring stays consistent — the static, mechanically-checkable half 
 runtime suppression itself is not statically checkable). Mirrors the existing
 embed-presence Checks (9/10) in shape.
 
+### plan-emits-changelog-task — `idea` · **P2**
+
+**Why:** `CLAUDE.md` and the stack-cheatsheet both mandate a `## [Unreleased]`
+`CHANGELOG.md` entry for any change to shipped kit behaviour, but the planner
+(stage P) never emits a task for it — it is a cross-cutting housekeeping step
+not tied to any one slice, so the slice→task translation drops it. Surfaced
+dogfooding `archive-auto-create-pr` (see its `retrospective.md`, stage P): the
+missing entry went unnoticed through Implement and was caught by the reviewer
+at PR time as a *blocking* open issue — the latest, most expensive place to
+catch a one-line doc requirement.
+
+**Shape:** In `claude/agents/planner.md` (and/or `claude/commands/plan.md`), add
+a standing rule: when the change alters shipped kit behaviour
+(command/agent/skill/template/lint edit), append a housekeeping task to
+`tasks.md` — "Add a `## [Unreleased]` entry to `CHANGELOG.md` describing this
+change" — so the requirement is satisfied during Implement, not caught at PR
+review. Skip only for pure docs/backlog-only changes that need no CHANGELOG
+line.
+
+**Bundle (proposed — one QRSPI run, 2026-08-13):** the planner half of the
+CHANGELOG-gap story; taken up with [[pr-stage-open-issue-triage]] (the PR-stage
+half). Raised **P3 → P2** with it — a one-line doc requirement caught at PR review
+is recurring friction on every run, not a one-off. Tier 2 of the road-to-1.0
+runway.
+
+### pr-stage-open-issue-triage — `idea` · **P2**
+
+**Why:** Two `claude/commands/pr.md` rough edges surfaced dogfooding
+`archive-auto-create-pr`'s PR stage (see its `retrospective.md`). (1) The
+"Seed the follow-up queue" step routes **every** reviewer open issue to
+`followups.md` (post-PR) and the reviewer defaults to a **draft** PR when the
+list is non-empty — but some open issues are trivial, in-scope, must-fix-
+before-merge gaps (e.g. a missing CHANGELOG `## [Unreleased]` entry that
+CLAUDE.md mandates), where fixing in-stage and opening a normal PR is strictly
+better than deferring a knowingly-broken PR to a followup. The command has no
+sanctioned "fix it now" branch, so the orchestrator has to deviate from its
+letter. (2) The backlog note is hardcoded to `in-progress (draft PR #<N> open)`
+even when a **ready** (non-draft) PR is opened, making the note inaccurate.
+
+**Shape:** In `claude/commands/pr.md`: (1) add a triage line to "Seed the
+follow-up queue" — before seeding, for each reviewer open issue, if it is a
+trivial in-scope gap that MUST be fixed before merge, fix it in-stage, commit
+atomically, and treat it as resolved (no followup, no forced draft); only
+genuinely post-PR-shaped issues go to `followups.md`. (2) Make the "Record the
+PR link" backlog note conditional on draft-ness: `in-progress (draft PR #<N>
+open)` only when opened as a draft, else `in-progress (PR #<N> open)`.
+
+**Bundle (proposed — one QRSPI run, 2026-08-13):** the PR-stage half of the
+CHANGELOG-gap story; taken up with [[plan-emits-changelog-task]] (the planner
+half). Raised **P3 → P2** with it — a one-line doc requirement caught at PR review
+is recurring friction on every run, not a one-off. Tier 2 of the road-to-1.0
+runway.
+
 ### automate-marketplace-source-bump — `idea` · **P2**
 
 **Why:** Cutting a release (`/qrspi-release`) publishes the GitHub Release but
@@ -1022,7 +890,8 @@ failure can't red an already-published, irreversible-ish release. Needs the
 marketplace manifest's exact shape confirmed first (which file; `source: …@vX`
 vs a `ref:`/`version:` key). Pairs with [[qrspi-release-auto-stub-manifest]]
 (the other release-time automation idea) and relates to
-[[assert-openspec-version-pin-coupling]]. Surfaced 2026-07-25.
+the pin-coupling guard [[reassess-openspec-dependency]] shipped. Surfaced
+2026-07-25.
 
 **Shape:** After the Publish step in `release.yml`, fire a `repository_dispatch`
 `qrspi-release` event carrying the version, handled by a workflow **in** the
@@ -1264,68 +1133,6 @@ runs an 8-reviewer tier, but *un-scoped by surface* and with no lint/human floor
 this entry is the QRSPI-native, surface-scaled version. Surfaced 2026-07-27 while
 comparing QRSPI against the public `qrspi-plus` fork.
 
-### assert-openspec-version-pin-coupling — `bundled into reassess-openspec-dependency (2026-07-29)` · **P3**
-
-> **Bundled into `reassess-openspec-dependency`** (2026-07-29) — the spike's
-> keep-CLI-vs-vendor verdict decides this item's fate: a *vendor* verdict retires
-> it (no OpenSpec pin left to police), a *keep* verdict continues the flow through
-> to build this pin-coupling guard in the same run. Same load-bearing question, so
-> co-decided rather than built speculatively. See that entry.
-
-**Why:** `openspec/config.yaml` carries an `openspec_version` field recording the
-OpenSpec CLI version a consumer repo was scaffolded with, but its own comment
-notes it is "informational only" and nothing asserts it stays coupled to the
-kit's pinned OpenSpec version (the pin the README documents and lint Check 1
-guards at the source). So a consumer's `openspec_version` can silently drift
-from the kit's pin with no check noticing — the same "version marker rots
-unnoticed" failure mode [[session-version-check-and-update-prompt]] fixes for
-`.qrspi-version`, but for this parallel, un-enforced OpenSpec-CLI version field.
-Add a mechanical guard (lint/CI, distinct from the session-time qrspi-version
-check) that flags divergence. Surfaced as a Non-Goal of
-[[session-version-check-and-update-prompt]] (stage D, 2026-07-23).
-
-### dedicated-spec-sync-agent — `idea` · **P3**
-
-> **Bundled into `spec-sync-contract`** (proposed) with
-> [[sync-modified-delta-scenario-loss]] — this item is the vehicle; see the
-> Proposed-section entry.
-
-**Why:** The archive flow's delta-spec → main-spec sync is delegated to a
-catch-all `general-purpose` subagent (with `*` — all tools), because that
-`subagent_type` is hard-coded inside the *generated* `openspec-archive-change`
-skill (which must not be hand-edited — it is regenerated from the OpenSpec CLI).
-The sync only needs Read/Edit plus `openspec validate` on `openspec/specs/**`,
-so a dedicated least-privilege agent (e.g. `qrspi:spec-syncer`) would be a
-tighter fit: it can't wander outside the specs tree, and its system prompt could
-carry the delta-merge contract (ADDED/MODIFIED/REMOVED/renamed semantics, "never
-alter unrelated requirements") so the caller doesn't re-inject those rules each
-run. The catch is *where* the fix lands: since the generated skill owns the
-`general-purpose` spawn, the clean change is to have the `/qrspi:archive`
-**command** (which the kit owns, in `claude/commands/`) perform the sync
-delegation itself with the dedicated agent instead of deferring to the generated
-skill's spawn — plus a new `claude/agents/spec-syncer.md`, its Read-Matrix row,
-and lint Check 7 banner. Least-privilege +
-convention-consistency (every other QRSPI stage has a named agent), not a live-
-workflow correctness gap — hence P3. Surfaced 2026-07-16 while archiving
-`progressive-task-ticking`. **Second motivation (2026-07-24, archiving
-`right-size-followup-handling`):** command-owns-sync would also let
-`/qrspi:archive` drop the near-redundant "Sync now / Archive without syncing"
-prompt on the happy path — reserving a prompt for the escape-hatch cases only (a
-malformed delta that would corrupt the main specs, or an abandoned/superseded
-change) — since that prompt currently lives in the same un-editable generated
-`openspec-archive-change` skill. Relates to
-[[standardize-recurring-ops-scripts]] and [[retro-as-extension-plugin]] (both
-concern the consumer/maintainer + generated-artifact boundary).
-
-**Shape:** Have the kit-owned `/qrspi:archive` **command** perform the delta→main
-sync delegation itself with a dedicated least-privilege `spec-syncer` agent
-(Read/Edit + `openspec validate` on `openspec/specs/**` only) instead of deferring
-to the generated `openspec-archive-change` skill's `general-purpose` spawn — the
-agent's system prompt carries the delta-merge contract
-(ADDED/MODIFIED/REMOVED/renamed semantics, "never alter unrelated requirements")
-so the caller need not re-inject it, and the happy path can drop the near-redundant
-"Sync now / Archive without syncing" prompt.
-
 ### remove-superseded-generated-skills — `idea` · **P3**
 
 **Why:** The two generated skills `openspec-archive-change` and
@@ -1346,16 +1153,20 @@ keep verdict), so it wants its own flow with a migration note.
 
 ### fix-openspec-workflow-skill-drift — `idea` · **P3**
 
-**Why:** The `openspec-workflow` skill references OpenSpec `@latest` while the kit
-pins `@1.4.1`, and carries a stale `openspec/templates/` layout entry — real
-doc-hygiene drift (research "Notable discrepancies"), separable from the
-pin-coupling guard. Surfaced as a Non-Goal of [[reassess-openspec-dependency]]
-(stage D, 2026-07-29).
+**Why:** The `openspec-workflow` skill references OpenSpec `@latest` (twice, at
+`SKILL.md:48-49`) while the kit pins `@1.4.1`, and carries a stale
+`openspec/templates/` layout entry. Worse than doc-hygiene: Check 1's pin regex
+matches only `openspec@<semver>`, so an `@latest` reference **escapes the pin guard
+entirely** (verified 2026-08-13). Surfaced as a Non-Goal of
+[[reassess-openspec-dependency]] (stage D, 2026-07-29).
 
-**Shape:** Correct the `openspec-workflow` skill's stale references — change the
-OpenSpec `@latest` mention to the pinned `@1.4.1` (matching Check 1's guarded pin)
-and fix the outdated `openspec/templates/` layout entry to the real path. A
-localized doc-hygiene edit to one skill file, no logic change.
+**Shape:** Correct the `openspec-workflow` skill's stale references — change both
+`@latest` mentions to the pinned version (matching Check 1's guarded pin) and fix
+the outdated `openspec/templates/` layout entry to the real path. A localized edit
+to one skill file, no logic change.
+
+**Bundle:** rides with [[bump-openspec-pin]] (anchor) — the bump must touch this
+file anyway; see that entry's Bundle note.
 
 ### scan-github-ci-openspec-pin — `idea` · **P3**
 
@@ -1369,6 +1180,9 @@ Surfaced as a Non-Goal of [[reassess-openspec-dependency]] (stage D, 2026-07-29)
 (the CI `ci.yml` OpenSpec pin) so a wrong CI pin is caught alongside the other
 hand-maintained pin sites. A one-line addition to the check's file list, plus a
 fixture. Separable from the config-drift guard because a wrong CI pin fails loudly.
+
+**Bundle:** rides with [[bump-openspec-pin]] (anchor) — see that entry's Bundle
+note.
 
 ### simplify-pin-coupling-mismatch-branch — `idea` · **P3**
 
@@ -1390,22 +1204,26 @@ actionable message surfaces instead of the generic "distinct versions" error the
 pre-existing multi-version scan raises first. A localized refactor of one check
 plus its self-test fixture.
 
+**Bundle:** rides with [[bump-openspec-pin]] (anchor) — see that entry's Bundle
+note.
+
 ### bump-openspec-pin — `idea` · **P3**
 
-**Why:** The kit pins `@fission-ai/openspec@1.4.1` while the CLI has moved on
-(latest **1.6.0** as of the [[reassess-openspec-dependency]] research, 2026-07-29).
-The KEEP verdict (D1) commits the kit to the CLI through 1.0, so keeping the pin
-current is worth a look — but it is a separate, deliberate change, not free: bump
-every hand-maintained `@fission-ai/openspec@<version>` site (`init.md`, README, CI
-`ci.yml`) **and** `openspec/config.yaml`'s `openspec_version`, plus add a
-migration-manifest `edit-file` step for `openspec/config.yaml` — now *required*
-because [[reassess-openspec-dependency]]'s new Check 1 coupling guard turns red on
-upgraded consumers whose config still reads the old pin. Assess the 1.5/1.6
-changelog (any grammar / `validate` behaviour changes that affect delta specs)
-before bumping. Surfaced during PR review of [[reassess-openspec-dependency]]
-(2026-07-29).
+**Why:** The kit pins `@fission-ai/openspec@1.4.1` while the CLI has moved on —
+**1.9.0** as of 2026-08-13 (this row originally recorded **1.6.0**, the latest at
+the [[reassess-openspec-dependency]] research on 2026-07-29, so the gap has widened
+from two minors to five). The KEEP verdict (D1) commits the kit to the CLI through
+1.0, so keeping the pin current is worth a look — but it is a separate, deliberate
+change, not free: bump every hand-maintained `@fission-ai/openspec@<version>` site
+(`init.md`, README, CI `ci.yml`) **and** `openspec/config.yaml`'s
+`openspec_version`, plus add a migration-manifest `edit-file` step for
+`openspec/config.yaml` — now *required* because [[reassess-openspec-dependency]]'s
+new Check 1 coupling guard turns red on upgraded consumers whose config still reads
+the old pin. Assess the 1.5→1.9 changelog (any grammar / `validate` behaviour
+changes that affect delta specs) before bumping. Surfaced during PR review of
+[[reassess-openspec-dependency]] (2026-07-29); version gap re-measured 2026-08-13.
 
-**Shape:** Spike-gated: first read the 1.5/1.6 changelog for grammar / `validate`
+**Shape:** Spike-gated: first read the 1.5→1.9 changelog for grammar / `validate`
 changes that touch delta specs (if breaking, the item grows and may slip). Then
 bump every hand-maintained `@fission-ai/openspec@<version>` site (`init.md`,
 README, CI `ci.yml`) **and** `openspec/config.yaml`'s `openspec_version`, and add a
@@ -1413,37 +1231,16 @@ migration-manifest `edit-file` step for `config.yaml` — required because the n
 Check 1 coupling guard reddens upgraded consumers whose config still reads the old
 pin.
 
-### sync-modified-delta-scenario-loss — `idea` · **P2**
-
-> **Bundled into `spec-sync-contract`** (proposed) with
-> [[dedicated-spec-sync-agent]] — this item is the P2 driver; see the
-> Proposed-section entry.
-
-**Why:** OpenSpec's `## MODIFIED Requirements` semantics replace a requirement
-**wholesale** — body *and* every scenario. When an architect authors a MODIFIED
-delta at stage S that lists only the new/changed scenarios (not re-stating the
-existing carried-forward ones), the archive-time delta→main sync **silently
-drops** those omitted scenarios from `openspec/specs/**`. Observed 2026-07-28
-archiving [[unify-implement-paths-on-variants]]: the Check 15 MODIFIED delta
-carried only the new (d)/(e) plugin.json/base-absent scenarios, so the sync
-dropped the pre-existing (a)/(b)/(c) coverage scenarios (stray/missing variant,
-extra-skill, effort-mismatch) — the lint *code* still enforces them, but the
-standing contract stopped documenting them (hand-restored during that archive).
-This silently erodes spec coverage exactly where the spec is supposed to be the
-durable truth. Fix, cheapest first: (1) **architect guidance** — a MODIFIED
-requirement MUST re-state the scenarios it intends to keep, not just the deltas;
-(2) a **sync/lint guard** that warns when a MODIFIED requirement's post-sync
-scenario count is lower than the pre-sync main spec's (a "did you mean to drop
-N scenarios?" gate). Belongs with the delta-merge contract in
-[[dedicated-spec-sync-agent]] (the natural home for encoding MODIFIED/REMOVED
-semantics once). P2 (correctness — silent loss of contract coverage), not P3.
-
-**Shape:** Cheapest first: (1) **architect guidance** — a MODIFIED requirement MUST
-re-state the scenarios it intends to keep, not just the deltas (OpenSpec's MODIFIED
-replaces a requirement wholesale, body + every scenario); (2) a **sync/lint guard**
-that warns when a MODIFIED requirement's post-sync scenario count is lower than the
-pre-sync main spec's ("did you mean to drop N scenarios?"). Belongs with the
-delta-merge contract in [[dedicated-spec-sync-agent]].
+**Bundle (proposed — one QRSPI run, 2026-08-13):** anchor of the **pin family**,
+taken up together with [[scan-github-ci-openspec-pin]],
+[[fix-openspec-workflow-skill-drift]] and [[simplify-pin-coupling-mismatch-branch]]
+(Tier 1 of the road-to-1.0 runway). All four edit the same two things — Check 1
+(`checkPinAgreement`) and the hand-maintained pin sites — and this bump walks into
+three of them anyway: it must edit `ci.yml` (which Check 1 does not scan, hence the
+`.github/` scan row), it must edit `openspec-workflow/SKILL.md` (whose `@latest`
+reference escapes Check 1's `openspec@<semver>` regex entirely), and it exercises
+the very branch the simplify row refactors. Doing them separately reopens Check 1
+and the pin sites four times.
 
 ### pr-human-task-loop-stop-option — `idea` · **P3**
 
@@ -1505,7 +1302,7 @@ STOP guardrails).
 `claude/skills/postpr-fix/SKILL.md` (and a pointer line in `claude/commands/
 followup.md`) encoding the causality×necessity routing ladder above, with the
 capture step reusing the same offer mechanic Q/D/S/PR use (and the writer
-[[idea-capture-command]] would provide, if built). Keep it an **offer, never
+`/qrspi:idea` [[backlog-schema-finish]] shipped). Keep it an **offer, never
 auto-append** — consistent with the backlog-capture rule elsewhere. Relates to the
 archived `right-size-followup-handling` (which right-sizes *which* followups to take)
 and [[pr-human-task-loop-stop-option]] (both refine the post-PR fix loop). Surfaced
@@ -1672,48 +1469,6 @@ a lint/guard that enforces the shape at source. Surfaced as a Non-Goal of
 `claude/commands/pr.md`) in the prescribed shape, so the archive merge-gate can
 parse the PR number without defensive tolerance. Enforce the shape at source rather
 than tolerating drift downstream.
-
-### pr-stage-open-issue-triage — `idea` · **P3**
-
-**Why:** Two `claude/commands/pr.md` rough edges surfaced dogfooding
-`archive-auto-create-pr`'s PR stage (see its `retrospective.md`). (1) The
-"Seed the follow-up queue" step routes **every** reviewer open issue to
-`followups.md` (post-PR) and the reviewer defaults to a **draft** PR when the
-list is non-empty — but some open issues are trivial, in-scope, must-fix-
-before-merge gaps (e.g. a missing CHANGELOG `## [Unreleased]` entry that
-CLAUDE.md mandates), where fixing in-stage and opening a normal PR is strictly
-better than deferring a knowingly-broken PR to a followup. The command has no
-sanctioned "fix it now" branch, so the orchestrator has to deviate from its
-letter. (2) The backlog note is hardcoded to `in-progress (draft PR #<N> open)`
-even when a **ready** (non-draft) PR is opened, making the note inaccurate.
-
-**Shape:** In `claude/commands/pr.md`: (1) add a triage line to "Seed the
-follow-up queue" — before seeding, for each reviewer open issue, if it is a
-trivial in-scope gap that MUST be fixed before merge, fix it in-stage, commit
-atomically, and treat it as resolved (no followup, no forced draft); only
-genuinely post-PR-shaped issues go to `followups.md`. (2) Make the "Record the
-PR link" backlog note conditional on draft-ness: `in-progress (draft PR #<N>
-open)` only when opened as a draft, else `in-progress (PR #<N> open)`.
-
-### plan-emits-changelog-task — `idea` · **P3**
-
-**Why:** `CLAUDE.md` and the stack-cheatsheet both mandate a `## [Unreleased]`
-`CHANGELOG.md` entry for any change to shipped kit behaviour, but the planner
-(stage P) never emits a task for it — it is a cross-cutting housekeeping step
-not tied to any one slice, so the slice→task translation drops it. Surfaced
-dogfooding `archive-auto-create-pr` (see its `retrospective.md`, stage P): the
-missing entry went unnoticed through Implement and was caught by the reviewer
-at PR time as a *blocking* open issue — the latest, most expensive place to
-catch a one-line doc requirement.
-
-**Shape:** In `claude/agents/planner.md` (and/or `claude/commands/plan.md`), add
-a standing rule: when the change alters shipped kit behaviour
-(command/agent/skill/template/lint edit), append a housekeeping task to
-`tasks.md` — "Add a `## [Unreleased]` entry to `CHANGELOG.md` describing this
-change" — so the requirement is satisfied during Implement, not caught at PR
-review. Skip only for pure docs/backlog-only changes that need no CHANGELOG
-line. Relates to [[pr-stage-open-issue-triage]] (the PR-stage half of the same
-CHANGELOG-gap story).
 
 ### optional-technology-specs — `idea` · **P3**
 
