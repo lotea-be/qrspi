@@ -51,3 +51,33 @@
 ## Open gaps
 - [ ] Could not determine ...
 - [ ] Need human input on ...
+
+<!-- SURFACE-GATED: data-store surface. Omit this section entirely (no heading,
+     no "Not applicable") when the repo has no data-store surface. -->
+
+<!-- SURFACE-GATED: http-api surface. Omit this section entirely (no heading,
+     no "Not applicable") when the repo has no http-api surface. -->
+
+<!-- SURFACE-GATED: ui surface. Omit this section entirely (no heading,
+     no "Not applicable") when the repo has no ui surface. -->
+
+<!-- SURFACE-GATED: auth surface. Omit this section entirely (no heading,
+     no "Not applicable") when the repo has no auth surface. -->
+
+<!-- SURFACE-GATED: slash-command surface. Omit this section entirely (no heading,
+     no "Not applicable") when the repo has no slash-command surface. -->
+
+<!-- SURFACE-GATED: stage-agent surface. Omit this section entirely (no heading,
+     no "Not applicable") when the repo has no stage-agent surface. -->
+
+<!-- SURFACE-GATED: skill surface. Omit this section entirely (no heading,
+     no "Not applicable") when the repo has no skill surface. -->
+
+<!-- SURFACE-GATED: lint-gate surface. Omit this section entirely (no heading,
+     no "Not applicable") when the repo has no lint-gate surface. -->
+
+<!-- SURFACE-GATED: template surface. Omit this section entirely (no heading,
+     no "Not applicable") when the repo has no template surface. -->
+
+<!-- SURFACE-GATED: migration-manifest surface. Omit this section entirely (no heading,
+     no "Not applicable") when the repo has no migration-manifest surface. -->

@@ -7,13 +7,7 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## In progress
 
-_None._
-
----
-
-## Proposed
-
-### researcher-apply-surface-gate — `proposed (change folder created 2026-08-13)` · **P2**
+### researcher-apply-surface-gate — `in-progress (Q, R, D, S, V, P, I complete)` · **P2**
 
 **Why:** The `questioner`, `designer`, and `architect` agents apply the
 `repo-surface` surface-gate (emitting the omit-comment and suppressing
@@ -32,6 +26,12 @@ researcher agent's `## What to do` step 1 (the concise-pointer form per PQ1 answ
 `scripts/skill-sets.mjs` already lists `repo-surface` in the researcher's set (no
 registry edit needed). R-commit-time lint deferred per PQ2 answer. No migration
 manifest needed per PQ3 answer.
+
+---
+
+## Proposed
+
+_None._
 
 ---
 
