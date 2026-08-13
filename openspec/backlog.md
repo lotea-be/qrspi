@@ -7,7 +7,26 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## In progress
 
-_None._
+### archive-auto-create-pr — `in-progress (PR #48 open)` · **P3**
+
+**Why:** `/qrspi:archive` step 5's "New branch + push" path only **prints** the
+host PR-create command and explicitly says "do not run it automatically — just
+print it," while `/qrspi:pr` actually **creates** the PR (and records `#<N>` +
+URL). That inconsistency forces the human to copy-paste a `gh pr create` for
+every archive, when the archive PR is exactly as mechanical as the feature PR the
+same session already auto-opened. Surfaced 2026-07-31 dogfooding `/qrspi:archive`
+on `standardize-backlog-format` (the human asked why archive didn't just open the
+PR like the PR stage did).
+
+**Shape:** In `claude/commands/archive.md` step 5's "New branch + push" branch,
+after the `git push -u`, **run** the resolved host PR-create command (the
+`gh`/`az repos`/`glab` line from the stack-cheatsheet `## PR & git workflow`
+block, same resolver `/qrspi:pr` uses), capture the PR number + URL from its
+output, and report them in step 6 instead of re-printing the command. Mirror
+`/qrspi:pr`'s create-and-record step, including its mode-awareness (a Manual-mode
+"create now / show first" gate vs. auto-create in Full/Semi) so the two stages
+behave consistently. Update the README/archive-flow prose if it documents the
+print-only behaviour.
 
 ---
 
@@ -344,27 +363,6 @@ guarded `manual` pre-step) so an absent/renamed title degrades to a manual
 instruction instead of a hard-stop. Update the manifest schema doc in the
 `qrspi-update` skill and backfill both onto `migrations/0.13.0.yaml`'s legend
 insert.
-
-### archive-auto-create-pr — `idea` · **P3**
-
-**Why:** `/qrspi:archive` step 5's "New branch + push" path only **prints** the
-host PR-create command and explicitly says "do not run it automatically — just
-print it," while `/qrspi:pr` actually **creates** the PR (and records `#<N>` +
-URL). That inconsistency forces the human to copy-paste a `gh pr create` for
-every archive, when the archive PR is exactly as mechanical as the feature PR the
-same session already auto-opened. Surfaced 2026-07-31 dogfooding `/qrspi:archive`
-on `standardize-backlog-format` (the human asked why archive didn't just open the
-PR like the PR stage did).
-
-**Shape:** In `claude/commands/archive.md` step 5's "New branch + push" branch,
-after the `git push -u`, **run** the resolved host PR-create command (the
-`gh`/`az repos`/`glab` line from the stack-cheatsheet `## PR & git workflow`
-block, same resolver `/qrspi:pr` uses), capture the PR number + URL from its
-output, and report them in step 6 instead of re-printing the command. Mirror
-`/qrspi:pr`'s create-and-record step, including its mode-awareness (a Manual-mode
-"create now / show first" gate vs. auto-create in Full/Semi) so the two stages
-behave consistently. Update the README/archive-flow prose if it documents the
-print-only behaviour.
 
 ### batch-archive-multiple-changes — `idea` · **P3**
 
@@ -1764,6 +1762,48 @@ a lint/guard that enforces the shape at source. Surfaced as a Non-Goal of
 `claude/commands/pr.md`) in the prescribed shape, so the archive merge-gate can
 parse the PR number without defensive tolerance. Enforce the shape at source rather
 than tolerating drift downstream.
+
+### pr-stage-open-issue-triage — `idea` · **P3**
+
+**Why:** Two `claude/commands/pr.md` rough edges surfaced dogfooding
+`archive-auto-create-pr`'s PR stage (see its `retrospective.md`). (1) The
+"Seed the follow-up queue" step routes **every** reviewer open issue to
+`followups.md` (post-PR) and the reviewer defaults to a **draft** PR when the
+list is non-empty — but some open issues are trivial, in-scope, must-fix-
+before-merge gaps (e.g. a missing CHANGELOG `## [Unreleased]` entry that
+CLAUDE.md mandates), where fixing in-stage and opening a normal PR is strictly
+better than deferring a knowingly-broken PR to a followup. The command has no
+sanctioned "fix it now" branch, so the orchestrator has to deviate from its
+letter. (2) The backlog note is hardcoded to `in-progress (draft PR #<N> open)`
+even when a **ready** (non-draft) PR is opened, making the note inaccurate.
+
+**Shape:** In `claude/commands/pr.md`: (1) add a triage line to "Seed the
+follow-up queue" — before seeding, for each reviewer open issue, if it is a
+trivial in-scope gap that MUST be fixed before merge, fix it in-stage, commit
+atomically, and treat it as resolved (no followup, no forced draft); only
+genuinely post-PR-shaped issues go to `followups.md`. (2) Make the "Record the
+PR link" backlog note conditional on draft-ness: `in-progress (draft PR #<N>
+open)` only when opened as a draft, else `in-progress (PR #<N> open)`.
+
+### plan-emits-changelog-task — `idea` · **P3**
+
+**Why:** `CLAUDE.md` and the stack-cheatsheet both mandate a `## [Unreleased]`
+`CHANGELOG.md` entry for any change to shipped kit behaviour, but the planner
+(stage P) never emits a task for it — it is a cross-cutting housekeeping step
+not tied to any one slice, so the slice→task translation drops it. Surfaced
+dogfooding `archive-auto-create-pr` (see its `retrospective.md`, stage P): the
+missing entry went unnoticed through Implement and was caught by the reviewer
+at PR time as a *blocking* open issue — the latest, most expensive place to
+catch a one-line doc requirement.
+
+**Shape:** In `claude/agents/planner.md` (and/or `claude/commands/plan.md`), add
+a standing rule: when the change alters shipped kit behaviour
+(command/agent/skill/template/lint edit), append a housekeeping task to
+`tasks.md` — "Add a `## [Unreleased]` entry to `CHANGELOG.md` describing this
+change" — so the requirement is satisfied during Implement, not caught at PR
+review. Skip only for pure docs/backlog-only changes that need no CHANGELOG
+line. Relates to [[pr-stage-open-issue-triage]] (the PR-stage half of the same
+CHANGELOG-gap story).
 
 ### optional-technology-specs — `idea` · **P3**
 

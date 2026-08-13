@@ -112,6 +112,22 @@ kit version.
   covered by an inline three-fixture self-test in the Check 14/15 style. No new
   check number and no new dependencies.
 
+### Changed
+
+- **`/qrspi:archive` auto-creates the archive PR (`archive-auto-create-pr`).**
+  The "New branch + push" path of `claude/commands/archive.md` step 5 now
+  actually *creates* the archive PR instead of only printing the host
+  PR-create command. It mirrors `/qrspi:pr`'s create step: mode-aware
+  (Full/Semi auto-create; Manual AskUserQuestion "Create the PR now" / "Show
+  me the command first"), reuses the host CLI already resolved in step 3 (no
+  second resolver), creates a title-only PR (`--body ""`) targeting the
+  default branch, captures `#<N>` + URL from stdout, and reports them in step 6
+  instead of re-printing the command. On a create failure it graceful-degrades
+  -- prints the command and reports "branch pushed, PR not auto-created" rather
+  than hard-stopping, since the archive commit has already landed and pushed.
+  Delta spec `archive-workflow` gains the auto-create contract (four
+  scenarios). Docs-only/prompt-text change; no version bump.
+
 ## [0.12.0] - 2026-07-29
 
 ### Added

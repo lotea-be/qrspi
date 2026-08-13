@@ -187,10 +187,30 @@ Steps:
      git commit -m "chore(<id>): archive change + remove backlog row"
      git push -u origin chore/archive-<id>
      ```
-     Then surface the project's PR-create command (the host CLI named in
-     its stack-cheatsheet — e.g. `gh pr create` or `az repos pr create`) as
-     the suggested next step, mirroring how `/qrspi:pr` surfaces its
-     PR-create line. Do not run it automatically — just print it.
+     Then, using the host CLI resolved in step 3 (e.g. `gh pr create` or
+     `az repos pr create`), apply the mode-aware PR-create gate:
+
+     - In **Full or Semi auto**: run the PR-create command directly per the
+       "PR-create auto-advance" rule in skill `workflow`.
+     - In **Manual**: use the **AskUserQuestion** tool to ask:
+       question: "The archive branch is pushed. Create the archive PR now, or
+       show the command first?"
+       choices: ["Create the PR now", "Show me the command first -- I'll create
+       it manually"]
+
+     Run the archive's PR-create command (`gh pr create` / `az repos pr create`
+     / `glab mr create`) with the title set to the archive commit message
+     (`chore(<id>): archive change + remove backlog row`), empty body
+     (`--body ""`), source branch `chore/archive-<id>`, and target branch set
+     to the repo's default branch from the stack-cheatsheet (e.g. `main`),
+     capturing stdout to extract the PR number and URL. In Manual, only run it
+     if the human chose "Create the PR now"; otherwise print the resolved
+     command for them to copy.
+
+     When the create command fails (e.g. CLI not authenticated), catch the
+     non-zero exit, print the resolved create command for manual use, and
+     report in step 6 that the branch was pushed but the PR was not auto-created
+     — never hard-stop (the archive commit already landed and pushed).
    - **Commit straight to main.** Commit and push on the current branch —
      the same commit as the new-branch path, just without the intermediate
      `git checkout -b`, and no PR-create suggestion follows:
@@ -210,8 +230,10 @@ Steps:
    removed, and which commit target was chosen (or the git error, if step 5
    hard-stopped):
    - **New branch chosen:** name the branch (`chore/archive-<id>`), confirm
-     the archive commit landed there and was pushed, and repeat the
-     suggested PR-create command as the next step.
+     the archive commit landed there and was pushed, and report the created
+     archive PR as `#<N>` and its URL. (If the Manual "show command first"
+     option was chosen or the create command failed, report instead that the
+     command was surfaced or "branch pushed, PR not auto-created".)
    - **Main chosen:** confirm the archive commit landed and was pushed on
      the current branch, with no new branch created.
 
