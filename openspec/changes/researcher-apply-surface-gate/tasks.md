@@ -15,10 +15,10 @@
 
 **Compute:** effort=medium model=sonnet — a new lint check function with inline self-test logic (two fixture branches + error-push branching); small but has more structure than a one-liner edit.
 
-- [ ] 2.1 In `scripts/lint.mjs`, add the `checkResearcherGateInstruction` function after the Check 23 function, following the existing dependency-free ESM pattern. The check reads `claude/agents/researcher.md`, locates step 1 of `## What to do`, and asserts the stable substring `surface-gate rule per the \`repo-surface\` skill` is present. (D6)
-- [ ] 2.2 Add an inline in-memory self-test inside `checkResearcherGateInstruction`: a fixture string containing the phrase must produce a pass result; a fixture omitting it must produce a fail result. A self-test regression pushes a `[researcher-gate-instruction] SELF-TEST FAILED` error. (D6)
-- [ ] 2.3 Wire `checkResearcherGateInstruction` into `main()` after Check 23 so it registers in the run order and contributes to the process exit code on failure. (D6)
-- [ ] 2.4 Run `node scripts/lint.mjs` with the slice 1 edit already in place and confirm it exits 0 and prints `Check 24: OK`. (D6)
+- [x] 2.1 In `scripts/lint.mjs`, add the `checkResearcherGateInstruction` function after the Check 23 function, following the existing dependency-free ESM pattern. The check reads `claude/agents/researcher.md`, locates step 1 of `## What to do`, and asserts the stable substring `surface-gate rule per the \`repo-surface\` skill` is present. (D6)
+- [x] 2.2 Add an inline in-memory self-test inside `checkResearcherGateInstruction`: a fixture string containing the phrase must produce a pass result; a fixture omitting it must produce a fail result. A self-test regression pushes a `[researcher-gate-instruction] SELF-TEST FAILED` error. (D6)
+- [x] 2.3 Wire `checkResearcherGateInstruction` into `main()` after Check 23 so it registers in the run order and contributes to the process exit code on failure. (D6)
+- [x] 2.4 Run `node scripts/lint.mjs` with the slice 1 edit already in place and confirm it exits 0 and prints `Check 24: OK`. (D6)
 - [ ] 2.5 (human) Temporarily delete the gate-instruction sentence from `claude/agents/researcher.md`, run `node scripts/lint.mjs`, and confirm Check 24 reports a violation and the process exits non-zero. Restore the sentence afterwards and confirm `node scripts/lint.mjs` exits 0 again.
 
 ## 3. Add SURFACE-GATED comments to research.template.md

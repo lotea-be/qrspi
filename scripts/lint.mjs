@@ -3962,6 +3962,75 @@ async function checkBacklogWikilinks(errors) {
   return violations.length;
 }
 
+// ---- Check 24: RESEARCHER GATE-INSTRUCTION PRESENCE -------------------------
+//
+// Asserts that claude/agents/researcher.md step 1 of "## What to do" contains
+// the stable substring that instructs the researcher to apply the surface-gate
+// rule per the repo-surface skill. This is a static presence check (CI-time),
+// not a runtime lint.
+//
+// Carries an inline two-fixture self-test run BEFORE any file I/O:
+//   (a) fixture WITH the phrase -> must produce no violation
+//   (b) fixture WITHOUT the phrase -> must produce a violation
+
+async function checkResearcherGateInstruction(errors) {
+  const GATE_PHRASE = 'surface-gate rule per the `repo-surface` skill';
+
+  // Pure helper: returns true when the phrase is present in text.
+  function hasGatePhrase(text) {
+    return text.includes(GATE_PHRASE);
+  }
+
+  // ---- INLINE SELF-TEST -------------------------------------------------------
+  let selfTestFailed = false;
+
+  // Fixture (a): text containing the phrase -> must pass (no violation)
+  const _stA =
+    '1. Load skills. Apply the surface-gate rule per the `repo-surface` skill: emit each section only when present.\n';
+  if (!hasGatePhrase(_stA)) {
+    errors.push(
+      '[researcher-gate-instruction] SELF-TEST FAILED: fixture (a) -- phrase present but hasGatePhrase returned false'
+    );
+    selfTestFailed = true;
+  }
+
+  // Fixture (b): text WITHOUT the phrase -> must fail (violation detected)
+  const _stB =
+    '1. Load skills. Emit sections based on the surfaces present in the repo.\n';
+  if (hasGatePhrase(_stB)) {
+    errors.push(
+      '[researcher-gate-instruction] SELF-TEST FAILED: fixture (b) -- phrase absent but hasGatePhrase returned true'
+    );
+    selfTestFailed = true;
+  }
+  // ---- end self-test ----------------------------------------------------------
+
+  if (selfTestFailed) {
+    return 1;
+  }
+
+  const agentPath = path.join(root, 'claude', 'agents', 'researcher.md');
+  const agentRel = 'claude/agents/researcher.md';
+  const agentText = await readFileOr(agentPath, null);
+
+  if (agentText === null) {
+    errors.push(`[researcher-gate-instruction] ${agentRel} not found`);
+    return 1;
+  }
+
+  if (!hasGatePhrase(agentText)) {
+    errors.push(
+      `[researcher-gate-instruction] ${agentRel}: step 1 of "## What to do" is missing the surface-gate rule instruction (expected substring: "${GATE_PHRASE}")`
+    );
+    return 1;
+  }
+
+  process.stdout.write(
+    `  OK: ${agentRel} -- gate-instruction phrase present\n`
+  );
+  return 0;
+}
+
 // ---- main ------------------------------------------------------------------
 
 async function main() {
@@ -4043,6 +4112,9 @@ async function main() {
 
   process.stdout.write('\nCheck 23: Backlog wikilink resolution\n');
   await checkBacklogWikilinks(errors);
+
+  process.stdout.write('\nCheck 24: Researcher gate-instruction presence\n');
+  await checkResearcherGateInstruction(errors);
 
   process.stdout.write('\n');
   if (errors.length === 0) {
