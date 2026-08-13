@@ -15,6 +15,11 @@ exactly the five spine headings (`## Areas investigated`, `## File map`,
 `## Open gaps`), the `# Research — <change-id>` title, and the `> Stage R …`
 blockquote. Surface-driven inventory headings MUST NOT appear in the template;
 a comment MUST note they are injected dynamically from the repo's declared surfaces.
+Additionally, each surface-gated inventory section position in the template MUST
+carry a `<!-- SURFACE-GATED: <surface> surface. Omit the heading and body
+entirely when <surface> is absent from ## Repo surface. -->` comment (or
+equivalent phrase-aligned wording matching the `repo-surface` omit mechanic),
+matching the convention already present in `questions.template.md`.
 
 #### Scenario: research.template.md exists after the change ships
 - **WHEN** the kit is installed and `openspec-templates/research.template.md` is read
@@ -31,6 +36,14 @@ a comment MUST note they are injected dynamically from the repo's declared surfa
 - **WHEN** `openspec-templates/research.template.md` is read
 - **THEN** `## Notable discrepancies` is present as a standing heading (always
   emitted, body "None." when empty), not a conditional or optional heading.
+
+#### Scenario: surface-gated inventory sections carry SURFACE-GATED comments
+- **WHEN** `openspec-templates/research.template.md` is read
+- **THEN** each position in the template that corresponds to a surface-gated
+  inventory section carries a `<!-- SURFACE-GATED: … -->` comment (or equivalent
+  phrase-aligned wording), matching the convention used in
+  `openspec-templates/questions.template.md`; these comments are for
+  human-facing legibility and do not add surface-gated heading lines.
 
 ### Requirement: TEMPLATE_CANONICAL_HEADINGS wires research.template.md to the researcher agent
 The system MUST add a `research.template.md → researcher → [the 5 spine headings]`
