@@ -42,7 +42,7 @@ not novel design.
 - [x] 1.7 Checkpoint (automated): run `node scripts/lint.mjs`; Check 2 (the
       `checkSkillSets` registry assertion) reports no `[skill-sets]`
       violation for `pr` or `archive`.
-- [ ] 1.8 Checkpoint (human, dogfood): in a fresh terminal, run `claude
+- [x] 1.8 Checkpoint (human, dogfood): in a fresh terminal, run `claude
       --plugin-dir /workspaces/git/qrspi` against a throwaway GitHub-remote
       fixture (outside this repo); run `/qrspi:pr` and `/qrspi:archive` far
       enough to reach the vendor-resolution step and confirm the resolved
@@ -103,7 +103,7 @@ opus heuristics call out, not a templated mirror of existing code.
       reachable. The with-remote "no linked PR" hard-block is unchanged, per
       the `archive-workflow` delta's "PR-merge gate is skipped for a
       local-only (no-remote) change" requirement.
-- [ ] 2.7 Checkpoint (human, dogfood): in a fresh terminal, run `claude
+- [x] 2.7 Checkpoint (human, dogfood): in a fresh terminal, run `claude
       --plugin-dir /workspaces/git/qrspi` against a throwaway scratch repo
       with no configured git remote (build it under the scratchpad, never
       inside this repo). Walk `questions.md` step 2 (the branch-creation push
@@ -166,3 +166,8 @@ reasoning, not a first-of-kind pattern.
       appears later in the same run. Separately, run `/qrspi:update` on a
       similarly aged fixture and confirm the manual migration step surfaces
       the Branch-naming/no-remote guidance to the human.
+      **(Leave-for-now 2026-08-13 — release-time verification.** Both parts are
+      structurally unobservable pre-release: the prompt-once/write-back never
+      triggers because `feature`/`archive` always have built-in defaults, and
+      `/qrspi:update` only walks `0.14.0.yaml` once `plugin.json` is bumped to
+      0.14.0 at release. Verify at release-cut time.)
