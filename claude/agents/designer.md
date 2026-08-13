@@ -100,7 +100,7 @@ exception (see workflow skill Read Matrix). Triggers must be sourced from
    only the inline form silently under-covers the delegated form. (Example:
    verify-stage-gate-execution D6 — the body-aware Check 5 predicate first matched
    only commands naming `AskUserQuestion` inline, missing `research`/`plan`/`slices`,
-   which reach the gate transitively via the `workflow` choreography; caught
+   which reach the gate transitively via the stage choreography; caught
    late at stage I, 6 of 9.)
 
 ## Design content (~200 lines)

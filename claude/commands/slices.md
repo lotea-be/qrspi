@@ -14,10 +14,13 @@ Change id: $ARGUMENTS
 
 2. **Context budget gate.** Load skill `context-budget-gate` and follow its instructions exactly.
 
-3. Read or establish the run-mode by following the **Run-mode** procedure in
-   skill `workflow` before doing any other work.
+3. **Stage choreography.** Load skill `stage-choreography` and follow its
+   instructions exactly -- it carries the canonical main-loop procedures this
+   command runs (run-mode, precondition check, commit step, next-stage
+   handoff). Read or establish the run-mode by following its **Run-mode**
+   procedure before doing any other work.
 
-Precondition (canonical *precondition check* in skill `workflow`,
+Precondition (canonical *precondition check* in skill `stage-choreography`,
 "Stage choreography"): the input artifacts are
 `openspec/changes/<id>/proposal.md` and at least one
 `openspec/changes/<id>/specs/*/spec.md` (Glob both patterns); on failure
@@ -39,12 +42,12 @@ Return only what the architect's "Final message format" specifies.
 
 Backlog: Slices does not change the row's status or section grouping --
 `openspec/backlog.md` has no `Next QRSPI command:` line to update (see
-skill `workflow`, "Backlog atomicity"); the row stays as stage Q left it
+skill `stage-choreography`, "Backlog atomicity"); the row stays as stage Q left it
 until the Implement stage's final slice flips it. No backlog edit is
 needed here. The frozen heading grammar for backlog rows is defined in
 `openspec-templates/backlog.template.md` and enforced by Check 22.
 
-**Choreography (see skill `workflow`, "Stage choreography").** Follow
+**Choreography (see skill `stage-choreography`, "Stage choreography").** Follow
 the canonical *commit step* and *next-stage handoff* there, with these
 stage variables:
 - Artifact: `openspec/changes/<id>/slices.md`.

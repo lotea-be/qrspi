@@ -35,10 +35,12 @@ export const SKILL_SET_EXPECTED = {
 //   idea    -- loads backlog-writer to delegate row construction and staging (D7, D11)
 //   pr      -- loads git-host-workflow for vendor + branch-slot resolution, plus
 //              its pre-existing qrspi-version-check / context-budget-gate loads
+//              and stage-choreography for the canonical main-loop procedures
 //   archive -- loads git-host-workflow for vendor + branch-slot resolution, plus
-//              its pre-existing context-budget-gate load
+//              its pre-existing context-budget-gate load and stage-choreography
+//              for the commit step / hard-stop / PR-create rules it runs
 export const COMMAND_SKILL_SET_EXPECTED = {
   idea: ['backlog-writer'],
-  pr: ['git-host-workflow', 'qrspi-version-check', 'context-budget-gate'],
-  archive: ['git-host-workflow', 'context-budget-gate'],
+  pr: ['git-host-workflow', 'qrspi-version-check', 'context-budget-gate', 'stage-choreography'],
+  archive: ['git-host-workflow', 'context-budget-gate', 'stage-choreography'],
 };

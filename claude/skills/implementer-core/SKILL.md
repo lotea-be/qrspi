@@ -101,8 +101,8 @@ via CLI. In all commit messages, PR descriptions, and CLI output:
 ## Before completing a slice — divergence self-check (hard-stop condition 4)
 
 Before you emit a slice's final message, self-check the slice's code against
-the divergence rubric in skill `workflow` ("Divergence rubric (hard-stop
-condition 4)" under the Hard-stop procedure). If your implementation
+the divergence rubric in skill `workflow` (its "Divergence rubric (hard-stop
+condition 4)" section). If your implementation
 materially diverges from the approved `design.md`/delta spec — changing or
 dropping a recorded decision or delta requirement, introducing an unapproved
 capability/API/data-model/dependency, contradicting a Non-Goal or a PQ/OQ

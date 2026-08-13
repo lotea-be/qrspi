@@ -14,10 +14,13 @@ Change id: $ARGUMENTS
 
 2. **Context budget gate.** Load skill `context-budget-gate` and follow its instructions exactly.
 
-3. Read or establish the run-mode by following the **Run-mode** procedure in
-   skill `workflow` before doing any other work.
+3. **Stage choreography.** Load skill `stage-choreography` and follow its
+   instructions exactly -- it carries the canonical main-loop procedures this
+   command runs (run-mode, precondition check, commit step, next-stage
+   handoff). Read or establish the run-mode by following its **Run-mode**
+   procedure before doing any other work.
 
-Precondition (canonical *precondition check* in skill `workflow`,
+Precondition (canonical *precondition check* in skill `stage-choreography`,
 "Stage choreography"): the input artifact is
 `openspec/changes/<id>/slices.md`; on failure point the user at
 `/qrspi:slices`. Use the **Glob** tool to verify the artifact exists — do
@@ -36,11 +39,11 @@ should be quick and mechanical.
 
 **Backlog:** Plan does not change the row's status or section grouping --
 `openspec/backlog.md` has no `Next QRSPI command:` line to update (see
-skill `workflow`, "Backlog atomicity"); the row stays as stage Q left it
+skill `stage-choreography`, "Backlog atomicity"); the row stays as stage Q left it
 until the Implement stage's final slice flips it. No backlog edit is
 needed here.
 
-**Choreography (see skill `workflow`, "Stage choreography").** Follow
+**Choreography (see skill `stage-choreography`, "Stage choreography").** Follow
 the canonical *commit step* and *next-stage handoff* there, with these
 stage variables:
 - Artifact: `openspec/changes/<id>/tasks.md`.

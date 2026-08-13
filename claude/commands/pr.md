@@ -14,13 +14,16 @@ Change id: $ARGUMENTS
 
 2. **Context budget gate.** Load skill `context-budget-gate` and follow its instructions exactly.
 
-3. Read or establish the run-mode by following the **Run-mode** procedure in
-   skill `workflow` before doing any other work.
+3. **Stage choreography.** Load skill `stage-choreography` and follow its
+   instructions exactly -- it carries the canonical main-loop procedures this
+   command runs (run-mode, precondition check, commit step, next-stage
+   handoff). Read or establish the run-mode by following its **Run-mode**
+   procedure before doing any other work.
 
 Precondition: `openspec/changes/<id>/tasks.md` exists and the working
 tree is clean (no uncommitted changes outside of the change folder
 updates). **This stage's precondition has two parts** (the canonical
-*precondition check* in skill `workflow` covers the file gate; the
+*precondition check* in skill `stage-choreography` covers the file gate; the
 clean-tree gate is unique to PR). The "all boxes ticked" condition is
 enforced by the tasks pass below -- the precondition no longer hard-stops
 on un-ticked boxes:
@@ -51,7 +54,7 @@ tasks, M = R + H total open items.
 - **Full or Semi-auto, M = 0:** suppress the banner silently and skip
   directly to the follow-ups pass. Do NOT display any "0 open" message.
 - **Full or Semi-auto, M > 0:** this is a **hard-stop** (see the Hard-stop
-  procedure in skill `workflow`). Display the count banner below and run the
+  procedure in skill `stage-choreography`). Display the count banner below and run the
   per-item gate. Do NOT auto-advance past the gate; the user must resolve
   each open item interactively. The auto chain is halted until all items
   are resolved or the user chooses to exit (Pause / Stop here).
@@ -153,7 +156,7 @@ of un-ticked follow-up entries.
   banner silently and proceed directly to spawning the reviewer. Do NOT
   display any "0 un-resolved" message.
 - **Full or Semi-auto, F > 0:** this is a **hard-stop** (see the Hard-stop
-  procedure in skill `workflow`). Display the count banner below and run the
+  procedure in skill `stage-choreography`). Display the count banner below and run the
   per-entry gate. Do NOT auto-advance past the gate; the user must resolve
   each open entry interactively. The auto chain is halted until all entries
   are resolved or the user chooses to exit (Stop here).
@@ -226,7 +229,7 @@ The reviewer does NOT create the PR itself — it drafts the description
 and provides the suggested PR-create command for the human to run.
 
 **PR-create step (mode-aware — follow the PR-create auto-advance rule in
-skill `workflow`).** After the reviewer produces the PR description and
+skill `stage-choreography`).** After the reviewer produces the PR description and
 checklist:
 
 **Remote-presence gate (before creating the PR — all modes).** Load skill
@@ -249,7 +252,7 @@ remote` via the Bash tool):
   creation below.
 
 - In **Full or Semi auto**, skip the question below and run the PR-create
-  command directly per the "PR-create auto-advance" rule in skill `workflow`.
+  command directly per the "PR-create auto-advance" rule in skill `stage-choreography`.
 - In **Manual**, use the **AskUserQuestion** tool to ask:
   question: "The PR description is ready. Would you like me to create the PR now, or do you want to review the description first?"
   choices: ["Create the PR now", "Show me the description first — I'll create it manually"]
@@ -300,7 +303,7 @@ lost). Use the format defined in skill `postpr-fix`:
 ```
 If the reviewer found zero open issues, do not create the file.
 
-Then commit and push (the canonical *commit step* in skill `workflow`
+Then commit and push (the canonical *commit step* in skill `stage-choreography`
 applies — explicit paths only, never `git add -A`; PR open is a state
 change so the backlog edit lands in this same commit, per backlog
 atomicity):

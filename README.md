@@ -82,7 +82,22 @@ stack-cheatsheet `## Repo surface` block for deterministic inference, or falls b
 prose inference); `git-host-workflow` (shared vendor, branch-slot, and
 no-remote resolution for `/qrspi:questions`, `/qrspi:pr`, and
 `/qrspi:archive` -- see [Git host & branch naming](#git-host--branch-naming)
-below).
+below); `stage-choreography` (the canonical main-loop procedures — run-mode
+establishment, precondition/approval check, commit step, next-stage handoff —
+plus the hard-stop procedure, backlog atomicity, and the stage-specific gate
+notes; loaded by every stage command and by `archive`).
+
+`workflow` and `stage-choreography` are a deliberate pair, split by **who runs what**:
+
+- **`workflow`** carries the shared mental model — what QRSPI is, the eight stages, the
+  Read Matrix and its cross-change boundary, the backlog rules, and the divergence
+  rubric for hard-stop condition 4. Both the orchestrator and every stage subagent load
+  it.
+- **`stage-choreography`** carries the four canonical procedures the **main-loop
+  orchestrator** runs around a stage. A subagent never runs them — it is spawned for one
+  bounded artifact write and cannot even reach `AskUserQuestion` — so it never loads
+  them. Keeping the two apart takes roughly 4.1k tokens off every stage-agent spawn;
+  `node scripts/context-footprint.mjs` prints the current per-stage table.
 
 ### Git host & branch naming
 

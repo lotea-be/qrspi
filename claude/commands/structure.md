@@ -14,10 +14,13 @@ Change id: $ARGUMENTS
 
 2. **Context budget gate.** Load skill `context-budget-gate` and follow its instructions exactly.
 
-3. Read or establish the run-mode by following the **Run-mode** procedure in
-   skill `workflow` before doing any other work.
+3. **Stage choreography.** Load skill `stage-choreography` and follow its
+   instructions exactly -- it carries the canonical main-loop procedures this
+   command runs (run-mode, precondition check, commit step, next-stage
+   handoff). Read or establish the run-mode by following its **Run-mode**
+   procedure before doing any other work.
 
-Precondition (canonical *precondition check* in skill `workflow`,
+Precondition (canonical *precondition check* in skill `stage-choreography`,
 "Stage choreography"): the input artifact is
 `openspec/changes/<id>/design.md`; on failure point the user at
 `/qrspi:design`.
@@ -46,7 +49,7 @@ architect's full conversation — only the returned summary is used here.
 already exists as `### <id> — \`proposed (...)\`` from stage Q. Structure
 does not flip its status or move it between `##` section groupings — that
 transition happens at the Implement stage's final slice (see skill
-`workflow`, "Backlog atomicity"). Verify the row is present; do not edit
+`stage-choreography`, "Backlog atomicity"). Verify the row is present; do not edit
 its heading here.
 
 **Capture deferred work (before the commit):** Read `proposal.md`'s
@@ -63,7 +66,7 @@ Follow the "Capturing deferred work" rules in skill `workflow`
 not promote in-change follow-ups. Skip silently if there is nothing out of
 scope worth promoting. Any rows added here are staged with the same commit.
 
-**Choreography (see skill `workflow`, "Stage choreography").** Follow
+**Choreography (see skill `stage-choreography`, "Stage choreography").** Follow
 the canonical *commit step* and *next-stage handoff* there, with these
 stage variables:
 - Artifact: `openspec/changes/<id>/proposal.md` + `openspec/changes/<id>/specs/`

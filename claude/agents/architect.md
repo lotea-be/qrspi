@@ -308,7 +308,7 @@ propagates into `tasks.md` (P stage) and is consumed by
 
 Before you emit the final message, self-check your `proposal.md` / `specs/`
 (S) or `slices.md` (V) against the divergence rubric in skill `workflow`
-("Divergence rubric (hard-stop condition 4)" under the Hard-stop procedure).
+(its "Divergence rubric (hard-stop condition 4)" section).
 If your output materially diverges from the approved `design.md`/delta spec —
 changing or dropping a recorded decision or delta requirement, introducing an
 unapproved capability/API/data-model/dependency, contradicting a Non-Goal or a

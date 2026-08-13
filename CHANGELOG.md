@@ -60,6 +60,43 @@ kit version.
     instructing existing consumers to re-run `/qrspi:stack` or hand-add the
     field.
 
+### Changed
+
+- **The `workflow` skill is split by audience: `workflow` + `stage-choreography`.**
+  Over half of `workflow` (344 of 606 lines) was the "Stage choreography"
+  section — run-mode establishment, precondition/approval check, commit step,
+  next-stage handoff, the hard-stop procedure, backlog atomicity, and the
+  stage-specific gate notes. Those are procedures the **main-loop orchestrator**
+  runs; a stage subagent never runs any of them (it is spawned via the Agent
+  tool for one bounded artifact write, and cannot reach `AskUserQuestion` at
+  all). Yet all six stage agents loaded the whole file, carrying ~16 KB of
+  choreography they could not act on into every spawn.
+
+  The choreography now lives in a new orchestrator-only skill,
+  `stage-choreography`, loaded by the eight stage commands (in step 3, where the
+  run-mode is established) and by `/qrspi:archive`. `workflow` keeps the shared
+  mental model: what QRSPI is, the backlog rules, the eight stages, the Read
+  Matrix and its cross-change boundary, and the fix loop. Everything
+  `git-host-and-remote-awareness` added to the choreography — the no-remote
+  merge-back never-suppressed gate, the hard-stop condition (2) no-remote
+  carve-out, and the no-remote push gating — moves with it, since all of it is
+  orchestrator-run.
+
+  The **divergence rubric for hard-stop condition 4 stays in `workflow`**, and is
+  promoted from a paragraph inside the hard-stop procedure to its own top-level
+  section — condition 4 is the one hard-stop only the subagent can recognise, so
+  its criteria have to travel with the subagents. The architect, planner, and
+  `implementer-core` pointers to it are updated accordingly.
+
+  Content moved verbatim; no procedure was reworded. The 38 command-body
+  pointers that name a moved section now name `stage-choreography`; the six that
+  name a section which stayed (`Capturing deferred work`, the stage list, the
+  two skill-load lines) still name `workflow`. Measured with
+  `node scripts/context-footprint.mjs`, the per-spawn skill payload drops by
+  ~4.1k tokens for every stage agent: researcher 14.1k → 10.0k, questioner
+  15.5k → 11.3k, designer 17.1k → 12.9k, architect 20.7k → 16.4k, planner
+  15.2k → 11.0k, reviewer 14.9k → 10.8k.
+
 ### Fixed
 
 - **`scripts/lint.mjs` header block now matches the code.** The banner said
