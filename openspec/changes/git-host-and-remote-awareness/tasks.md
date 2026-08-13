@@ -69,9 +69,11 @@ opus heuristics call out, not a templated mirror of existing code.
       full local menu minus push, plus merge-back" from the
       `git-host-workflow` spec.
 - [x] 2.2 Wire the skill's remote-presence check into `claude/commands/questions.md`
-      step 2's push path so a remoteless repo branches to the no-remote
-      `AskUserQuestion` menu (local branch / patch file / commit-to-current —
-      no push option) instead of attempting `git push`.
+      step 2's push path so a remoteless repo skips the push, records the run
+      as local-only, and continues — this is the branch-creation push site
+      (no work exists yet), so NO disposition menu is shown here; the
+      three-option menu + merge-back apply at the `pr`/`archive` completion
+      push sites (amended 2026-08-13 per dogfood finding).
 - [x] 2.3 Wire the skill's remote-presence check into `claude/commands/pr.md`'s
       PR-create step with the same no-remote branching.
 - [x] 2.4 Wire the skill's remote-presence check into `claude/commands/archive.md`'s
@@ -95,8 +97,12 @@ opus heuristics call out, not a templated mirror of existing code.
 - [ ] 2.7 Checkpoint (human, dogfood): in a fresh terminal, run `claude
       --plugin-dir /workspaces/git/qrspi` against a throwaway scratch repo
       with no configured git remote (build it under the scratchpad, never
-      inside this repo). Walk `questions.md` step 2: confirm the
-      three-option no-remote menu appears with no push choice. Choose
+      inside this repo). Walk `questions.md` step 2 (the branch-creation push
+      site): confirm the branch is created locally, NO `git push` is
+      attempted, NO disposition menu appears, and the run continues
+      local-only (amended 2026-08-13 — the three-option menu belongs at the
+      `pr`/`archive` completion sites, not branch creation). Then, at a
+      completion push site, choose
       local-branch, complete the flow, and confirm the human-confirmed
       merge-back offer appears and a plain `git merge` (not forced
       fast-forward) runs only after confirmation. Force a merge conflict and

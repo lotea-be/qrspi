@@ -103,7 +103,12 @@ wired to any push call site — that wiring is Slice 2.
 
 **Deliverable:** every push site (`questions.md` step 2, `pr.md`'s PR-create
 step, `archive.md`'s archive-push step) now runs the skill's live `git
-remote` check before pushing. On a remoteless repo, the site branches to the
+remote` check before pushing. The no-remote consequence differs by push-site
+kind (amended 2026-08-13 per dogfood finding): at `questions.md` step 2 (the
+branch-creation site, no work yet) a no-remote repo simply skips the push,
+records local-only, and continues — no disposition menu. At the completion
+push sites (`pr.md` PR-create, `archive.md` archive-push, where the work
+exists) the site branches to the
 no-remote `AskUserQuestion` menu (local branch / patch file /
 commit-to-current — no push option) instead of attempting `git push`; the
 local-branch and commit-to-current paths additionally offer a

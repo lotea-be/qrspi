@@ -84,7 +84,14 @@ runtime, not literal shell-injection syntax in the skill body) as the
 remote-presence signal — never a cached cheatsheet field, since presence can
 change between sessions. This check MUST gate every git-push site: the
 unconditional `git push -u origin <branch>` in `questions.md` step 2, and
-the PR-create / archive-push sites in `pr.md` and `archive.md`. A no-remote
+the PR-create / archive-push sites in `pr.md` and `archive.md`. The
+no-remote **consequence differs by the kind of push site**: at the
+**branch-creation push site** (`questions.md` step 2), where no change work
+exists yet, a no-remote result MUST simply skip the push, record that the
+run is local-only, and continue — it MUST NOT present the disposition menu.
+At the **completion push sites** (`pr.md` PR-create, `archive.md` step 5
+archive-push), where the change's work exists and is ready to land, a
+no-remote result MUST route the site to the no-remote menu. A no-remote
 result MUST be treated as a condition distinct from `archive-workflow`'s
 existing "no linked PR" bailout — no-remote replaces the remote-requiring
 menu entirely rather than graying individual options out.
@@ -95,10 +102,18 @@ menu entirely rather than graying individual options out.
 - **THEN** it reports remote-present and the calling command proceeds with
   its normal `git push -u origin <branch>` step.
 
-#### Scenario: remote absent — push site branches to the no-remote flow
+#### Scenario: remote absent at branch creation — skip push and continue local-only
 - **GIVEN** a repo with no configured git remote
-- **WHEN** the skill's remote-presence check runs at any push site (`questions`
-  step 2, `pr`, or `archive`)
+- **WHEN** the skill's remote-presence check runs at `questions.md` step 2
+  (the branch-creation push site, where no change work exists yet)
+- **THEN** the calling command skips the push, records the run as local-only,
+  and continues — it does NOT present the no-remote disposition menu.
+
+#### Scenario: remote absent at a completion push site — branches to the no-remote menu
+- **GIVEN** a repo with no configured git remote
+- **WHEN** the skill's remote-presence check runs at a completion push site
+  (`pr.md` PR-create or `archive.md` step 5 archive-push, where the change's
+  work exists)
 - **THEN** the calling command skips the push and branches to the no-remote
   local-only menu instead of attempting `git push`.
 
@@ -111,7 +126,10 @@ menu entirely rather than graying individual options out.
 
 ### Requirement: No-remote menu offers the full local menu minus push, plus merge-back
 The skill's no-remote procedure MUST, when the remote-presence check reports
-no remote, direct the calling command to offer exactly three choices via
+no remote **at a completion push site** (`pr.md` PR-create or `archive.md`
+step 5 archive-push — not at `questions.md` step 2 branch creation, which
+skips the push and continues per the gating requirement above),
+direct the calling command to offer exactly three choices via
 `AskUserQuestion`: (a) local branch only (no push), (b) a patch file (`git
 format-patch` or `diff`), (c) commit to the current branch — the full local
 menu minus any push-based option. For the local-branch and commit-to-current
@@ -124,7 +142,8 @@ rather than auto-resolving.
 
 #### Scenario: no-remote menu presented with three non-push options
 - **GIVEN** the remote-presence check reports no remote
-- **WHEN** the calling command reaches a push site
+- **WHEN** the calling command reaches a completion push site (`pr` PR-create
+  or `archive` archive-push)
 - **THEN** it presents an `AskUserQuestion` with exactly three choices: local
   branch (no push), patch file, and commit-to-current-branch — no push
   option is offered.

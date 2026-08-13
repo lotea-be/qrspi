@@ -29,10 +29,21 @@ the archive-push site in `archive.md` step 5.
 
 The check: the calling command runs `git remote` via the Bash tool at
 runtime and treats a non-empty result as "remote present." An empty result
-means "no remote" and routes that push site to Step D (the no-remote local
-menu) instead of attempting a push. Presence MUST be re-checked live at each
-push site -- never cached in a cheatsheet field, since a remote can be added
-or removed between sessions.
+means "no remote." Presence MUST be re-checked live at each push site --
+never cached in a cheatsheet field, since a remote can be added or removed
+between sessions.
+
+The no-remote consequence depends on the **kind** of push site:
+
+- **Branch-creation push site** (`questions.md` step 2). No change work
+  exists yet -- the feature branch was just created. A no-remote result here
+  simply **skips the push, records that this is a local-only run, and
+  continues**. It does NOT present the Step D disposition menu, because there
+  is nothing to turn into a patch, a commit, or a merge-back yet.
+- **Completion push sites** (`pr.md` PR-create, `archive.md` step 5
+  archive-push). The change's work exists and is ready to land. A no-remote
+  result here routes the site to the Step D no-remote menu instead of
+  attempting a push.
 
 A no-remote result is a condition **distinct** from `archive.md`'s
 pre-existing "no linked PR" hard-block: no-remote replaces the
@@ -103,7 +114,13 @@ condition handled by Step E (a later slice).
 
 ## Step D -- No-remote local-only menu and merge-back
 
-When Step A determines no remote is configured, the calling command's push
+This menu applies only at the **completion push sites** (`pr.md` PR-create,
+`archive.md` step 5 archive-push), where the change's work exists and is ready
+to land. It does NOT apply at `questions.md` step 2's branch creation, which
+per Step A simply skips the push and continues local-only (no work exists to
+disposition there).
+
+When Step A determines no remote is configured at a completion push site, that
 site branches to this menu instead of attempting a push. The calling command
 presents the menu via its own `AskUserQuestion` call (this skill names the
 choices; it does not call `AskUserQuestion` itself) with exactly these three

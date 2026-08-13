@@ -47,14 +47,16 @@ Otherwise:
      git push -u origin <branch>
      ```
    - **No remote** -- do NOT attempt `git push`. The branch stays local;
-     note that this is a local-only run. Present the skill's **Step D
-     no-remote menu** via the **AskUserQuestion** tool with exactly its
-     three choices (local branch / patch file / commit-to-current -- no
-     push option). Follow the chosen path per Step D; for the local-branch
-     and commit-to-current choices the skill's human-confirmed merge-back
-     applies when the flow's work is complete (never auto-performed). This
-     no-remote branch is distinct from any host/PR concern -- there is
-     simply no remote to push to.
+     note that this is a local-only run, and continue to the next step.
+     This is a **branch-creation push site** (per the skill's Step A): no
+     change work exists yet, so do NOT present the Step D disposition menu
+     here -- there is nothing to turn into a patch, a commit, or a
+     merge-back. The Step D no-remote menu (local branch / patch file /
+     commit-to-current) and its human-confirmed merge-back apply later at
+     the **completion push sites** (`/qrspi:pr` and `/qrspi:archive`), where
+     the change's work exists and is ready to land. This no-remote branch is
+     distinct from any host/PR concern -- there is simply no remote to push
+     to.
 3. Create `openspec/changes/<id>/` if it does not already exist.
 4. Load skills `workflow` and `openspec-workflow`.
 5. Spawn the `questioner` subagent via the **Agent tool** (`subagent_type:

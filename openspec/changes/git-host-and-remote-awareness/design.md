@@ -98,7 +98,15 @@ still applies to a *with-remote* change that was never PR'd; no-remote replaces
 the remote-requiring menu entirely (Q4) rather than graying options out.
 
 ### D5 — No-remote menu = full local menu minus push + merge-back (PQ3, PQ8, Q4)
-When no remote: offer (a) local branch (no push), (b) patch file
+> **Amended 2026-08-13 (dogfood finding):** the menu applies only at the
+> **completion push sites** (`pr` PR-create, `archive` archive-push), where the
+> change's work exists. It is NOT shown at `questions.md` step 2 branch creation
+> — that site has no work to disposition, so per D4 it simply skips the push and
+> continues local-only. (Stage-S spec + stage-P task 2.2 had over-applied the
+> menu to the branch-creation site, beyond D4's intent; realigned here.)
+
+At a completion push site with no remote: offer (a) local branch (no push),
+(b) patch file
 (`git format-patch`/`diff`), (c) commit-to-current-branch — the full menu minus
 push. **Terminal step (PQ8):** for the local-branch and commit paths, offer a
 **human-confirmed** merge of the feature branch into the default branch locally
