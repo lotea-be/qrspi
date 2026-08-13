@@ -14,7 +14,22 @@ kit version.
 
 ## [Unreleased]
 
-_No unreleased changes._
+### Added
+
+- **Researcher surface-gate (`researcher-apply-surface-gate`).** The stage-R
+  `researcher` agent now carries an explicit surface-gate instruction in
+  `## What to do` step 1 ("Apply the surface-gate rule per the `repo-surface`
+  skill: emit each inventory section only when its surface is present, omitting
+  absent-surface headings entirely"), so it suppresses absent-surface inventory
+  headings at write time like the questioner/designer/architect already do —
+  instead of emitting e.g. `## Data model` in a repo with no `data-store`
+  surface and only tripping Check 14 mid-implementation. Adds **Check 24**
+  (`checkResearcherGateInstruction`) to `scripts/lint.mjs` — a static
+  stable-substring assertion (with a two-fixture self-test) that the
+  gate-instruction sentence cannot silently regress. Adds per-section
+  `<!-- SURFACE-GATED: … -->` comments to `openspec-templates/research.template.md`
+  (between `## File map` and `## Notable discrepancies`, where the researcher
+  emits inventory sections), matching the `questions.template.md` convention.
 
 ## [0.13.0] - 2026-08-13
 
