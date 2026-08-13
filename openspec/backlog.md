@@ -13,7 +13,25 @@ _None._
 
 ## Proposed
 
-_None._
+### researcher-apply-surface-gate — `proposed (change folder created 2026-08-13)` · **P2**
+
+**Why:** The `questioner`, `designer`, and `architect` agents apply the
+`repo-surface` surface-gate (emitting the omit-comment and suppressing
+surface-specific headings absent from the repo's `## Repo surface` block), but the
+`researcher` (stage R) does **not** -- it emitted a `## Data model` heading in a
+repo with no `data-store` surface, which `scripts/lint.mjs` Check 14
+(surface-applicability) rejects. The failure only surfaces at stage-I lint (R-stage
+commits don't run lint), so it lands as a mid-implementation hard-stop far from its
+cause. Fix: have the researcher load `repo-surface` and surface-gate its headings
+like the other artifact-producing agents (and/or run lint at R-commit time to catch
+it at the source). Surfaced 2026-07-27 while implementing
+[[unify-implement-paths-on-variants]] (its research.md tripped Check 14).
+
+**Shape:** Add an explicit "Apply the surface-gate rule" instruction to the
+researcher agent's `## What to do` step 1 (the concise-pointer form per PQ1 answer).
+`scripts/skill-sets.mjs` already lists `repo-surface` in the researcher's set (no
+registry edit needed). R-commit-time lint deferred per PQ2 answer. No migration
+manifest needed per PQ3 answer.
 
 ---
 
@@ -200,28 +218,6 @@ the two-source-of-truth caution in [[optional-technology-specs]]. **P1 like
 [[repo-applicable-artifact-sections]]:** a highly visible artifact-quality defect
 (ugly process references baked into shipped code) rather than a live-workflow
 correctness gap. Surfaced 2026-07-24.
-
-### researcher-apply-surface-gate — `idea` · **P2**
-
-**Why:** The `questioner`, `designer`, and `architect` agents apply the
-`repo-surface` surface-gate (emitting the omit-comment and suppressing
-surface-specific headings absent from the repo's `## Repo surface` block), but the
-`researcher` (stage R) does **not** — it emitted a `## Data model` heading in a
-repo with no `data-store` surface, which `scripts/lint.mjs` Check 14
-(surface-applicability) rejects. The failure only surfaces at stage-I lint (R-stage
-commits don't run lint), so it lands as a mid-implementation hard-stop far from its
-cause. Fix: have the researcher load `repo-surface` and surface-gate its headings
-like the other artifact-producing agents (and/or run lint at R-commit time to catch
-it at the source). Surfaced 2026-07-27 while implementing
-[[unify-implement-paths-on-variants]] (its research.md tripped Check 14).
-
-**Shape:** Add `repo-surface` to the researcher agent's `Load skills` line (and
-the `scripts/skill-sets.mjs` registry Check 2b enforces), then apply the same
-omit-comment/heading-suppression gate the questioner/designer/architect already
-run so a `## Data model` / `## API surface` heading is only emitted when the
-matching surface is present in the repo's `## Repo surface` block. Optionally add
-a lint run at R-commit time so the miss reddens at stage R rather than surfacing
-as a mid-implementation Check 14 hard-stop.
 
 ### git-host-and-remote-awareness — `idea` · **P2**
 
