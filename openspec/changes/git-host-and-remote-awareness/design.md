@@ -96,6 +96,13 @@ the same check before any PR-create/push. "No remote configured" is a **distinct
 condition from `archive.md`'s existing "no linked PR" bailout (Q3): the latter
 still applies to a *with-remote* change that was never PR'd; no-remote replaces
 the remote-requiring menu entirely (Q4) rather than graying options out.
+> **Amended 2026-08-13 (dogfood finding #2):** the same live check also gates
+> `archive.md`'s **step-3 PR-merge gate** — a local-only (no-remote) change has
+> no `pr.md` to verify, so archive MUST skip the PR-merge gate for it and route
+> to the local archive (sync + commit-to-`main`, no push). Without this, a change
+> taken through the no-remote flow was un-archivable (step 3 hard-stopped on the
+> missing `pr.md`), and task 2.4's step-5 no-remote wiring was unreachable. The
+> with-remote "no linked PR" hard-block is unchanged; the two stay distinct.
 
 ### D5 — No-remote menu = full local menu minus push + merge-back (PQ3, PQ8, Q4)
 > **Amended 2026-08-13 (dogfood finding):** the menu applies only at the

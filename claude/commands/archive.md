@@ -28,10 +28,23 @@ Steps:
    resolved (`/qrspi:followup <id>`) before archiving. Inform, don't hard-block;
    the user may have a reason to proceed.
 
-3. **PR-merge gate (hard-stop).** Archival is blocked unless the change's
-   linked PR is verified merged. Unlike step 2's inform-only check, this step
-   is a hard block: do not proceed to step 4 unless the PR is confirmed
-   merged.
+3. **PR-merge gate (hard-stop) — with-remote only.** Archival is blocked
+   unless the change's linked PR is verified merged. Unlike step 2's
+   inform-only check, this step is a hard block: do not proceed to step 4
+   unless the PR is confirmed merged.
+   - **Remote-presence check first (local-only bypass).** Load skill
+     `git-host-workflow` and run its **Step A remote-presence check** (`git
+     remote` via the Bash tool) before reading `pr.md`. If **no remote** is
+     configured, this is a **local-only change** — it was taken through the
+     no-remote `/qrspi:pr` flow, which records no `pr.md`, so there is no PR
+     to verify. **Skip the entire PR-merge gate** (do NOT hard-stop on a
+     missing `pr.md`), note that this is a local-only archive, and proceed to
+     step 4a. The commit-target step (step 5) already routes the no-remote
+     case to "commit straight to main" + the skill's local menu, with no
+     push. This local-only bypass is **distinct** from the "no linked PR"
+     hard-block below: that block still fires for a **with-remote** change
+     that was never PR'd. If a **remote is present**, run the PR-merge gate as
+     follows.
    - **Read the PR number.** Use the **Read** tool on
      `openspec/changes/<id>/pr.md` (use **Glob** first if you need to check
      existence without erroring on a missing file). If the file does not

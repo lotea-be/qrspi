@@ -94,6 +94,15 @@ opus heuristics call out, not a templated mirror of existing code.
       requirement from the `qrspi-run-mode` delta spec: no hard-stop on
       no-remote during Full/Semi-auto, but the merge-back `AskUserQuestion`
       is never auto-advanced.
+- [x] 2.6b Gate `claude/commands/archive.md`'s **step-3 PR-merge gate** on the
+      skill's live remote-presence check (added 2026-08-13 per dogfood finding
+      #2): when no remote is configured the change is local-only with no
+      `pr.md` to verify, so archive MUST skip the PR-merge gate (no hard-stop
+      on the missing `pr.md`) and route to the local archive (sync +
+      commit-to-`main`, no push), making task 2.4's step-5 no-remote wiring
+      reachable. The with-remote "no linked PR" hard-block is unchanged, per
+      the `archive-workflow` delta's "PR-merge gate is skipped for a
+      local-only (no-remote) change" requirement.
 - [ ] 2.7 Checkpoint (human, dogfood): in a fresh terminal, run `claude
       --plugin-dir /workspaces/git/qrspi` against a throwaway scratch repo
       with no configured git remote (build it under the scratchpad, never
@@ -107,12 +116,15 @@ opus heuristics call out, not a templated mirror of existing code.
       merge-back offer appears and a plain `git merge` (not forced
       fast-forward) runs only after confirmation. Force a merge conflict and
       confirm the command stops and leaves the conflicted tree rather than
-      auto-resolving. Separately, on the same fixture, run through
-      `archive.md`'s commit-target step and confirm "new branch + push" is
-      absent while "commit straight to main" and the local menu are offered,
-      and that this is visibly distinct from the "no linked PR" hard-block
-      (test the latter separately on a with-remote fixture that has no
-      `pr.md`). Finally, drive a Full-auto-mode run on the remoteless
+      auto-resolving. Separately, on the same no-remote fixture, run
+      `/qrspi:archive` and confirm it **detects no remote and skips the
+      PR-merge gate** (no hard-stop on the missing `pr.md`, amended
+      2026-08-13 per dogfood finding #2), then at the commit-target step
+      "new branch + push" is absent while "commit straight to main" and the
+      local menu are offered. Confirm this is visibly distinct from the "no
+      linked PR" hard-block by testing that block separately on a
+      **with-remote** fixture that has no `pr.md` (it MUST still hard-stop
+      there). Finally, drive a Full-auto-mode run on the remoteless
       fixture and confirm it does not hard-stop at the push step, yet still
       pauses for the merge-back `AskUserQuestion`.
 

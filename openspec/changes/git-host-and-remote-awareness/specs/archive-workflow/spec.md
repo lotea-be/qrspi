@@ -32,6 +32,32 @@ which still applies to a with-remote change that was never PR'd.
 - **THEN** both options ("new branch + push" and "commit straight to main")
   are offered exactly as before this change.
 
+### Requirement: The PR-merge gate is skipped for a local-only (no-remote) change
+Before the PR-merge gate reads `pr.md`, `/qrspi:archive` MUST run the
+`git-host-workflow` skill's live remote-presence check. When no remote is
+configured, the change is local-only — no PR exists to verify (the no-remote
+`/qrspi:pr` flow records no `pr.md`) — so the command MUST skip the PR-merge
+gate entirely (it MUST NOT hard-stop on a missing `pr.md`) and proceed to the
+delta-spec sync and folder move, archiving via the commit-straight-to-main /
+no-remote local path. When a remote IS present, the PR-merge gate applies
+unchanged, including the "no linked PR" hard-block for a with-remote change
+that was never PR'd. The two conditions are distinct: no-remote skips the
+gate; with-remote-but-no-PR hard-blocks.
+
+#### Scenario: no-remote change skips the PR-merge gate
+- **GIVEN** a repo with no configured git remote and a change taken through
+  the local-only flow (no `pr.md` recorded)
+- **WHEN** `/qrspi:archive <id>` runs
+- **THEN** it detects no remote, skips the PR-merge gate (no hard-stop on the
+  missing `pr.md`), and proceeds to sync the delta specs and move the folder,
+  committing the archive straight to the default branch with no push.
+
+#### Scenario: with-remote change with no PR still hits the no-linked-PR block
+- **GIVEN** a repo with a configured remote but no `pr.md`
+- **WHEN** `/qrspi:archive <id>` runs
+- **THEN** it hits the existing "no linked PR" hard-block — the no-remote
+  skip does NOT apply because a remote is present.
+
 ## MODIFIED Requirements
 
 ### Requirement: Host CLI and status-query command are resolved host-agnostically

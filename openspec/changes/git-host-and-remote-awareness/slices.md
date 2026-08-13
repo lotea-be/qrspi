@@ -117,7 +117,12 @@ conflict stops and hands the working tree to the human rather than
 auto-resolving. `archive.md`'s commit-target proposal step specifically
 substitutes "commit straight to main" + the no-remote menu for the
 "new branch + push" option when no remote is configured, and stays distinct
-from the pre-existing "no linked PR" hard-block. The orchestrator's Full/Semi-auto
+from the pre-existing "no linked PR" hard-block. Additionally (amended
+2026-08-13 per dogfood finding #2), `archive.md`'s **step-3 PR-merge gate**
+runs the same live remote check first: a local-only (no-remote) change has no
+`pr.md` to verify, so archive skips the PR-merge gate for it and routes to the
+local archive — without this the no-remote flow was un-archivable and the
+step-5 no-remote wiring unreachable. The orchestrator's Full/Semi-auto
 run mode auto-follows the no-remote flow at push-based auto-advance steps
 without treating the absent push as a hard-stop, while the merge-back
 confirmation itself remains human-gated even in Full auto. This is fully
