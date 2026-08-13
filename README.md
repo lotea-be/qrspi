@@ -319,7 +319,7 @@ migration that bumps the pin must edit that field, or upgraded consumers turn re
 
 ### CI lint checks (`node scripts/lint.mjs`)
 
-The lint script runs 22 checks (Checks 1-22, plus sub-checks 2b, 10b) on every CI run. Key checks relevant to context hygiene and agent
+The lint script runs 24 checks (Checks 1-24, plus sub-checks 2b, 10b) on every CI run. Key checks relevant to context hygiene and agent
 contracts:
 
 - **Check 2b (`checkSkillSets`)** -- asserts each stage agent's `Load skills` line
@@ -409,6 +409,14 @@ contracts:
   `**Shape:**` body rule scoped to standalone `idea`/`proposed` rows, and
   template-file existence. Passes silently when the backlog is absent; carries a
   four-fixture inline self-test.
+- **Check 23 (`checkBacklogWikilinks`)** -- asserts every `[[wikilink]]` in
+  `openspec/backlog.md` resolves to a live backlog row id or an archived change
+  folder, so cross-references cannot rot.
+- **Check 24 (`checkResearcherGateInstruction`)** -- asserts the `researcher`
+  agent's `## What to do` step 1 contains the surface-gate instruction phrase
+  (`surface-gate rule per the \`repo-surface\` skill`) via a stable-substring
+  match, so the gate instruction cannot silently regress. Carries a two-fixture
+  inline self-test.
 
 All other checks (pin agreement, frontmatter, heading alignment, README command
 coverage, gate-tool/executor agreement, migration manifests, read-contract banners,
