@@ -27,8 +27,14 @@ Otherwise:
 2. **Create a feature branch:** Load skill `git-host-workflow` and follow
    its Step C branch-slot resolution for the `feature` slot to get
    `<branch>` (defaults to `features/<id>` when the stack-cheatsheet does
-   not override it). If not already on the change's branch, create and
-   switch to it:
+   not override it). If Step C reports the "missing field" condition (Step E
+   — neither the cheatsheet nor a built-in default resolves the slot),
+   follow the skill's Step E: prompt **once**, via the **AskUserQuestion**
+   tool, for the `feature` branch-naming value, offer to write the answer
+   back into the stack-cheatsheet's `## PR & git workflow` block, and
+   continue this run with the supplied value — do not re-prompt for the
+   `feature` slot again later in this run. If not already on the change's
+   branch, create and switch to it:
    ```
    git checkout -b <branch>
    ```

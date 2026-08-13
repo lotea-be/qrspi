@@ -171,7 +171,13 @@ Steps:
    - **Resolve the archive branch name.** Load skill `git-host-workflow` and
      follow its Step C branch-slot resolution for the `archive` slot to get
      `<archive-branch>` (defaults to `chore/archive-<id>` when the
-     stack-cheatsheet does not override it).
+     stack-cheatsheet does not override it). If Step C reports the "missing
+     field" condition (Step E — neither the cheatsheet nor a built-in default
+     resolves the slot), follow the skill's Step E: prompt **once**, via the
+     **AskUserQuestion** tool, for the `archive` branch-naming value, offer to
+     write the answer back into the stack-cheatsheet's `## PR & git workflow`
+     block, and continue this run with the supplied value — do not re-prompt
+     for the `archive` slot again later in this run.
    - **Remote-presence gate (before proposing the commit target).** Load
      skill `git-host-workflow` and run its **Step A remote-presence check**
      (`git remote` via the Bash tool). This gate is a *separate, distinct*

@@ -31,6 +31,35 @@ kit version.
   (between `## File map` and `## Notable discrepancies`, where the researcher
   emits inventory sections), matching the `questions.template.md` convention.
 
+- **Git host and remote awareness (`git-host-and-remote-awareness`).** Adds a
+  shared `git-host-workflow` skill that centralizes vendor (git host)
+  resolution, branch-slot resolution, and remote-presence handling for
+  `/qrspi:questions`, `/qrspi:pr`, and `/qrspi:archive`, replacing the inline
+  detection logic previously duplicated across those command bodies.
+  - Vendor resolution stays cheatsheet-override-first (a `Git host:` line in
+    the stack-cheatsheet's `## PR & git workflow` block), else live-derives
+    from repo signals (`.github/`, `azure-pipelines.yml`, `.gitlab-ci.yml`),
+    defaulting to GitHub; coverage spans GitHub (`gh`), Azure DevOps
+    (`az repos`), and GitLab (`glab`).
+  - Branch-slot resolution adds a `Branch naming` sub-block (`feature:` /
+    `archive:` keys) to the stack-cheatsheet's `## PR & git workflow` block,
+    read by the `feature` and `archive` slots and falling back to the
+    existing defaults (`features/<id>`, `chore/archive-<id>`) when absent. A
+    slot that resolves to neither an override nor a default prompts once via
+    `AskUserQuestion` and offers to write the answer back into the
+    cheatsheet.
+  - Adds a no-remote local-only flow: every push site re-checks `git remote`
+    live and, when absent, offers a local branch / patch file / commit-to-
+    current menu (no push option) plus a human-confirmed merge-back into the
+    default branch, distinct from `archive.md`'s pre-existing "no linked PR"
+    hard-block.
+  - `/qrspi:stack`'s interview now collects the `Branch naming` slots.
+    `scripts/skill-sets.mjs` registers the new skill load for `pr` and
+    `archive`. Ships migration `0.14.0.yaml` (manual-only -- the new
+    sub-block is free-form prose with no reliable `edit-file` anchor)
+    instructing existing consumers to re-run `/qrspi:stack` or hand-add the
+    field.
+
 ## [0.13.0] - 2026-08-13
 
 ### Added

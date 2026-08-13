@@ -1,0 +1,40 @@
+version: 0.14.0
+summary: >
+  Adds git-host and remote awareness: a shared `git-host-workflow` skill
+  centralizes vendor (git host) resolution (GitHub/Azure DevOps/GitLab),
+  branch-slot resolution (`feature`/`archive`), and a no-remote local-only
+  flow (local branch / patch file / commit-to-current, with a
+  human-confirmed merge-back) for /qrspi:questions, /qrspi:pr, and
+  /qrspi:archive. The per-repo stack-cheatsheet's `## PR & git workflow`
+  block gains a `Branch naming` sub-block with `feature:` and `archive:`
+  keys; both keys are optional -- the skill falls back to built-in defaults
+  (`features/<id>` and `chore/archive-<id>`) when absent, so existing
+  cheatsheets keep working unmodified. This is a free-form prose block with
+  no reliable edit-file anchor, so there is no automated step -- consumers
+  either re-run /qrspi:stack to pick up the interview question, or hand-add
+  the sub-block.
+automated: []
+manual:
+  - >-
+    Re-run `/qrspi:stack` to refresh your project's stack-cheatsheet skill
+    (`.claude/skills/*-stack/SKILL.md`). The interview now asks for the
+    `feature` and `archive` branch-naming slots and writes a `Branch naming`
+    sub-block under `## PR & git workflow`. This is optional -- if you skip
+    it, the `git-host-workflow` skill falls back to its built-in defaults
+    (`features/<id>` for `feature`, `chore/archive-<id>` for `archive`).
+  - >-
+    Alternatively, hand-add the sub-block yourself: under your
+    stack-cheatsheet's `## PR & git workflow` heading, add a `Branch naming`
+    sub-block with `feature: <pattern>` and `archive: <pattern>` lines (use
+    `<id>` as the change-id placeholder), e.g.:
+
+      Branch naming:
+        feature: features/<id>
+        archive: chore/archive-<id>
+
+  - >-
+    No git-remote configured? No action needed -- the no-remote local-only
+    flow (local branch / patch file / commit-to-current, with a
+    human-confirmed merge-back into the default branch) is live-derived at
+    every push site by checking `git remote` at runtime; it is not
+    cheatsheet-driven and requires no migration step.

@@ -118,24 +118,24 @@ prompt-once/write-back logic mirrors the "ask once, write back" pattern
 already used elsewhere in the kit (e.g. cheatsheet field prompts); moderate
 reasoning, not a first-of-kind pattern.
 
-- [ ] 3.1 Implement "Missing branch-naming field prompts once and writes
+- [x] 3.1 Implement "Missing branch-naming field prompts once and writes
       back" from the `git-host-workflow` spec in the skill and its call
       sites: prompt-once via `AskUserQuestion` when a call site first needs a
       missing value, offer to write the answer back into the cheatsheet's
       `## PR & git workflow` block, and continue the run using the supplied
       value without re-prompting later in the same run.
-- [ ] 3.2 Author a `manual` migration step in `migrations/0.14.0.yaml`
+- [x] 3.2 Author a `manual` migration step in `migrations/0.14.0.yaml`
       describing the new `Branch naming` sub-block / no-remote posture and
       instructing existing consumers to re-run `/qrspi:stack` or hand-add the
       field (no `automated` step, since the block is free-form prose with no
       reliable `edit-file` anchor), per the proposal's "Migrations: yes"
       impact line.
-- [ ] 3.3 Update `README.md`'s PR/archive-flow section to document the
+- [x] 3.3 Update `README.md`'s PR/archive-flow section to document the
       `git-host-workflow` skill, the `feature`/`archive` branch-naming
       slots, and the no-remote local flow (CLAUDE.md README-currency
       obligation — this slice is where the full feature first exists to
       document).
-- [ ] 3.4 Checkpoint (automated): run `node scripts/lint.mjs`; all checks
+- [x] 3.4 Checkpoint (automated): run `node scripts/lint.mjs`; all checks
       report `OK`, including the migration-manifest schema/pin checks
       against the new `migrations/0.14.0.yaml` entry.
 - [ ] 3.5 Checkpoint (human, dogfood): in a fresh terminal, run `claude
