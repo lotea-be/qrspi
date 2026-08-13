@@ -63,18 +63,18 @@ bailout that the spec explicitly requires stays unconflated) — the kind of
 subtle-edge-case, cross-file coordination the `vertical-slice` skill's
 opus heuristics call out, not a templated mirror of existing code.
 
-- [ ] 2.1 Wire the live `git remote` presence check into the
+- [x] 2.1 Wire the live `git remote` presence check into the
       `git-host-workflow` skill ahead of every push, per "Remote presence is
       checked live and gates every push site" and "No-remote menu offers the
       full local menu minus push, plus merge-back" from the
       `git-host-workflow` spec.
-- [ ] 2.2 Wire the skill's remote-presence check into `claude/commands/questions.md`
+- [x] 2.2 Wire the skill's remote-presence check into `claude/commands/questions.md`
       step 2's push path so a remoteless repo branches to the no-remote
       `AskUserQuestion` menu (local branch / patch file / commit-to-current —
       no push option) instead of attempting `git push`.
-- [ ] 2.3 Wire the skill's remote-presence check into `claude/commands/pr.md`'s
+- [x] 2.3 Wire the skill's remote-presence check into `claude/commands/pr.md`'s
       PR-create step with the same no-remote branching.
-- [ ] 2.4 Wire the skill's remote-presence check into `claude/commands/archive.md`'s
+- [x] 2.4 Wire the skill's remote-presence check into `claude/commands/archive.md`'s
       archive-push step, applying the "Archive push site is gated by the
       shared no-remote check" and updated "The archive commit target is
       proposed" requirements from the `archive-workflow` delta spec
@@ -82,11 +82,11 @@ opus heuristics call out, not a templated mirror of existing code.
       + the local menu; remote-present behavior is unchanged from Slice 1).
       Keep this branch visibly distinct from the pre-existing "no linked PR"
       hard-block.
-- [ ] 2.5 Implement the human-confirmed local `git merge` back into the
+- [x] 2.5 Implement the human-confirmed local `git merge` back into the
       default branch for the local-branch and commit-to-current no-remote
       paths; a merge conflict stops and hands the working tree to the human
       rather than auto-resolving.
-- [ ] 2.6 Update orchestrator run-mode handling to apply "No-remote gating
+- [x] 2.6 Update orchestrator run-mode handling to apply "No-remote gating
       applies to push-based auto-advance in Full and Semi-auto mode" and the
       modified "PR-create is auto-executed in Full and Semi-auto mode"
       requirement from the `qrspi-run-mode` delta spec: no hard-stop on

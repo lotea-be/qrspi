@@ -23,15 +23,22 @@ Load this skill whenever a command needs to:
 ## Step A -- Remote-presence check
 
 Before any push-related resolution, the calling command determines whether
-this repo has a configured git remote. (In Slice 1 this step's *procedure*
-is owned here, but no calling command wires a live check yet -- every
-command in this slice assumes a remote is present, matching pre-existing
-behavior. Wiring the live check into command bodies is a later slice.)
+this repo has a configured git remote. This check gates **every** push site:
+the branch push in `questions.md` step 2, the PR-create site in `pr.md`, and
+the archive-push site in `archive.md` step 5.
 
-The check itself, when a command does wire it: run `git remote` (or
-equivalent) and treat a non-empty result as "remote present." An empty
-result means "no remote" and routes to Step D (the no-remote menu) instead
-of Steps B/C's host resolution.
+The check: the calling command runs `git remote` via the Bash tool at
+runtime and treats a non-empty result as "remote present." An empty result
+means "no remote" and routes that push site to Step D (the no-remote local
+menu) instead of attempting a push. Presence MUST be re-checked live at each
+push site -- never cached in a cheatsheet field, since a remote can be added
+or removed between sessions.
+
+A no-remote result is a condition **distinct** from `archive.md`'s
+pre-existing "no linked PR" hard-block: no-remote replaces the
+remote-requiring push path with the local menu entirely, whereas the
+no-linked-PR block still applies to a with-remote change that was never PR'd.
+The two never conflate.
 
 ## Step B -- Vendor resolution
 
@@ -94,22 +101,43 @@ If neither the cheatsheet nor a default resolves a value at all (should not
 happen given the built-in defaults above), that is the "missing field"
 condition handled by Step E (a later slice).
 
-## Step D -- No-remote menu procedure (text owned here; not wired in Slice 1)
+## Step D -- No-remote local-only menu and merge-back
 
 When Step A determines no remote is configured, the calling command's push
-site branches to a menu instead of attempting `git push`. The menu this
-skill defines (for the calling command to present via its own
-`AskUserQuestion` call -- this skill does not call it):
+site branches to this menu instead of attempting a push. The calling command
+presents the menu via its own `AskUserQuestion` call (this skill names the
+choices; it does not call `AskUserQuestion` itself) with exactly these three
+choices -- the full local menu minus any push option:
 
-- **Local branch** -- commit to a local-only branch; no push.
-- **Patch file** -- write the diff to a patch file for the human to apply
-  elsewhere.
-- **Commit straight to current branch** -- skip branching entirely.
+- **Local branch** -- commit the work to a local-only branch; no push.
+- **Patch file** -- write the diff to a patch file (`git format-patch` or
+  `git diff`) for the human to apply elsewhere; no push.
+- **Commit straight to current branch** -- skip branching entirely and
+  commit on the current branch; no push.
 
-No "push" option is offered in this menu, since there is no remote to push
-to. Wiring this menu into any command's live push site, and the
-human-confirmed merge-back that follows a local-branch or
-commit-to-current choice, is out of scope for Slice 1 (see Slice 2).
+No "push" option is offered, since there is no remote to push to.
+
+### Merge-back (local-branch and commit-to-current paths)
+
+For the **local branch** and **commit straight to current branch** choices,
+once the work is complete the calling command MUST additionally offer a
+human-confirmed merge of the feature branch back into the repo's default
+branch (resolved from the stack-cheatsheet's `## PR & git workflow` block's
+`Default target branch` value, defaulting to `main`). Rules the calling
+command follows:
+
+1. The merge is offered via the calling command's own `AskUserQuestion` and
+   is **never** performed without that confirmation. It is never
+   auto-advanced, even in Full auto mode.
+2. On confirmation, the calling command runs a plain `git merge` of the
+   feature branch into the default branch -- **not** a forced fast-forward,
+   and never an automatic merge.
+3. If `git merge` reports a conflict, the calling command MUST stop, leave
+   the conflicted working tree exactly as `git merge` left it, and hand it to
+   the human -- it MUST NOT attempt any automatic conflict resolution.
+
+The **patch file** choice has no merge-back step (the human applies the patch
+elsewhere).
 
 ## Step E -- Missing branch-naming field (owned here; not wired in Slice 1)
 

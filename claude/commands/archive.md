@@ -172,8 +172,32 @@ Steps:
      follow its Step C branch-slot resolution for the `archive` slot to get
      `<archive-branch>` (defaults to `chore/archive-<id>` when the
      stack-cheatsheet does not override it).
-   - **Propose the commit target (always shown — not a suppressible
-     confirmation).** Use the **AskUserQuestion** tool:
+   - **Remote-presence gate (before proposing the commit target).** Load
+     skill `git-host-workflow` and run its **Step A remote-presence check**
+     (`git remote` via the Bash tool). This gate is a *separate, distinct*
+     condition from the step 3 "no linked PR" hard-block above: that block
+     fires for a with-remote change that merged/was never PR'd; this gate
+     fires only when there is **no git remote at all**. The two never
+     conflate -- reaching this gate means step 3 already passed.
+     - **No remote** -- do NOT offer "New branch + push (open a PR)" (there
+       is no remote to push to and no PR to open). Present, via the
+       **AskUserQuestion** tool, the "Commit straight to main" option
+       alongside the skill's **Step D no-remote menu** (local branch / patch
+       file / commit-to-current -- no push option), in place of the push
+       path. Follow the chosen path per Step D, using the identical staged
+       paths and commit message
+       (`chore(<id>): archive change + remove backlog row`) as the
+       with-remote "Commit straight to main" path below; skip the new-branch
+       creation and the PR-create step entirely. For the "Commit straight to
+       main", local-branch, and commit-to-current choices, offer the skill's
+       human-confirmed merge-back into the default branch (plain `git merge`,
+       not a forced fast-forward, never auto-performed; a merge conflict
+       stops and hands the human the conflicted tree). The same non-zero-git
+       hard-stop below applies. Then continue to step 6.
+     - **Remote present** -- proceed to the commit-target proposal below
+       (behavior unchanged from before this change: both options offered).
+   - **Propose the commit target (remote present; always shown — not a
+     suppressible confirmation).** Use the **AskUserQuestion** tool:
      - question: "Where should the archive commit land?"
      - choices:
        - "New branch + push (open a PR)" — **default / recommended**

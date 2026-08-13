@@ -229,6 +229,25 @@ and provides the suggested PR-create command for the human to run.
 skill `workflow`).** After the reviewer produces the PR description and
 checklist:
 
+**Remote-presence gate (before creating the PR — all modes).** Load skill
+`git-host-workflow` and run its **Step A remote-presence check** (`git
+remote` via the Bash tool):
+
+- **No remote** -- a PR cannot be created without a remote. Do NOT attempt
+  PR creation and do NOT ask the mode-aware create question below. Instead
+  present the skill's **Step D no-remote menu** via the **AskUserQuestion**
+  tool with exactly its three choices (local branch / patch file /
+  commit-to-current -- no push option) and follow the chosen path. For the
+  local-branch and commit-to-current choices, offer the skill's
+  human-confirmed merge-back into the default branch (plain `git merge`, not
+  a forced fast-forward, never auto-performed even in Full auto; a merge
+  conflict stops and hands the human the conflicted tree). Skip the
+  PR-create command and the PR-link recording below (no PR exists to
+  record). This no-remote branch is distinct from any host-resolution
+  concern -- there is simply no remote to push to.
+- **Remote present** -- proceed with the mode-aware create gate and PR
+  creation below.
+
 - In **Full or Semi auto**, skip the question below and run the PR-create
   command directly per the "PR-create auto-advance" rule in skill `workflow`.
 - In **Manual**, use the **AskUserQuestion** tool to ask:
