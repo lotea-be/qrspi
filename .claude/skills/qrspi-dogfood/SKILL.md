@@ -89,17 +89,31 @@ moving on:
 2. **Give the exact terminal commands** the human runs in their *separate*
    `--plugin-dir` session — copy-pasteable, including any per-check env var (e.g.
    a `CLAUDE_CONFIG_DIR=…` prefix). Remind them a fresh session is needed only
-   when the plugin source or a launch-time env var changed.
+   when the plugin source or a launch-time env var changed. Because the dogfood
+   session is a *separate* Claude process you cannot see, also tell the human how
+   to hand you the evidence when they are unsure: paste the relevant transcript
+   into their answer, or save the session output to a file under the fixture dir
+   (or just point you at the fixture path — its git log, commits, and generated
+   artifacts are all readable) so you can verify it yourself.
 3. **Say what to do in Claude and what to look for** — the command to run and the
    precise expected observation (exact choices, silence, one-line notice, prompt
    fires once vs. per stage), grounded in the design/spec.
-4. **Ask whether the actual result matches** — via AskUserQuestion
-   (`Matches / Doesn't match — I'll describe`). Wait for the human's answer; do
-   not assume.
+4. **Ask whether the actual result matches** — via AskUserQuestion with three
+   choices: `Matches` / `Doesn't match — I'll describe` / `Unsure — I'll paste
+   the transcript / point you at the output`. The third option exists because a
+   human watching a fast auto-chain often genuinely cannot tell — "unsure" is a
+   first-class, expected answer, not a failure to observe, and is frequently the
+   *more* accurate one. Wait for the human's answer; do not assume.
 5. **Record the outcome** — on *Matches*, tick that check's box in `tasks.md`
    (Confirm-done). On *Doesn't match*, capture the human's description as a
    finding: fix the slice (still stage I) or, if post-PR-shaped, add to
-   `followups.md`; never tick a box that did not pass.
+   `followups.md`; never tick a box that did not pass. On *Unsure*, do NOT tick
+   yet: read the transcript the human pasted (or the file / fixture git state
+   they point you at) and verify it **yourself** against the change's `design.md`
+   / delta `specs/**`, then resolve to Matches or Doesn't-match on that basis. If
+   the evidence is genuinely insufficient to decide, re-provision and ask the
+   human to re-run the isolated check rather than guessing. Never tick a box on
+   an unresolved "unsure."
 6. **Advance** to the next check and repeat from step 1.
 
 Keep each turn scoped to a single check — provision, instruct, ask, record — so
