@@ -229,18 +229,37 @@ and provides the suggested PR-create command for the human to run.
 skill `workflow`).** After the reviewer produces the PR description and
 checklist:
 
+**Remote-presence gate (before creating the PR — all modes).** Load skill
+`git-host-workflow` and run its **Step A remote-presence check** (`git
+remote` via the Bash tool):
+
+- **No remote** -- a PR cannot be created without a remote. Do NOT attempt
+  PR creation and do NOT ask the mode-aware create question below. Instead
+  present the skill's **Step D no-remote menu** via the **AskUserQuestion**
+  tool with exactly its three choices (local branch / patch file /
+  commit-to-current -- no push option) and follow the chosen path. For the
+  local-branch and commit-to-current choices, offer the skill's
+  human-confirmed merge-back into the default branch (plain `git merge`, not
+  a forced fast-forward, never auto-performed even in Full auto; a merge
+  conflict stops and hands the human the conflicted tree). Skip the
+  PR-create command and the PR-link recording below (no PR exists to
+  record). This no-remote branch is distinct from any host-resolution
+  concern -- there is simply no remote to push to.
+- **Remote present** -- proceed with the mode-aware create gate and PR
+  creation below.
+
 - In **Full or Semi auto**, skip the question below and run the PR-create
   command directly per the "PR-create auto-advance" rule in skill `workflow`.
 - In **Manual**, use the **AskUserQuestion** tool to ask:
   question: "The PR description is ready. Would you like me to create the PR now, or do you want to review the description first?"
   choices: ["Create the PR now", "Show me the description first — I'll create it manually"]
 
-Run the project's PR-create command (the host CLI named in its
-stack-cheatsheet -- e.g. `gh pr create` or `az repos pr create`),
-capturing the output so you get the PR number and URL, with the generated
-title, description, the change's source branch, and the project's default
-target branch. In Manual, only run it if the human chose "Create the PR now".
-Otherwise print the command for them to copy.
+Load skill `git-host-workflow` and follow its Step B vendor resolution and
+lookup table to resolve the PR-create command. Run the resolved PR-create
+command, capturing the output so you get the PR number and URL, with the
+generated title, description, the change's source branch, and the
+project's default target branch. In Manual, only run it if the human chose
+"Create the PR now". Otherwise print the command for them to copy.
 
 **Record the PR link (mandatory).** Once the PR is created and you have
 the PR number and web URL (from the host CLI's output), persist

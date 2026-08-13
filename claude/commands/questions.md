@@ -24,17 +24,39 @@ Otherwise:
 
 1. Parse the user's input. The first token is the kebab-case change id;
    the rest is the short description.
-2. **Create a feature branch:** Use the project's branch-naming convention
-   (see its stack-cheatsheet skill; default to `features/<id>` if none is
-   specified). If not already on the change's branch, create and switch to it:
+2. **Create a feature branch:** Load skill `git-host-workflow` and follow
+   its Step C branch-slot resolution for the `feature` slot to get
+   `<branch>` (defaults to `features/<id>` when the stack-cheatsheet does
+   not override it). If Step C reports the "missing field" condition (Step E
+   — neither the cheatsheet nor a built-in default resolves the slot),
+   follow the skill's Step E: prompt **once**, via the **AskUserQuestion**
+   tool, for the `feature` branch-naming value, offer to write the answer
+   back into the stack-cheatsheet's `## PR & git workflow` block, and
+   continue this run with the supplied value — do not re-prompt for the
+   `feature` slot again later in this run. If not already on the change's
+   branch, create and switch to it:
    ```
    git checkout -b <branch>
    ```
    If the branch already exists (e.g., resuming a flow), just switch to
-   it. Push the branch to origin immediately so it exists remotely:
-   ```
-   git push -u origin <branch>
-   ```
+   it. Then run the skill's **Step A remote-presence check** (run `git
+   remote` via the Bash tool) before pushing:
+   - **Remote present** -- push the branch to origin immediately so it
+     exists remotely:
+     ```
+     git push -u origin <branch>
+     ```
+   - **No remote** -- do NOT attempt `git push`. The branch stays local;
+     note that this is a local-only run, and continue to the next step.
+     This is a **branch-creation push site** (per the skill's Step A): no
+     change work exists yet, so do NOT present the Step D disposition menu
+     here -- there is nothing to turn into a patch, a commit, or a
+     merge-back. The Step D no-remote menu (local branch / patch file /
+     commit-to-current) and its human-confirmed merge-back apply later at
+     the **completion push sites** (`/qrspi:pr` and `/qrspi:archive`), where
+     the change's work exists and is ready to land. This no-remote branch is
+     distinct from any host/PR concern -- there is simply no remote to push
+     to.
 3. Create `openspec/changes/<id>/` if it does not already exist.
 4. Load skills `workflow` and `openspec-workflow`.
 5. Spawn the `questioner` subagent via the **Agent tool** (`subagent_type:

@@ -79,7 +79,44 @@ fires in all run-modes and is never suppressed); `repo-surface` (eleven-surface 
 -- see [Surface taxonomy](#surface-taxonomy) below -- read by every artifact-producing
 agent to decide which surface-gated sections to emit or omit; works with the repo's
 stack-cheatsheet `## Repo surface` block for deterministic inference, or falls back to
-prose inference).
+prose inference); `git-host-workflow` (shared vendor, branch-slot, and
+no-remote resolution for `/qrspi:questions`, `/qrspi:pr`, and
+`/qrspi:archive` -- see [Git host & branch naming](#git-host--branch-naming)
+below).
+
+### Git host & branch naming
+
+`/qrspi:questions`, `/qrspi:pr`, and `/qrspi:archive` share a single
+`git-host-workflow` skill for every git-host and remote-related decision,
+instead of each command inlining its own detection logic:
+
+- **Vendor resolution** (which CLI to run for PR-create / PR-status) is
+  cheatsheet-override-first — a `Git host:` line in the stack-cheatsheet's
+  `## PR & git workflow` block wins outright — else live-derived from repo
+  signals (`.github/`, `azure-pipelines.yml`, `.gitlab-ci.yml`), defaulting to
+  GitHub (`gh`) when none match. Coverage spans GitHub (`gh`), Azure DevOps
+  (`az repos`), and GitLab (`glab`).
+- **Branch-slot resolution** names two slots — `feature` (the branch
+  `/qrspi:questions` creates per change) and `archive` (the branch
+  `/qrspi:archive` proposes when pushing the archive commit) — each read from
+  an optional `Branch naming` sub-block under the stack-cheatsheet's `## PR &
+  git workflow` heading (`feature:` / `archive:` keys), falling back to the
+  built-in defaults `features/<id>` and `chore/archive-<id>` when the
+  sub-block is absent. If a slot resolves to neither an override nor a
+  default, the command prompts once via `AskUserQuestion`, offers to write the
+  answer back into the cheatsheet, and does not re-prompt later in the same
+  run.
+- **No-remote local flow.** Every push site (`questions.md` branch creation,
+  `pr.md` PR-create, `archive.md`'s archive-push step) re-checks `git remote`
+  live before pushing. With no remote configured, the command offers a
+  three-choice local-only menu instead — local branch / patch file / commit
+  straight to the current branch, with no push option — and, for the
+  local-branch and commit-to-current choices, a human-confirmed `git merge`
+  back into the default branch once the work is complete (never a forced
+  fast-forward, never auto-performed; a conflict stops and hands the
+  conflicted tree to the human). This is distinct from `archive.md`'s
+  pre-existing "no linked PR" hard-block, which still applies to a
+  with-remote change that was never PR'd.
 
 Each artifact follows a **canonical OpenSpec shape** — see
 [`openspec-templates/`](openspec-templates/).

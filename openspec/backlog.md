@@ -27,6 +27,23 @@ researcher agent's `## What to do` step 1 (the concise-pointer form per PQ1 answ
 registry edit needed). R-commit-time lint deferred per PQ2 answer. No migration
 manifest needed per PQ3 answer.
 
+### git-host-and-remote-awareness — `in-progress (draft PR #51 open)` · **P2**
+
+**Why:** `/qrspi:pr` and `/qrspi:archive` each independently inferred the git host
+and picked a PR CLI, none handled a remoteless (local-only) repo cleanly, and
+branch naming was cheatsheet-driven in one place (`questions.md` feature branch)
+yet hardcoded in another (`archive.md`'s `chore/archive-<id>`) — a stranger on a
+non-GitHub or remoteless repo hit `gh`-assuming commands.
+
+**Shape:** Shipped a shared `git-host-workflow` skill (loaded by `/qrspi:questions`,
+`/qrspi:pr`, `/qrspi:archive`) centralizing vendor resolution
+(cheatsheet-override-first, else live-derive; GitHub + Azure DevOps + GitLab —
+Bitbucket deferred to [[bitbucket-pr-vendor-support]]), a `## PR & git workflow`
+Branch-naming sub-block (`feature`/`archive` slots), a no-remote local-only menu
+(local branch / patch / commit-to-current) with a human-confirmed merge-back, and
+prompt-once/write-back for missing fields backed by a `manual` `0.14.0.yaml`
+migration. See `openspec/changes/git-host-and-remote-awareness/`.
+
 ---
 
 ## Proposed
@@ -219,55 +236,10 @@ the two-source-of-truth caution in [[optional-technology-specs]]. **P1 like
 (ugly process references baked into shipped code) rather than a live-workflow
 correctness gap. Surfaced 2026-07-24.
 
-### git-host-and-remote-awareness — `idea` · **P2**
+### git-host-and-remote-awareness — `bundled into in-progress (2026-08-13)` · **P2**
 
-**Why:** Several kit commands infer the git host and PR mechanics ad hoc and assume a
-remote exists: `/qrspi:pr` and `/qrspi:archive` each independently pick a host CLI
-(`gh` for GitHub, `az repos` for Azure DevOps, `glab` for GitLab, defaulting to `gh`)
-and how to create/query PRs, and none handle a **remoteless** (local-only) repo cleanly.
-Make git-remote-and-vendor awareness a first-class, shared kit concern: detect (1)
-whether the repo has a remote at all, and (2) which vendor it is (GitHub / Azure DevOps /
-GitLab / Bitbucket / …), then expose the vendor-specific PR-create and PR-status commands
-from **one** place (a shared skill and/or the stack-cheatsheet `## PR & git workflow`
-block) so every command reuses it instead of re-deriving. Handle the **no-remote** case
-explicitly — skip push/PR steps and offer a local-only flow (local branch / patch /
-commit-to-current-branch) rather than failing on a missing `origin`. Matters for the
-public 1.0: a non-GitHub or remoteless stranger currently hits `gh`-assuming commands.
-Relates to [[standardize-recurring-ops-scripts]] (the PR-create/PR-status ops it would
-centralize) and [[automate-marketplace-source-bump]].
-
-**Also fold in the branch-naming scheme.** Branch naming is today configurable in
-*one* place and hardcoded in another: the **feature branch** (`questions.md`) reads
-the project's convention from the stack-cheatsheet, defaulting to `features/<id>`,
-but the **archive branch** (`archive.md`) hardcodes `chore/archive-<id>` with no
-configurable hook. Both branch-name schemes (feature *and* archive) belong in the
-same shared `## PR & git workflow` block / skill this idea centralizes, defined once
-so a consumer overrides both from a single place — the same "prose, not schema"
-consolidation, applied to branch naming.
-
-**Shape:** A shared kit skill (and/or a `## PR & git workflow` block in the
-stack-cheatsheet) that detects (1) remote presence and (2) vendor (GitHub / Azure
-DevOps / GitLab / Bitbucket) once, then exposes the vendor-specific PR-create and
-PR-status invocations from one place so `/qrspi:pr` and `/qrspi:archive` reuse it
-instead of each re-deriving `gh`/`az repos`/`glab`. Add an explicit no-remote
-branch that skips push/PR and offers a local-only path (local branch / patch /
-commit-to-current-branch) rather than failing on a missing `origin`. Include the
-**branch-naming scheme** in that block — both the feature-branch pattern
-(`features/<id>` default, already cheatsheet-driven) and the archive-branch pattern
-(replacing the hardcoded `chore/archive-<id>` in `archive.md`) — so a consumer
-overrides both from one configurable place.
-
-**Runway (stranger-hardening — Tier 1.6, pulled in 2026-07-31):** sequenced into the
-pre-1.0 runway as the sharpest "bites a stranger in week one" gap the prior
-sequencing missed — a non-GitHub or remoteless stranger hits `gh`-assuming commands
-the moment they run `/qrspi:pr` or `/qrspi:archive`, exactly the first-impression
-failure a public 1.0 invites. Clustered with [[researcher-apply-surface-gate]] (the
-cheap sibling — fixes a non-web-repo Check 14 hard-stop) and
-[[lint-auto-mode-gate-coverage]] (a cheap correctness guard) as the pre-1.0
-stranger-hardening pass. This is a **sequencing cluster, not one co-design run**:
-this item is the larger standalone (vendor detection + no-remote path +
-branch-naming fold-in), so researcher-gate lands cheap and first while this is
-designed. Reassessed 2026-07-31.
+> **Moved to `## In progress`** (Q–I complete 2026-08-13) — see the
+> `## In progress` entry above.
 
 ### idea-capture-command — `bundled into backlog-schema-finish (2026-07-31)` · **P3**
 
@@ -405,6 +377,12 @@ precedent. (2) **A shipped runtime helper is a bigger commitment than a CI-only
 script** — lint runs in this repo's CI, but a helper a stage command invokes
 at runtime ships into consumer repos and inherits their `gh`/auth availability and
 cross-platform concerns; be deliberate about that split.
+
+### bitbucket-pr-vendor-support — `idea` · **P3**
+
+**Why:** The centralized git-vendor resolver ships GitHub + Azure only; a Bitbucket consumer hits an unsupported-vendor path with no PR-create/PR-status invocation.
+
+**Shape:** Extend the centralized resolver (skill + PR & git workflow block) with Bitbucket detection and its CLI-or-API PR-create/PR-status invocations, reusing the vendor-dispatch seam the parent change establishes.
 
 ### reset-and-resume-between-boundaries — `bundled into orchestrator-context-budget (proposed 2026-07-28)` · **P2**
 

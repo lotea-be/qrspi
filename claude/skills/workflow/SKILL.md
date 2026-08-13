@@ -331,6 +331,11 @@ suppressed in Full auto, Semi-auto, or Manual:
   without auto-advancing to any next stage. On "Continue in this session" the
   gate sets its once-only flag and proceeds; it does not re-fire in this
   session.
+- **The no-remote merge-back confirmation** (the `git-host-workflow` skill's
+  Step D human-confirmed `git merge` back into the default branch) is NEVER
+  auto-advanced, even in Full auto. It remains an AskUserQuestion the calling
+  command presents and waits on (see "No-remote gating (push-based
+  auto-advance)" below).
 
 ### Hard-stop procedure
 
@@ -349,6 +354,11 @@ change mode).
 2. **`git commit` or `git push` failure.** Any non-zero git exit code during
    the auto-commit step -- a dirty or conflicted working tree, a rejected
    remote push, or any other git error. Surface the git error output verbatim.
+   A **no-remote** repo (the `git-host-workflow` skill's Step A
+   remote-presence check reports no configured remote) is NOT a git-push
+   failure: the push-based auto-advance is *gated* by the no-remote local
+   flow (see "No-remote gating (push-based auto-advance)" below), not failed.
+   Only an actual non-zero git exit is a hard-stop under this condition.
 3. **Subagent returning error or signalling it is blocked.** The stage
    subagent's final message indicates failure, an unresolved blocker, or an
    explicit "blocked" signal. Note: `openspec validate` failure, lint/typecheck
@@ -568,10 +578,29 @@ In Full or Semi auto mode both of those per-slice gates are auto-advanced
 compute annotation (`**Compute:** model=sonnet|opus effort=…`) is read for every
 slice and honored -- auto mode does NOT bypass per-slice model selection.
 
+**No-remote gating (push-based auto-advance, Full/Semi auto).** Before any
+push-based auto-advance step -- the Questions-stage branch push, the
+Implement-stage per-slice push, and the PR-create step -- the orchestrator
+MUST run the `git-host-workflow` skill's Step A live remote-presence check.
+When no remote is configured, the orchestrator MUST NOT treat the absent push
+as a `git push` hard-stop (hard-stop condition (2) does not fire on
+no-remote); it MUST instead auto-follow the skill's Step D no-remote local
+flow -- taking that flow's default non-interactive choice for that push site
+(e.g. keep the local branch) -- continue the chain, and record that the run
+is local-only. The human-confirmed merge-back that the no-remote flow offers
+for the local-branch and commit-to-current paths is NEVER auto-advanced: it
+stays an AskUserQuestion the orchestrator presents and waits on, even in Full
+auto (see "Never-suppressed gates" above).
+
 **PR-create auto-advance (PR stage, Full/Semi auto).** After the reviewer
 subagent returns the PR description, the "Create the PR now, or show the
 description first?" question is suppressed in Full or Semi auto mode: the
-orchestrator runs `gh pr create` directly without asking. The human code
-review of the PR itself is NEVER automated -- only the create prompt is
-auto-advanced. In Manual mode ask as usual via AskUserQuestion before
-creating the PR.
+orchestrator runs the host PR-create command resolved via the
+`git-host-workflow` skill's vendor resolution (e.g. `gh pr create`, `az repos
+pr create`, or `glab mr create`, depending on the resolved vendor) directly
+without asking -- but only after running that skill's Step A remote-presence
+check first. On no-remote it follows the no-remote local flow instead of
+attempting PR creation (see "No-remote gating (push-based auto-advance)"
+above). The human code review of the PR itself is NEVER automated -- only the
+create prompt is auto-advanced. In Manual mode ask as usual via
+AskUserQuestion before creating the PR.
