@@ -24,9 +24,11 @@ Otherwise:
 
 1. Parse the user's input. The first token is the kebab-case change id;
    the rest is the short description.
-2. **Create a feature branch:** Use the project's branch-naming convention
-   (see its stack-cheatsheet skill; default to `features/<id>` if none is
-   specified). If not already on the change's branch, create and switch to it:
+2. **Create a feature branch:** Load skill `git-host-workflow` and follow
+   its Step C branch-slot resolution for the `feature` slot to get
+   `<branch>` (defaults to `features/<id>` when the stack-cheatsheet does
+   not override it). If not already on the change's branch, create and
+   switch to it:
    ```
    git checkout -b <branch>
    ```

@@ -10,7 +10,7 @@ already in `archive.md`, just lifted into a shared file; the main risk is
 preserving GitLab coverage exactly, which is a checklist correctness task,
 not novel design.
 
-- [ ] 1.1 Author `claude/skills/git-host-workflow/SKILL.md` codifying the
+- [x] 1.1 Author `claude/skills/git-host-workflow/SKILL.md` codifying the
       four-step procedure (remote-presence check, vendor resolution,
       branch-slot resolution, no-remote menu) as pure derivation text — no
       `AskUserQuestion`, no bare git/host-CLI invocation in the skill body
@@ -19,27 +19,27 @@ not novel design.
       else live-derived", "Vendor coverage spans GitHub, Azure DevOps, and
       GitLab", and "Branch-slot resolution reads named feature/archive slots"
       from the `git-host-workflow` spec.
-- [ ] 1.2 Extend `.claude/skills/qrspi-stack/SKILL.md`'s `## PR & git
+- [x] 1.2 Extend `.claude/skills/qrspi-stack/SKILL.md`'s `## PR & git
       workflow` block with the `Branch naming` sub-block (`feature`/`archive`
       slots) and update the `/qrspi:stack` interview to collect it, as the
       per-repo data source the skill reads.
-- [ ] 1.3 Update `claude/commands/pr.md` to replace any inline
+- [x] 1.3 Update `claude/commands/pr.md` to replace any inline
       vendor-resolution logic with `Load skill git-host-workflow` and follow
       its lookup table for PR-create/PR-status commands.
-- [ ] 1.4 Update `claude/commands/archive.md` to replace the hardcoded
+- [x] 1.4 Update `claude/commands/archive.md` to replace the hardcoded
       `chore/archive-<id>` branch literal and inline host inference with the
       skill's `archive` slot and vendor resolution ("Host CLI and
       status-query command are resolved host-agnostically", "The archive
       commit target is proposed" from the `archive-workflow` delta spec).
-- [ ] 1.5 Update `claude/commands/questions.md` step 2 to resolve the feature
+- [x] 1.5 Update `claude/commands/questions.md` step 2 to resolve the feature
       branch name via the skill's `feature` slot instead of a literal
       `features/<id>`.
-- [ ] 1.6 Register both commands in `scripts/skill-sets.mjs`:
+- [x] 1.6 Register both commands in `scripts/skill-sets.mjs`:
       `pr: ['git-host-workflow']` and `archive: ['git-host-workflow']` in
       `COMMAND_SKILL_SET_EXPECTED`, per the `ci-quality-gates` delta spec's
       "Command skill-set registry covers pr and archive git-host-workflow
       loads" requirement.
-- [ ] 1.7 Checkpoint (automated): run `node scripts/lint.mjs`; Check 2 (the
+- [x] 1.7 Checkpoint (automated): run `node scripts/lint.mjs`; Check 2 (the
       `checkSkillSets` registry assertion) reports no `[skill-sets]`
       violation for `pr` or `archive`.
 - [ ] 1.8 Checkpoint (human, dogfood): in a fresh terminal, run `claude

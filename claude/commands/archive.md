@@ -43,21 +43,16 @@ Steps:
      `.../pulls/<N>`, or `.../merge_requests/<N>` URL). If no number can be
      extracted at all, show the human exactly what was found in `pr.md`,
      hard-stop, and ask them to fix it — never guess a number.
-   - **Resolve the host CLI and status-query command.** If this repo has a
-     project-scope stack-cheatsheet skill (discoverable via **Glob** pattern
-     `.claude/skills/*-stack/SKILL.md`) whose `## PR & git workflow` section
-     documents a PR-status-query line, use that CLI and command. Otherwise
-     infer the host from repo signals: a GitHub remote or a `.github/`
-     directory selects `gh`; `azure-pipelines.yml` selects `az repos`;
-     `.gitlab-ci.yml` selects `glab`; default to `gh` when none of these
-     signals match.
+   - **Resolve the host CLI and status-query command.** Load skill
+     `git-host-workflow` and follow its Step B vendor resolution and lookup
+     table to resolve the CLI and PR-status command.
    - **Query the PR's live status.** Use the **Bash** tool to run the
      resolved status-query command against the extracted PR number at
      runtime (e.g. `gh pr view <N> --json state,url,number`,
      `az repos pr show --id <N>`, or `glab mr view <N>`) — this is a
      Bash-tool invocation, not literal shell-injection syntax in this file.
-     Define "merged" per host: GitHub `state == MERGED`; Azure DevOps
-     `status == completed`; GitLab `state == merged`. If the command fails
+     Define "merged" per the lookup table's "Merged" test column. If the
+     command fails
      because the CLI is not installed, or fails on an authentication error,
      hard-stop with an actionable message naming the fix instead of
      proceeding, e.g.: "Could not query PR #<N>: the `gh` CLI is unavailable
@@ -173,22 +168,27 @@ Steps:
      ```
      git add openspec/changes/archive/<YYYY-MM-DD>-<id>/ openspec/changes/<id>/ openspec/backlog.md
      ```
+   - **Resolve the archive branch name.** Load skill `git-host-workflow` and
+     follow its Step C branch-slot resolution for the `archive` slot to get
+     `<archive-branch>` (defaults to `chore/archive-<id>` when the
+     stack-cheatsheet does not override it).
    - **Propose the commit target (always shown — not a suppressible
      confirmation).** Use the **AskUserQuestion** tool:
      - question: "Where should the archive commit land?"
      - choices:
        - "New branch + push (open a PR)" — **default / recommended**
        - "Commit straight to main"
-   - **New branch + push (the default).** Create `chore/archive-<id>` off
+   - **New branch + push (the default).** Create `<archive-branch>` off
      the current HEAD — the staged changes carry over onto the new branch —
      commit them with the unchanged message, then push with `-u`:
      ```
-     git checkout -b chore/archive-<id>
+     git checkout -b <archive-branch>
      git commit -m "chore(<id>): archive change + remove backlog row"
-     git push -u origin chore/archive-<id>
+     git push -u origin <archive-branch>
      ```
-     Then, using the host CLI resolved in step 3 (e.g. `gh pr create` or
-     `az repos pr create`), apply the mode-aware PR-create gate:
+     Then, load skill `git-host-workflow` and follow its Step B vendor
+     resolution and lookup table to resolve the PR-create command, then
+     apply the mode-aware PR-create gate:
 
      - In **Full or Semi auto**: run the PR-create command directly per the
        "PR-create auto-advance" rule in skill `workflow`.
@@ -198,14 +198,13 @@ Steps:
        choices: ["Create the PR now", "Show me the command first -- I'll create
        it manually"]
 
-     Run the archive's PR-create command (`gh pr create` / `az repos pr create`
-     / `glab mr create`) with the title set to the archive commit message
-     (`chore(<id>): archive change + remove backlog row`), empty body
-     (`--body ""`), source branch `chore/archive-<id>`, and target branch set
-     to the repo's default branch from the stack-cheatsheet (e.g. `main`),
-     capturing stdout to extract the PR number and URL. In Manual, only run it
-     if the human chose "Create the PR now"; otherwise print the resolved
-     command for them to copy.
+     Run the resolved PR-create command with the title set to the archive
+     commit message (`chore(<id>): archive change + remove backlog row`),
+     empty body (`--body ""`), source branch `<archive-branch>`, and target
+     branch set to the repo's default branch from the stack-cheatsheet (e.g.
+     `main`), capturing stdout to extract the PR number and URL. In Manual,
+     only run it if the human chose "Create the PR now"; otherwise print the
+     resolved command for them to copy.
 
      When the create command fails (e.g. CLI not authenticated), catch the
      non-zero exit, print the resolved create command for manual use, and
@@ -229,7 +228,7 @@ Steps:
    path, whether specs were synced, confirmation that the backlog row was
    removed, and which commit target was chosen (or the git error, if step 5
    hard-stopped):
-   - **New branch chosen:** name the branch (`chore/archive-<id>`), confirm
+   - **New branch chosen:** name the branch (`<archive-branch>`), confirm
      the archive commit landed there and was pushed, and report the created
      archive PR as `#<N>` and its URL. (If the Manual "show command first"
      option was chosen or the create command failed, report instead that the

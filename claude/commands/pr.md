@@ -235,12 +235,12 @@ checklist:
   question: "The PR description is ready. Would you like me to create the PR now, or do you want to review the description first?"
   choices: ["Create the PR now", "Show me the description first — I'll create it manually"]
 
-Run the project's PR-create command (the host CLI named in its
-stack-cheatsheet -- e.g. `gh pr create` or `az repos pr create`),
-capturing the output so you get the PR number and URL, with the generated
-title, description, the change's source branch, and the project's default
-target branch. In Manual, only run it if the human chose "Create the PR now".
-Otherwise print the command for them to copy.
+Load skill `git-host-workflow` and follow its Step B vendor resolution and
+lookup table to resolve the PR-create command. Run the resolved PR-create
+command, capturing the output so you get the PR number and URL, with the
+generated title, description, the change's source branch, and the
+project's default target branch. In Manual, only run it if the human chose
+"Create the PR now". Otherwise print the command for them to copy.
 
 **Record the PR link (mandatory).** Once the PR is created and you have
 the PR number and web URL (from the host CLI's output), persist

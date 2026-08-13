@@ -39,10 +39,16 @@ Steps:
      `.github/` (GitHub → `gh`), `azure-pipelines.yml` (Azure DevOps →
      `az repos`), `.gitlab-ci.yml` (GitLab → `glab`) — so the cheatsheet can
      name the PR-create CLI and the default branch the QRSPI PR stage targets.
+   - **Branch naming:** infer the `feature` slot from any existing feature
+     branches (`features/<id>`-shaped names in `git branch -a` or recent
+     history) and the `archive` slot from any existing archive branches
+     (`chore/archive-<id>`-shaped names); fall back to the kit defaults
+     `features/<id>` and `chore/archive-<id>` when no signal is found.
    Summarise to the user what you inferred: language(s) + version(s),
    framework(s), key libraries and their idioms, the test framework + run
-   command, build/lint/test commands, the git host + PR-create CLI, and the
-   high-level project layout (where code, tests, and config live).
+   command, build/lint/test commands, the git host + PR-create CLI, the
+   `feature`/`archive` branch-naming slots, and the high-level project layout
+   (where code, tests, and config live).
 
 3. **Interview to fill the gaps.** Use the **AskUserQuestion** tool only for what
    detection could not answer or where you need confirmation — keep it to a few
@@ -87,7 +93,9 @@ Steps:
         to check whether a PR has merged (e.g. `gh pr view <N> --json state`,
         `az repos pr show --id <N>`, `glab mr view <N>`); the source-branch
         naming convention (e.g. `features/<id>`); the default target branch
-        (e.g. `main`); any PR-description size cap to stay under. -->
+        (e.g. `main`); any PR-description size cap to stay under; a
+        `Branch naming` sub-block naming the `feature` and `archive` slots
+        (e.g. `feature: features/<id>`, `archive: chore/archive-<id>`). -->
 
    ## Dependency policy
    <!-- e.g. prefer stable over prerelease; how versions are pinned; the

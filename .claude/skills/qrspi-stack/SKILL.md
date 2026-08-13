@@ -69,6 +69,10 @@ CHANGELOG.md                 -- versioned release notes
 - Default target branch: `main`
 - Version-bump and release: tag-based only (see `.claude/skills/qrspi-release/`)
 
+Branch naming:
+- `feature`: `features/<id>`
+- `archive`: `chore/archive-<id>`
+
 ## Dependency policy
 
 - No npm runtime dependencies allowed; the lint script uses Node.js built-ins only

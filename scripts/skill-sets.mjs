@@ -32,7 +32,13 @@ export const SKILL_SET_EXPECTED = {
 // to load. Validated by Check 2 (checkFrontmatter) skill-ref resolution -- each
 // listed skill must resolve to a real claude/skills/<name>/ directory. The
 // <repo>-stack cheatsheet is excluded from this map (same rationale as above).
-//   idea -- loads backlog-writer to delegate row construction and staging (D7, D11)
+//   idea    -- loads backlog-writer to delegate row construction and staging (D7, D11)
+//   pr      -- loads git-host-workflow for vendor + branch-slot resolution, plus
+//              its pre-existing qrspi-version-check / context-budget-gate loads
+//   archive -- loads git-host-workflow for vendor + branch-slot resolution, plus
+//              its pre-existing context-budget-gate load
 export const COMMAND_SKILL_SET_EXPECTED = {
   idea: ['backlog-writer'],
+  pr: ['git-host-workflow', 'qrspi-version-check', 'context-budget-gate'],
+  archive: ['git-host-workflow', 'context-budget-gate'],
 };
