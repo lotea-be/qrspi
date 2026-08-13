@@ -27,7 +27,7 @@ researcher agent's `## What to do` step 1 (the concise-pointer form per PQ1 answ
 registry edit needed). R-commit-time lint deferred per PQ2 answer. No migration
 manifest needed per PQ3 answer.
 
-### git-host-and-remote-awareness — `in-progress (Q, R, D, S, V, P, I complete)` · **P2**
+### git-host-and-remote-awareness — `in-progress (draft PR #51 open)` · **P2**
 
 **Why:** `/qrspi:pr` and `/qrspi:archive` each independently inferred the git host
 and picked a PR CLI, none handled a remoteless (local-only) repo cleanly, and
