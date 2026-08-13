@@ -290,17 +290,15 @@
   full multi-vendor centralization deferred (narrowest scope, but leaves
   the "non-GitHub stranger" problem only partially solved, undercutting
   the change's stated 1.0 rationale).
-  **Answer (rescoped): GitHub (`gh`) + Azure DevOps (`az repos`) only. Both
-  GitLab AND Bitbucket are deferred to follow-up backlog ideas. Bitbucket is
-  net-new (no current support, deferral is free). GitLab is DIFFERENT — it is
-  supported by `archive.md` today (`.gitlab-ci.yml` → `glab mr view/create`),
-  so deferring it creates a REGRESSION the design stage must resolve
-  explicitly: D must decide HOW GitLab degrades when the centralized resolver
-  replaces archive.md's inline detection — (i) drop `glab` support outright
-  (accepted regression), (ii) keep a GitLab inline carve-out outside the
-  centralized path, or (iii) detect GitLab as a known-but-unsupported vendor
-  and hard-stop with clear guidance rather than silently losing coverage.
-  This is a load-bearing open decision for D, NOT settled at Q.**
+  **Answer (final, revised at stage D 2026-08-13): GitHub (`gh`) + Azure DevOps
+  (`az repos`) + GitLab (`glab`) — the three vendors `archive.md` detects today.
+  Only Bitbucket is deferred (net-new, no current support) to
+  `bitbucket-pr-vendor-support` (P3). An earlier rescope to GitHub + Azure only
+  was reversed by the human during the D review: because GitLab is supported
+  today, keeping it in scope avoids a regression and is simpler than any
+  degradation path (no base-spec REMOVED requirement, no Check 18 concern). The
+  transient `gitlab-pr-vendor-support` idea captured under the rescope was
+  dropped.**
 
 - [x] **PQ5 — archive-branch naming default and field shape:** The archive
   branch is hardcoded today as `chore/archive-<id>`. Should the new

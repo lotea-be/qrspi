@@ -414,12 +414,6 @@ script** — lint runs in this repo's CI, but a helper a stage command invokes
 at runtime ships into consumer repos and inherits their `gh`/auth availability and
 cross-platform concerns; be deliberate about that split.
 
-### gitlab-pr-vendor-support — `idea` · **P2**
-
-**Why:** git-host-and-remote-awareness rescoped its centralized resolver to GitHub + Azure only, dropping the GitLab (glab) PR-create/status support archive.md handles today — a regression to restore in the centralized path.
-
-**Shape:** Re-add GitLab to the centralized resolver (skill + PR & git workflow block) — .gitlab-ci.yml/remote detection plus glab mr create / glab mr view — reusing the vendor-dispatch seam the parent change establishes.
-
 ### bitbucket-pr-vendor-support — `idea` · **P3**
 
 **Why:** The centralized git-vendor resolver ships GitHub + Azure only; a Bitbucket consumer hits an unsupported-vendor path with no PR-create/PR-status invocation.
