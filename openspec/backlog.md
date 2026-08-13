@@ -7,7 +7,7 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## In progress
 
-### researcher-apply-surface-gate — `in-progress (Q, R, D, S, V, P, I complete)` · **P2**
+### researcher-apply-surface-gate — `in-progress (PR #50 open)` · **P2**
 
 **Why:** The `questioner`, `designer`, and `architect` agents apply the
 `repo-surface` surface-gate (emitting the omit-comment and suppressing
