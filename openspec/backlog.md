@@ -801,7 +801,7 @@ the user's repo. Reuses the existing `reference-example` asset.
 ### lint-auto-mode-gate-coverage — `idea` · **P2**
 
 **Why:** `add-auto-mode` introduces a convention that every stage command must
-reference the run-mode procedure in the `workflow` skill; a future command that
+reference the run-mode procedure in the `stage-choreography` skill; a future command that
 silently drops that reference would quietly fail to suppress (or keep) a gate in
 auto mode. A structural `scripts/lint.mjs` check could assert the reference and
 per-gate auto-branch wiring stays consistent — the runtime suppression itself is
@@ -810,7 +810,7 @@ Low-cost correctness guard (hence P2, not P3). Now **unblocked** — `add-auto-m
 merged 2026-07-06 (archived), so the convention it enforces is live.
 
 **Shape:** A structural `scripts/lint.mjs` Check that asserts every stage command
-references the run-mode procedure in the `workflow` skill and that the per-gate
+references the run-mode procedure in the `stage-choreography` skill and that the per-gate
 auto-branch wiring stays consistent — the static, mechanically-checkable half (the
 runtime suppression itself is not statically checkable). Mirrors the existing
 embed-presence Checks (9/10) in shape.
@@ -1253,7 +1253,7 @@ dev-install verifications before deciding, rather than clicking `Leave-for-now`
 through every remaining item) has no clean exit. Add a `Pause/Stop the review`
 choice to the `(human)`-task loop that reuses the regular-task loop's early-exit
 commit (commit any edits already made, end the turn with a "re-run `/qrspi:pr`
-when ready" message). Mirror the change into the workflow-skill choreography if
+when ready" message). Mirror the change into the `stage-choreography` skill if
 the loop wording lives there. Surfaced
 2026-07-23 during the PR stage of [[session-version-check-and-update-prompt]],
 whose change embeds many `(human)` live-session checks that made the missing
@@ -1263,7 +1263,7 @@ exit obvious.
 `claude/commands/pr.md` that reuses the regular-task loop's early-exit commit
 (commit any edits already made, end the turn with a "re-run `/qrspi:pr` when ready"
 message), restoring symmetry with the regular-task loop. Mirror the wording into
-the `workflow`-skill choreography if the loop lives there.
+the `stage-choreography` skill if the loop lives there.
 
 ### fix-mode-capture-suggestions-found — `idea` · **P3**
 
@@ -1321,7 +1321,7 @@ where `preview` adds real signal over prose. Needs its own Q/R/D: `multiSelect`
 **removes** the deliberate one-at-a-time cadence that the "offer, never
 auto-append" backlog rule and the per-decision D review rely on, so it is not a
 blanket swap — the work is identifying which gates genuinely benefit, then
-updating the `workflow` skill choreography and the command bodies that prescribe
+updating the `stage-choreography` skill and the command bodies that prescribe
 those prompts. Relates to [[pr-human-task-loop-stop-option]] (both refine
 AskUserQuestion gate ergonomics). Part of the Claude Code capability cluster
 anchored by [[hooks-as-mechanical-guards]]. Surfaced 2026-07-25.
@@ -1329,7 +1329,7 @@ anchored by [[hooks-as-mechanical-guards]]. Surfaced 2026-07-25.
 **Shape:** Identify the specific gates that genuinely benefit from `multiSelect`
 (surface-subset "which of these N?" questions) or `preview` (design decisions with
 competing concrete shapes — a heading layout, a code snippet, a table form), then
-update the `workflow` skill choreography and the command bodies that prescribe
+update the `stage-choreography` skill and the command bodies that prescribe
 those prompts. Not a blanket swap: `multiSelect` removes the deliberate
 one-at-a-time cadence the "offer, never auto-append" backlog rule and per-decision
 D review rely on, so those stay single-select.

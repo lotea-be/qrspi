@@ -97,6 +97,14 @@ kit version.
   15.5k → 11.3k, designer 17.1k → 12.9k, architect 20.7k → 16.4k, planner
   15.2k → 11.0k, reviewer 14.9k → 10.8k.
 
+  Repo-internal follow-through (not shipped to consumers): three
+  `openspec/backlog.md` rows prescribed future edits to "the run-mode procedure
+  in the `workflow` skill" / "the `workflow` skill choreography" and are
+  repointed at `stage-choreography` — `lint-auto-mode-gate-coverage` most
+  urgently, since it is sequenced in the pre-1.0 runway and a Check written to
+  its old wording would assert the wrong invariant. The `qrspi-stack` cheatsheet's
+  two "Checks 1-21" references are corrected to 1-24 in the same pass.
+
 ### Fixed
 
 - **`scripts/lint.mjs` header block now matches the code.** The banner said
