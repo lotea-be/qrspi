@@ -38,17 +38,28 @@ edits with a clear seed/delete contract already fully specified in the
 delta spec; the reasoning load is in getting the `git add` staging lines
 and step ordering exactly right, not in novel design.
 
-- [ ] 2.1 `claude/commands/questions.md` step 3: seed
+- [x] 2.1 `claude/commands/questions.md` step 3: seed
   `openspec/changes/<id>/.openspec.yaml` (`schema: spec-driven`,
   `skip_specs: true`) when the change folder is created, and add it to the
   step's `git add` line (D1)
-- [ ] 2.2 `claude/commands/structure.md`: delete
+- [x] 2.2 `claude/commands/structure.md`: delete
   `openspec/changes/<id>/.openspec.yaml` after `specs/` is written and add
   the deletion to its `git add` line so it lands in the stage-S commit (D1)
-- [ ] 2.3 Test: none in `scripts/lint.mjs` (this lifecycle is command prose,
+- [x] 2.2a **Found during the slice-2 dogfood run** — move the marker deletion
+  from `claude/commands/structure.md` (orchestrator, post-return) into
+  `claude/agents/architect.md`, so it happens after `specs/` is written but
+  **before** the architect's own `openspec validate <id> --strict`. At the
+  1.9.0 pin the CLI hard-fails a change carrying both the marker and `specs/`
+  (`skip_specs is set in .openspec.yaml but spec files exist under specs/`),
+  and `architect.md` tells the architect to stop without emitting a final
+  message on an unresolvable validate error — so stage S would have blocked on
+  every change the moment slice 3 flipped the pin. Invisible at 1.4.1, where
+  the marker is inert. `structure.md` now verifies removal and still stages the
+  deletion; the delta spec and D1's rationale were corrected to match.
+- [x] 2.3 Test: none in `scripts/lint.mjs` (this lifecycle is command prose,
   not a static-checkable artifact) — verification is the runtime checkpoint
   below
-- [ ] 2.4 (human) Runtime-verification checkpoint: dev-install this working
+- [x] 2.4 (human) Runtime-verification checkpoint: dev-install this working
   tree as the plugin (`claude --plugin-dir /workspaces/git/qrspi`), run
   `/qrspi:questions <throwaway-id>` against a disposable fixture change, and
   confirm `openspec/changes/<throwaway-id>/.openspec.yaml` exists containing
@@ -60,8 +71,13 @@ and step ordering exactly right, not in novel design.
   `proposal.md`/`specs/`. Per this repo's CLAUDE.md, this is a live-session
   observation no static check can make — do not tick this box on a
   self-report.
-- [ ] 2.5 Checkpoint: the `(human)` task above is observed and ticked
-  Confirm-done before this slice is considered complete.
+- [x] 2.5 Checkpoint: the `(human)` task above is observed and ticked
+  Confirm-done before this slice is considered complete. **Observed** in a
+  `--plugin-dir` fixture session with bare `openspec` shimmed to 1.9.0: stage Q
+  seeded the marker in the same commit as `questions.md`; stage S's commit
+  carries `D .openspec.yaml` alongside `A proposal.md` / `A specs/…`, and the
+  architect's strict validate passed. Counterfactual confirmed — restoring the
+  marker into that same post-S tree reproduces the CLI failure.
 
 ## 3. The pin reads 1.9.0 everywhere and both gates stay green
 

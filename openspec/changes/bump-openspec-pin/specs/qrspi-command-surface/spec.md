@@ -12,13 +12,18 @@ The system MUST seed `openspec/changes/<id>/.openspec.yaml` (containing
 exactly `schema: spec-driven` and `skip_specs: true`) as part of
 `claude/commands/questions.md` step 3, the step that creates
 `openspec/changes/<id>/`, and MUST include the marker path in that step's
-`git add` line alongside `questions.md`. The `claude/commands/structure.md`
-command MUST delete `openspec/changes/<id>/.openspec.yaml` after the
-architect subagent writes `specs/`, and MUST include the marker's deletion in
-its `git add` line so the deletion is staged and committed in the same
-stage-S commit as `proposal.md` and `specs/`. No kit-side lint check is
-required to police marker removal; the upstream CLI already rejects a change
-folder carrying both the marker and `specs/` (see the third scenario below).
+`git add` line alongside `questions.md`. The architect subagent invoked by
+`claude/commands/structure.md` MUST delete
+`openspec/changes/<id>/.openspec.yaml` after it writes `specs/` and before it
+runs its own `openspec validate <id> --strict` — the CLI rejects a change
+folder carrying both the marker and `specs/`, so deleting first is required
+for that validate to pass. `claude/commands/structure.md` MUST verify the
+marker is gone once the architect returns (deleting it itself if the
+architect did not), and MUST include the marker's deletion in its `git add`
+line so the deletion is staged and committed in the same stage-S commit as
+`proposal.md` and `specs/`. No kit-side lint check is required to police
+marker removal; the upstream CLI already rejects a change folder carrying
+both the marker and `specs/` (see the third scenario below).
 
 #### Scenario: marker seeded at stage Q
 - **WHEN** a user runs `/qrspi:questions <id>` for a new change and the
@@ -33,6 +38,14 @@ folder carrying both the marker and `specs/` (see the third scenario below).
 - **THEN** `openspec/changes/<id>/.openspec.yaml` is deleted, and that
   deletion is staged and committed in the same stage-S commit that adds
   `proposal.md` and `specs/`.
+
+#### Scenario: marker removed before stage S's own strict validate
+- **WHEN** the architect subagent finishes writing `openspec/changes/<id>/specs/`
+  during `/qrspi:structure <id>` and is about to run its own
+  `openspec validate <id> --strict` before emitting a final message
+- **THEN** `openspec/changes/<id>/.openspec.yaml` has already been deleted, so
+  that validate sees `specs/` without the marker and passes, instead of
+  hitting the marker-and-specs conflict.
 
 #### Scenario: CI stays green for a change between stage Q and stage D
 - **WHEN** a change folder exists with `questions.md`, `research.md`, and/or

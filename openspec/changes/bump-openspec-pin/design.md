@@ -112,6 +112,22 @@ deltas". I judge it acceptable because the marker is transient and its removal
 is mechanically enforced — but it is a semantic stretch and the human may
 prefer the CI-narrowing option.
 
+**Correction (post-dogfood, human-approved):** the framing above overstates
+the CI-red claim for this kit's own CI. `.github/workflows/ci.yml` fires only
+on `pull_request` (targeting `main`), `push` to `main`, and
+`workflow_dispatch`; QRSPI opens its PR at stage PR, well after stage S, so
+`specs/` always exists before this repo's own CI first sees the change
+folder, and a `pull_request` run validates the branch tip, not intermediate
+commits — so the Q→D window is never actually observed by this kit's CI in
+practice. The marker is retained anyway, as defence-in-depth for cases the
+kit's own CI does not exercise but a real workflow can hit: (a) a pre-S
+change folder that reaches `main` (every subsequent CI run stays red until
+that change reaches S); (b) a consumer whose CI triggers on *all* branch
+pushes, not just `pull_request`/`push`-to-`main`; (c) a draft-PR-first
+workflow where the PR opens before stage S, so `pull_request` validates
+intermediate pre-S commits; and (d) a human running `openspec validate --all`
+locally mid-change. D1's decision and verified mechanics stand unchanged.
+
 ### D2 — Check 1 guards *declarations*; narration surfaces are excluded by path
 
 `scanFile` gains two named predicates alongside the existing

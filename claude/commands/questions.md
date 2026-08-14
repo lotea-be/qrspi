@@ -60,7 +60,15 @@ Otherwise:
      the change's work exists and is ready to land. This no-remote branch is
      distinct from any host/PR concern -- there is simply no remote to push
      to.
-3. Create `openspec/changes/<id>/` if it does not already exist.
+3. Create `openspec/changes/<id>/` if it does not already exist. Seed
+   `openspec/changes/<id>/.openspec.yaml` with:
+   ```yaml
+   schema: spec-driven
+   skip_specs: true
+   ```
+   This marker lets `openspec validate <id>` pass between stage Q and stage
+   S, before `specs/` exists. Stage S deletes it once `specs/` is written
+   (see `/qrspi:structure`).
 4. Load skills `workflow` and `openspec-workflow`.
 5. Spawn the `questioner` subagent via the **Agent tool** (`subagent_type:
    qrspi:questioner`, `model: sonnet` — matching the questioner agent's
@@ -124,14 +132,15 @@ Return the agent's "Final message format" followed by: `Next stage: /qrspi:resea
 **Choreography (see skill `stage-choreography`, "Stage choreography").** Follow
 the canonical *commit step* and *next-stage handoff* there, with these
 stage variables:
-- Artifact: `openspec/changes/<id>/questions.md` (plus `openspec/backlog.md`).
+- Artifact: `openspec/changes/<id>/questions.md` (plus
+  `openspec/changes/<id>/.openspec.yaml` and `openspec/backlog.md`).
 - Commit message: `docs(<id>): add questions.md (QRSPI stage Q)`
 - Backlog atomicity: the matching row must read `proposed` (flipped from
   `idea`) in this same commit. The questioner agent performs this flip (its
   step 9) — **verify** the row already reads `proposed` rather than editing
   it yourself; only flip it if the agent did not (re-editing it after the
   agent will fail with a "file modified since read" error).
-- Git add line: `git add openspec/changes/<id>/questions.md openspec/backlog.md`
+- Git add line: `git add openspec/changes/<id>/questions.md openspec/changes/<id>/.openspec.yaml openspec/backlog.md`
   — add `openspec/backlog.md` also covers any idea rows appended in step 8
   (backlog atomicity).
 - Next-stage command: `/qrspi:research <id>` — invoke it as its own stage in
