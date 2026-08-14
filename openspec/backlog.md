@@ -42,7 +42,7 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## In progress
 
-### bump-openspec-pin — `in-progress (Q, R, D, S, V, P, I complete)` · **P3**
+### bump-openspec-pin — `in-progress (draft PR #57 open)` · **P3**
 
 **Why:** The kit pins `@fission-ai/openspec@1.4.1` while the CLI has moved on —
 **1.9.0** as of 2026-08-13 (this row originally recorded **1.6.0**, the latest at
