@@ -42,13 +42,7 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## In progress
 
-_None._
-
----
-
-## Proposed
-
-### bump-openspec-pin — `proposed (change folder created 2026-08-14)` · **P3**
+### bump-openspec-pin — `in-progress (Q, R, D, S, V, P, I complete)` · **P3**
 
 **Why:** The kit pins `@fission-ai/openspec@1.4.1` while the CLI has moved on —
 **1.9.0** as of 2026-08-13 (this row originally recorded **1.6.0**, the latest at
@@ -89,6 +83,12 @@ All four edit the same two things — Check 1 (`checkPinAgreement`) and the
 hand-maintained pin sites — and this bump walks into three of them anyway. See
 `openspec/changes/bump-openspec-pin/questions.md` for the full Q-stage question set
 and product-question answers.
+
+---
+
+## Proposed
+
+_None._
 
 ---
 

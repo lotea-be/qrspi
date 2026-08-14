@@ -130,23 +130,23 @@ already fully dictated by the delta specs; no new control-flow reasoning.
 and a CHANGELOG line, both following an established, already-populated
 template in the same file.
 
-- [ ] 4.1 Extend `migrations/0.14.0.yaml`'s `automated` list with the
+- [x] 4.1 Extend `migrations/0.14.0.yaml`'s `automated` list with the
   pin-bump `edit-file` step (`openspec/config.yaml`, `1.4.1` → `1.9.0`,
   idempotent via `skip_if_contains`) (D7)
-- [ ] 4.2 Extend `migrations/0.14.0.yaml`'s `manual` list with the two
+- [x] 4.2 Extend `migrations/0.14.0.yaml`'s `manual` list with the two
   consumer-facing steps: update the consumer's own CI `validate` invocation
   to `@1.9.0 ... --all --strict`; backfill the `.openspec.yaml` marker into
   any of the consumer's own change folders currently between stage Q and
   stage S (D7)
-- [ ] 4.3 Extend `migrations/0.14.0.yaml`'s `summary` to describe the pin
+- [x] 4.3 Extend `migrations/0.14.0.yaml`'s `summary` to describe the pin
   bump (D7)
-- [ ] 4.4 Add a `## [Unreleased]` `CHANGELOG.md` entry recording the pin
+- [x] 4.4 Add a `## [Unreleased]` `CHANGELOG.md` entry recording the pin
   bump family, per this repo's CLAUDE.md versioning rule (no `plugin.json`
   bump in feature work)
-- [ ] 4.5 Test: run `node scripts/lint.mjs` Check 6 (migration-manifest
+- [x] 4.5 Test: run `node scripts/lint.mjs` Check 6 (migration-manifest
   schema: `version`/`summary`/`automated`/`manual` present, `edit-file`
   action only, `openspec/`-scoped `path`, non-empty `skip_if_contains`)
-- [ ] 4.6 (human) Runtime-verification checkpoint: dev-install this working
+- [x] 4.6 (human) Runtime-verification checkpoint: dev-install this working
   tree as the plugin (`claude --plugin-dir /workspaces/git/qrspi`) against a
   throwaway consumer fixture (outside this repo, per CLAUDE.md) whose
   `openspec/.qrspi-version` marker and `openspec/config.yaml` are pinned to
@@ -159,6 +159,17 @@ template in the same file.
   command is ready to run. Per this repo's CLAUDE.md, this is a live-session
   observation no static check can make — do not tick this box on a
   self-report.
-- [ ] 4.7 Checkpoint: the `(human)` task above is observed and ticked
+- [x] 4.7 Checkpoint: the `(human)` task above is observed and ticked
   Confirm-done; `node scripts/lint.mjs` Check 6 passes against the extended
-  manifest.
+  manifest. **Observed** in a `--plugin-dir` session against a consumer fixture
+  at marker `0.13.0` / `openspec_version: 1.4.1`, run as `/qrspi:update 0.14.0`
+  (the explicit target is required — `plugin.json` still reads `0.13.0`, since
+  the version moves only at a release cut). Verified on disk afterwards: the
+  automated step rewrote `openspec/config.yaml` to `1.9.0` with no prompt; all
+  five manual steps gated via `AskUserQuestion` with manifest-matching wording,
+  including the two pin-bump ones (CI `--all --strict`, marker backfill); the
+  marker bumped to `0.14.0`; and both files were left staged for the printed
+  `git commit`. Partial gap, recorded honestly: the backfill step was a no-op in
+  that fixture — its only change folder had already reached stage S — so the
+  gate's wording was observed but not its relevance. It is a human instruction,
+  not an automated action, so there was nothing further for the walk to do.

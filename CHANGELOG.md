@@ -62,6 +62,28 @@ kit version.
 
 ### Changed
 
+- **OpenSpec CLI pin bumped from 1.4.1 to 1.9.0 (`bump-openspec-pin`).**
+  Every hand-maintained pin site (`claude/commands/init.md`, README,
+  `CONTRIBUTING.md`, `.github/workflows/ci.yml`, the `openspec-workflow` and
+  `qrspi-dogfood` skills, and `openspec/config.yaml`'s `openspec_version`)
+  now reads `1.9.0`, and the CI `validate` step gains `--strict` (the CLI's
+  `--all` no longer implies strict mode on its own). `scripts/lint.mjs`
+  Check 1 (`checkPinAgreement`) is reworked to exclude `CHANGELOG.md` and
+  `openspec/backlog.md` from the general agreement scan, validate
+  `openspec/config.yaml` via a dedicated coupling check instead of the
+  general sweep, scan `.github/` and `.claude/` in addition to the existing
+  directories, and add a guard against stray
+  `@fission-ai/openspec@latest` references. `/qrspi:questions` now seeds an
+  `openspec/changes/<id>/.openspec.yaml` skip-specs marker
+  (`schema: spec-driven`, `skip_specs: true`) at change-folder creation, and
+  `/qrspi:structure` deletes it once `specs/` is written -- required at the
+  1.9.0 pin because the CLI hard-fails a change carrying both the marker and
+  `specs/`. Extends migration `0.14.0.yaml` with an automated `edit-file`
+  step that rewrites the consumer's `openspec/config.yaml` pin, plus manual
+  steps to update the consumer's own CI `validate` invocation and backfill
+  the `.openspec.yaml` marker into any change folder currently between
+  stage Q and stage S.
+
 - **The `workflow` skill is split by audience: `workflow` + `stage-choreography`.**
   Over half of `workflow` (344 of 606 lines) was the "Stage choreography"
   section — run-mode establishment, precondition/approval check, commit step,
