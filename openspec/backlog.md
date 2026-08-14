@@ -1,5 +1,40 @@
 # Backlog
 
+<!--
+  Backlog schema legend (frozen by standardize-backlog-format).
+
+  Heading grammar (one level-3 heading per row):
+
+      ### <id> — `<status>` · **P<n>**
+
+    id:       kebab-case slug (lowercase letters/digits, single hyphens).
+    —         an EM-DASH (U+2014), surrounded by single spaces. NOT --.
+    `<status>` the status field, backtick-wrapped. Leading keyword is
+               what the enum validates; any text after the keyword
+               (a note in parentheses, or `into <id> (<date>)`) is free.
+    ·          the separator is a MIDDLE-DOT (U+00B7), surrounded by
+               single spaces: ` · `.
+    **P<n>**   the priority band, bold, where <n> is 1, 2, or 3.
+
+  Status enum (the leading keyword only):
+
+      idea | proposed | in-progress | merged | bundled
+
+  Section headings (all three required):
+
+      ## In progress | ## Proposed | ## Ideas
+
+  Body rule:
+
+    idea / proposed rows MUST carry both **Why:** and **Shape:** lines.
+    bundled / merged rows are EXEMPT -- carry a `>` blockquote pointer.
+    in-progress rows are checked for grammar + enum only.
+
+  The ## Ideas section MUST open with a P-band preamble (P1, P2, P3).
+
+  See openspec-templates/backlog.template.md for the canonical template.
+-->
+
 Candidate changes for this repo, tracked before they enter the QRSPI flow
 (Q → R → D → S → V → P → I → PR). Status is one of `idea` / `proposed` /
 `in-progress` / `merged`. Completed work lives under
