@@ -5,6 +5,33 @@ TBD - created by archiving change standardize-backlog-format. Update Purpose aft
 
 ## Requirements
 
+### Requirement: A backlog status flip MUST also move the row to the matching section
+
+The system MUST treat a row's status keyword and its enclosing `## ` section as
+a single fact: `idea` rows live under `## Ideas`, `proposed` rows under
+`## Proposed`, and `in-progress` rows under `## In progress`. Any stage that
+flips a row's status MUST cut the row from its current section and re-insert it
+under the matching one in the same edit, preserving the frozen heading grammar.
+`bundled` and `merged` rows are exempt — a `bundled` row stays parked under its
+originating section, and a `merged` row is transient until `/qrspi:archive`
+removes it. Because the questioner is a subagent that performs the `idea` to
+`proposed` flip itself, `claude/agents/questioner.md` MUST state the section-move
+obligation inline rather than relying on the orchestrator-only
+`stage-choreography` skill, which a subagent does not load.
+
+#### Scenario: questioner flips a row and moves it
+
+- **WHEN** the questioner completes stage Q and flips the matching row from
+  `idea` to `proposed (change folder created <YYYY-MM-DD>)`
+- **THEN** the row no longer appears under `## Ideas` and appears under
+  `## Proposed` with its `###` heading grammar intact.
+
+#### Scenario: in-place flip is caught by CI
+
+- **WHEN** a row reading `proposed` is left sitting under `## Ideas` and
+  `node scripts/lint.mjs` is run
+- **THEN** Check 22 pushes a section-grouping violation and exits non-zero.
+
 ### Requirement: Backlog heading grammar is frozen to the canonical regex
 
 The system MUST enforce that every `### ` heading line in `openspec/backlog.md`
@@ -313,26 +340,27 @@ markers inside a fenced block, and MUST Write that inline content to
 - **THEN** Check 22 finds the freshly seeded `openspec/backlog.md` satisfies all
   five content assertions and reports no violation.
 
-### Requirement: workflow skill backlog atomicity prose MUST use the frozen em-dash grammar
+### Requirement: stage-choreography skill backlog atomicity prose MUST use the frozen em-dash grammar
 
 The system MUST update the "Backlog atomicity" section of
-`claude/skills/workflow/SKILL.md` to replace the drifted `--` (double-hyphen)
-heading grammar with the frozen `### <id> — \`<status>\` · **P<n>**` form (real
-em-dash, middle-dot, bold band token) and MUST add a one-line pointer to
+`claude/skills/stage-choreography/SKILL.md` to replace the drifted `--`
+(double-hyphen) heading grammar with the frozen
+`### <id> — \`<status>\` · **P<n>**` form (real em-dash, middle-dot, bold band
+token) and MUST add a one-line pointer to
 `openspec-templates/backlog.template.md` as the authoritative shape reference.
 The corrected grammar MUST be restated inline in the skill (not replaced by a
-bare pointer alone) so every stage agent that loads the skill has the shape
+bare pointer alone) so every orchestrator that loads the skill has the shape
 available without opening the template.
 
-#### Scenario: workflow skill shows frozen grammar after the change
+#### Scenario: choreography skill shows frozen grammar after the change
 
-- **WHEN** `claude/skills/workflow/SKILL.md` "Backlog atomicity" section is read
+- **WHEN** `claude/skills/stage-choreography/SKILL.md` "Backlog atomicity" section is read
 - **THEN** the heading example uses the real em-dash and ` · **P<n>**` band token,
   not `--` (double hyphen) and no band.
 
-#### Scenario: workflow skill points to the template as authoritative
+#### Scenario: choreography skill points to the template as authoritative
 
-- **WHEN** `claude/skills/workflow/SKILL.md` "Backlog atomicity" section is read
+- **WHEN** `claude/skills/stage-choreography/SKILL.md` "Backlog atomicity" section is read
 - **THEN** a line references `openspec-templates/backlog.template.md` as the
   canonical source for the backlog shape.
 

@@ -30,8 +30,12 @@ fixes three failure modes RPI exhibited at scale:
 ## Before Q — the backlog
 
 QRSPI starts at Q, but candidate changes are tracked beforehand in
-`openspec/backlog.md`. It is a flat list of `idea` / `proposed` /
-`in-progress` / `merged` rows with a one-line *Why*. Consult it when
+`openspec/backlog.md`. Each row is a heading carrying an `idea` /
+`proposed` / `in-progress` / `merged` status and a one-line *Why*, and the
+rows are **grouped under a `##` section per status** (`## Ideas`,
+`## Proposed`, `## In progress`, ...) — so flipping a row's status also
+moves it under the matching section. See "Backlog atomicity" in skill
+`stage-choreography` for the frozen heading grammar. Consult it when
 deciding what to propose next, and update the matching row whenever a
 change is proposed, merged, or archived (remove archived rows — the
 `openspec/changes/archive/` folder is the source of truth for completed

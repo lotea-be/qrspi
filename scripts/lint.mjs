@@ -24,7 +24,7 @@
 //
 //  5. GATE-TOOL / EXECUTOR AGREEMENT -- no command with a non-builtin agent:
 //     reaches a main-loop-only gate tool (AskUserQuestion) directly or
-//     transitively via the workflow choreography.
+//     transitively via the stage choreography.
 //
 //  6. MIGRATION MANIFEST PRESENCE + SCHEMA + MARKER FORMAT -- every
 //     CHANGELOG ## [X.Y.Z] section whose version is >= the lowest version in
@@ -157,9 +157,12 @@
 //     section headings (## In progress / ## Proposed / ## Ideas), the P-band
 //     preamble under ## Ideas, the per-row heading grammar (em-dash U+2014 +
 //     middle-dot U+00B7 + bold P-band), the status-keyword enum, the **Why:** +
-//     **Shape:** body rule scoped to standalone idea/proposed rows, and the
+//     **Shape:** body rule scoped to standalone idea/proposed rows, the
+//     status-vs-section grouping agreement (idea/proposed/in-progress must sit
+//     under ## Ideas / ## Proposed / ## In progress respectively -- a status
+//     flip is also a section move; bundled/merged are exempt), and the
 //     existence of openspec-templates/backlog.template.md. Passes silently when
-//     the backlog file is absent. Carries an inline four-fixture self-test.
+//     the backlog file is absent. Carries an inline five-fixture self-test.
 //     Registered after Check 21.
 //
 // 23. BACKLOG WIKILINK RESOLUTION -- resolves every bare (non-code-span)
@@ -955,12 +958,13 @@ async function checkReadmeCoverage(errors) {
 //
 // "reached" is true when the body either:
 //   (a) DIRECTLY names the tool (current behaviour), or
-//   (b) TRANSITIVELY reaches it via the workflow "Stage choreography"
-//       section -- i.e. the body mentions the `workflow` skill AND at
-//       least one of the canonical choreography procedure names that invoke the
-//       gate tool ('Stage choreography', 'commit step', or 'next-stage handoff').
-//       These phrases are unique to the choreography section and give a
-//       low-false-positive signal without requiring a full skill parse.
+//   (b) TRANSITIVELY reaches it via the canonical "Stage choreography"
+//       procedures -- i.e. the body mentions a skill that carries those
+//       procedures (`stage-choreography`, or the legacy `workflow` home) AND
+//       at least one of the canonical choreography procedure names that invoke
+//       the gate tool ('Stage choreography', 'commit step', or 'next-stage
+//       handoff'). These phrases are unique to the choreography section and
+//       give a low-false-positive signal without requiring a full skill parse.
 //
 // `how` is the human-readable distinction used in the violation message.
 function reachesMainLoopOnlyTool(body, tool) {
@@ -969,16 +973,19 @@ function reachesMainLoopOnlyTool(body, tool) {
     return { reached: true, how: `references '${tool}' inline` };
   }
 
-  // (b) transitive reference via workflow choreography. Match the
-  // backtick-wrapped `workflow` skill reference so the bare substring does not
-  // collide with `openspec-workflow` or a plain-prose "workflow".
-  const mentionsWorkflowSkill = body.includes('`workflow`');
+  // (b) transitive reference via the choreography procedures. Match the
+  // backtick-wrapped skill reference so the bare substring does not collide
+  // with `openspec-workflow` or a plain-prose "workflow". `stage-choreography`
+  // is the current home of these procedures; `workflow` is kept because it
+  // pointed there historically and still fronts the stage map.
+  const CHOREOGRAPHY_SKILLS = ['`stage-choreography`', '`workflow`'];
+  const mentionsChoreographySkill = CHOREOGRAPHY_SKILLS.some((skill) => body.includes(skill));
   const CHOREOGRAPHY_MARKERS = ['Stage choreography', 'commit step', 'next-stage handoff'];
   const mentionsChoreography = CHOREOGRAPHY_MARKERS.some((marker) => body.includes(marker));
-  if (mentionsWorkflowSkill && mentionsChoreography) {
+  if (mentionsChoreographySkill && mentionsChoreography) {
     return {
       reached: true,
-      how: `reaches ${tool} transitively via the workflow choreography (commit step / next-stage handoff)`,
+      how: `reaches ${tool} transitively via the stage choreography (commit step / next-stage handoff)`,
     };
   }
 
@@ -3624,14 +3631,21 @@ async function checkBacklogSchema(errors) {
   const STATUS_ENUM = new Set(['idea', 'proposed', 'in-progress', 'merged', 'bundled']);
 
   // Parse a backlog body string into rows. Each row = { id, status, keyword,
-  // band, bodyLines, headingLine, valid }. `valid` is false when the heading
-  // does not match the frozen grammar.
+  // band, bodyLines, headingLine, section, valid }. `valid` is false when the
+  // heading does not match the frozen grammar. `section` is the enclosing `##`
+  // heading text (null when the row precedes any section heading) -- a status
+  // flip is also a section move, so the two must agree (assertion 7).
   function parseRows(text) {
     const lines = text.replace(/\r\n/g, '\n').split('\n');
     const rows = [];
     let cur = null;
+    let section = null;
     for (const line of lines) {
-      if (line.startsWith('### ')) {
+      if (line.startsWith('## ')) {
+        if (cur) rows.push(cur);
+        cur = null;
+        section = line.trim();
+      } else if (line.startsWith('### ')) {
         if (cur) rows.push(cur);
         const m = HEADING_RE.exec(line);
         if (m) {
@@ -3644,6 +3658,7 @@ async function checkBacklogSchema(errors) {
             band: m.groups.band,
             headingLine: line,
             bodyLines: [],
+            section,
             valid: true,
           };
         } else {
@@ -3656,6 +3671,7 @@ async function checkBacklogSchema(errors) {
             band: null,
             headingLine: line,
             bodyLines: [],
+            section,
             valid: false,
           };
         }
@@ -3690,6 +3706,24 @@ async function checkBacklogSchema(errors) {
   // Classify by status KEYWORD (D6), NOT by presence of a pointer note.
   function isStandalone(row) {
     return row.keyword === 'idea' || row.keyword === 'proposed';
+  }
+
+  // Section-grouping detector: a status flip is also a section move, so a row's
+  // status keyword must agree with its enclosing `##` section. Only the three
+  // unambiguous keywords are mapped -- `bundled` rows stay parked under their
+  // originating section (the kit template samples one under ## Ideas) and
+  // `merged` is transient until /qrspi:archive removes the row, so neither is
+  // enforced. Returns the expected section heading when the row is mis-grouped,
+  // else null.
+  const SECTION_FOR_KEYWORD = {
+    idea: '## Ideas',
+    proposed: '## Proposed',
+    'in-progress': '## In progress',
+  };
+  function sectionMismatch(row) {
+    const expected = SECTION_FOR_KEYWORD[row.keyword];
+    if (!expected) return null;
+    return row.section === expected ? null : expected;
   }
 
   // ---- INLINE SELF-TEST -------------------------------------------------------
@@ -3748,6 +3782,24 @@ async function checkBacklogSchema(errors) {
     isStandalone(_stDRows[0])
   ) {
     errors.push('[backlog-schema] SELF-TEST FAILED: fixture (d) -- exempt bundled row was misclassified (false positive on the exempt class)');
+    selfTestFailed = true;
+  }
+
+  // Fixture (e): the questioner's in-place status flip -- a `proposed` row left
+  // sitting under ## Ideas must fire, while a correctly grouped row must not.
+  const _stE =
+    '## Proposed\n\n' +
+    '### moved-row — `proposed` · **P2**\n\n**Why:** x.\n\n**Shape:** y.\n\n' +
+    '## Ideas\n\n' +
+    '### stranded-row — `proposed` · **P2**\n\n**Why:** x.\n\n**Shape:** y.\n';
+  const _stERows = parseRows(_stE);
+  if (
+    _stERows.length !== 2 ||
+    grammarViolations(_stERows).length !== 0 ||
+    sectionMismatch(_stERows[0]) !== null ||
+    sectionMismatch(_stERows[1]) !== '## Proposed'
+  ) {
+    errors.push('[backlog-schema] SELF-TEST FAILED: fixture (e) -- status-vs-section grouping detector did not flag a `proposed` row stranded under ## Ideas');
     selfTestFailed = true;
   }
   // ---- end self-test ----------------------------------------------------------
@@ -3823,6 +3875,14 @@ async function checkBacklogSchema(errors) {
         violations++;
       }
     }
+    // Assertion 7: status keyword agrees with the enclosing `##` section.
+    const expectedSection = sectionMismatch(row);
+    if (expectedSection !== null) {
+      errors.push(
+        `[backlog-schema] ${backlogRel}: row "${row.id}" has status "${row.keyword}" but sits under "${row.section ?? '(no section)'}" -- a status flip is also a section move; it belongs under "${expectedSection}"`
+      );
+      violations++;
+    }
   }
 
   // Assertion 6: backlog template file exists (existence-only, no content scan).
@@ -3835,7 +3895,7 @@ async function checkBacklogSchema(errors) {
 
   if (violations === 0) {
     process.stdout.write(
-      `  OK: ${backlogRel} satisfies all six backlog-schema assertions (${rows.length} row(s) validated)\n`
+      `  OK: ${backlogRel} satisfies all seven backlog-schema assertions (${rows.length} row(s) validated)\n`
     );
   }
   return violations;

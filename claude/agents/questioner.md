@@ -113,7 +113,15 @@ exception (see workflow skill Read Matrix).
 9. **Backlog edit (mandatory).** After all product questions are
    answered, flip the matching `openspec/backlog.md` row's status from
    `idea` to `proposed (change folder created <YYYY-MM-DD>)` and update
-   the *Likely shape* line so it reflects the answered scope. Then
+   the *Likely shape* line so it reflects the answered scope. **A status
+   flip is also a section move** — rows are grouped under a `##` section
+   per status, so the row must be cut from `## Ideas` and re-inserted
+   under `## Proposed`, keeping the frozen heading grammar intact (the
+   `###` heading with its backticked status, em-dash U+2014, middle-dot
+   U+00B7, and bold `P<n>` band — see
+   `openspec-templates/backlog.template.md` for the authoritative shape).
+   Leaving a `proposed` row sitting under `## Ideas` is a
+   mis-grouped row that CI will not catch for you. Then
    **identify deferred work**: from the "Sequencing & scope" answers and
    anything the human pushed out of scope, identify candidate *separable
    future changes*. Do NOT offer them yourself via AskUserQuestion (a
