@@ -45,6 +45,16 @@ Tell it to return the paths of files it created/modified plus a 5-bullet
 summary. The orchestrator (this main-loop context) does not inline the
 architect's full conversation — only the returned summary is used here.
 
+**Verify the stage-Q marker is gone.** The architect subagent now deletes
+`openspec/changes/<id>/.openspec.yaml` (the `schema: spec-driven` /
+`skip_specs: true` marker seeded by `/qrspi:questions`) itself, before its
+own strict validate — the CLI rejects a change carrying both the marker and
+`specs/`. Once the architect returns, use Glob to confirm the marker file no
+longer exists; if it is still present (the architect failed to remove it),
+delete it now. Either way, stage the deletion so it lands in this same
+stage-S commit alongside `proposal.md`/`specs/` (see the `git add` line
+below).
+
 **Backlog (status unchanged):** The change's row in `openspec/backlog.md`
 already exists as `### <id> — \`proposed (...)\`` from stage Q. Structure
 does not flip its status or move it between `##` section groupings — that
@@ -70,9 +80,13 @@ scope worth promoting. Any rows added here are staged with the same commit.
 the canonical *commit step* and *next-stage handoff* there, with these
 stage variables:
 - Artifact: `openspec/changes/<id>/proposal.md` + `openspec/changes/<id>/specs/`
-  + `openspec/backlog.md`.
+  + `openspec/backlog.md` (plus the deletion of
+  `openspec/changes/<id>/.openspec.yaml`).
 - Commit message: `docs(<id>): add proposal.md and specs (QRSPI stage S)`
-- Git add line: `git add openspec/changes/<id>/proposal.md openspec/changes/<id>/specs/ openspec/backlog.md`
+- Git add line: `git add openspec/changes/<id>/proposal.md openspec/changes/<id>/specs/ openspec/backlog.md` —
+  then stage the marker's removal with
+  `git add openspec/changes/<id>/.openspec.yaml` (captures the delete) so it
+  lands in the same commit.
 - Next-stage command: `/qrspi:slices <id>` — invoke it as its own stage in
   the main loop (re-enter the slash command so its body runs on the
   orchestrator; do NOT spawn it as a subagent).

@@ -19,13 +19,13 @@ took** (the OpenSpec CLI can emit project-scope tooling on both `init` and
 
 ## Step 1 — already initialized (Glob matched `openspec/config.yaml`)
 
-Run `npx @fission-ai/openspec@1.4.1 update` (not `init`) to refresh agent
+Run `npx @fission-ai/openspec@1.9.0 update` (not `init`) to refresh agent
 guidance, and tell the user it was already initialized.
 
 Then **verify the skeleton is intact** with Glob: `openspec/changes/` and
 `openspec/specs/` must both exist. If `config.yaml` matched but either
 directory is missing, the repo is in a corrupted partial-init state: tell the
-user, then run `npx @fission-ai/openspec@1.4.1 init --tools none` to repair the
+user, then run `npx @fission-ai/openspec@1.9.0 init --tools none` to repair the
 skeleton before continuing.
 
 Then proceed to the shared postcondition (steps 3–5).
@@ -38,13 +38,13 @@ a. Confirm npx is available by running `npx --version` as a normal tool call
    and tell the user: "npx is required but was not found. Install Node.js
    (https://nodejs.org) and retry."
 
-b. Run `npx @fission-ai/openspec@1.4.1 init --tools none`. This creates
+b. Run `npx @fission-ai/openspec@1.9.0 init --tools none`. This creates
    `openspec/changes/`, `openspec/specs/`, and the rest of the directory
    skeleton. If the command exits non-zero (network error, registry
    unavailable, etc.), stop, show the command output to the user, and do NOT
    proceed to later steps.
 
-   **It does NOT create `openspec/config.yaml`.** As of CLI v1.4.1, `--tools
+   **It does NOT create `openspec/config.yaml`.** As of CLI v1.9.0, `--tools
    none` forces non-interactive mode, and in non-interactive mode the CLI
    prints `Config: skipped` and writes no config file (`--profile` does not
    change this). OpenSpec itself treats a missing config as valid, but QRSPI
@@ -78,7 +78,7 @@ b-bis. **Write the QRSPI sentinel config.** Because the CLI skips it (step b),
    # `openspec_version` is informational only — OpenSpec reads just
    # `schema`/`context`/`rules` and ignores any other top-level key.
    schema: spec-driven
-   openspec_version: 1.4.1
+   openspec_version: 1.9.0
    ```
 
    Keep `openspec_version` in sync with the pinned version run in step b. If a

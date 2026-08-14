@@ -7,4 +7,4 @@
 # `openspec_version` is informational only — OpenSpec reads just
 # `schema`/`context`/`rules` and ignores any other top-level key.
 schema: spec-driven
-openspec_version: 1.4.1
+openspec_version: 1.9.0
