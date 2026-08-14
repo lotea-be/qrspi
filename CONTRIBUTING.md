@@ -7,6 +7,24 @@
 
 ---
 
+## Licensing of contributions
+
+This project is released under the [MIT License](LICENSE).
+
+**By submitting a contribution — a pull request, a patch, or any other
+material — you agree that your contribution is licensed to the project and to
+its users under the MIT License, and you confirm that you have the right to
+license it under those terms.**
+
+That second half matters as much as the first: if the work was written on an
+employer's time or equipment, or is derived from code you did not write, make
+sure you are actually free to contribute it before opening the PR.
+
+You keep the copyright in your own contributions — the MIT grant is a license,
+not a transfer of ownership, and your authorship stays in the commit history.
+
+---
+
 ## Semver discipline (0.x pre-1.0 convention)
 
 The kit follows the 0.x convention. Version 1.0.0 is deferred until the kit
