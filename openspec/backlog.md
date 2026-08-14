@@ -165,6 +165,49 @@ below across the P2/P3 boundary.
 >   the 1.0 cut). [[automate-marketplace-source-bump]] rides *with* the release
 >   mechanics, not before.
 
+### reconcile-scenario-guards-with-cli — `idea` · **P1**
+
+**Why:** OpenSpec 1.7-1.9 added its own MODIFIED-scenario-omission reporting and
+now counts every `####` child of a requirement as a scenario, so the kit's lint
+Check 18 and the spec-syncer's wholesale-replacement contract may now duplicate —
+or subtly disagree with — an upstream guard that did not exist when they were
+written.
+
+**Shape:** Diff Check 18's scenario-count guard and the spec-syncer's MODIFIED
+contract against the CLI's 1.8+ scenario-counting behaviour, then either retire
+the kit-side guard as redundant, narrow it to what upstream misses, or fix the
+disagreement — a lint plus agent-prose change with no new surface. Surfaced by
+the [[bump-openspec-pin]] upstream spike (2026-08-14); sequenced behind that
+change, which lands the 1.9.0 pin the reconciliation is measured against.
+
+### adopt-validate-archived — `idea` · **P1**
+
+**Why:** OpenSpec 1.9.0 ships an opt-in `validate --archived` that fails when an
+archived change still has unticked `tasks.md` boxes — exactly the archive-hygiene
+gate QRSPI lacks, since its `(human)` checkpoint tasks are the ones most often
+left unticked at archive time.
+
+**Shape:** Once the 1.9.0 pin lands, add `--archived` to the CI validate job,
+first running it across the 28 existing archived changes to size and clear any
+pre-existing violations before it becomes a blocking gate. Blocked on
+[[bump-openspec-pin]] — the flag does not exist at the current 1.4.1 pin.
+Surfaced 2026-08-14.
+
+### extend-ticket-hiding-to-backlog — `idea` · **P1**
+
+**Why:** The Read Matrix bans the researcher from `openspec/changes/<id>/` but
+says nothing about `openspec/backlog.md`, which now carries ticket-level detail —
+PQ answers, scope decisions, bundle notes — so stage R's ticket-blindness rests on
+agent restraint rather than the stated contract.
+
+**Shape:** Extend the Read Matrix's cross-change boundary in the `workflow` skill
+to name `openspec/backlog.md` as off-limits to the researcher, mirror it into the
+researcher agent's read-contract banner, and let lint Check 7's banner-parity
+assertion carry it. Complements [[enforce-research-ticket-hiding]] and
+[[hooks-as-mechanical-guards]], which address the enforcement *mechanism* — this
+row closes a gap in *what the contract says to protect*. Surfaced 2026-08-14 by
+the researcher itself, which flagged the hole and declined to read the file.
+
 ### spec-anchored-code-comments — `idea` · **P1**
 
 **Why:** Implementation code comments sometimes reference the *process* artifacts
