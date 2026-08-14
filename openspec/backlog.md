@@ -245,6 +245,19 @@ the two-source-of-truth caution in [[optional-technology-specs]]. **P1 like
 (ugly process references baked into shipped code) rather than a live-workflow
 correctness gap. Surfaced 2026-07-24.
 
+### automate-manual-migration-steps — `idea` · **P2**
+
+**Why:** `/qrspi:update`'s manual steps gate on a human confirming mechanical
+work the agent could have performed itself — the 0.14.0 walk asked the human to
+hand-edit their CI `validate` invocation and backfill `.openspec.yaml` markers,
+both fully scriptable.
+
+**Shape:** Extend the migration-manifest schema beyond its single
+`openspec/`-scoped `edit-file` action so the agent can perform more step types
+itself (`create-file`, and reviewed edits outside `openspec/`), keeping a
+confirm gate only where human judgement is genuinely required; cheapest first
+cut is the marker backfill, which is pure file creation inside `openspec/`.
+
 ### batch-archive-multiple-changes — `idea` · **P3**
 
 **Why:** `/qrspi:archive` handles exactly **one** change per run; archiving several
