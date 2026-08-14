@@ -10,24 +10,24 @@ exclusion predicates, a new dedicated coupling assertion, and a new
 every branch (not just the happy path) is the hardest reasoning in this
 change.
 
-- [ ] 1.1 Rework `checkPinAgreement` in `scripts/lint.mjs` to exclude
+- [x] 1.1 Rework `checkPinAgreement` in `scripts/lint.mjs` to exclude
   `CHANGELOG.md` and `openspec/backlog.md` from the general agreement scan
   (D2, D3, D4)
-- [ ] 1.2 Exclude `openspec/config.yaml` from the general sweep and instead
+- [x] 1.2 Exclude `openspec/config.yaml` from the general sweep and instead
   assert its `openspec_version` against the agreed pin via a dedicated
   coupling check (D2, D3, D4)
-- [ ] 1.3 Extend the scanned directory set to include `.github/` and
+- [x] 1.3 Extend the scanned directory set to include `.github/` and
   `.claude/` (D2, D3, D4)
-- [ ] 1.4 Add the `@fission-ai/openspec@latest` absence sub-guard (D2, D3, D4)
-- [ ] 1.5 Add inline self-test fixtures covering config-absent (failure leg
+- [x] 1.4 Add the `@fission-ai/openspec@latest` absence sub-guard (D2, D3, D4)
+- [x] 1.5 Add inline self-test fixtures covering config-absent (failure leg
   1), config-present-but-wrong (failure leg 2), config-agrees (green case),
   the zero-pin-occurrences branch (unchanged behavior), `.github/`- and
   `.claude/`-sourced pin occurrences, and a stray `@latest` occurrence (D2,
   D3, D4)
-- [ ] 1.6 Test: run `node scripts/lint.mjs` locally against the current,
+- [x] 1.6 Test: run `node scripts/lint.mjs` locally against the current,
   unmodified-pin repo tree — all checks including the reworked Check 1 must
   pass
-- [ ] 1.7 Checkpoint: run `node scripts/lint.mjs` at the repo root; it exits
+- [x] 1.7 Checkpoint: run `node scripts/lint.mjs` at the repo root; it exits
   0 and the Check 1 self-test output shows all new fixture branches passing,
   with every hand-maintained pin site still reading `1.4.1`.
 
@@ -74,15 +74,30 @@ already fully dictated by the delta specs; no new control-flow reasoning.
   `claude/skills/openspec-workflow/SKILL.md`,
   `.claude/skills/qrspi-dogfood/SKILL.md`) and `openspec/config.yaml`'s
   `openspec_version` to `1.9.0` (D6)
+- [ ] 3.1a **Blocker from slice 1** — in the same edit that hard-pins the two
+  `@latest` refs, empty the `PIN_LATEST_GRANDFATHERED` ledger in
+  `scripts/lint.mjs`. Slice 1's guard reports a ledger entry whose file no
+  longer contains `@latest` as STALE and fails lint, so removing the refs
+  without emptying the map reddens CI. This coupling is deliberate (the
+  ledger is self-cleaning) but was discovered during slice 1, not planned.
 - [ ] 3.2 Add `--strict` to `.github/workflows/ci.yml`'s `validate` step
   invocation (D6)
 - [ ] 3.3 Correct README's "Updating the pinned OpenSpec version" section's
   pin-update enumeration and add the copy-pasteable CI `validate` snippet as
-  a new Check-1-scanned pin site (D9)
+  a new Check-1-scanned pin site (D9). **From slice 1:** the enumeration
+  currently names only three sites (`init.md`, README, `openspec/config.yaml`)
+  while the guarded set is now **six** — also `CONTRIBUTING.md`,
+  `.github/workflows/ci.yml`, and the two skills. List all six, or the next
+  bump misses one and red-lines Check 1.
 - [ ] 3.4 Update the `ci-quality-gates` and `reference-example` base specs
   (via this change's delta specs) so they no longer claim `--all` alone
   runs strict, and clarify `CONTRIBUTING.md`'s pin-coupling rule to name the
-  release-cut commit (D9)
+  release-cut commit (D9). **From slice 1:** also correct
+  `ci-quality-gates`' wording that `openspec/config.yaml` "**contributed** an
+  `openspec_version` value" to the sweep — after task 1.2 it is excluded from
+  the sweep and validated separately against the agreed pin. All four
+  observable legs are unchanged, so this is wording drift, not behaviour
+  drift, but the spec should describe the code that now exists.
 - [ ] 3.5 Test: run `node scripts/lint.mjs` (Check 1 agreement +
   `@latest`-absence + config-coupling, all now exercised against the real
   `1.9.0` tree)
