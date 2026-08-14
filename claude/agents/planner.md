@@ -124,8 +124,8 @@ or migration generation tasks that the design decisions don't enumerate).
 ## Before returning — divergence self-check (hard-stop condition 4)
 
 Before you emit the final message, self-check your `tasks.md` against the
-divergence rubric in skill `workflow` ("Divergence rubric (hard-stop condition
-4)" under the Hard-stop procedure). If the task list materially diverges from
+divergence rubric in skill `workflow` (its "Divergence rubric (hard-stop
+condition 4)" section). If the task list materially diverges from
 the approved `design.md`/delta spec — inventing work that changes or drops a
 recorded decision or delta requirement, introducing an unapproved
 capability/API/data-model/dependency, or altering an observable contract

@@ -60,6 +60,103 @@ kit version.
     instructing existing consumers to re-run `/qrspi:stack` or hand-add the
     field.
 
+### Changed
+
+- **The `workflow` skill is split by audience: `workflow` + `stage-choreography`.**
+  Over half of `workflow` (344 of 606 lines) was the "Stage choreography"
+  section — run-mode establishment, precondition/approval check, commit step,
+  next-stage handoff, the hard-stop procedure, backlog atomicity, and the
+  stage-specific gate notes. Those are procedures the **main-loop orchestrator**
+  runs; a stage subagent never runs any of them (it is spawned via the Agent
+  tool for one bounded artifact write, and cannot reach `AskUserQuestion` at
+  all). Yet all six stage agents loaded the whole file, carrying ~16 KB of
+  choreography they could not act on into every spawn.
+
+  The choreography now lives in a new orchestrator-only skill,
+  `stage-choreography`, loaded by the eight stage commands (in step 3, where the
+  run-mode is established) and by `/qrspi:archive`. `workflow` keeps the shared
+  mental model: what QRSPI is, the backlog rules, the eight stages, the Read
+  Matrix and its cross-change boundary, and the fix loop. Everything
+  `git-host-and-remote-awareness` added to the choreography — the no-remote
+  merge-back never-suppressed gate, the hard-stop condition (2) no-remote
+  carve-out, and the no-remote push gating — moves with it, since all of it is
+  orchestrator-run.
+
+  The **divergence rubric for hard-stop condition 4 stays in `workflow`**, and is
+  promoted from a paragraph inside the hard-stop procedure to its own top-level
+  section — condition 4 is the one hard-stop only the subagent can recognise, so
+  its criteria have to travel with the subagents. The architect, planner, and
+  `implementer-core` pointers to it are updated accordingly.
+
+  Content moved verbatim; no procedure was reworded. The 38 command-body
+  pointers that name a moved section now name `stage-choreography`; the six that
+  name a section which stayed (`Capturing deferred work`, the stage list, the
+  two skill-load lines) still name `workflow`. Measured with
+  `node scripts/context-footprint.mjs`, the per-spawn skill payload drops by
+  ~4.1k tokens for every stage agent: researcher 14.1k → 10.0k, questioner
+  15.5k → 11.3k, designer 17.1k → 12.9k, architect 20.7k → 16.4k, planner
+  15.2k → 11.0k, reviewer 14.9k → 10.8k.
+
+  Repo-internal follow-through (not shipped to consumers): three
+  `openspec/backlog.md` rows prescribed future edits to "the run-mode procedure
+  in the `workflow` skill" / "the `workflow` skill choreography" and are
+  repointed at `stage-choreography` — `lint-auto-mode-gate-coverage` most
+  urgently, since it is sequenced in the pre-1.0 runway and a Check written to
+  its old wording would assert the wrong invariant. The `qrspi-stack` cheatsheet's
+  two "Checks 1-21" references are corrected to 1-24 in the same pass.
+
+### Fixed
+
+- **`scripts/lint.mjs` header block now matches the code.** The banner said
+  "Checks 1-23" for a 24-check script, described Checks 7 and 12 as covering
+  "seven" stage agents where both assert nine (the six stage agents plus the
+  three implementer effort variants), and skipped Checks 22 and 24 in its
+  enumeration entirely. Comment-only -- no check behaviour changed.
+- **README template count.** The repo-layout tree called `openspec-templates/`
+  "the 5 canonical artifact templates"; it ships seven -- the five change
+  artifacts plus `spec-delta` and `backlog`.
+- **Line endings pinned to LF (`.gitattributes`).** The repo carried no rule for
+  `.md`, so 27 tracked files sat CRLF in the index while the other 363 sat LF.
+  Check 21 (`checkFormatRulesParity`) compares two markdown blocks
+  byte-for-byte and passed only because both of its files happened to land on
+  the CRLF side -- normalising either one would have reddened CI over characters
+  no diff can show. `* text=auto` plus explicit `eol=lf` for the payload
+  extensions fixes it at the source (tracked files renormalised in a separate,
+  content-free commit), and Check 21 now EOL-normalises before comparing, with a
+  fourth self-test fixture (CRLF/LF pair must pass) guarding that behaviour.
+- **Dangling references left by the `workflow` / `stage-choreography` split.**
+  Splitting the orchestrator procedures out of `workflow` left six pointers
+  aimed at their old home:
+  - **Check 5 was blinded.** `reachesMainLoopOnlyTool` gated transitive
+    `AskUserQuestion` reach on the body naming the `workflow` skill, but all
+    three choreography markers moved. A command with a non-builtin `agent:`
+    citing the commit step in `stage-choreography` would have trapped a
+    main-loop-only gate inside a subagent with CI silent. Both skill names are
+    now accepted.
+  - **Check 22 gained assertion 7 (status-vs-section grouping).** A status flip
+    is also a section move, but nothing verified it: a `proposed` row left
+    sitting under `## Ideas` passed the grammar, enum, and body-field
+    assertions. Rows keyed `idea` / `proposed` / `in-progress` must now sit
+    under `## Ideas` / `## Proposed` / `## In progress`; `bundled` and `merged`
+    stay exempt. Adds a fifth self-test fixture.
+  - **`claude/agents/questioner.md`** now states the section-move obligation
+    inline on its mandatory `idea` to `proposed` flip. The questioner is a
+    subagent, so it cannot load the orchestrator-only `stage-choreography`
+    where that rule now lives, and `backlog-writer` only covers inserting a
+    *new* `idea` row.
+  - **`claude/skills/workflow/SKILL.md`** no longer calls the backlog "a flat
+    list" — it is grouped under a `##` section per status, as
+    `stage-choreography` already stated.
+  - **`claude/skills/retrospective/SKILL.md`** routes stage friction to the
+    right file: its governing-files table gained a `stage-choreography` row
+    plus a rubric for picking between the two, and `claude/commands/retro.md`
+    now loads that skill so the retro can read the text it proposes edits to.
+  - **`CONTRIBUTING.md`**, the two dangling in-file cross-references in
+    `stage-choreography`, and the "seven stage subagents" counts in
+    `.claude/skills/qrspi-stack/SKILL.md` and `.claude-plugin/plugin.json`
+    (nine) are corrected. Base specs under `openspec/specs/**` are repointed to
+    match.
+
 ## [0.13.0] - 2026-08-13
 
 ### Added

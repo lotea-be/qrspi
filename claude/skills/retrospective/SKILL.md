@@ -52,6 +52,7 @@ For stage `Q`:
 | Command | `claude/commands/questions.md` |
 | Agent | `claude/agents/questioner.md` |
 | Skill (workflow) | `claude/skills/workflow/SKILL.md` |
+| Skill (choreography) | `claude/skills/stage-choreography/SKILL.md` |
 | Skill (openspec) | `claude/skills/openspec-workflow/SKILL.md` |
 | Template (kit) | `openspec-templates/questions.template.md` |
 | Artifact written this stage | `openspec/changes/<id>/questions.md` |
@@ -59,6 +60,19 @@ For stage `Q`:
 The same table applies stage by stage — substitute the role name
 (researcher, designer, architect, planner, implementer, reviewer) and
 the artifact name.
+
+The two workflow skills are **not** interchangeable — pick by what the
+friction was about:
+
+- **`workflow`** — what the stage *is*: the stage map, the Read Matrix,
+  the rules of the road, when a stage may be skipped, the divergence
+  rubric. Edit here when the friction was "the agent read the wrong
+  thing" or "the stage boundary was unclear".
+- **`stage-choreography`** — what the orchestrator *does*: run-mode,
+  the hard-stop procedure, the Glob-based precondition check, the commit
+  step, the next-stage handoff, backlog atomicity. Edit here when the
+  friction was a gate that fired twice, a handoff that did not advance,
+  a missing precondition check, or a commit that bundled the wrong files.
 
 ### 2. Read everything
 
@@ -190,5 +204,7 @@ record of *why* a prompt changed.
 ## How this skill relates to others
 
 - `workflow` — the eight-stage flow itself.
+- `stage-choreography` — the orchestrator procedures each stage runs
+  (run-mode, precondition, commit step, handoff, backlog atomicity).
 - `openspec-workflow` — how QRSPI artifacts persist on disk.
 - `context-hygiene` — keeps the retrospective conversation lean.

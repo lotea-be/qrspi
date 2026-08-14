@@ -14,10 +14,13 @@ Change id: $ARGUMENTS
 
 2. **Context budget gate.** Load skill `context-budget-gate` and follow its instructions exactly.
 
-3. Read or establish the run-mode by following the **Run-mode** procedure in
-   skill `workflow` before doing any other work.
+3. **Stage choreography.** Load skill `stage-choreography` and follow its
+   instructions exactly -- it carries the canonical main-loop procedures this
+   command runs (run-mode, precondition check, commit step, next-stage
+   handoff). Read or establish the run-mode by following its **Run-mode**
+   procedure before doing any other work.
 
-Precondition (canonical *precondition check* in skill `workflow`,
+Precondition (canonical *precondition check* in skill `stage-choreography`,
 "Stage choreography"): the input artifact is
 `openspec/changes/<id>/tasks.md`; on failure point the user at
 `/qrspi:plan`. **This stage has a trivial exception to the precondition:**
@@ -95,16 +98,16 @@ would later be asked. Surface the failure details in the return message and
 mark the slice as blocked, leaving the working tree uncommitted.
 
 **Per-slice loop (mode-aware -- follow the I per-slice auto-advance rule in
-skill `workflow`).** After the implementer subagent returns for Slice N:
+skill `stage-choreography`).** After the implementer subagent returns for Slice N:
 
 **If mode is Full or Semi auto:**
 
 1. Inspect the implementer's return message. If it signals error or blocked
    (see "Implementer block-signal contract" above), trigger a hard-stop:
    surface the error to the human and do NOT commit the slice or advance
-   to Slice N+1 (see the "Hard-stop procedure" in skill `workflow`).
+   to Slice N+1 (see the "Hard-stop procedure" in skill `stage-choreography`).
 2. If successful, auto-commit the slice (explicit paths, stage commit
-   message, push -- per the canonical "Commit step" in skill `workflow`):
+   message, push -- per the canonical "Commit step" in skill `stage-choreography`):
    - On the **final** slice only, first update `openspec/backlog.md` (same
      rule as Manual below); intermediate slices do not touch it.
    - Then run (final slice):
@@ -130,10 +133,10 @@ skill `workflow`).** After the implementer subagent returns for Slice N:
    architect's call. If the next slice is missing its `effort=` token, this is
    the missing-`effort=` hard-stop (see the main spawn site above): halt the
    chain, spawn no implementer, and surface the condition per the "Hard-stop
-   procedure" in skill `workflow`.
+   procedure" in skill `stage-choreography`.
 4. Repeat until all slices are done.
 5. After the final slice is committed, proceed to the next-stage handoff
-   (PR stage) per the "Next-stage handoff" in skill `workflow`.
+   (PR stage) per the "Next-stage handoff" in skill `stage-choreography`.
 
 **If mode is Manual:**
 
@@ -151,14 +154,14 @@ after the human confirms):
 - On the **final** slice, update `openspec/backlog.md`: change the row's
   heading backtick from `### <id> — \`proposed (...)\`` to
   `### <id> — \`in-progress (Q, R, D, S, V, P, I complete)\`` and move the
-  row from `## Proposed` to `## In progress` (see skill `workflow`,
+  row from `## Proposed` to `## In progress` (see skill `stage-choreography`,
   "Backlog atomicity").
 - On **intermediate** slices, do not touch `openspec/backlog.md` at all --
   there is no `Next QRSPI command:` line to update, and the row's status
   stays `proposed` until the final slice above.
 
 When the backlog is edited (final slice only), that edit lands in the
-same commit as the slice (backlog atomicity, see skill `workflow`).
+same commit as the slice (backlog atomicity, see skill `stage-choreography`).
 
 In Manual mode, use the **AskUserQuestion** tool to ask before committing:
   question: "Commit Slice N changes to the feature branch?"
@@ -173,7 +176,7 @@ git push
 ```
 Stage the implementer-modified files explicitly -- the implementer's
 final message lists them under "Files created/modified". As the canonical
-*commit step* in skill `workflow` requires, never use `git add -A`;
+*commit step* in skill `stage-choreography` requires, never use `git add -A`;
 it can sweep up secrets, scratch files, or unrelated working-tree changes.
 
 Re-running `/qrspi:implement <id>` resumes at the next un-ticked slice.

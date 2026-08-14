@@ -2,7 +2,8 @@
 // ============================================================================
 //  scripts/lint.mjs -- CI quality gate for the QRSPI kit
 // ----------------------------------------------------------------------------
-//  Checks (run in order, all errors collected before exit -- Checks 1-23):
+//  Checks (run in order, all errors collected before exit -- Checks 1-24,
+//  plus sub-checks 2b and 10b):
 //
 //  1. PIN AGREEMENT  -- every hand-maintained OpenSpec version occurrence
 //     must agree. generatedBy: lines in openspec-generated skill files are
@@ -23,7 +24,7 @@
 //
 //  5. GATE-TOOL / EXECUTOR AGREEMENT -- no command with a non-builtin agent:
 //     reaches a main-loop-only gate tool (AskUserQuestion) directly or
-//     transitively via the workflow choreography.
+//     transitively via the stage choreography.
 //
 //  6. MIGRATION MANIFEST PRESENCE + SCHEMA + MARKER FORMAT -- every
 //     CHANGELOG ## [X.Y.Z] section whose version is >= the lowest version in
@@ -31,12 +32,13 @@
 //     be schema-valid (required keys, edit-file-only action, openspec/-scoped
 //     paths); openspec/.qrspi-version (if present) must be bare SemVer.
 //
-//  7. READ-CONTRACT BANNER AGREEMENT -- each of the seven QRSPI stage agents
+//  7. READ-CONTRACT BANNER AGREEMENT -- each of the nine QRSPI stage agents
 //     carries a `> **Read contract** -- Reads: ...` banner whose Reads: field
 //     must EQUAL that agent's row in the approved read matrix (banner-keyed
 //     positive check). Handles the architect two-mode (S/V) contract and the
-//     reviewer full-folder special case; scoped strictly to the seven stage
-//     agents (never /qrspi:update or qrspi-update).
+//     reviewer full-folder special case; scoped strictly to the nine stage
+//     agents (six stage agents plus the three implementer effort variants --
+//     never /qrspi:update or qrspi-update).
 //
 //  8. PR RECONCILIATION PASSES STRUCTURE -- claude/commands/pr.md must carry
 //     the tasks-pass and follow-ups-pass section headings and their required
@@ -66,7 +68,7 @@
 //     to be PRESENT; Check 11 requires surface-GATED headings to be ABSENT
 //     from fenced blocks -- disjoint heading sets AND disjoint scopes.
 //
-// 12. OUTPUT-CONTRACT BANNER PRESENCE -- each of the seven stage agents must
+// 12. OUTPUT-CONTRACT BANNER PRESENCE -- each of the nine stage agents must
 //     carry a `> **Output contract**` banner line (presence-only check;
 //     the banner text is human-authored). Mirrors the scope and pattern of
 //     Check 7. Registered after Check 11.
@@ -144,11 +146,24 @@
 //     <!-- must-leads:begin --> and <!-- must-leads:end --> sentinel comments
 //     from both claude/agents/architect.md and
 //     openspec-templates/spec-delta.template.md, and asserts the two extracted
-//     blocks are byte-identical. Fails closed: if either sentinel pair is
-//     missing or unbalanced the check pushes a [format-rules-parity] error and
-//     exits non-zero rather than silently passing. Carries an inline three-
-//     fixture self-test (match, drift, missing-anchor) run before file I/O.
-//     Registered after Check 20.
+//     blocks are identical once EOL-normalised (CRLF -> LF), so a mixed-EOL
+//     checkout is not reported as drift. Fails closed: if either sentinel pair
+//     is missing or unbalanced the check pushes a [format-rules-parity] error
+//     and exits non-zero rather than silently passing. Carries an inline four-
+//     fixture self-test (match, drift, missing-anchor, CRLF/LF pair) run before
+//     file I/O. Registered after Check 20.
+//
+// 22. BACKLOG SCHEMA GUARD -- freezes the openspec/backlog.md schema: the three
+//     section headings (## In progress / ## Proposed / ## Ideas), the P-band
+//     preamble under ## Ideas, the per-row heading grammar (em-dash U+2014 +
+//     middle-dot U+00B7 + bold P-band), the status-keyword enum, the **Why:** +
+//     **Shape:** body rule scoped to standalone idea/proposed rows, the
+//     status-vs-section grouping agreement (idea/proposed/in-progress must sit
+//     under ## Ideas / ## Proposed / ## In progress respectively -- a status
+//     flip is also a section move; bundled/merged are exempt), and the
+//     existence of openspec-templates/backlog.template.md. Passes silently when
+//     the backlog file is absent. Carries an inline five-fixture self-test.
+//     Registered after Check 21.
 //
 // 23. BACKLOG WIKILINK RESOLUTION -- resolves every bare (non-code-span)
 //     [[slug]] occurrence file-wide in openspec/backlog.md. Slug grammar =
@@ -159,6 +174,12 @@
 //     backlog file is absent. Uses a pure resolver resolveWikilinks() that
 //     takes the archive-slug list as a parameter; an inline self-test covers
 //     all four cases before any file I/O. Registered after Check 22.
+//
+// 24. RESEARCHER GATE-INSTRUCTION PRESENCE -- asserts the researcher agent's
+//     `## What to do` step 1 carries the surface-gate instruction phrase
+//     (`surface-gate rule per the \`repo-surface\` skill`) via a stable-substring
+//     match, so the stage-R gate instruction cannot silently regress. Carries an
+//     inline two-fixture self-test. Registered after Check 23.
 //
 //  Exits 0 if all checks pass, 1 if any check reports a violation.
 //  Requires only Node.js built-ins (fs, path) -- no npm dependencies.
@@ -937,12 +958,13 @@ async function checkReadmeCoverage(errors) {
 //
 // "reached" is true when the body either:
 //   (a) DIRECTLY names the tool (current behaviour), or
-//   (b) TRANSITIVELY reaches it via the workflow "Stage choreography"
-//       section -- i.e. the body mentions the `workflow` skill AND at
-//       least one of the canonical choreography procedure names that invoke the
-//       gate tool ('Stage choreography', 'commit step', or 'next-stage handoff').
-//       These phrases are unique to the choreography section and give a
-//       low-false-positive signal without requiring a full skill parse.
+//   (b) TRANSITIVELY reaches it via the canonical "Stage choreography"
+//       procedures -- i.e. the body mentions a skill that carries those
+//       procedures (`stage-choreography`, or the legacy `workflow` home) AND
+//       at least one of the canonical choreography procedure names that invoke
+//       the gate tool ('Stage choreography', 'commit step', or 'next-stage
+//       handoff'). These phrases are unique to the choreography section and
+//       give a low-false-positive signal without requiring a full skill parse.
 //
 // `how` is the human-readable distinction used in the violation message.
 function reachesMainLoopOnlyTool(body, tool) {
@@ -951,16 +973,19 @@ function reachesMainLoopOnlyTool(body, tool) {
     return { reached: true, how: `references '${tool}' inline` };
   }
 
-  // (b) transitive reference via workflow choreography. Match the
-  // backtick-wrapped `workflow` skill reference so the bare substring does not
-  // collide with `openspec-workflow` or a plain-prose "workflow".
-  const mentionsWorkflowSkill = body.includes('`workflow`');
+  // (b) transitive reference via the choreography procedures. Match the
+  // backtick-wrapped skill reference so the bare substring does not collide
+  // with `openspec-workflow` or a plain-prose "workflow". `stage-choreography`
+  // is the current home of these procedures; `workflow` is kept because it
+  // pointed there historically and still fronts the stage map.
+  const CHOREOGRAPHY_SKILLS = ['`stage-choreography`', '`workflow`'];
+  const mentionsChoreographySkill = CHOREOGRAPHY_SKILLS.some((skill) => body.includes(skill));
   const CHOREOGRAPHY_MARKERS = ['Stage choreography', 'commit step', 'next-stage handoff'];
   const mentionsChoreography = CHOREOGRAPHY_MARKERS.some((marker) => body.includes(marker));
-  if (mentionsWorkflowSkill && mentionsChoreography) {
+  if (mentionsChoreographySkill && mentionsChoreography) {
     return {
       reached: true,
-      how: `reaches ${tool} transitively via the workflow choreography (commit step / next-stage handoff)`,
+      how: `reaches ${tool} transitively via the stage choreography (commit step / next-stage handoff)`,
     };
   }
 
@@ -3458,17 +3483,24 @@ async function checkFormatRulesParity(errors) {
   // Helper: extract the text between the sentinel comments (exclusive of the
   // sentinel lines themselves). Returns the extracted string, or null if either
   // sentinel is missing or the begin occurs after the end.
+  //
+  // The extracted block is EOL-normalised (CRLF -> LF) before it is returned, so
+  // the identity assertion below compares content and not line endings. Without
+  // this, a checkout that hands one file CRLF and the other LF -- the state the
+  // repo was in before `* text=auto` landed in .gitattributes -- fails the check
+  // on a difference no diff can show. Normalising EOL costs nothing in detection
+  // power: a pure line-ending difference is not Format-rules drift.
   function extractBlock(text) {
     const beginIdx = text.indexOf(BEGIN_SENTINEL);
     if (beginIdx === -1) return null;
     const afterBegin = beginIdx + BEGIN_SENTINEL.length;
     const endIdx = text.indexOf(END_SENTINEL, afterBegin);
     if (endIdx === -1) return null;
-    return text.slice(afterBegin, endIdx);
+    return text.slice(afterBegin, endIdx).replace(/\r\n/g, '\n');
   }
 
   // ---- INLINE SELF-TEST -------------------------------------------------------
-  // Three fixtures exercising extractBlock and the byte-identity assertion.
+  // Four fixtures exercising extractBlock and the identity assertion.
   // Run before file I/O so a broken detector reddens CI immediately.
 
   // Fixture (a): matching pair -> PASS (both blocks are identical)
@@ -3494,6 +3526,17 @@ async function checkFormatRulesParity(errors) {
   const _stBlockC = extractBlock(_stTextC);
   if (_stBlockC !== null) {
     errors.push('[format-rules-parity] SELF-TEST FAILED: fixture (c) -- missing anchor was not detected (got non-null)');
+  }
+
+  // Fixture (d): same content, different line endings (CRLF vs LF) -> PASS.
+  // Guards the EOL normalisation in extractBlock: a mixed-EOL checkout must not
+  // be reported as Format-rules drift.
+  const _stTextD1 = `${BEGIN_SENTINEL}\r\n- MUST line\r\n${END_SENTINEL}`;
+  const _stTextD2 = `${BEGIN_SENTINEL}\n- MUST line\n${END_SENTINEL}`;
+  const _stBlockD1 = extractBlock(_stTextD1);
+  const _stBlockD2 = extractBlock(_stTextD2);
+  if (_stBlockD1 === null || _stBlockD2 === null || _stBlockD1 !== _stBlockD2) {
+    errors.push('[format-rules-parity] SELF-TEST FAILED: fixture (d) -- CRLF/LF pair with identical content was reported as drift');
   }
   // ---- end self-test ----------------------------------------------------------
 
@@ -3545,7 +3588,7 @@ async function checkFormatRulesParity(errors) {
 
   if (violations === 0) {
     process.stdout.write(
-      `  OK: Format-rules sentinel blocks in architect.md and spec-delta.template.md are byte-identical\n`
+      `  OK: Format-rules sentinel blocks in architect.md and spec-delta.template.md are identical (EOL-normalised)\n`
     );
   }
   return violations;
@@ -3588,14 +3631,21 @@ async function checkBacklogSchema(errors) {
   const STATUS_ENUM = new Set(['idea', 'proposed', 'in-progress', 'merged', 'bundled']);
 
   // Parse a backlog body string into rows. Each row = { id, status, keyword,
-  // band, bodyLines, headingLine, valid }. `valid` is false when the heading
-  // does not match the frozen grammar.
+  // band, bodyLines, headingLine, section, valid }. `valid` is false when the
+  // heading does not match the frozen grammar. `section` is the enclosing `##`
+  // heading text (null when the row precedes any section heading) -- a status
+  // flip is also a section move, so the two must agree (assertion 7).
   function parseRows(text) {
     const lines = text.replace(/\r\n/g, '\n').split('\n');
     const rows = [];
     let cur = null;
+    let section = null;
     for (const line of lines) {
-      if (line.startsWith('### ')) {
+      if (line.startsWith('## ')) {
+        if (cur) rows.push(cur);
+        cur = null;
+        section = line.trim();
+      } else if (line.startsWith('### ')) {
         if (cur) rows.push(cur);
         const m = HEADING_RE.exec(line);
         if (m) {
@@ -3608,6 +3658,7 @@ async function checkBacklogSchema(errors) {
             band: m.groups.band,
             headingLine: line,
             bodyLines: [],
+            section,
             valid: true,
           };
         } else {
@@ -3620,6 +3671,7 @@ async function checkBacklogSchema(errors) {
             band: null,
             headingLine: line,
             bodyLines: [],
+            section,
             valid: false,
           };
         }
@@ -3654,6 +3706,24 @@ async function checkBacklogSchema(errors) {
   // Classify by status KEYWORD (D6), NOT by presence of a pointer note.
   function isStandalone(row) {
     return row.keyword === 'idea' || row.keyword === 'proposed';
+  }
+
+  // Section-grouping detector: a status flip is also a section move, so a row's
+  // status keyword must agree with its enclosing `##` section. Only the three
+  // unambiguous keywords are mapped -- `bundled` rows stay parked under their
+  // originating section (the kit template samples one under ## Ideas) and
+  // `merged` is transient until /qrspi:archive removes the row, so neither is
+  // enforced. Returns the expected section heading when the row is mis-grouped,
+  // else null.
+  const SECTION_FOR_KEYWORD = {
+    idea: '## Ideas',
+    proposed: '## Proposed',
+    'in-progress': '## In progress',
+  };
+  function sectionMismatch(row) {
+    const expected = SECTION_FOR_KEYWORD[row.keyword];
+    if (!expected) return null;
+    return row.section === expected ? null : expected;
   }
 
   // ---- INLINE SELF-TEST -------------------------------------------------------
@@ -3712,6 +3782,24 @@ async function checkBacklogSchema(errors) {
     isStandalone(_stDRows[0])
   ) {
     errors.push('[backlog-schema] SELF-TEST FAILED: fixture (d) -- exempt bundled row was misclassified (false positive on the exempt class)');
+    selfTestFailed = true;
+  }
+
+  // Fixture (e): the questioner's in-place status flip -- a `proposed` row left
+  // sitting under ## Ideas must fire, while a correctly grouped row must not.
+  const _stE =
+    '## Proposed\n\n' +
+    '### moved-row — `proposed` · **P2**\n\n**Why:** x.\n\n**Shape:** y.\n\n' +
+    '## Ideas\n\n' +
+    '### stranded-row — `proposed` · **P2**\n\n**Why:** x.\n\n**Shape:** y.\n';
+  const _stERows = parseRows(_stE);
+  if (
+    _stERows.length !== 2 ||
+    grammarViolations(_stERows).length !== 0 ||
+    sectionMismatch(_stERows[0]) !== null ||
+    sectionMismatch(_stERows[1]) !== '## Proposed'
+  ) {
+    errors.push('[backlog-schema] SELF-TEST FAILED: fixture (e) -- status-vs-section grouping detector did not flag a `proposed` row stranded under ## Ideas');
     selfTestFailed = true;
   }
   // ---- end self-test ----------------------------------------------------------
@@ -3787,6 +3875,14 @@ async function checkBacklogSchema(errors) {
         violations++;
       }
     }
+    // Assertion 7: status keyword agrees with the enclosing `##` section.
+    const expectedSection = sectionMismatch(row);
+    if (expectedSection !== null) {
+      errors.push(
+        `[backlog-schema] ${backlogRel}: row "${row.id}" has status "${row.keyword}" but sits under "${row.section ?? '(no section)'}" -- a status flip is also a section move; it belongs under "${expectedSection}"`
+      );
+      violations++;
+    }
   }
 
   // Assertion 6: backlog template file exists (existence-only, no content scan).
@@ -3799,7 +3895,7 @@ async function checkBacklogSchema(errors) {
 
   if (violations === 0) {
     process.stdout.write(
-      `  OK: ${backlogRel} satisfies all six backlog-schema assertions (${rows.length} row(s) validated)\n`
+      `  OK: ${backlogRel} satisfies all seven backlog-schema assertions (${rows.length} row(s) validated)\n`
     );
   }
   return violations;

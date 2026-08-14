@@ -14,8 +14,11 @@ Arguments: $ARGUMENTS
 
 2. **Context budget gate.** Load skill `context-budget-gate` and follow its instructions exactly.
 
-3. Read or establish the run-mode by following the **Run-mode** procedure in
-   skill `workflow` before doing any other work.
+3. **Stage choreography.** Load skill `stage-choreography` and follow its
+   instructions exactly -- it carries the canonical main-loop procedures this
+   command runs (run-mode, precondition check, commit step, next-stage
+   handoff). Read or establish the run-mode by following its **Run-mode**
+   procedure before doing any other work.
 
 This is the highest-leverage stage. The output of this command must be
 reviewed (and possibly rewritten) by a human before any code is planned.
@@ -110,7 +113,7 @@ Read openspec/changes/<id>/design.md, edit it freely, and only then run:
    Non-Goals worth promoting.
 
 5. **Commit step (mandatory):** After the human confirms, follow the
-   canonical *commit step* in skill `workflow` ("Stage choreography"),
+   canonical *commit step* in skill `stage-choreography` ("Stage choreography"),
    with these stage variables:
    - Artifact: `openspec/changes/<id>/design.md`.
    - Commit message: `docs(<id>): add design.md (QRSPI stage D)`

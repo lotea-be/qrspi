@@ -14,8 +14,11 @@ Arguments: $ARGUMENTS
 
 2. **Context budget gate.** Load skill `context-budget-gate` and follow its instructions exactly.
 
-3. Read or establish the run-mode by following the **Run-mode** procedure in
-   skill `workflow` before doing any other work.
+3. **Stage choreography.** Load skill `stage-choreography` and follow its
+   instructions exactly -- it carries the canonical main-loop procedures this
+   command runs (run-mode, precondition check, commit step, next-stage
+   handoff). Read or establish the run-mode by following its **Run-mode**
+   procedure before doing any other work.
 
 **Critical**: do NOT pass the feature description or any opinion about
 what the change should do to the researcher. The researcher works
@@ -53,7 +56,7 @@ and works on every platform.
 
 Return only what the researcher's "Final message format" specifies.
 
-**Choreography (see skill `workflow`, "Stage choreography").** Follow
+**Choreography (see skill `stage-choreography`, "Stage choreography").** Follow
 the canonical *commit step* and *next-stage handoff* there, with these
 stage variables:
 - Artifact: `openspec/changes/<id>/research.md` (no backlog edit at this stage).

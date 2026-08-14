@@ -148,15 +148,15 @@ auto-advancing to any next stage.
   invocation reaches the soft-gate threshold
 - **THEN** no AskUserQuestion is issued; the stage proceeds silently.
 
-### Requirement: The soft gate joins the workflow skill's Never-suppressed gates list
-The system MUST update `claude/skills/workflow/SKILL.md`'s "Never-suppressed
-gates" list to include the context-budget soft gate, with a note that it fires in
-all run-modes and that "Reset now" prints the resume path and ends the turn
-without auto-advancing.
+### Requirement: The soft gate joins the stage-choreography skill's Never-suppressed gates list
+The system MUST update `claude/skills/stage-choreography/SKILL.md`'s
+"Never-suppressed gates" list to include the context-budget soft gate, with a
+note that it fires in all run-modes and that "Reset now" prints the resume path
+and ends the turn without auto-advancing.
 
-#### Scenario: workflow skill lists the soft gate as never-suppressed
+#### Scenario: choreography skill lists the soft gate as never-suppressed
 - **WHEN** a contributor reads the "Never-suppressed gates" section of
-  `claude/skills/workflow/SKILL.md`
+  `claude/skills/stage-choreography/SKILL.md`
 - **THEN** the context-budget soft gate is listed alongside the D review and
   backlog-capture offers, with a note that it cannot be suppressed in any
   run-mode.

@@ -14,8 +14,11 @@ Change id and short description: $ARGUMENTS
 
 2. **Context budget gate.** Load skill `context-budget-gate` and follow its instructions exactly.
 
-3. Read or establish the run-mode by following the **Run-mode** procedure in
-   skill `workflow` before doing any other work.
+3. **Stage choreography.** Load skill `stage-choreography` and follow its
+   instructions exactly -- it carries the canonical main-loop procedures this
+   command runs (run-mode, precondition check, commit step, next-stage
+   handoff). Read or establish the run-mode by following its **Run-mode**
+   procedure before doing any other work.
 
 If `openspec/` does not exist, tell the user to run `/qrspi:init`
 first and stop.
@@ -118,7 +121,7 @@ the agent is expected to read before writing.
 
 Return the agent's "Final message format" followed by: `Next stage: /qrspi:research <id>`
 
-**Choreography (see skill `workflow`, "Stage choreography").** Follow
+**Choreography (see skill `stage-choreography`, "Stage choreography").** Follow
 the canonical *commit step* and *next-stage handoff* there, with these
 stage variables:
 - Artifact: `openspec/changes/<id>/questions.md` (plus `openspec/backlog.md`).

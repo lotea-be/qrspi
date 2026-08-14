@@ -148,7 +148,9 @@ The eight QRSPI stage commands (`claude/commands/questions.md`,
 filename, commit-message template, and next-stage command reference. The
 **invariant choreography** (commit step, next-stage handoff, Glob-based
 precondition, backlog-atomicity reminder) lives in
-`claude/skills/workflow/SKILL.md`.
+`claude/skills/stage-choreography/SKILL.md` -- not in
+`claude/skills/workflow/SKILL.md`, which fronts the stage map, the Read
+Matrix, and the rules of the road for every reader.
 
 The stub wording is deliberately minimal and is **not lint-checked** for
 exact phrasing. Contributors may rephrase the stub text without triggering a

@@ -1,3 +1,23 @@
+# Normalise every text file to LF in the repository, whatever the contributor's
+# platform. Without this the index ends up mixed -- files committed from Windows
+# land CRLF, files committed from Linux land LF -- and the kit has byte-level
+# guards that such a mix breaks for reasons no diff can show. Check 21
+# (checkFormatRulesParity) compares the Format-rules block of
+# claude/agents/architect.md against openspec-templates/spec-delta.template.md;
+# before this rule both happened to be CRLF in the index, so the guard passed by
+# luck rather than by construction.
+* text=auto
+
+# The kit payload (agents, commands, skills, templates) and its tooling are
+# checked out LF on every platform, so a Windows clone cannot reintroduce the
+# mix. All of these are read by Node or by Claude Code, never by a Windows tool
+# that needs CRLF.
+*.md    text eol=lf
+*.mjs   text eol=lf
+*.json  text eol=lf
+*.yaml  text eol=lf
+*.yml   text eol=lf
+
 # Keep the sync scripts LF on every checkout so their shebangs work in bash
 # (a CRLF shebang resolves to `pwsh\r`, which env can't find). PowerShell 7
 # reads LF fine on Windows too, so LF is safe cross-platform.

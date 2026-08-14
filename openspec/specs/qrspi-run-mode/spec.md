@@ -262,11 +262,11 @@ all-ticked) the pass MUST be suppressed silently with no AskUserQuestion; when
 a pass finds one or more open items the system MUST fire a hard-stop — surface
 the open-item count, present the review gate via AskUserQuestion, and NOT
 auto-advance past the open items. This conditional hard-stop is distinct from
-the four failure/divergence hard-stop conditions in the `workflow` skill's
-"Hard-stop procedure" (which concern artifacts, git, subagent errors, and
+the four failure/divergence hard-stop conditions in the `stage-choreography`
+skill's "Hard-stop procedure" (which concern artifacts, git, subagent errors, and
 design divergence); the full reconciliation-gate mechanics live in
-`claude/commands/pr.md`, and the `workflow` skill's hard-stop section carries
-a one-line cross-reference to them.
+`claude/commands/pr.md`, and the `stage-choreography` skill's hard-stop section
+carries a one-line cross-reference to them.
 
 #### Scenario: clean tasks pass is silent in Full auto
 - **GIVEN** Full auto mode is active and `/qrspi:pr <id>` is running

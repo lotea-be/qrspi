@@ -17,6 +17,10 @@ skill will list active changes and prompt you to pick one.
 
 Load skill `context-budget-gate` and follow its instructions exactly.
 
+Load skill `stage-choreography` and follow its instructions exactly -- this
+command runs the canonical commit step, the hard-stop procedure, and the
+PR-create auto-advance rule.
+
 Steps:
 
 1. If `openspec/` does not exist, this repo was never bootstrapped — tell the
@@ -173,7 +177,7 @@ Steps:
      flipping to a `merged` status, because the dated `archive/` folder from
      step 4 is now the source of truth for this completed work.
    - **Stage explicit paths only, never `git add -A`** (the canonical *commit
-     step* in skill `workflow` applies). The skill in step 4 used a plain
+     step* in skill `stage-choreography` applies). The skill in step 4 used a plain
      `mv`, not `git mv`, so nothing is staged yet: `git add` both the new
      archived path (from the archive summary in step 4) and the now-deleted
      old change path so the deletion is staged too, alongside the backlog
@@ -234,7 +238,7 @@ Steps:
      apply the mode-aware PR-create gate:
 
      - In **Full or Semi auto**: run the PR-create command directly per the
-       "PR-create auto-advance" rule in skill `workflow`.
+       "PR-create auto-advance" rule in skill `stage-choreography`.
      - In **Manual**: use the **AskUserQuestion** tool to ask:
        question: "The archive branch is pushed. Create the archive PR now, or
        show the command first?"
@@ -262,7 +266,7 @@ Steps:
      ```
    - **On any non-zero exit from `git checkout -b`, `git commit`, or `git
      push` in either path,** this is a hard-stop (see the *hard-stop
-     procedure* in skill `workflow`): surface the git error verbatim and
+     procedure* in skill `stage-choreography`): surface the git error verbatim and
      stop here — do not proceed to step 6, and do not retry silently. The
      tree is now moved-but-uncommitted; say so explicitly so the human
      knows to resolve it before re-running.
