@@ -15,12 +15,12 @@ the other hand-maintained kit-source locations (including `README.md` and
 `CONTRIBUTING.md`), while EXCLUDING from that general scan: `generatedBy:`
 lines in OpenSpec-generated skill files; narrative surfaces (`CHANGELOG.md`
 and `openspec/backlog.md`), which cite the pin as history rather than
-maintain it as a live declaration; and `openspec/config.yaml`, which is
-validated separately by a dedicated coupling assertion rather than folded
-into the general agreement count. The job MUST assert that
-`openspec/config.yaml` contributed an `openspec_version` value that equals
-the agreed pin V, failing if either the config value is absent or it differs
-from V. The job MUST fail if any pin occurrence diverges from the others.
+maintain it as a live declaration; and `openspec/config.yaml`, which never
+contributes to the general sweep at all and is instead validated separately
+by a dedicated coupling assertion. The job MUST assert, via that separate
+assertion, that `openspec/config.yaml`'s `openspec_version` value equals the
+agreed pin V, failing if either the config value is absent or it differs from
+V. The job MUST fail if any pin occurrence diverges from the others.
 The job MUST additionally scan the same hand-maintained file set for any
 `@fission-ai/openspec@latest` occurrence and fail if any is found, so an
 un-pinned reference cannot silently reappear once every current `@latest`

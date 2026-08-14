@@ -85,27 +85,27 @@ and step ordering exactly right, not in novel design.
 but each edit is a mechanical string replacement or a doc correction
 already fully dictated by the delta specs; no new control-flow reasoning.
 
-- [ ] 3.1 Flip every hand-maintained pin site (`claude/commands/init.md`,
+- [x] 3.1 Flip every hand-maintained pin site (`claude/commands/init.md`,
   README, `CONTRIBUTING.md`, `.github/workflows/ci.yml`,
   `claude/skills/openspec-workflow/SKILL.md`,
   `.claude/skills/qrspi-dogfood/SKILL.md`) and `openspec/config.yaml`'s
   `openspec_version` to `1.9.0` (D6)
-- [ ] 3.1a **Blocker from slice 1** — in the same edit that hard-pins the two
+- [x] 3.1a **Blocker from slice 1** — in the same edit that hard-pins the two
   `@latest` refs, empty the `PIN_LATEST_GRANDFATHERED` ledger in
   `scripts/lint.mjs`. Slice 1's guard reports a ledger entry whose file no
   longer contains `@latest` as STALE and fails lint, so removing the refs
   without emptying the map reddens CI. This coupling is deliberate (the
   ledger is self-cleaning) but was discovered during slice 1, not planned.
-- [ ] 3.2 Add `--strict` to `.github/workflows/ci.yml`'s `validate` step
+- [x] 3.2 Add `--strict` to `.github/workflows/ci.yml`'s `validate` step
   invocation (D6)
-- [ ] 3.3 Correct README's "Updating the pinned OpenSpec version" section's
+- [x] 3.3 Correct README's "Updating the pinned OpenSpec version" section's
   pin-update enumeration and add the copy-pasteable CI `validate` snippet as
   a new Check-1-scanned pin site (D9). **From slice 1:** the enumeration
   currently names only three sites (`init.md`, README, `openspec/config.yaml`)
   while the guarded set is now **six** — also `CONTRIBUTING.md`,
   `.github/workflows/ci.yml`, and the two skills. List all six, or the next
   bump misses one and red-lines Check 1.
-- [ ] 3.4 Update the `ci-quality-gates` and `reference-example` base specs
+- [x] 3.4 Update the `ci-quality-gates` and `reference-example` base specs
   (via this change's delta specs) so they no longer claim `--all` alone
   runs strict, and clarify `CONTRIBUTING.md`'s pin-coupling rule to name the
   release-cut commit (D9). **From slice 1:** also correct
@@ -114,12 +114,12 @@ already fully dictated by the delta specs; no new control-flow reasoning.
   the sweep and validated separately against the agreed pin. All four
   observable legs are unchanged, so this is wording drift, not behaviour
   drift, but the spec should describe the code that now exists.
-- [ ] 3.5 Test: run `node scripts/lint.mjs` (Check 1 agreement +
+- [x] 3.5 Test: run `node scripts/lint.mjs` (Check 1 agreement +
   `@latest`-absence + config-coupling, all now exercised against the real
   `1.9.0` tree)
-- [ ] 3.6 Test: run `openspec validate --all --strict` (base specs +
+- [x] 3.6 Test: run `openspec validate --all --strict` (base specs +
   reference example + this change's own delta specs)
-- [ ] 3.7 Checkpoint: `node scripts/lint.mjs` exits 0, `openspec validate
+- [x] 3.7 Checkpoint: `node scripts/lint.mjs` exits 0, `openspec validate
   --all --strict` exits 0, and `grep -rn "1\.4\.1"` across the
   hand-maintained pin-site set (excluding `CHANGELOG.md` history and the
   migration manifest's `find:` string) returns nothing.

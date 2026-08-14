@@ -218,7 +218,7 @@ qrspi/
 - **[Claude Code](https://claude.com/claude-code)** — CLI, desktop, or IDE extension.
   The `claude/{agents,commands,skills}/` formats are Claude Code's.
 - **[Node.js](https://nodejs.org/)** (for `npx`) — the OpenSpec CLI runs via
-  `npx @fission-ai/openspec@1.4.1` (pinned). Used to bootstrap `openspec/` and to
+  `npx @fission-ai/openspec@1.9.0` (pinned). Used to bootstrap `openspec/` and to
   `openspec validate` spec deltas.
 - **Git** — QRSPI is a git-centric workflow (branch per change, PR at the end).
 - **(Optional, per consuming repo)** stack-specific helpers the agents will use *if
@@ -297,7 +297,7 @@ it on a project:
    /qrspi:init
    ```
 
-   This runs `npx @fission-ai/openspec@1.4.1 init --tools none` to scaffold `openspec/`.
+   This runs `npx @fission-ai/openspec@1.9.0 init --tools none` to scaffold `openspec/`.
    Templates are **not** copied into the repo — the kit ships the artifact shapes (the
    stage agents carry them inline; the canonical files travel with the plugin), so there
    is nothing per-repo to seed.
@@ -355,12 +355,18 @@ shapes up automatically.
 
 ### Updating the pinned OpenSpec version
 
-The OpenSpec CLI version is **pinned** (currently `1.4.1`) in the following
+The OpenSpec CLI version is **pinned** (currently `1.9.0`) in the following
 hand-maintained locations:
 
 - `claude/commands/init.md` -- all `@fission-ai/openspec@<version>` invocations
   and the inline `openspec_version:` value in the YAML snippet it writes
 - `README.md` (this file) -- prose references to `@fission-ai/openspec@<version>`
+- `CONTRIBUTING.md` -- the pin-coupling rule example and the lint/validate
+  gate table + copy-pasteable local-run snippet
+- `.github/workflows/ci.yml` -- the `validate` job's `npx` invocation (must
+  carry `--strict`; see the "CI lint checks" section below)
+- `claude/skills/openspec-workflow/SKILL.md` -- the CLI quick-reference block
+- `.claude/skills/qrspi-dogfood/SKILL.md` -- the fixture-bootstrap snippet
 - `openspec/config.yaml` -- the `openspec_version:` sentinel field
 
 To bump the pin, update every `@fission-ai/openspec@<version>` occurrence in the
@@ -370,6 +376,12 @@ Check 1 additionally requires `openspec/config.yaml` to *carry* an
 `openspec_version` key equal to the pin: both a missing key and a mismatched value
 fail the lint, so a pin bump must update `openspec/config.yaml` too (and any future
 migration that bumps the pin must edit that field, or upgraded consumers turn red).
+
+Run this locally after bumping, to match the CI `validate` gate exactly:
+
+```
+npx --yes @fission-ai/openspec@1.9.0 validate --all --strict
+```
 
 ### CI lint checks (`node scripts/lint.mjs`)
 

@@ -332,10 +332,7 @@ const PIN_CONFIG_SENTINEL = 'openspec/config.yaml';
 // file no longer contains any `@latest` is reported as STALE, so whoever pins
 // these sites is forced to delete the entry in the same change. The intended
 // steady state for this map is empty.
-const PIN_LATEST_GRANDFATHERED = new Map([
-  ['claude/skills/openspec-workflow/SKILL.md', 2],
-  ['.claude/skills/qrspi-dogfood/SKILL.md', 1],
-]);
+const PIN_LATEST_GRANDFATHERED = new Map([]);
 
 // Classify a swept pin list into the three Check 1 outcomes. Pure, so the
 // inline self-test can drive every branch -- including the zero-occurrence
