@@ -179,7 +179,7 @@ Every `validate` / `init` / `update` invocation in the repo, and where it runs:
 ## Open gaps
 
 - [x] Whether `.github/workflows/ci.yml`'s pin occurrence is actually reachable by Check 1's directory walk as currently written (see "Notable discrepancies" — the scan appears scoped to `claude/`, `openspec/`, `openspec-templates/`, and non-recursive root files only, with no `.github/` traversal), given the stated ground truth of "12 pin occurrence(s) all agree." **Resolved — see "Orchestrator-verified gap resolutions" below: it is NOT reachable.**
-- [ ] The exact 1.4.1 → target-version CLI changelog content (grammar/`validate` behavioural changes across that version range) was not researched here — out of scope for a ticket-blind codebase inventory; would need to be sourced from the upstream OpenSpec CLI's own release notes, not this repo.
+- [x] The exact 1.4.1 → target-version CLI changelog content (grammar/`validate` behavioural changes across that version range) was not researched here — out of scope for a ticket-blind codebase inventory; would need to be sourced from the upstream OpenSpec CLI's own release notes, not this repo. **Resolved by the orchestrator-run spike — see "Upstream spike: 1.4.1 → 1.9.0" below.**
 - [x] Whether any other files outside the directories Check 1 currently scans (e.g. `.github/`, `scripts/`) carry an undetected pin occurrence that would not surface in Check 1's aggregate count. **Resolved — see below.**
 
 ## Orchestrator-verified gap resolutions
@@ -223,3 +223,79 @@ branch and fails with `[pin] Version pin mismatch -- found 2 distinct versions`.
 The same holds for `openspec/backlog.md:53`. Whether a historical changelog entry
 should be rewritten, excluded from the scan, or handled another way is a design
 decision, not a research finding — but the mechanical consequence is certain.
+
+## Upstream spike: 1.4.1 → 1.9.0
+
+Run by the orchestrator on 2026-08-14 (needs network + the CLI itself, so it is
+outside a ticket-blind codebase inventory). Sources: the upstream
+[CHANGELOG](https://github.com/Fission-AI/OpenSpec/blob/main/CHANGELOG.md) and the
+[v1.9.0 release notes](https://github.com/Fission-AI/OpenSpec/releases/tag/v1.9.0),
+plus two live runs against this repo.
+
+### Delta-spec grammar: STABLE
+
+No breaking change to the delta-spec grammar across 1.5, 1.6, 1.7, 1.8, 1.9. The
+`## ADDED/MODIFIED/REMOVED/RENAMED Requirements` → `### Requirement:` →
+`#### Scenario:` structure is unchanged. `openspec-templates/spec-delta.template.md`
+needs no grammar edit.
+
+### `validate` behaviour: MATERIALLY STRICTER (four changes)
+
+1. **v1.6.0 — change resolution by directory existence.** `validate` resolves a
+   change "by directory existence, matching `status`/`instructions`, instead of
+   requiring `proposal.md`." *This is the load-bearing one — see the live-run
+   result below.*
+2. **v1.7.0 — MODIFIED scenario-omission reporting.** Now "reports a MODIFIED
+   requirement that omits a scenario the main spec still has." Overlaps directly
+   with this kit's own lint Check 18 (Modified scenario count guard) and the
+   `spec-syncer` agent's wholesale-replacement contract.
+3. **v1.8.0/v1.9.0 — every `####` child counts as a scenario.** Validation "counts
+   every `####` child of a requirement as a scenario," including unlabeled ones,
+   unifying the scenario-loss guard across `validate` and `archive`.
+4. **v1.7.0 — MUST/SHALL demoted in normal mode.** The English `SHALL`/`MUST`
+   convention is "guidance in normal mode"; only `--strict` still enforces it. CI
+   runs `validate --all` *without* `--strict`, so CI's MUST/SHALL enforcement
+   would come solely from kit-side lint Check 20 after the bump.
+
+Also: v1.9.0 makes `list` / `validate --all|--changes|--specs` **fail loudly
+outside an OpenSpec root** instead of returning empty; and adds an opt-in
+`validate --archived` that requires every archived change's `tasks.md` boxes to be
+ticked.
+
+### Live run against this repo — BEHAVIOURAL BREAK CONFIRMED
+
+Same invocation as `.github/workflows/ci.yml:31`, run from the repo root:
+
+| CLI | Result | Items |
+|-----|--------|-------|
+| **1.4.1** (current pin) | `rc=0` — 23 passed, 0 failed | 23 base specs only |
+| **1.9.0** (target) | **`rc=1`** — 23 passed, **1 failed** | 24: the 23 specs **+ `change/bump-openspec-pin`** |
+
+The failure, verbatim:
+
+```
+✗ change/bump-openspec-pin
+[ERROR] file: Change must have at least one delta. No deltas found. Ensure your
+change has a specs/ directory with capability folders ... If this change
+intentionally modifies no specs (pure refactor, tooling, docs), set
+"skip_specs: true" in the change's .openspec.yaml instead.
+```
+
+**Mechanism.** At 1.4.1 an in-flight change folder is invisible to `validate --all`
+(no `proposal.md` ⇒ not resolved). At 1.9.0 the v1.6.0 resolver finds it by
+directory existence and demands deltas.
+
+**Consequence — this is a systemic workflow conflict, not a one-off.** QRSPI commits
+its change folder incrementally: the folder is created and committed at stage **Q**,
+and `specs/` does not exist until stage **S**. So after the bump, CI's
+`validate --all` fails on **every** QRSPI change for the whole Q → R → D window —
+four stages of red CI on every change, in this repo and in every consumer repo that
+adopted the same CI pattern. Verified empirically above: this very change folder is
+what turned CI's validate red at 1.9.0.
+
+Upstream names one escape hatch (`skip_specs: true` in the change's
+`.openspec.yaml`), but that marker declares a change has *no* spec deltas at all,
+which is untrue for a change that simply has not reached stage S yet. Choosing
+between that marker, narrowing CI's invocation (e.g. `--specs`), deferring folder
+creation, or seeding a placeholder delta is a **design decision** — recorded here
+only as the confirmed mechanical fact.
