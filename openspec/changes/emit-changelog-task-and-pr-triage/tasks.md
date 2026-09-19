@@ -17,9 +17,9 @@
 
 **Compute:** effort=low model=sonnet — two targeted prose edits to a single file (`claude/commands/pr.md`); both rules are localized, no cross-file coordination
 
-- [ ] 2.1 Add the triage rule to the "Seed the follow-up queue" step of `claude/commands/pr.md` — trivial in-scope gaps fixed in-stage with atomic commit, post-PR-shaped gaps seed `followups.md`, triage decision surfaced for override (D7a)
-- [ ] 2.2 Add the conditional draft-ness note to the "Record the PR link" step of `claude/commands/pr.md` — `PR #<N> open` vs `draft PR #<N> open` derived from the orchestrator's own create decision (D7b)
-- [ ] 2.3 Lint: `node scripts/lint.mjs` exits 0 (Check 25 must stay green from Slice 1)
+- [x] 2.1 Add the triage rule to the "Seed the follow-up queue" step of `claude/commands/pr.md` — trivial in-scope gaps fixed in-stage with atomic commit, post-PR-shaped gaps seed `followups.md`, triage decision surfaced for override (D7a)
+- [x] 2.2 Add the conditional draft-ness note to the "Record the PR link" step of `claude/commands/pr.md` — `PR #<N> open` vs `draft PR #<N> open` derived from the orchestrator's own create decision (D7b)
+- [x] 2.3 Lint: `node scripts/lint.mjs` exits 0 (Check 25 must stay green from Slice 1)
 - [ ] 2.4 (human) In a `claude --plugin-dir /workspaces/git/qrspi` session, run `/qrspi:pr` on a kit-touching change fixture missing its CHANGELOG entry; confirm the triage decision is printed (in-stage fix listed), no `followups.md` entry is created for that gap, and the backlog note shows `PR #<N> open` (non-draft form) (D7a, D7b)
 
 ## 3. Dogfood this change (stands alone)
