@@ -285,14 +285,43 @@ the link in **two** places:
    row is deleted on archive, which is why pr.md above is required):
    change the row's heading backtick note from
    `in-progress (Q, R, D, S, V, P, I complete)` to
-   `in-progress (draft PR #<N> open)` -- it stays under `## In progress`;
+   `in-progress (PR #<N> open)` when no `--draft` flag was passed to the
+   PR-create command, or `in-progress (draft PR #<N> open)` when `--draft`
+   was passed -- use the same draft/non-draft determination already made at
+   PR-create time; do not issue an additional `gh pr view --json isDraft`
+   query. The current GitHub path passes no `--draft`, so the default form
+   is the non-draft note. It stays under `## In progress`;
    there is no separate `Status:` or `Next QRSPI command:` line to update.
 
 **Seed the follow-up queue (when the reviewer found open issues).** If the
-reviewer's "Open issues found" count is greater than zero, write those
-issues into `openspec/changes/<id>/followups.md` so they are tracked and
-resolvable with `/qrspi:followup <id>` (otherwise the list is printed once and
-lost). Use the format defined in skill `postpr-fix`:
+reviewer's "Open issues found" count is greater than zero, apply a triage
+rule **before** writing `followups.md`:
+
+For each open issue, classify it as one of:
+- **Trivial in-stage fix** -- a must-fix-before-merge gap that is small
+  enough to apply right now as a single atomic edit (for example: a missing
+  `## [Unreleased]` CHANGELOG entry, a single-line prose correction, a
+  mismatched version reference). These examples are illustrative, not
+  exhaustive.
+- **Post-PR-shaped** -- anything that requires its own branch, spans
+  multiple capabilities, or needs design re-alignment.
+
+For each trivial in-stage fix: apply the edit immediately, then commit it
+atomically in its own commit (e.g. `fix(<id>): add missing CHANGELOG entry`).
+Treat the issue as resolved -- do NOT create a `followups.md` entry for it
+and do NOT force the PR into draft on that basis.
+
+For each post-PR-shaped issue: add it to `followups.md` as usual.
+
+**Surface the triage decision** -- before writing `followups.md`, print a
+short summary listing which issues you fixed in-stage (with the commit ref)
+and which you deferred to `followups.md`. The human can override this
+classification (e.g. promote a deferred issue to in-stage, or reverse an
+in-stage fix) before the turn ends. This is a single summary, NOT a
+per-issue AskUserQuestion and NOT a reviewer-emitted tag.
+
+After triage, write `followups.md` only for the post-PR-shaped issues, using
+the format defined in skill `postpr-fix`:
 ```markdown
 # Follow-ups -- <id>
 
@@ -301,7 +330,8 @@ lost). Use the format defined in skill `postpr-fix`:
 
 - [ ] **<reviewer issue title>.** <explanation; file:line; suggested fix.> (source: PR review)
 ```
-If the reviewer found zero open issues, do not create the file.
+If the reviewer found zero open issues, or all issues were fixed in-stage,
+do not create the file.
 
 Then commit and push (the canonical *commit step* in skill `stage-choreography`
 applies — explicit paths only, never `git add -A`; PR open is a state

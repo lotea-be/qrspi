@@ -2,7 +2,7 @@
 // ============================================================================
 //  scripts/lint.mjs -- CI quality gate for the QRSPI kit
 // ----------------------------------------------------------------------------
-//  Checks (run in order, all errors collected before exit -- Checks 1-24,
+//  Checks (run in order, all errors collected before exit -- Checks 1-25,
 //  plus sub-checks 2b and 10b):
 //
 //  1. PIN AGREEMENT  -- every hand-maintained OpenSpec version occurrence
@@ -185,6 +185,16 @@
 //     (`surface-gate rule per the \`repo-surface\` skill`) via a stable-substring
 //     match, so the stage-R gate instruction cannot silently regress. Carries an
 //     inline two-fixture self-test. Registered after Check 23.
+//
+// 25. CHANGELOG TASK EMISSION IN KIT-TOUCHING CHANGE FOLDERS -- walks every
+//     active change folder under openspec/changes/** (excluding /archive/),
+//     determines kit-touching status by scanning the folder's own tasks.md and
+//     specs/** files for any `claude/`, `openspec-templates/`, or `scripts/`
+//     mention, and for each kit-touching folder asserts that tasks.md contains
+//     at least one checkbox line (- [ ] or - [x]) that also contains the
+//     substring `CHANGELOG`. Presence check only (not doneness). Carries an
+//     inline five-fixture self-test (kit-touching present/absent, CHANGELOG
+//     ticked/unticked/absent). Registered after Check 24.
 //
 //  Exits 0 if all checks pass, 1 if any check reports a violation.
 //  Requires only Node.js built-ins (fs, path) -- no npm dependencies.
@@ -4417,6 +4427,168 @@ async function checkResearcherGateInstruction(errors) {
   return 0;
 }
 
+// ---- Check 25: CHANGELOG TASK EMISSION IN KIT-TOUCHING CHANGE FOLDERS ------
+//
+// Walks every active change folder under openspec/changes/** (excluding any
+// path containing /archive/). Determines whether a folder is "kit-touching"
+// by scanning its OWN tasks.md AND all its specs/** files for any mention of
+// the path prefixes `claude/`, `openspec-templates/`, or `scripts/`. For each
+// kit-touching folder, asserts that the folder's tasks.md contains at least
+// one checkbox line (containing `- [ ]` or `- [x]`) that also contains the
+// substring `CHANGELOG` (case-sensitive). A kit-touching folder whose tasks.md
+// lacks such a line causes Check 25 to push an error and exit non-zero.
+//
+// Presence check only (not doneness): a ticked `- [x]` line also satisfies
+// the check, because the check asserts task presence, not task completion.
+//
+// Carries an inline in-memory self-test mirroring the Check 13 convention:
+// synthetic fixtures exercise both kit-touching detection and CHANGELOG-
+// presence assertion. A broken detector pushes a Check 25 self-test error
+// so CI reddens immediately.
+
+async function checkChangelogTaskEmission(errors) {
+  const KIT_PREFIXES = ['claude/', 'openspec-templates/', 'scripts/'];
+  const CHANGELOG_SUBSTRING = 'CHANGELOG';
+
+  // Pure helpers -- parameterised so the self-test exercises the same code
+  // paths as the real scan.
+
+  // Returns true when any line in `text` contains one of the KIT_PREFIXES.
+  function isKitTouching(text) {
+    return KIT_PREFIXES.some((prefix) => text.includes(prefix));
+  }
+
+  // Returns true when `text` contains at least one checkbox line that also
+  // contains CHANGELOG_SUBSTRING. A checkbox line is any line containing
+  // `- [ ]` or `- [x]`.
+  function hasChangelogTask(text) {
+    const lines = text.replace(/\r\n/g, '\n').split('\n');
+    return lines.some(
+      (line) => (line.includes('- [ ]') || line.includes('- [x]')) && line.includes(CHANGELOG_SUBSTRING)
+    );
+  }
+
+  // ---- INLINE SELF-TEST -------------------------------------------------------
+  let selfTestFailed = false;
+  const _stErrorsBefore = errors.length;
+
+  // (a) kit-touching detection: a text mentioning `claude/` must be detected
+  const _stKitText = 'Edit `claude/agents/planner.md` to add the new rule.\n';
+  if (!isKitTouching(_stKitText)) {
+    errors.push(
+      '[changelog-task-emission] SELF-TEST FAILED: fixture (a) -- text containing `claude/` was not detected as kit-touching'
+    );
+    selfTestFailed = true;
+  }
+
+  // (b) kit-touching detection: a text with no kit prefixes must NOT be detected
+  const _stNonKitText = 'Edit `openspec/changes/my-change/specs/foo/spec.md`.\n';
+  if (isKitTouching(_stNonKitText)) {
+    errors.push(
+      '[changelog-task-emission] SELF-TEST FAILED: fixture (b) -- text with no kit prefixes was incorrectly detected as kit-touching'
+    );
+    selfTestFailed = true;
+  }
+
+  // (c) CHANGELOG presence: a tasks.md with a CHANGELOG checkbox must pass
+  const _stWithChangelog =
+    '- [ ] 4.1 Add a `## [Unreleased]` entry to `CHANGELOG.md` describing this change.\n';
+  if (!hasChangelogTask(_stWithChangelog)) {
+    errors.push(
+      '[changelog-task-emission] SELF-TEST FAILED: fixture (c) -- tasks.md with a CHANGELOG checkbox was not accepted'
+    );
+    selfTestFailed = true;
+  }
+
+  // (d) CHANGELOG presence: a tasks.md with a ticked CHANGELOG checkbox must also pass
+  const _stWithChangelogTicked =
+    '- [x] 4.1 Add a `## [Unreleased]` entry to `CHANGELOG.md` describing this change.\n';
+  if (!hasChangelogTask(_stWithChangelogTicked)) {
+    errors.push(
+      '[changelog-task-emission] SELF-TEST FAILED: fixture (d) -- tasks.md with a ticked CHANGELOG checkbox was not accepted'
+    );
+    selfTestFailed = true;
+  }
+
+  // (e) CHANGELOG presence: a tasks.md without a CHANGELOG checkbox must fail
+  const _stNoChangelog =
+    '- [ ] 3.1 Run `node scripts/lint.mjs` and confirm it exits 0.\n';
+  if (hasChangelogTask(_stNoChangelog)) {
+    errors.push(
+      '[changelog-task-emission] SELF-TEST FAILED: fixture (e) -- tasks.md without a CHANGELOG checkbox was incorrectly accepted'
+    );
+    selfTestFailed = true;
+  }
+
+  if (!selfTestFailed) {
+    process.stdout.write(
+      '  OK: self-test -- kit-touching detection (claude/ present/absent), CHANGELOG presence (ticked/unticked/absent) all pass\n'
+    );
+  }
+  // ---- end self-test ----------------------------------------------------------
+
+  if (selfTestFailed) {
+    return 1;
+  }
+
+  const changesDir = path.join(root, 'openspec', 'changes');
+  let changeDirs;
+  try {
+    changeDirs = await fs.readdir(changesDir, { withFileTypes: true });
+  } catch {
+    // openspec/changes/ does not exist -- nothing to check
+    process.stdout.write('  OK: openspec/changes/ not found -- no active change folders to scan\n');
+    return 0;
+  }
+
+  let violations = 0;
+  let kitTouchingCount = 0;
+
+  for (const entry of changeDirs) {
+    if (!entry.isDirectory()) continue;
+    const changeFolder = path.join(changesDir, entry.name);
+    const changeFolderRel = `openspec/changes/${entry.name}`;
+
+    // Exclude archive sub-folders
+    if (changeFolderRel.includes('/archive/') || entry.name === 'archive') continue;
+
+    // Gather the texts to scan for kit-touching detection:
+    // the folder's own tasks.md + all its specs/** files
+    const tasksPath = path.join(changeFolder, 'tasks.md');
+    const tasksText = await readFileOr(tasksPath, '');
+
+    // Collect all spec files under specs/**/
+    const specsDir = path.join(changeFolder, 'specs');
+    const specFiles = await walkMd(specsDir);
+    const specTexts = await Promise.all(specFiles.map((f) => readFileOr(f, '')));
+
+    const combinedText = [tasksText, ...specTexts].join('\n');
+
+    if (!isKitTouching(combinedText)) {
+      // Not kit-touching -- no assertion required
+      continue;
+    }
+
+    kitTouchingCount++;
+
+    // Kit-touching: assert tasks.md contains a CHANGELOG checkbox line
+    if (!hasChangelogTask(tasksText)) {
+      errors.push(
+        `[changelog-task-emission] ${changeFolderRel}/tasks.md is kit-touching but contains no checkbox line with "CHANGELOG"` +
+        ` -- add a CHANGELOG housekeeping task (e.g. via the planner's Housekeeping group rule)`
+      );
+      violations++;
+    }
+  }
+
+  if (violations === 0) {
+    process.stdout.write(
+      `  OK: ${kitTouchingCount} kit-touching change folder(s) each carry a CHANGELOG task line\n`
+    );
+  }
+  return violations;
+}
+
 // ---- main ------------------------------------------------------------------
 
 async function main() {
@@ -4501,6 +4673,9 @@ async function main() {
 
   process.stdout.write('\nCheck 24: Researcher gate-instruction presence\n');
   await checkResearcherGateInstruction(errors);
+
+  process.stdout.write('\nCheck 25: Changelog task emission in kit-touching change folders\n');
+  await checkChangelogTaskEmission(errors);
 
   process.stdout.write('\n');
   if (errors.length === 0) {
