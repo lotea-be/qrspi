@@ -48,7 +48,7 @@ entered 2026-09-19) — two halves of one CHANGELOG-gap story, implemented
 together in one QRSPI run. The archive step will remove the anchor row and
 sweep the bundled sub-item.
 
-### plan-emits-changelog-task — `in-progress (Q, R, D, S, V, P, I complete)` · **P2**
+### plan-emits-changelog-task — `in-progress (PR #59 open)` · **P2**
 
 **Why:** `CLAUDE.md` and the stack-cheatsheet both mandate a `## [Unreleased]`
 `CHANGELOG.md` entry for any change to shipped kit behaviour, but the planner
@@ -73,7 +73,7 @@ half). Raised **P3 → P2** with it — a one-line doc requirement caught at PR 
 is recurring friction on every run, not a one-off. Tier 2 of the road-to-1.0
 runway.
 
-### pr-stage-open-issue-triage — `in-progress (Q, R, D, S, V, P, I complete)` · **P2**
+### pr-stage-open-issue-triage — `in-progress (PR #59 open)` · **P2**
 
 **Why:** Two `claude/commands/pr.md` rough edges surfaced dogfooding
 `archive-auto-create-pr`'s PR stage (see its `retrospective.md`). (1) The
@@ -131,7 +131,7 @@ below across the P2/P3 boundary.
 > pin-family bundle anchored on `bump-openspec-pin`) shipped in PR #57 and was
 > archived 2026-09-19. The Tier 2 **CHANGELOG pair** ([[plan-emits-changelog-task]]
 > + [[pr-stage-open-issue-triage]]) is now **in-progress** as the bundled change
-> `emit-changelog-task-and-pr-triage` (Q→I complete 2026-09-19; PR stage next).
+> `emit-changelog-task-and-pr-triage` (PR #59 open 2026-09-19).
 >
 > **Road to 1.0:** the [[rename-qrspi-to-qrnchi]] rebrand is the vehicle for the
 > first **stable v1.0.0** and public debut (submission to Anthropic's
