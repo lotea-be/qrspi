@@ -1,5 +1,40 @@
 # Backlog
 
+<!--
+  Backlog schema legend (frozen by standardize-backlog-format).
+
+  Heading grammar (one level-3 heading per row):
+
+      ### <id> — `<status>` · **P<n>**
+
+    id:       kebab-case slug (lowercase letters/digits, single hyphens).
+    —         an EM-DASH (U+2014), surrounded by single spaces. NOT --.
+    `<status>` the status field, backtick-wrapped. Leading keyword is
+               what the enum validates; any text after the keyword
+               (a note in parentheses, or `into <id> (<date>)`) is free.
+    ·          the separator is a MIDDLE-DOT (U+00B7), surrounded by
+               single spaces: ` · `.
+    **P<n>**   the priority band, bold, where <n> is 1, 2, or 3.
+
+  Status enum (the leading keyword only):
+
+      idea | proposed | in-progress | merged | bundled
+
+  Section headings (all three required):
+
+      ## In progress | ## Proposed | ## Ideas
+
+  Body rule:
+
+    idea / proposed rows MUST carry both **Why:** and **Shape:** lines.
+    bundled / merged rows are EXEMPT -- carry a `>` blockquote pointer.
+    in-progress rows are checked for grammar + enum only.
+
+  The ## Ideas section MUST open with a P-band preamble (P1, P2, P3).
+
+  See openspec-templates/backlog.template.md for the canonical template.
+-->
+
 Candidate changes for this repo, tracked before they enter the QRSPI flow
 (Q → R → D → S → V → P → I → PR). Status is one of `idea` / `proposed` /
 `in-progress` / `merged`. Completed work lives under
@@ -7,7 +42,47 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## In progress
 
-_None._
+### bump-openspec-pin — `in-progress (draft PR #57 open)` · **P3**
+
+**Why:** The kit pins `@fission-ai/openspec@1.4.1` while the CLI has moved on —
+**1.9.0** as of 2026-08-13 (this row originally recorded **1.6.0**, the latest at
+the [[reassess-openspec-dependency]] research on 2026-07-29, so the gap has widened
+from two minors to five). The KEEP verdict (D1) commits the kit to the CLI through
+1.0, so keeping the pin current is worth a look — but it is a separate, deliberate
+change, not free: bump every hand-maintained `@fission-ai/openspec@<version>` site
+(`init.md`, README, CONTRIBUTING.md, CI `ci.yml`) **and** `openspec/config.yaml`'s
+`openspec_version`, plus add a migration-manifest `edit-file` step for
+`openspec/config.yaml` — now *required* because [[reassess-openspec-dependency]]'s
+new Check 1 coupling guard turns red on upgraded consumers whose config still reads
+the old pin. Assess the 1.5→1.9 changelog (any grammar / `validate` behaviour
+changes that affect delta specs) before bumping. Surfaced during PR review of
+[[reassess-openspec-dependency]] (2026-07-29); version gap re-measured 2026-08-13.
+
+**Shape:** Spike-*scoped* (not spike-gated): first read the 1.5→1.9 changelog for
+grammar / `validate` changes that touch delta specs — but per `questions.md`
+PQ1/PQ2 the target is **fixed at 1.9.0 unconditionally** and any breaking-change
+adaptation is **absorbed into this change** rather than deferred, so the spike
+sizes the work instead of gating the version. PQ6 bounds the absorbed scope to kit
+source **plus** a consumer-side migration step. Then bump every hand-maintained
+`@fission-ai/openspec@<version>` site (`init.md`, README, CONTRIBUTING.md, CI
+`ci.yml`) **and** `openspec/config.yaml`'s `openspec_version`, and add a
+migration-manifest `edit-file` step for `config.yaml` — required because the new
+Check 1 coupling guard reddens upgraded consumers whose config still reads the old
+pin. One QRSPI run also carries the three bundled rows below: extend Check 1 to
+scan `.github/` for the CI pin, fix `openspec-workflow/SKILL.md`'s `@latest` drift
+(hard-pinned to the same version per PQ4) and stale template-path line, and
+restructure the unreachable `configVersion !== agreedPin` branch in
+`checkPinAgreement` so it actually fires — excluding `openspec/config.yaml` from
+the general pin sweep so the coupling assertion becomes its sole validator (per
+PQ3; removal was considered and rejected).
+
+**Bundle (this QRSPI run, 2026-08-14):** anchor of the **pin family**, taken up
+together with [[scan-github-ci-openspec-pin]], [[fix-openspec-workflow-skill-drift]]
+and [[simplify-pin-coupling-mismatch-branch]] (Tier 1 of the road-to-1.0 runway).
+All four edit the same two things — Check 1 (`checkPinAgreement`) and the
+hand-maintained pin sites — and this bump walks into three of them anyway. See
+`openspec/changes/bump-openspec-pin/questions.md` for the full Q-stage question set
+and product-question answers.
 
 ---
 
@@ -35,8 +110,9 @@ reasoning/exploration axis) sits near the top, and the **surface-taxonomy family
 [[structured-surface-schema]], [[extend-surface-taxonomy]] — stays contiguous
 below across the P2/P3 boundary.
 
-> **▶ Next up: the Tier 1 pin-family bundle, anchored on [[bump-openspec-pin]].**
-> Nothing is in progress or proposed.
+> **▶ Next up: the Tier 1 pin-family bundle, anchored on [[bump-openspec-pin]]
+> (now `proposed`, change folder created 2026-08-14 — see `## Proposed` above).**
+> Nothing is in progress.
 >
 > **Road to 1.0:** the [[rename-qrspi-to-qrnchi]] rebrand is the vehicle for the
 > first **stable v1.0.0** and public debut (submission to Anthropic's
@@ -89,6 +165,49 @@ below across the P2/P3 boundary.
 >   the 1.0 cut). [[automate-marketplace-source-bump]] rides *with* the release
 >   mechanics, not before.
 
+### reconcile-scenario-guards-with-cli — `idea` · **P1**
+
+**Why:** OpenSpec 1.7-1.9 added its own MODIFIED-scenario-omission reporting and
+now counts every `####` child of a requirement as a scenario, so the kit's lint
+Check 18 and the spec-syncer's wholesale-replacement contract may now duplicate —
+or subtly disagree with — an upstream guard that did not exist when they were
+written.
+
+**Shape:** Diff Check 18's scenario-count guard and the spec-syncer's MODIFIED
+contract against the CLI's 1.8+ scenario-counting behaviour, then either retire
+the kit-side guard as redundant, narrow it to what upstream misses, or fix the
+disagreement — a lint plus agent-prose change with no new surface. Surfaced by
+the [[bump-openspec-pin]] upstream spike (2026-08-14); sequenced behind that
+change, which lands the 1.9.0 pin the reconciliation is measured against.
+
+### adopt-validate-archived — `idea` · **P1**
+
+**Why:** OpenSpec 1.9.0 ships an opt-in `validate --archived` that fails when an
+archived change still has unticked `tasks.md` boxes — exactly the archive-hygiene
+gate QRSPI lacks, since its `(human)` checkpoint tasks are the ones most often
+left unticked at archive time.
+
+**Shape:** Once the 1.9.0 pin lands, add `--archived` to the CI validate job,
+first running it across the 28 existing archived changes to size and clear any
+pre-existing violations before it becomes a blocking gate. Blocked on
+[[bump-openspec-pin]] — the flag does not exist at the current 1.4.1 pin.
+Surfaced 2026-08-14.
+
+### extend-ticket-hiding-to-backlog — `idea` · **P1**
+
+**Why:** The Read Matrix bans the researcher from `openspec/changes/<id>/` but
+says nothing about `openspec/backlog.md`, which now carries ticket-level detail —
+PQ answers, scope decisions, bundle notes — so stage R's ticket-blindness rests on
+agent restraint rather than the stated contract.
+
+**Shape:** Extend the Read Matrix's cross-change boundary in the `workflow` skill
+to name `openspec/backlog.md` as off-limits to the researcher, mirror it into the
+researcher agent's read-contract banner, and let lint Check 7's banner-parity
+assertion carry it. Complements [[enforce-research-ticket-hiding]] and
+[[hooks-as-mechanical-guards]], which address the enforcement *mechanism* — this
+row closes a gap in *what the contract says to protect*. Surfaced 2026-08-14 by
+the researcher itself, which flagged the hole and declined to read the file.
+
 ### spec-anchored-code-comments — `idea` · **P1**
 
 **Why:** Implementation code comments sometimes reference the *process* artifacts
@@ -125,6 +244,19 @@ the two-source-of-truth caution in [[optional-technology-specs]]. **P1 like
 [[repo-applicable-artifact-sections]]:** a highly visible artifact-quality defect
 (ugly process references baked into shipped code) rather than a live-workflow
 correctness gap. Surfaced 2026-07-24.
+
+### automate-manual-migration-steps — `idea` · **P2**
+
+**Why:** `/qrspi:update`'s manual steps gate on a human confirming mechanical
+work the agent could have performed itself — the 0.14.0 walk asked the human to
+hand-edit their CI `validate` invocation and backfill `.openspec.yaml` markers,
+both fully scriptable.
+
+**Shape:** Extend the migration-manifest schema beyond its single
+`openspec/`-scoped `edit-file` action so the agent can perform more step types
+itself (`create-file`, and reviewed edits outside `openspec/`), keeping a
+confirm gate only where human judgement is genuinely required; cheapest first
+cut is the marker backfill, which is pure file creation inside `openspec/`.
 
 ### batch-archive-multiple-changes — `idea` · **P3**
 
@@ -1151,96 +1283,26 @@ inside the archive folder-move step) into the kit-owned `archive.md` +
 dir. A deliberate behavior change (the generated paths still run today under the
 keep verdict), so it wants its own flow with a migration note.
 
-### fix-openspec-workflow-skill-drift — `idea` · **P3**
+### fix-openspec-workflow-skill-drift — `bundled into bump-openspec-pin (2026-08-14)` · **P3**
 
-**Why:** The `openspec-workflow` skill references OpenSpec `@latest` (twice, at
-`SKILL.md:48-49`) while the kit pins `@1.4.1`, and carries a stale
-`openspec/templates/` layout entry. Worse than doc-hygiene: Check 1's pin regex
-matches only `openspec@<semver>`, so an `@latest` reference **escapes the pin guard
-entirely** (verified 2026-08-13). Surfaced as a Non-Goal of
-[[reassess-openspec-dependency]] (stage D, 2026-07-29).
+> **Bundled into `bump-openspec-pin`** (2026-08-14) — folded into the Tier-1
+> pin-family QRSPI run as one of its three riders; see the `## Proposed` entry
+> for the anchor change and `openspec/changes/bump-openspec-pin/questions.md`
+> for the working scope.
 
-**Shape:** Correct the `openspec-workflow` skill's stale references — change both
-`@latest` mentions to the pinned version (matching Check 1's guarded pin) and fix
-the outdated `openspec/templates/` layout entry to the real path. A localized edit
-to one skill file, no logic change.
+### scan-github-ci-openspec-pin — `bundled into bump-openspec-pin (2026-08-14)` · **P3**
 
-**Bundle:** rides with [[bump-openspec-pin]] (anchor) — the bump must touch this
-file anyway; see that entry's Bundle note.
+> **Bundled into `bump-openspec-pin`** (2026-08-14) — folded into the Tier-1
+> pin-family QRSPI run as one of its three riders; see the `## Proposed` entry
+> for the anchor change and `openspec/changes/bump-openspec-pin/questions.md`
+> for the working scope.
 
-### scan-github-ci-openspec-pin — `idea` · **P3**
+### simplify-pin-coupling-mismatch-branch — `bundled into bump-openspec-pin (2026-08-14)` · **P3**
 
-**Why:** Lint Check 1 (`checkPinAgreement`) does not scan `.github/` for the
-OpenSpec pin, so the CI `ci.yml` pin is unchecked. Unlike `openspec/config.yaml`
-(silent drift, closed by [[reassess-openspec-dependency]]'s guard), a wrong CI pin
-fails loudly, so this is separable hygiene — add `.github/` to Check 1's scan.
-Surfaced as a Non-Goal of [[reassess-openspec-dependency]] (stage D, 2026-07-29).
-
-**Shape:** Extend Check 1 (`checkPinAgreement`)'s scan set to include `.github/`
-(the CI `ci.yml` OpenSpec pin) so a wrong CI pin is caught alongside the other
-hand-maintained pin sites. A one-line addition to the check's file list, plus a
-fixture. Separable from the config-drift guard because a wrong CI pin fails loudly.
-
-**Bundle:** rides with [[bump-openspec-pin]] (anchor) — see that entry's Bundle
-note.
-
-### simplify-pin-coupling-mismatch-branch — `idea` · **P3**
-
-**Why:** The pin-coupling guard shipped by [[reassess-openspec-dependency]] has a
-dedicated config-mismatch message (`configVersion !== agreedPin`, inside
-`checkPinAgreement`'s "all agree" branch) that is **unreachable in the real-repo
-path**: a wrong `openspec_version` in `openspec/config.yaml` is caught first by the
-pre-existing multi-version scan, so the dedicated message fires only via the
-in-memory self-test fixture. Either remove the redundant branch, or restructure so
-`config.yaml` is validated *solely* through the coupling assertion (so its specific,
-more actionable message surfaces instead of the generic "distinct versions" error).
-Not blocking — the guard's fail-loud intent is already met by the pre-existing
-error. Surfaced during PR review of [[reassess-openspec-dependency]] (2026-07-29).
-
-**Shape:** Either remove the unreachable `configVersion !== agreedPin` branch
-inside `checkPinAgreement`'s "all agree" path, or restructure so `config.yaml` is
-validated *solely* through the coupling assertion — so its specific, more
-actionable message surfaces instead of the generic "distinct versions" error the
-pre-existing multi-version scan raises first. A localized refactor of one check
-plus its self-test fixture.
-
-**Bundle:** rides with [[bump-openspec-pin]] (anchor) — see that entry's Bundle
-note.
-
-### bump-openspec-pin — `idea` · **P3**
-
-**Why:** The kit pins `@fission-ai/openspec@1.4.1` while the CLI has moved on —
-**1.9.0** as of 2026-08-13 (this row originally recorded **1.6.0**, the latest at
-the [[reassess-openspec-dependency]] research on 2026-07-29, so the gap has widened
-from two minors to five). The KEEP verdict (D1) commits the kit to the CLI through
-1.0, so keeping the pin current is worth a look — but it is a separate, deliberate
-change, not free: bump every hand-maintained `@fission-ai/openspec@<version>` site
-(`init.md`, README, CI `ci.yml`) **and** `openspec/config.yaml`'s
-`openspec_version`, plus add a migration-manifest `edit-file` step for
-`openspec/config.yaml` — now *required* because [[reassess-openspec-dependency]]'s
-new Check 1 coupling guard turns red on upgraded consumers whose config still reads
-the old pin. Assess the 1.5→1.9 changelog (any grammar / `validate` behaviour
-changes that affect delta specs) before bumping. Surfaced during PR review of
-[[reassess-openspec-dependency]] (2026-07-29); version gap re-measured 2026-08-13.
-
-**Shape:** Spike-gated: first read the 1.5→1.9 changelog for grammar / `validate`
-changes that touch delta specs (if breaking, the item grows and may slip). Then
-bump every hand-maintained `@fission-ai/openspec@<version>` site (`init.md`,
-README, CI `ci.yml`) **and** `openspec/config.yaml`'s `openspec_version`, and add a
-migration-manifest `edit-file` step for `config.yaml` — required because the new
-Check 1 coupling guard reddens upgraded consumers whose config still reads the old
-pin.
-
-**Bundle (proposed — one QRSPI run, 2026-08-13):** anchor of the **pin family**,
-taken up together with [[scan-github-ci-openspec-pin]],
-[[fix-openspec-workflow-skill-drift]] and [[simplify-pin-coupling-mismatch-branch]]
-(Tier 1 of the road-to-1.0 runway). All four edit the same two things — Check 1
-(`checkPinAgreement`) and the hand-maintained pin sites — and this bump walks into
-three of them anyway: it must edit `ci.yml` (which Check 1 does not scan, hence the
-`.github/` scan row), it must edit `openspec-workflow/SKILL.md` (whose `@latest`
-reference escapes Check 1's `openspec@<semver>` regex entirely), and it exercises
-the very branch the simplify row refactors. Doing them separately reopens Check 1
-and the pin sites four times.
+> **Bundled into `bump-openspec-pin`** (2026-08-14) — folded into the Tier-1
+> pin-family QRSPI run as one of its three riders; see the `## Proposed` entry
+> for the anchor change and `openspec/changes/bump-openspec-pin/questions.md`
+> for the working scope.
 
 ### pr-human-task-loop-stop-option — `idea` · **P3**
 

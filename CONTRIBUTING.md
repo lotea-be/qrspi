@@ -102,10 +102,11 @@ When bumping `plugin.json` `version`:
 - [ ] Update `CHANGELOG.md`: move items from `## [Unreleased]` into the new
   version section, add the release date.
 - [ ] **Pin-coupling rule:** if the OpenSpec CLI pin is also changing (e.g.
-  `@fission-ai/openspec@1.4.1` -> a new version), the `plugin.json` version
-  MUST bump in the same commit -- minor if the CLI minor version moved, patch
-  if only the CLI patch version moved. Conversely, a `plugin.json` bump does
-  NOT require an OpenSpec pin reassessment.
+  `@fission-ai/openspec@1.9.0` -> a new version), the `plugin.json` version
+  MUST bump in the same release-cut commit (step 6 above, or the commit
+  `/qrspi-release` makes on your behalf) -- minor if the CLI minor version
+  moved, patch if only the CLI patch version moved. Conversely, a
+  `plugin.json` bump does NOT require an OpenSpec pin reassessment.
 - [ ] Run `node scripts/lint.mjs` and confirm exit 0 (pin-agreement check will
   catch any occurrence that disagrees after the pin change).
 
@@ -129,13 +130,13 @@ Two CI gates run on every PR:
 | Gate | Command | What it checks |
 |------|---------|---------------|
 | Lint | `node scripts/lint.mjs` | Pin agreement, frontmatter validity, heading alignment |
-| Validate | `npx --yes @fission-ai/openspec@1.4.1 validate --all` | All `openspec/specs/` and any active change are well-formed |
+| Validate | `npx --yes @fission-ai/openspec@1.9.0 validate --all --strict` | All `openspec/specs/` and any active change are well-formed |
 
 Run both locally before pushing:
 
 ```
 node scripts/lint.mjs
-npx --yes @fission-ai/openspec@1.4.1 validate --all
+npx --yes @fission-ai/openspec@1.9.0 validate --all --strict
 ```
 
 ---

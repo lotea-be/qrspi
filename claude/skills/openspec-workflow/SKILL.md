@@ -45,8 +45,8 @@ openspec/
 Install/run (via npx, no global install needed):
 
 ```bash
-npx @fission-ai/openspec@latest init       # bootstraps openspec/ in this repo
-npx @fission-ai/openspec@latest update     # refresh agent guidance after upgrading
+npx @fission-ai/openspec@1.9.0 init       # bootstraps openspec/ in this repo
+npx @fission-ai/openspec@1.9.0 update     # refresh agent guidance after upgrading
 ```
 
 The OpenSpec CLI offers its own native `/opsx:*` entry points, but QRSPI does

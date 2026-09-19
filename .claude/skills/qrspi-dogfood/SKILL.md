@@ -53,7 +53,7 @@ Create fixtures **outside** this repo (the scratchpad dir, or `/tmp`), never
 inside it:
 
 - A minimal initialized repo: `git init` a scratch dir, then either
-  `npx @fission-ai/openspec@latest init` or hand-write a minimal `openspec/`
+  `npx @fission-ai/openspec@1.9.0 init` or hand-write a minimal `openspec/`
   (a `config.yaml` sentinel is enough for "is-initialized" checks).
 - The `openspec/.qrspi-version` marker is a one-line bare SemVer. Vary it to hit
   each branch a version-aware change defines (behind / matching / ahead / absent).

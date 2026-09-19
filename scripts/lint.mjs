@@ -7,7 +7,12 @@
 //
 //  1. PIN AGREEMENT  -- every hand-maintained OpenSpec version occurrence
 //     must agree. generatedBy: lines in openspec-generated skill files are
-//     excluded (those are CLI-managed). Asserts agreement, NOT a fixed count.
+//     excluded (those are CLI-managed), as are the narrative surfaces
+//     (CHANGELOG.md, openspec/backlog.md) and the config sentinel
+//     (openspec/config.yaml, which the dedicated coupling assertion owns).
+//     Sweeps claude/, openspec/, openspec-templates/, .github/, .claude/ and
+//     root-level files. Carries an @fission-ai/openspec@latest absence
+//     sub-guard. Asserts agreement, NOT a fixed count.
 //
 //  2. FRONTMATTER / NAME  -- every agent, command, and skill file must carry
 //     the required YAML frontmatter fields; agent: references must resolve;
@@ -282,50 +287,157 @@ async function walkMd(dir) {
 // Scan the repo for occurrences of the OpenSpec version pin in hand-maintained
 // files. Two patterns:
 //   @fission-ai/openspec@<version>         (npx invocations, prose)
-//   openspec_version: <version>            (openspec/config.yaml and inline YAML)
+//   openspec_version: <version>            (inline YAML snippets)
 //
-// Exclusions:
+// Exclusions (a file is either swept or it is not -- the same exclusion set
+// applies to the @latest sub-guard below):
 //   - Any line matching /generatedBy:/ in files under claude/skills/openspec-*/
 //     (those are CLI-managed, not hand-maintained)
 //   - The entire openspec/changes/ subtree (change artifacts merely CITE the
 //     pin as historical examples, they don't maintain it)
+//   - The narrative surfaces (PIN_NARRATIVE_SURFACES). Same rationale as
+//     openspec/changes/: a dated CHANGELOG section records what a PAST release
+//     ran and is correct AS history, and a backlog row argues about the pin
+//     rather than maintaining it. Neither is rewritten by a bump, so sweeping
+//     them would turn every bump into a spurious "2 distinct versions".
+//   - The config sentinel (PIN_CONFIG_SENTINEL), whose sole validator is the
+//     dedicated config-coupling assertion further down. It used to be counted
+//     twice -- once by the sweep, once by the assertion -- so a wrong value
+//     tripped the generic mismatch error first and the assertion's specific,
+//     actionable message was unreachable.
+//
+// Sub-guard (a leg of Check 1, not a separate check -- same file set, same pin
+// discipline): the sweep also records `@fission-ai/openspec@latest` references.
+// The pin regex cannot match `@latest`, so an unpinned reference is invisible to
+// an agreement-only gate and would silently creep back in after a bump.
+
+// Directories swept recursively for pin occurrences, relative to the repo root.
+// Root-level files are swept separately and non-recursively (see below).
+// .github/ carries the CI `validate` invocation; .claude/ carries the
+// project-scoped dev-tooling skills -- both hold hand-maintained pin sites, so
+// a literal pin added there must be guarded like any other.
+const PIN_SCAN_ROOTS = ['claude', 'openspec', 'openspec-templates', '.github', '.claude'];
+
+// Files that NARRATE the pin rather than maintaining it (repo-root-relative,
+// forward-slash form). Excluded from the sweep -- see the header comment.
+const PIN_NARRATIVE_SURFACES = new Set(['CHANGELOG.md', 'openspec/backlog.md']);
+
+// The config sentinel: validated only by the config-coupling assertion.
+const PIN_CONFIG_SENTINEL = 'openspec/config.yaml';
+
+// Known-legacy `@fission-ai/openspec@latest` sites, as file -> occurrence count.
+// The sub-guard is live for every OTHER file from the moment it lands: a new
+// `@latest` anywhere errors immediately, and so does a count change in a listed
+// file. Entries here are a debt ledger, not an escape hatch -- an entry whose
+// file no longer contains any `@latest` is reported as STALE, so whoever pins
+// these sites is forced to delete the entry in the same change. The intended
+// steady state for this map is empty.
+const PIN_LATEST_GRANDFATHERED = new Map([]);
+
+// Classify a swept pin list into the three Check 1 outcomes. Pure, so the
+// inline self-test can drive every branch -- including the zero-occurrence
+// branch, which no real tree can produce while the repo is healthy.
+function classifyPinSweep(pins) {
+  const versions = [...new Set(pins.map((p) => p.version))];
+  if (versions.length === 0) return { kind: 'zero' };
+  if (versions.length === 1) return { kind: 'agree', pin: versions[0] };
+  return { kind: 'mismatch', versions };
+}
+
+// Audit recorded `@latest` hits against a grandfather ledger. Pure and
+// ledger-parameterized so the self-test can exercise all three legs (new site,
+// count drift, stale entry) without touching the real ledger.
+function auditLatestRefs(hits, grandfathered) {
+  const problems = [];
+
+  const byFile = new Map();
+  for (const h of hits) {
+    if (!byFile.has(h.file)) byFile.set(h.file, []);
+    byFile.get(h.file).push(h.lineNum);
+  }
+
+  for (const [file, lineNums] of byFile) {
+    const allowed = grandfathered.get(file);
+    const where = lineNums.map((n) => `${file}:${n}`).join(', ');
+    if (allowed === undefined) {
+      problems.push(
+        `[pin] unpinned \`@fission-ai/openspec@latest\` reference(s) at ${where}` +
+        ' -- pin the invocation to the agreed version instead of tracking latest'
+      );
+    } else if (lineNums.length !== allowed) {
+      problems.push(
+        `[pin] ${file} carries ${lineNums.length} \`@fission-ai/openspec@latest\`` +
+        ` reference(s) (${where}) but ${allowed} are grandfathered` +
+        ' -- pin the new one(s), or correct PIN_LATEST_GRANDFATHERED if a site was removed'
+      );
+    }
+  }
+
+  for (const [file, allowed] of grandfathered) {
+    if (!byFile.has(file)) {
+      problems.push(
+        `[pin] stale PIN_LATEST_GRANDFATHERED entry: ${file} is listed with ${allowed}` +
+        ' `@fission-ai/openspec@latest` reference(s) but now has none' +
+        ' -- delete the entry so the ledger keeps shrinking'
+      );
+    }
+  }
+
+  return problems;
+}
 
 async function checkPinAgreement(errors) {
   const openspecSkillsDir = path.join(root, 'claude', 'skills');
-  const changesDir = path.join(root, 'openspec', 'changes');
+  const changesRel = 'openspec/changes';
 
-  // Directories of openspec-generated skills (have a generatedBy: line)
-  const generatedBySkills = new Set();
+  // Repo-root-relative, forward-slash path -- the form every predicate below
+  // and every self-test fixture path is written in.
+  function toRel(file) {
+    return path.relative(root, file).split(path.sep).join('/');
+  }
+
+  // Prefixes of openspec-generated skills (their files carry a generatedBy: line)
+  const generatedSkillPrefixes = [];
   for (const skillDir of await listDirs(openspecSkillsDir)) {
     if (skillDir.startsWith('openspec-')) {
-      generatedBySkills.add(path.join(openspecSkillsDir, skillDir));
+      generatedSkillPrefixes.push(`claude/skills/${skillDir}/`);
     }
   }
 
   const pinRe = /(?:@fission-ai\/openspec@|openspec_version:\s*)(\d+\.\d+\.\d+)/g;
+  const latestRe = /@fission-ai\/openspec@latest/g;
 
   const found = []; // [{version, file, lineNum, text}]
+  const latestFound = []; // [{file, lineNum, text}]
 
-  function isUnderChanges(file) {
-    const rel = path.relative(changesDir, file);
-    return !rel.startsWith('..') && !path.isAbsolute(rel);
+  function isUnderChanges(rel) {
+    return rel === changesRel || rel.startsWith(`${changesRel}/`);
   }
 
-  function isInGeneratedSkill(file) {
-    return [...generatedBySkills].some((d) => {
-      const rel = path.relative(d, file);
-      return !rel.startsWith('..') && !path.isAbsolute(rel);
-    });
+  function isNarrativeSurface(rel) {
+    return PIN_NARRATIVE_SURFACES.has(rel);
   }
 
-  async function scanFile(file) {
-    // Skip the changes/ subtree
-    if (isUnderChanges(file)) return;
+  function isConfigSentinel(rel) {
+    return rel === PIN_CONFIG_SENTINEL;
+  }
 
-    const isGenSkill = isInGeneratedSkill(file);
+  function isInGeneratedSkill(rel) {
+    return generatedSkillPrefixes.some((p) => rel.startsWith(p));
+  }
 
-    const text = await readFileOr(file, null);
-    if (text === null) return;
+  // A file is swept for BOTH the pin agreement and the @latest sub-guard, or
+  // for neither.
+  function isExcludedFromSweep(rel) {
+    return isUnderChanges(rel) || isNarrativeSurface(rel) || isConfigSentinel(rel);
+  }
+
+  // Core text scanner shared by the real file sweep and the self-test, so a
+  // fixture exercises exactly the code path a real file takes.
+  function scanText(rel, text) {
+    const pins = [];
+    const latest = [];
+    const isGenSkill = isInGeneratedSkill(rel);
 
     const lines = text.split('\n');
     for (let i = 0; i < lines.length; i++) {
@@ -337,14 +449,165 @@ async function checkPinAgreement(errors) {
       const re = new RegExp(pinRe.source, 'g');
       let m;
       while ((m = re.exec(line)) !== null) {
-        found.push({
-          version: m[1],
-          file: path.relative(root, file),
-          lineNum: i + 1,
-          text: line.trim(),
-        });
+        pins.push({ version: m[1], file: rel, lineNum: i + 1, text: line.trim() });
+      }
+
+      const lre = new RegExp(latestRe.source, 'g');
+      while (lre.exec(line) !== null) {
+        latest.push({ file: rel, lineNum: i + 1, text: line.trim() });
       }
     }
+
+    return { pins, latest };
+  }
+
+  // ---- INLINE SELF-TEST: sweep-level fixtures --------------------------------
+  // Runs before the real sweep so a broken detector reddens CI even on a tree
+  // that would otherwise scan clean. The config-coupling fixtures live further
+  // down, where the agreed pin they compare against exists.
+  //
+  // Fixture text is assembled from fragments so this file can never self-match
+  // if PIN_SCAN_ROOTS ever grows to include scripts/.
+  {
+    const _pkg = '@fission-ai/' + 'openspec@';
+    const _stErrorsBefore = errors.length;
+
+    // Fixture: a .github/-sourced pin occurrence is scanned, not excluded
+    if (!PIN_SCAN_ROOTS.includes('.github')) {
+      errors.push(
+        '[pin] SELF-TEST FAILED: PIN_SCAN_ROOTS does not include .github --' +
+        ' the CI workflow pin invocation would be unguarded'
+      );
+    }
+    const _stGithubRel = '.github/workflows/ci.yml';
+    const _stGithub = scanText(_stGithubRel, `        run: npx --yes ${_pkg}9.9.9 validate --all --strict\n`);
+    if (isExcludedFromSweep(_stGithubRel) || _stGithub.pins.length !== 1 || _stGithub.pins[0].version !== '9.9.9') {
+      errors.push(
+        '[pin] SELF-TEST FAILED: .github/-sourced fixture -- a pin in' +
+        ` ${_stGithubRel} was not recorded by the sweep`
+      );
+    }
+
+    // Fixture: a .claude/-sourced pin occurrence is scanned, not excluded
+    if (!PIN_SCAN_ROOTS.includes('.claude')) {
+      errors.push(
+        '[pin] SELF-TEST FAILED: PIN_SCAN_ROOTS does not include .claude --' +
+        ' a literal pin in a project-scoped skill would be unguarded'
+      );
+    }
+    const _stClaudeRel = '.claude/skills/qrspi-dogfood/SKILL.md';
+    const _stClaude = scanText(_stClaudeRel, `  \`npx ${_pkg}9.9.9 init\` or hand-write a minimal \`openspec/\`\n`);
+    if (isExcludedFromSweep(_stClaudeRel) || _stClaude.pins.length !== 1 || _stClaude.pins[0].version !== '9.9.9') {
+      errors.push(
+        '[pin] SELF-TEST FAILED: .claude/-sourced fixture -- a pin in' +
+        ` ${_stClaudeRel} was not recorded by the sweep`
+      );
+    }
+
+    // Fixture: the narrative surfaces and the config sentinel ARE excluded
+    for (const _stExcluded of [...PIN_NARRATIVE_SURFACES, PIN_CONFIG_SENTINEL]) {
+      if (!isExcludedFromSweep(_stExcluded)) {
+        errors.push(
+          `[pin] SELF-TEST FAILED: ${_stExcluded} is not excluded from the general` +
+          ' sweep -- it narrates or is separately coupled to the pin and must not be counted'
+        );
+      }
+    }
+
+    // Fixture: a stray `@latest` is recorded as a latest hit and NOT as a pin
+    const _stLatestRel = 'claude/commands/init.md';
+    const _stLatest = scanText(_stLatestRel, `Run \`npx ${_pkg}latest init --tools none\`.\n`);
+    if (_stLatest.pins.length !== 0 || _stLatest.latest.length !== 1) {
+      errors.push(
+        '[pin] SELF-TEST FAILED: stray-@latest fixture -- the sweep did not record' +
+        ' exactly one @latest hit and zero pin hits (the @latest sub-guard is blind)'
+      );
+    }
+    // ...and the audit flags it when the file is not in the ledger
+    if (auditLatestRefs(_stLatest.latest, new Map()).length !== 1) {
+      errors.push(
+        '[pin] SELF-TEST FAILED: stray-@latest fixture -- auditLatestRefs did not' +
+        ' report an unpinned @latest reference in a non-grandfathered file'
+      );
+    }
+    // ...and stays silent when the file is grandfathered at the recorded count
+    if (auditLatestRefs(_stLatest.latest, new Map([[_stLatestRel, 1]])).length !== 0) {
+      errors.push(
+        '[pin] SELF-TEST FAILED: grandfathered-@latest fixture -- auditLatestRefs' +
+        ' reported a problem for a ledger entry that matches its recorded count'
+      );
+    }
+    // ...and flags a count that has drifted above the recorded one
+    const _stDrift = [
+      { file: _stLatestRel, lineNum: 1 },
+      { file: _stLatestRel, lineNum: 2 },
+    ];
+    if (auditLatestRefs(_stDrift, new Map([[_stLatestRel, 1]])).length !== 1) {
+      errors.push(
+        '[pin] SELF-TEST FAILED: @latest count-drift fixture -- auditLatestRefs did' +
+        ' not report a second @latest reference added to a grandfathered file'
+      );
+    }
+    // ...and flags a ledger entry whose file no longer carries any @latest
+    if (auditLatestRefs([], new Map([[_stLatestRel, 1]])).length !== 1) {
+      errors.push(
+        '[pin] SELF-TEST FAILED: stale-ledger fixture -- auditLatestRefs did not' +
+        ' report a PIN_LATEST_GRANDFATHERED entry whose file has no @latest left'
+      );
+    }
+
+    // Fixture: the zero-pin-occurrences branch (unchanged behavior) -- with no
+    // hand-maintained occurrences there is no agreed pin to couple anything to
+    const _stZero = classifyPinSweep([]);
+    if (_stZero.kind !== 'zero') {
+      errors.push(
+        '[pin] SELF-TEST FAILED: zero-pin fixture -- an empty sweep was not' +
+        ' classified as the zero-occurrence branch'
+      );
+    }
+
+    // Fixture: agreement and mismatch classification
+    const _stAgreeSweep = classifyPinSweep([..._stGithub.pins, ..._stClaude.pins]);
+    if (_stAgreeSweep.kind !== 'agree' || _stAgreeSweep.pin !== '9.9.9') {
+      errors.push(
+        '[pin] SELF-TEST FAILED: agreement fixture -- two occurrences on the same' +
+        ' version were not classified as agreeing'
+      );
+    }
+    const _stMismatchSweep = classifyPinSweep([
+      ..._stGithub.pins,
+      { version: '8.8.8', file: _stClaudeRel, lineNum: 1, text: '' },
+    ]);
+    if (_stMismatchSweep.kind !== 'mismatch' || _stMismatchSweep.versions.length !== 2) {
+      errors.push(
+        '[pin] SELF-TEST FAILED: mismatch fixture -- two distinct versions were not' +
+        ' classified as a mismatch'
+      );
+    }
+
+    // Report the pass explicitly -- a silent self-test is indistinguishable from
+    // one that never ran. No hardcoded fixture count (it would drift); the line
+    // names the branches instead.
+    if (errors.length === _stErrorsBefore) {
+      process.stdout.write(
+        '  OK: sweep self-test -- .github/ and .claude/ sourcing, narrative +' +
+        ' config-sentinel exclusion, stray / grandfathered / drifted / stale @latest,' +
+        ' zero-pin, agree and mismatch branches all pass\n'
+      );
+    }
+  }
+  // ---- end sweep-level self-test ---------------------------------------------
+
+  async function scanFile(file) {
+    const rel = toRel(file);
+    if (isExcludedFromSweep(rel)) return;
+
+    const text = await readFileOr(file, null);
+    if (text === null) return;
+
+    const { pins, latest } = scanText(rel, text);
+    found.push(...pins);
+    latestFound.push(...latest);
   }
 
   async function scanDir(dir) {
@@ -358,7 +621,7 @@ async function checkPinAgreement(errors) {
       const full = path.join(dir, e.name);
       if (e.isDirectory() && e.name !== '.git') {
         // Don't recurse into openspec/changes/ when scanning openspec/
-        if (full === changesDir) continue;
+        if (isUnderChanges(toRel(full))) continue;
         await scanDir(full);
       } else if (e.isFile() && /\.(md|yaml|yml|json|mjs|ps1|sh)$/.test(e.name)) {
         await scanFile(full);
@@ -367,12 +630,8 @@ async function checkPinAgreement(errors) {
   }
 
   // Scan source directories
-  for (const dir of [
-    path.join(root, 'claude'),
-    path.join(root, 'openspec'),
-    path.join(root, 'openspec-templates'),
-  ]) {
-    await scanDir(dir);
+  for (const dir of PIN_SCAN_ROOTS) {
+    await scanDir(path.join(root, dir));
   }
 
   // Also scan root-level files (README.md, plugin.json, etc.) without recursing
@@ -390,16 +649,31 @@ async function checkPinAgreement(errors) {
     }
   }
 
-  if (found.length === 0) {
+  // ---- @latest ABSENCE SUB-GUARD ---------------------------------------------
+  // Runs on the same swept file set, independently of the agreement outcome:
+  // a tree with no pins at all can still carry an unpinned `@latest`.
+  const latestProblems = auditLatestRefs(latestFound, PIN_LATEST_GRANDFATHERED);
+  if (latestProblems.length > 0) {
+    for (const p of latestProblems) errors.push(p);
+  } else {
+    const ledgered = PIN_LATEST_GRANDFATHERED.size;
+    process.stdout.write(
+      `  OK: no unguarded @fission-ai/openspec@latest reference(s)` +
+      (ledgered > 0 ? ` (${ledgered} site(s) still on the grandfather ledger)\n` : '\n')
+    );
+  }
+  // ---- end @latest sub-guard --------------------------------------------------
+
+  const outcome = classifyPinSweep(found);
+
+  if (outcome.kind === 'zero') {
     errors.push('[pin] No OpenSpec version pin occurrences found -- cannot assert agreement.');
     return;
   }
 
-  // Assert all found versions agree
-  const versions = [...new Set(found.map((f) => f.version))];
-  if (versions.length === 1) {
+  if (outcome.kind === 'agree') {
     // All agree -- pass
-    const agreedPin = versions[0];
+    const agreedPin = outcome.pin;
     process.stdout.write(`  OK: ${found.length} pin occurrence(s) all agree on v${agreedPin}\n`);
 
     // ---- CONFIG-COUPLING ASSERTION (D2, D3) ------------------------------------
@@ -407,11 +681,17 @@ async function checkPinAgreement(errors) {
     // the agreed pin V derived above.  Two failure legs (D2):
     //   (a) absent  -- the key is missing from the file (or the file is missing)
     //   (b) mismatch -- the key is present but does not equal V
-    // The zero-pin branch above is unchanged (D4).
+    // This is now the config sentinel's SOLE validator: the file is excluded from
+    // the general sweep, so a wrong value reaches the specific, actionable
+    // messages below instead of being swallowed by the generic mismatch error.
+    // The zero-pin branch above is unchanged (D4) -- it returns before reaching
+    // here, which is correct: with no agreed pin V there is nothing to couple to.
     //
     // ---- INLINE SELF-TEST (D6) --------------------------------------------------
     // Three in-memory fixtures exercising the extractor used by the real assertion.
     // Self-test failures are pushed as errors so CI catches detector regressions.
+    const _stConfigErrorsBefore = errors.length;
+
     function extractConfigVersion(rawText) {
       // Extract the first `openspec_version: X.Y.Z` occurrence from raw YAML text.
       // Reuses the same pinRe pattern already used in the scan above.
@@ -448,10 +728,17 @@ async function checkPinAgreement(errors) {
         ` pin v${agreedPin} (config-coupling extractor is broken)`
       );
     }
+
+    if (errors.length === _stConfigErrorsBefore) {
+      process.stdout.write(
+        '  OK: config-coupling self-test -- absent, present-but-wrong and agrees' +
+        ' fixtures all pass\n'
+      );
+    }
     // ---- end self-test ----------------------------------------------------------
 
     // Real assertion: read openspec/config.yaml and check its openspec_version
-    const configPath = path.join(root, 'openspec', 'config.yaml');
+    const configPath = path.join(root, ...PIN_CONFIG_SENTINEL.split('/'));
     const configText = await readFileOr(configPath, null);
     if (configText === null) {
       // File missing entirely counts as absent-key (config-absent leg)
@@ -483,7 +770,10 @@ async function checkPinAgreement(errors) {
   }
 
   // Multiple distinct versions found -- report each occurrence
-  errors.push(`[pin] Version pin mismatch -- found ${versions.length} distinct versions: ${versions.join(', ')}`);
+  errors.push(
+    `[pin] Version pin mismatch -- found ${outcome.versions.length} distinct versions:` +
+    ` ${outcome.versions.join(', ')}`
+  );
   for (const f of found) {
     errors.push(`  ${f.file}:${f.lineNum} (v${f.version}): ${f.text}`);
   }

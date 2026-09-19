@@ -204,7 +204,14 @@ non-strict `openspec validate <id>` does NOT check the MUST/SHALL rule; CI runs
   one `#### Scenario:` block using `- **WHEN** / **THEN**` bullets (`GIVEN` /
   `AND` optional).
 
-After writing all spec files, run `openspec validate <id> --strict` (the `--strict`
+After writing all spec files, delete `openspec/changes/<id>/.openspec.yaml`
+if it exists — the transient `schema: spec-driven` / `skip_specs: true`
+marker seeded at stage Q. This is a no-op when the marker is absent (e.g. a
+change that predates the marker lifecycle); do not fail if the file is
+missing. Do this **before** running strict validate: the CLI rejects a
+change carrying both the marker and `specs/`.
+
+Then run `openspec validate <id> --strict` (the `--strict`
 flag is required — plain `openspec validate <id>` skips the MUST/SHALL check and
 will pass specs that CI's strict `validate --all` later rejects) and fix any errors
 before emitting the final message. If validate reports an error you cannot
