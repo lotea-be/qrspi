@@ -11,7 +11,7 @@
 - [x] 1.3 Add `checkChangelogTaskEmission` as Check 25 to `scripts/lint.mjs` — registration, `// 25.` header block comment, and inline self-test exercising both kit-touching detection and CHANGELOG-presence assertion (D5)
 - [x] 1.4 Update check-count references in `README.md`, `.claude/skills/qrspi-stack/SKILL.md`, and `CHANGELOG.md` to reflect the addition of Check 25 (D5)
 - [x] 1.5 Lint: `node scripts/lint.mjs` exits 0 including `Check 25: OK`
-- [ ] 1.6 (human) In a `claude --plugin-dir /workspaces/git/qrspi` session, run `/qrspi:plan` on a scratch kit-touching change fixture (its `slices.md` mentions `claude/`) and confirm the output `tasks.md` contains a trailing `## N. Housekeeping` group with the verbatim CHANGELOG task and `**Compute:** model=haiku effort=low`; then repeat with a docs-only fixture and confirm no Housekeeping group is emitted
+- [x] 1.6 (human) In a `claude --plugin-dir /workspaces/git/qrspi` session, run `/qrspi:plan` on a scratch kit-touching change fixture (its `slices.md` mentions `claude/`) and confirm the output `tasks.md` contains a trailing `## N. Housekeeping` group with the verbatim CHANGELOG task and `**Compute:** model=haiku effort=low`; then repeat with a docs-only fixture and confirm no Housekeeping group is emitted
 
 ## 2. PR stage triages in-stage + honest draft note
 
@@ -20,7 +20,7 @@
 - [x] 2.1 Add the triage rule to the "Seed the follow-up queue" step of `claude/commands/pr.md` — trivial in-scope gaps fixed in-stage with atomic commit, post-PR-shaped gaps seed `followups.md`, triage decision surfaced for override (D7a)
 - [x] 2.2 Add the conditional draft-ness note to the "Record the PR link" step of `claude/commands/pr.md` — `PR #<N> open` vs `draft PR #<N> open` derived from the orchestrator's own create decision (D7b)
 - [x] 2.3 Lint: `node scripts/lint.mjs` exits 0 (Check 25 must stay green from Slice 1)
-- [ ] 2.4 (human) In a `claude --plugin-dir /workspaces/git/qrspi` session, run `/qrspi:pr` on a kit-touching change fixture missing its CHANGELOG entry; confirm the triage decision is printed (in-stage fix listed), no `followups.md` entry is created for that gap, and the backlog note shows `PR #<N> open` (non-draft form) (D7a, D7b)
+- [x] 2.4 (human) In a `claude --plugin-dir /workspaces/git/qrspi` session, run `/qrspi:pr` on a kit-touching change fixture missing its CHANGELOG entry; confirm the triage decision is printed (in-stage fix listed), no `followups.md` entry is created for that gap, and the backlog note shows `PR #<N> open` (non-draft form) (D7a, D7b)
 
 ## 3. Dogfood this change (stands alone)
 
