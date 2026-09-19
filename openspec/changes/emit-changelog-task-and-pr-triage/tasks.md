@@ -26,5 +26,5 @@
 
 **Compute:** effort=low model=haiku — single-file prose addition to `CHANGELOG.md` with no design reasoning; the content is fully determined by the proposal
 
-- [ ] 3.1 Write the `## [Unreleased]` entry in `CHANGELOG.md` covering all three surfaces touched by this change: planner rule (D1–D4), Check 25 (D5), and `pr.md` triage + draft-note edits (D7a, D7b)
-- [ ] 3.2 Lint: `node scripts/lint.mjs` exits 0 with Check 25 reporting OK for the `emit-changelog-task-and-pr-triage` change folder — confirming this `tasks.md` contains a CHANGELOG checkbox and Check 25 does not flag the folder (D5)
+- [x] 3.1 Write the `## [Unreleased]` entry in `CHANGELOG.md` covering all three surfaces touched by this change: planner rule (D1–D4), Check 25 (D5), and `pr.md` triage + draft-note edits (D7a, D7b)
+- [x] 3.2 Lint: `node scripts/lint.mjs` exits 0 with Check 25 reporting OK for the `emit-changelog-task-and-pr-triage` change folder — confirming this `tasks.md` contains a CHANGELOG checkbox and Check 25 does not flag the folder (D5)

@@ -42,17 +42,13 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## In progress
 
-_None._
+Both rows below are bundled into the change
+`emit-changelog-task-and-pr-triage` (Q, R, D, S, V, P, I complete;
+entered 2026-09-19) — two halves of one CHANGELOG-gap story, implemented
+together in one QRSPI run. The archive step will remove the anchor row and
+sweep the bundled sub-item.
 
----
-
-## Proposed
-
-Both rows below are bundled into the in-flight change
-`emit-changelog-task-and-pr-triage` (QRSPI stage Q entered 2026-09-19) — two
-halves of one CHANGELOG-gap story.
-
-### plan-emits-changelog-task — `proposed` · **P2**
+### plan-emits-changelog-task — `in-progress (Q, R, D, S, V, P, I complete)` · **P2**
 
 **Why:** `CLAUDE.md` and the stack-cheatsheet both mandate a `## [Unreleased]`
 `CHANGELOG.md` entry for any change to shipped kit behaviour, but the planner
@@ -77,7 +73,7 @@ half). Raised **P3 → P2** with it — a one-line doc requirement caught at PR 
 is recurring friction on every run, not a one-off. Tier 2 of the road-to-1.0
 runway.
 
-### pr-stage-open-issue-triage — `proposed` · **P2**
+### pr-stage-open-issue-triage — `in-progress (Q, R, D, S, V, P, I complete)` · **P2**
 
 **Why:** Two `claude/commands/pr.md` rough edges surfaced dogfooding
 `archive-auto-create-pr`'s PR stage (see its `retrospective.md`). (1) The
@@ -107,6 +103,12 @@ runway.
 
 ---
 
+## Proposed
+
+_None._
+
+---
+
 ## Ideas
 
 Listed in priority order (highest first). Each carries a band — `P1`, `P2`, or `P3`:
@@ -128,8 +130,8 @@ below across the P2/P3 boundary.
 > **▶ Next up: Tier 2 — the cheap recurring-friction guards.** Tier 1 (the
 > pin-family bundle anchored on `bump-openspec-pin`) shipped in PR #57 and was
 > archived 2026-09-19. The Tier 2 **CHANGELOG pair** ([[plan-emits-changelog-task]]
-> + [[pr-stage-open-issue-triage]]) is now **proposed** and in flight as the bundled
-> change `emit-changelog-task-and-pr-triage` (entered QRSPI stage Q 2026-09-19).
+> + [[pr-stage-open-issue-triage]]) is now **in-progress** as the bundled change
+> `emit-changelog-task-and-pr-triage` (Q→I complete 2026-09-19; PR stage next).
 >
 > **Road to 1.0:** the [[rename-qrspi-to-qrnchi]] rebrand is the vehicle for the
 > first **stable v1.0.0** and public debut (submission to Anthropic's

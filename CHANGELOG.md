@@ -16,6 +16,23 @@ kit version.
 
 ### Added
 
+- **Planner emits kit-touching CHANGELOG task, Check 25 backstop, and PR triage rule
+  (`emit-changelog-task-and-pr-triage`).**
+  - Planner agent now carries a kit-detection rule that emits a standing
+    `## N. Housekeeping` CHANGELOG task when a change edits `claude/`,
+    `openspec-templates/`, or `scripts/` paths, scanning `slices.md` to decide;
+    skips the task for docs/backlog-only changes.
+  - New Check 25 (`checkChangelogTaskEmission`) mechanically asserts that any
+    kit-touching change's `tasks.md` carries a CHANGELOG checkbox (by scanning
+    `tasks.md` and delta `specs/**` for the same kit-file signal).
+  - `claude/commands/pr.md` gains an in-stage triage rule: a trivial in-scope
+    must-fix gap (e.g. missing CHANGELOG entry, single-line prose correction)
+    is fixed in-stage and committed atomically, surfacing the triage decision
+    for human override; only post-PR-shaped issues seed `followups.md`.
+  - Backlog PR note is now conditional on the create decision: `PR #<N> open`
+    (non-draft) when the PR was created without `--draft`, vs. `draft PR #<N>
+    open` when it was (fixing the pre-existing misleading "draft" text).
+
 - **Researcher surface-gate (`researcher-apply-surface-gate`).** The stage-R
   `researcher` agent now carries an explicit surface-gate instruction in
   `## What to do` step 1 ("Apply the surface-gate rule per the `repo-surface`
