@@ -42,47 +42,7 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## In progress
 
-### bump-openspec-pin — `in-progress (draft PR #57 open)` · **P3**
-
-**Why:** The kit pins `@fission-ai/openspec@1.4.1` while the CLI has moved on —
-**1.9.0** as of 2026-08-13 (this row originally recorded **1.6.0**, the latest at
-the [[reassess-openspec-dependency]] research on 2026-07-29, so the gap has widened
-from two minors to five). The KEEP verdict (D1) commits the kit to the CLI through
-1.0, so keeping the pin current is worth a look — but it is a separate, deliberate
-change, not free: bump every hand-maintained `@fission-ai/openspec@<version>` site
-(`init.md`, README, CONTRIBUTING.md, CI `ci.yml`) **and** `openspec/config.yaml`'s
-`openspec_version`, plus add a migration-manifest `edit-file` step for
-`openspec/config.yaml` — now *required* because [[reassess-openspec-dependency]]'s
-new Check 1 coupling guard turns red on upgraded consumers whose config still reads
-the old pin. Assess the 1.5→1.9 changelog (any grammar / `validate` behaviour
-changes that affect delta specs) before bumping. Surfaced during PR review of
-[[reassess-openspec-dependency]] (2026-07-29); version gap re-measured 2026-08-13.
-
-**Shape:** Spike-*scoped* (not spike-gated): first read the 1.5→1.9 changelog for
-grammar / `validate` changes that touch delta specs — but per `questions.md`
-PQ1/PQ2 the target is **fixed at 1.9.0 unconditionally** and any breaking-change
-adaptation is **absorbed into this change** rather than deferred, so the spike
-sizes the work instead of gating the version. PQ6 bounds the absorbed scope to kit
-source **plus** a consumer-side migration step. Then bump every hand-maintained
-`@fission-ai/openspec@<version>` site (`init.md`, README, CONTRIBUTING.md, CI
-`ci.yml`) **and** `openspec/config.yaml`'s `openspec_version`, and add a
-migration-manifest `edit-file` step for `config.yaml` — required because the new
-Check 1 coupling guard reddens upgraded consumers whose config still reads the old
-pin. One QRSPI run also carries the three bundled rows below: extend Check 1 to
-scan `.github/` for the CI pin, fix `openspec-workflow/SKILL.md`'s `@latest` drift
-(hard-pinned to the same version per PQ4) and stale template-path line, and
-restructure the unreachable `configVersion !== agreedPin` branch in
-`checkPinAgreement` so it actually fires — excluding `openspec/config.yaml` from
-the general pin sweep so the coupling assertion becomes its sole validator (per
-PQ3; removal was considered and rejected).
-
-**Bundle (this QRSPI run, 2026-08-14):** anchor of the **pin family**, taken up
-together with [[scan-github-ci-openspec-pin]], [[fix-openspec-workflow-skill-drift]]
-and [[simplify-pin-coupling-mismatch-branch]] (Tier 1 of the road-to-1.0 runway).
-All four edit the same two things — Check 1 (`checkPinAgreement`) and the
-hand-maintained pin sites — and this bump walks into three of them anyway. See
-`openspec/changes/bump-openspec-pin/questions.md` for the full Q-stage question set
-and product-question answers.
+_None._
 
 ---
 
@@ -110,9 +70,9 @@ reasoning/exploration axis) sits near the top, and the **surface-taxonomy family
 [[structured-surface-schema]], [[extend-surface-taxonomy]] — stays contiguous
 below across the P2/P3 boundary.
 
-> **▶ Next up: the Tier 1 pin-family bundle, anchored on [[bump-openspec-pin]]
-> (now `proposed`, change folder created 2026-08-14 — see `## Proposed` above).**
-> Nothing is in progress.
+> **▶ Next up: Tier 2 — the cheap recurring-friction guards.** Tier 1 (the
+> pin-family bundle anchored on `bump-openspec-pin`) shipped in PR #57 and was
+> archived 2026-09-19. Nothing is in progress or proposed.
 >
 > **Road to 1.0:** the [[rename-qrspi-to-qrnchi]] rebrand is the vehicle for the
 > first **stable v1.0.0** and public debut (submission to Anthropic's
@@ -122,21 +82,11 @@ below across the P2/P3 boundary.
 > week one of a public 1.0* — not by band alone. Guiding rule: **complete
 > already-shipped mechanisms and freeze schemas** before the public 1.0 cut.
 >
-> - **Tier 1 — land the OpenSpec pin 1.0 will freeze on (pin-family bundle) ←
->   runway head:** [[bump-openspec-pin]] (anchor) taken up as **one QRSPI run** with
->   [[scan-github-ci-openspec-pin]], [[fix-openspec-workflow-skill-drift]] and
->   [[simplify-pin-coupling-mismatch-branch]]. Freezing the public 1.0 on a
->   knowingly-stale `1.4.1` while the CLI is at **`1.9.0`** is exactly the "would
->   embarrass us in week one" case. **Spike-gated:** assess the 1.5→1.9 changelog for
->   grammar / `validate` changes that touch delta specs *before* the mechanical bump
->   — if that surfaces breaking behaviour the item grows and may slip.
->
->   **Why these four are one run:** they all edit the same two things — Check 1
->   (`checkPinAgreement`) and the hand-maintained pin sites — and the bump walks into
->   three of them. It must edit `ci.yml`, which Check 1 does not scan; it must edit
->   `openspec-workflow/SKILL.md`, whose `@latest` reference escapes Check 1's
->   `openspec@<semver>` regex entirely; and it exercises the very branch the simplify
->   row refactors. Separately, that reopens Check 1 and the pin sites four times.
+> - **Tier 1 — DONE (pin-family bundle):** `bump-openspec-pin` and its three
+>   riders (`scan-github-ci-openspec-pin`, `fix-openspec-workflow-skill-drift`,
+>   `simplify-pin-coupling-mismatch-branch`) shipped in PR #57 and were archived
+>   2026-09-19 — the OpenSpec pin now reads `1.9.0` everywhere and both gates stay
+>   green.
 > - **Tier 2 — cheap recurring-friction guards:** [[lint-auto-mode-gate-coverage]]
 >   plus the **CHANGELOG pair**, [[plan-emits-changelog-task]] +
 >   [[pr-stage-open-issue-triage]], bundled and raised **P3 → P2**. The pair is two
@@ -244,6 +194,18 @@ the two-source-of-truth caution in [[optional-technology-specs]]. **P1 like
 [[repo-applicable-artifact-sections]]:** a highly visible artifact-quality defect
 (ugly process references baked into shipped code) rather than a live-workflow
 correctness gap. Surfaced 2026-07-24.
+
+### pin-lint-scans-change-folder-specs — `idea` · **P2**
+
+**Why:** Check 1 scans `openspec/specs/**` but not `openspec/changes/**/specs`,
+so a delta spec's `@latest` or pin-version issue passes PR CI and only fails at
+archive time when the delta is synced into the base — the most expensive place
+to catch it (as happened archiving `bump-openspec-pin`).
+
+**Shape:** Extend Check 1's file sweep in `scripts/lint.mjs` to also scan active
+change-folder delta specs (`openspec/changes/*/specs/**/spec.md`) for the
+pin-agreement and `@latest` sub-guards, so pin issues surface at PR time rather
+than at archive-sync.
 
 ### automate-manual-migration-steps — `idea` · **P2**
 
@@ -1282,27 +1244,6 @@ inside the archive folder-move step) into the kit-owned `archive.md` +
 `spec-syncer.md`, then drop the generated files from `plugin.json` / the skills
 dir. A deliberate behavior change (the generated paths still run today under the
 keep verdict), so it wants its own flow with a migration note.
-
-### fix-openspec-workflow-skill-drift — `bundled into bump-openspec-pin (2026-08-14)` · **P3**
-
-> **Bundled into `bump-openspec-pin`** (2026-08-14) — folded into the Tier-1
-> pin-family QRSPI run as one of its three riders; see the `## Proposed` entry
-> for the anchor change and `openspec/changes/bump-openspec-pin/questions.md`
-> for the working scope.
-
-### scan-github-ci-openspec-pin — `bundled into bump-openspec-pin (2026-08-14)` · **P3**
-
-> **Bundled into `bump-openspec-pin`** (2026-08-14) — folded into the Tier-1
-> pin-family QRSPI run as one of its three riders; see the `## Proposed` entry
-> for the anchor change and `openspec/changes/bump-openspec-pin/questions.md`
-> for the working scope.
-
-### simplify-pin-coupling-mismatch-branch — `bundled into bump-openspec-pin (2026-08-14)` · **P3**
-
-> **Bundled into `bump-openspec-pin`** (2026-08-14) — folded into the Tier-1
-> pin-family QRSPI run as one of its three riders; see the `## Proposed` entry
-> for the anchor change and `openspec/changes/bump-openspec-pin/questions.md`
-> for the working scope.
 
 ### pr-human-task-loop-stop-option — `idea` · **P3**
 
