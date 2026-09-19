@@ -78,3 +78,5 @@ goes in the heading text; do **not** prefix it with `Slice N —` (the canonical
   agent-executable tasks from being marked done.
 - An optional `## N. Quality gate` / `## N. Final verification` group at the end
   is fine — it is still a numbered group.
+- An optional `## N. Housekeeping` trailing group is a recognised pattern,
+  emitted by the planner for kit-touching changes to carry the CHANGELOG task.

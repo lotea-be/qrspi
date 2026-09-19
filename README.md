@@ -385,7 +385,7 @@ npx --yes @fission-ai/openspec@1.9.0 validate --all --strict
 
 ### CI lint checks (`node scripts/lint.mjs`)
 
-The lint script runs 24 checks (Checks 1-24, plus sub-checks 2b, 10b) on every CI run. Key checks relevant to context hygiene and agent
+The lint script runs 25 checks (Checks 1-25, plus sub-checks 2b, 10b) on every CI run. Key checks relevant to context hygiene and agent
 contracts:
 
 - **Check 2b (`checkSkillSets`)** -- asserts each stage agent's `Load skills` line
@@ -486,6 +486,13 @@ contracts:
   (`surface-gate rule per the \`repo-surface\` skill`) via a stable-substring
   match, so the gate instruction cannot silently regress. Carries a two-fixture
   inline self-test.
+- **Check 25 (`checkChangelogTaskEmission`)** -- walks every active change
+  folder under `openspec/changes/**` (excluding `/archive/` paths), determines
+  kit-touching status by scanning the folder's own `tasks.md` and `specs/**`
+  files for any `claude/`, `openspec-templates/`, or `scripts/` mention, and
+  for each kit-touching folder asserts that `tasks.md` contains at least one
+  checkbox line (ticked or unticked) containing the substring `CHANGELOG`.
+  Presence check only (not doneness). Carries a five-fixture inline self-test.
 
 All other checks (pin agreement, frontmatter, heading alignment, README command
 coverage, gate-tool/executor agreement, migration manifests, read-contract banners,

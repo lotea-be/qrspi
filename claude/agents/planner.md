@@ -50,6 +50,23 @@ followups.md), whether in-flight or archived — spec.md is the sole exception
    group is one vertical slice from `slices.md`; the slice name goes in the
    heading text — do NOT prefix it with `Slice N —`.
 
+4. **Kit-touching detection and CHANGELOG housekeeping task.** After writing all
+   slice groups, scan the text of `slices.md` for any mention of the path
+   prefixes `claude/`, `openspec-templates/`, or `scripts/`. If any such
+   mention is found, the change is **kit-touching** and you MUST append a
+   trailing standalone `## N. Housekeeping` group (where N = last slice group
+   number + 1) containing exactly one task item:
+
+   ```
+   **Compute:** model=haiku effort=low
+
+   - [ ] N.1 Add a `## [Unreleased]` entry to `CHANGELOG.md` describing this change.
+   ```
+
+   No `(D<n>)` back-reference on this item. If `slices.md` mentions no
+   `claude/`, `openspec-templates/`, or `scripts/` path, skip emission — do
+   NOT append a Housekeeping group for pure docs/backlog-only changes.
+
 The exact task ordering depends on the slices' M/F/D bullets. If
 the slices' M bullet says "no mock needed — pattern mirrors X",
 omit the mock-then-real pair and use an entity-first ordering instead
@@ -133,6 +150,12 @@ beyond what the design describes — do NOT proceed silently: surface the
 specific divergence and return blocked, which the orchestrator treats as
 hard-stop condition (4). Immaterial mechanical elaboration (task granularity,
 ordering, wording) is normal latitude, not a divergence.
+
+**Sanctioned standing exception — CHANGELOG Housekeeping group.** The
+`## N. Housekeeping` group emitted for kit-touching changes (step 4 above) is
+a sanctioned standing planner output — NOT invented scope. Its absence from
+`slices.md` does NOT trigger hard-stop condition 4. Only non-housekeeping
+groups that have no basis in `slices.md` are subject to the divergence check.
 
 ## Final message format
 

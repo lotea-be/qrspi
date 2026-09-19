@@ -6,11 +6,11 @@
 
 **Compute:** effort=medium model=sonnet — two coordinated edits (agent prose + lint JS) to files with established patterns; Check 25 mirrors the Check 13 convention exactly, reducing design reasoning to near-zero
 
-- [ ] 1.1 Add the kit-detection scan rule, Housekeeping group emission rule, and divergence-check exemption to `claude/agents/planner.md` (D1, D2, D3, D4)
-- [ ] 1.2 Add a one-line comment to `openspec-templates/tasks.template.md` noting `## N. Housekeeping` as a recognised trailing-group pattern (D3)
-- [ ] 1.3 Add `checkChangelogTaskEmission` as Check 25 to `scripts/lint.mjs` — registration, `// 25.` header block comment, and inline self-test exercising both kit-touching detection and CHANGELOG-presence assertion (D5)
-- [ ] 1.4 Update check-count references in `README.md`, `.claude/skills/qrspi-stack/SKILL.md`, and `CHANGELOG.md` to reflect the addition of Check 25 (D5)
-- [ ] 1.5 Lint: `node scripts/lint.mjs` exits 0 including `Check 25: OK`
+- [x] 1.1 Add the kit-detection scan rule, Housekeeping group emission rule, and divergence-check exemption to `claude/agents/planner.md` (D1, D2, D3, D4)
+- [x] 1.2 Add a one-line comment to `openspec-templates/tasks.template.md` noting `## N. Housekeeping` as a recognised trailing-group pattern (D3)
+- [x] 1.3 Add `checkChangelogTaskEmission` as Check 25 to `scripts/lint.mjs` — registration, `// 25.` header block comment, and inline self-test exercising both kit-touching detection and CHANGELOG-presence assertion (D5)
+- [x] 1.4 Update check-count references in `README.md`, `.claude/skills/qrspi-stack/SKILL.md`, and `CHANGELOG.md` to reflect the addition of Check 25 (D5)
+- [x] 1.5 Lint: `node scripts/lint.mjs` exits 0 including `Check 25: OK`
 - [ ] 1.6 (human) In a `claude --plugin-dir /workspaces/git/qrspi` session, run `/qrspi:plan` on a scratch kit-touching change fixture (its `slices.md` mentions `claude/`) and confirm the output `tasks.md` contains a trailing `## N. Housekeeping` group with the verbatim CHANGELOG task and `**Compute:** model=haiku effort=low`; then repeat with a docs-only fixture and confirm no Housekeeping group is emitted
 
 ## 2. PR stage triages in-stage + honest draft note
