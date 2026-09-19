@@ -42,64 +42,7 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## In progress
 
-Both rows below are bundled into the change
-`emit-changelog-task-and-pr-triage` (Q, R, D, S, V, P, I complete;
-entered 2026-09-19) — two halves of one CHANGELOG-gap story, implemented
-together in one QRSPI run. The archive step will remove the anchor row and
-sweep the bundled sub-item.
-
-### plan-emits-changelog-task — `in-progress (PR #59 open)` · **P2**
-
-**Why:** `CLAUDE.md` and the stack-cheatsheet both mandate a `## [Unreleased]`
-`CHANGELOG.md` entry for any change to shipped kit behaviour, but the planner
-(stage P) never emits a task for it — it is a cross-cutting housekeeping step
-not tied to any one slice, so the slice→task translation drops it. Surfaced
-dogfooding `archive-auto-create-pr` (see its `retrospective.md`, stage P): the
-missing entry went unnoticed through Implement and was caught by the reviewer
-at PR time as a *blocking* open issue — the latest, most expensive place to
-catch a one-line doc requirement.
-
-**Shape:** In `claude/agents/planner.md` (and/or `claude/commands/plan.md`), add
-a standing rule: when the change alters shipped kit behaviour
-(command/agent/skill/template/lint edit), append a housekeeping task to
-`tasks.md` — "Add a `## [Unreleased]` entry to `CHANGELOG.md` describing this
-change" — so the requirement is satisfied during Implement, not caught at PR
-review. Skip only for pure docs/backlog-only changes that need no CHANGELOG
-line.
-
-**Bundle (proposed — one QRSPI run, 2026-08-13):** the planner half of the
-CHANGELOG-gap story; taken up with [[pr-stage-open-issue-triage]] (the PR-stage
-half). Raised **P3 → P2** with it — a one-line doc requirement caught at PR review
-is recurring friction on every run, not a one-off. Tier 2 of the road-to-1.0
-runway.
-
-### pr-stage-open-issue-triage — `in-progress (PR #59 open)` · **P2**
-
-**Why:** Two `claude/commands/pr.md` rough edges surfaced dogfooding
-`archive-auto-create-pr`'s PR stage (see its `retrospective.md`). (1) The
-"Seed the follow-up queue" step routes **every** reviewer open issue to
-`followups.md` (post-PR) and the reviewer defaults to a **draft** PR when the
-list is non-empty — but some open issues are trivial, in-scope, must-fix-
-before-merge gaps (e.g. a missing CHANGELOG `## [Unreleased]` entry that
-CLAUDE.md mandates), where fixing in-stage and opening a normal PR is strictly
-better than deferring a knowingly-broken PR to a followup. The command has no
-sanctioned "fix it now" branch, so the orchestrator has to deviate from its
-letter. (2) The backlog note is hardcoded to `in-progress (draft PR #<N> open)`
-even when a **ready** (non-draft) PR is opened, making the note inaccurate.
-
-**Shape:** In `claude/commands/pr.md`: (1) add a triage line to "Seed the
-follow-up queue" — before seeding, for each reviewer open issue, if it is a
-trivial in-scope gap that MUST be fixed before merge, fix it in-stage, commit
-atomically, and treat it as resolved (no followup, no forced draft); only
-genuinely post-PR-shaped issues go to `followups.md`. (2) Make the "Record the
-PR link" backlog note conditional on draft-ness: `in-progress (draft PR #<N>
-open)` only when opened as a draft, else `in-progress (PR #<N> open)`.
-
-**Bundle (proposed — one QRSPI run, 2026-08-13):** the PR-stage half of the
-CHANGELOG-gap story; taken up with [[plan-emits-changelog-task]] (the planner
-half). Raised **P3 → P2** with it — a one-line doc requirement caught at PR review
-is recurring friction on every run, not a one-off. Tier 2 of the road-to-1.0
-runway.
+_None._
 
 ---
 
@@ -129,9 +72,9 @@ below across the P2/P3 boundary.
 
 > **▶ Next up: Tier 2 — the cheap recurring-friction guards.** Tier 1 (the
 > pin-family bundle anchored on `bump-openspec-pin`) shipped in PR #57 and was
-> archived 2026-09-19. The Tier 2 **CHANGELOG pair** ([[plan-emits-changelog-task]]
-> + [[pr-stage-open-issue-triage]]) is now **in-progress** as the bundled change
-> `emit-changelog-task-and-pr-triage` (PR #59 open 2026-09-19).
+> archived 2026-09-19. The Tier 2 **CHANGELOG pair** shipped as the bundled change
+> [[emit-changelog-task-and-pr-triage]] (PR #59, archived 2026-09-19); the
+> remaining Tier 2 guard is [[lint-auto-mode-gate-coverage]].
 >
 > **Road to 1.0:** the [[rename-qrspi-to-qrnchi]] rebrand is the vehicle for the
 > first **stable v1.0.0** and public debut (submission to Anthropic's
@@ -146,14 +89,13 @@ below across the P2/P3 boundary.
 >   `simplify-pin-coupling-mismatch-branch`) shipped in PR #57 and were archived
 >   2026-09-19 — the OpenSpec pin now reads `1.9.0` everywhere and both gates stay
 >   green.
-> - **Tier 2 — cheap recurring-friction guards:** [[lint-auto-mode-gate-coverage]]
->   plus the **CHANGELOG pair**, [[plan-emits-changelog-task]] +
->   [[pr-stage-open-issue-triage]], bundled and raised **P3 → P2**. The pair is two
->   halves of one story: the planner never emits the `## [Unreleased]` task CLAUDE.md
->   mandates, and the PR stage has no sanctioned "fix it now" branch for the trivial
->   in-scope gap that results — so a one-line doc requirement gets caught at PR
->   review, the most expensive place to catch it, run after run. All three are
->   prose-or-lint and cheap; can run parallel to the large Tier 3 design.
+> - **Tier 2 — cheap recurring-friction guards:** the **CHANGELOG pair** shipped
+>   as [[emit-changelog-task-and-pr-triage]] (PR #59, archived 2026-09-19) — the
+>   planner now emits the `## [Unreleased]` task CLAUDE.md mandates and the PR stage
+>   has a sanctioned "fix it now" branch for the trivial in-scope gap, so a one-line
+>   doc requirement no longer gets caught at PR review run after run. The remaining
+>   Tier 2 guard is [[lint-auto-mode-gate-coverage]], prose-or-lint and cheap; can
+>   run parallel to the large Tier 3 design.
 > - **Tier 3 — land the spec-id grammar before the schema freeze:**
 >   [[spec-anchored-code-comments]] (**P1**). Giving specs a **stable identifier** a
 >   comment can cite is *itself a spec-grammar change*, so it belongs **before** the
