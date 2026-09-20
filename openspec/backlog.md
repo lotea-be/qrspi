@@ -42,7 +42,7 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## In progress
 
-### lint-auto-mode-gate-coverage — `in-progress (Q, R, D, S, V, P, I complete)` · **P2**
+### lint-auto-mode-gate-coverage — `in-progress (draft PR #61 open)` · **P2**
 
 **Why:** `add-auto-mode` introduces a convention that every stage command must
 reference the run-mode procedure in the `stage-choreography` skill; a future command that
