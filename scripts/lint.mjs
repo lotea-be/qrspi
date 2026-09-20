@@ -2,7 +2,7 @@
 // ============================================================================
 //  scripts/lint.mjs -- CI quality gate for the QRSPI kit
 // ----------------------------------------------------------------------------
-//  Checks (run in order, all errors collected before exit -- Checks 1-25,
+//  Checks (run in order, all errors collected before exit -- Checks 1-26,
 //  plus sub-checks 2b and 10b):
 //
 //  1. PIN AGREEMENT  -- every hand-maintained OpenSpec version occurrence
@@ -195,6 +195,16 @@
 //     substring `CHANGELOG`. Presence check only (not doneness). Carries an
 //     inline five-fixture self-test (kit-touching present/absent, CHANGELOG
 //     ticked/unticked/absent). Registered after Check 24.
+//
+// 26. CHOREOGRAPHY EMBED -- the eight QRSPI stage command files (questions,
+//     research, design, structure, slices, plan, implement, pr) must each
+//     contain the inline `stage-choreography` skill load line that carries the
+//     stage-order instructions. Excluded (must NOT be in the constant): status,
+//     archive, followup, update, retro (they carry no stage-choreography line;
+//     status, archive, followup, update are non-stage commands; retro runs after
+//     a change is merged). Carries an inline two-fixture self-test (present-
+//     fixture passes, absent-fixture fires) run before file I/O. Registered
+//     after Check 25.
 //
 //  Exits 0 if all checks pass, 1 if any check reports a violation.
 //  Requires only Node.js built-ins (fs, path) -- no npm dependencies.
@@ -2112,6 +2122,98 @@ async function checkBudgetGateEmbed(errors) {
   if (violations === 0) {
     process.stdout.write(
       `  OK: all ${BUDGET_GATE_COMMAND_STEMS.length} command(s) contain the context-budget-gate embed line\n`
+    );
+  }
+  return violations;
+}
+
+// ---- Check 26 (choreography-embed): CHOREOGRAPHY EMBED ----------------------
+//
+// Asserts that each of the eight QRSPI stage command files contains the inline
+// embed line that references the stage-choreography skill. The eight stage
+// commands are: questions, research, design, structure, slices, plan,
+// implement, pr.
+//
+// Excluded (must NOT be in the constant): status, archive, followup, update,
+// retro. These commands do not carry stage-choreography instructions. status,
+// archive, followup, update are non-stage commands; retro is a special command
+// that runs after a change is merged.
+// Hardcoded for regression safety -- same rationale as VERSION_CHECK_COMMAND_STEMS.
+
+const CHOREOGRAPHY_EMBED_COMMAND_STEMS = [
+  'questions',
+  'research',
+  'design',
+  'structure',
+  'slices',
+  'plan',
+  'implement',
+  'pr',
+];
+
+const CHOREOGRAPHY_EMBED_LINE = 'Load skill `stage-choreography` and follow its instructions exactly';
+
+async function checkChoreographyEmbed(errors) {
+  const commandsDir = path.join(root, 'claude', 'commands');
+  let violations = 0;
+
+  // Pure helper: returns true when the line is present in whitespace-collapsed text.
+  function hasChoreographyLine(text) {
+    const collapsed = text.replace(/\s+/g, ' ');
+    return collapsed.includes(CHOREOGRAPHY_EMBED_LINE);
+  }
+
+  // ---- INLINE SELF-TEST -------------------------------------------------------
+  let selfTestFailed = false;
+
+  // Fixture (a): text WITH the choreography line (wrapped across lines) -> must pass
+  const _stA = 'Load skill `stage-choreography` and follow its instructions\n  exactly -- it carries the stage order.';
+  if (!hasChoreographyLine(_stA)) {
+    errors.push(
+      '[choreography-embed] SELF-TEST FAILED: fixture (a) -- choreography line present but hasChoreographyLine returned false'
+    );
+    selfTestFailed = true;
+  }
+
+  // Fixture (b): text with version-check and budget-gate but NO choreography -> must fail
+  const _stB =
+    'Load skill `qrspi-version-check` and follow its instructions exactly.\n' +
+    'Load skill `context-budget-gate` and follow its instructions exactly.\n';
+  if (hasChoreographyLine(_stB)) {
+    errors.push(
+      '[choreography-embed] SELF-TEST FAILED: fixture (b) -- choreography line absent but hasChoreographyLine returned true'
+    );
+    selfTestFailed = true;
+  }
+  // ---- end self-test ----------------------------------------------------------
+
+  if (selfTestFailed) {
+    return 1;
+  }
+
+  for (const stem of CHOREOGRAPHY_EMBED_COMMAND_STEMS) {
+    const filePath = path.join(commandsDir, `${stem}.md`);
+    const rel = `claude/commands/${stem}.md`;
+
+    const text = await readFileOr(filePath, null);
+    if (text === null) {
+      errors.push(`[choreography-embed] ${rel}: file not found`);
+      violations++;
+      continue;
+    }
+
+    if (!hasChoreographyLine(text)) {
+      errors.push(
+        `[choreography-embed] ${rel}: missing inline stage-choreography embed line` +
+        ` (expected to find: "${CHOREOGRAPHY_EMBED_LINE}")`
+      );
+      violations++;
+    }
+  }
+
+  if (violations === 0) {
+    process.stdout.write(
+      `  OK: all ${CHOREOGRAPHY_EMBED_COMMAND_STEMS.length} stage command(s) contain the stage-choreography embed line\n`
     );
   }
   return violations;
@@ -4676,6 +4778,9 @@ async function main() {
 
   process.stdout.write('\nCheck 25: Changelog task emission in kit-touching change folders\n');
   await checkChangelogTaskEmission(errors);
+
+  process.stdout.write('\nCheck 26: Choreography embed\n');
+  await checkChoreographyEmbed(errors);
 
   process.stdout.write('\n');
   if (errors.length === 0) {

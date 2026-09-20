@@ -42,7 +42,23 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## In progress
 
-_None._
+### lint-auto-mode-gate-coverage — `in-progress (draft PR #61 open)` · **P2**
+
+**Why:** `add-auto-mode` introduces a convention that every stage command must
+reference the run-mode procedure in the `stage-choreography` skill; a future command that
+silently drops that reference would quietly fail to suppress (or keep) a gate in
+auto mode. A structural `scripts/lint.mjs` check could assert the reference and
+per-gate auto-branch wiring stays consistent — the runtime suppression itself is
+not statically checkable. Surfaced by `add-auto-mode` stage D (offered, not built).
+Low-cost correctness guard (hence P2, not P3). Now **unblocked** — `add-auto-mode`
+merged 2026-07-06 (archived), so the convention it enforces is live.
+
+**Shape:** A structural `scripts/lint.mjs` Check that asserts every stage command
+references the run-mode procedure in the `stage-choreography` skill and that the per-gate
+auto-branch wiring stays consistent — the static, mechanically-checkable half (the
+runtime suppression itself is not statically checkable). Mirrors the existing
+embed-presence Checks (9/10) in shape. Scope (command stems and assertion depth)
+determined by PQ1–PQ3 answers.
 
 ---
 
@@ -893,23 +909,6 @@ it's ticket-blind, and why"). Teaches the mechanics (which command, what artifac
 where the gates are) and the judgment (why alignment de-risks) without polluting
 the user's repo. Reuses the existing `reference-example` asset.
 
-### lint-auto-mode-gate-coverage — `idea` · **P2**
-
-**Why:** `add-auto-mode` introduces a convention that every stage command must
-reference the run-mode procedure in the `stage-choreography` skill; a future command that
-silently drops that reference would quietly fail to suppress (or keep) a gate in
-auto mode. A structural `scripts/lint.mjs` check could assert the reference and
-per-gate auto-branch wiring stays consistent — the runtime suppression itself is
-not statically checkable. Surfaced by `add-auto-mode` stage D (offered, not built).
-Low-cost correctness guard (hence P2, not P3). Now **unblocked** — `add-auto-mode`
-merged 2026-07-06 (archived), so the convention it enforces is live.
-
-**Shape:** A structural `scripts/lint.mjs` Check that asserts every stage command
-references the run-mode procedure in the `stage-choreography` skill and that the per-gate
-auto-branch wiring stays consistent — the static, mechanically-checkable half (the
-runtime suppression itself is not statically checkable). Mirrors the existing
-embed-presence Checks (9/10) in shape.
-
 ### automate-marketplace-source-bump — `idea` · **P2**
 
 **Why:** Cutting a release (`/qrspi-release`) publishes the GitHub Release but
@@ -1593,6 +1592,21 @@ existence-only to a content-level check that parses a machine-readable bound fro
 each `> **Output contract**` banner (e.g. `max-lines: N`) and asserts the declared
 cap is present/consistent. Weigh the brittleness PQ3 flagged: a parsed cap is a
 second source of truth that can itself drift from the agent's real return.
+
+### lint-per-gate-auto-branch-wiring — `idea` · **P3**
+
+**Why:** The auto-mode per-gate suppression branches (implement.md's per-slice
+checkpoint, pr.md's PR-create) are wired only in prose, so a command that silently
+drops or malforms an auto-branch would fail to suppress a gate in Full/Semi auto
+with nothing catching it at CI.
+
+**Shape:** Add a `scripts/lint.mjs` Check that asserts the statically-checkable
+per-gate auto-branch anchors stay present in the commands with suppressible gates
+(e.g. `I per-slice auto-advance` in implement.md, `PR-create auto-advance` in
+pr.md), extending the embed-presence pattern
+[[lint-auto-mode-gate-coverage]] establishes; the runtime suppression itself stays
+out of scope as it is not statically checkable. Deferred as the per-gate wiring
+half ruled out of scope by [[lint-auto-mode-gate-coverage]]'s PQ2 (2026-09-20).
 
 ### rename-qrspi-to-qrnchi — `idea` · **P3**
 
