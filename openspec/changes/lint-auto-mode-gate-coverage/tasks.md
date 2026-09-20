@@ -20,4 +20,4 @@
 
 **Compute:** effort=low model=haiku — mechanical CHANGELOG entry, no design reasoning.
 
-- [ ] 2.1 Add a `## [Unreleased]` entry to `CHANGELOG.md` describing Check 26 (`checkChoreographyEmbed`) and the new constants added to `scripts/lint.mjs`
+- [x] 2.1 Add a `## [Unreleased]` entry to `CHANGELOG.md` describing Check 26 (`checkChoreographyEmbed`) and the new constants added to `scripts/lint.mjs`

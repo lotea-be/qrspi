@@ -42,13 +42,7 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## In progress
 
-_None._
-
----
-
-## Proposed
-
-### lint-auto-mode-gate-coverage — `proposed (change folder created 2026-09-19)` · **P2**
+### lint-auto-mode-gate-coverage — `in-progress (Q, R, D, S, V, P, I complete)` · **P2**
 
 **Why:** `add-auto-mode` introduces a convention that every stage command must
 reference the run-mode procedure in the `stage-choreography` skill; a future command that
@@ -65,6 +59,12 @@ auto-branch wiring stays consistent — the static, mechanically-checkable half 
 runtime suppression itself is not statically checkable). Mirrors the existing
 embed-presence Checks (9/10) in shape. Scope (command stems and assertion depth)
 determined by PQ1–PQ3 answers.
+
+---
+
+## Proposed
+
+_None._
 
 ---
 

@@ -33,6 +33,18 @@ kit version.
     (non-draft) when the PR was created without `--draft`, vs. `draft PR #<N>
     open` when it was (fixing the pre-existing misleading "draft" text).
 
+- **Lint Check 26: stage-choreography embed guard (`lint-auto-mode-gate-coverage`).**
+  Adds `checkChoreographyEmbed` to `scripts/lint.mjs` — a new **Check 26** that
+  asserts the `stage-choreography` skill-load line is present in all 8
+  choreography-carrying stage commands (`questions`, `research`, `design`,
+  `structure`, `slices`, `plan`, `implement`, `pr`), guarding run-mode/auto-mode
+  wiring against silent regression. Introduces two new constants:
+  `CHOREOGRAPHY_EMBED_COMMAND_STEMS` (array of the 8 stems) and
+  `CHOREOGRAPHY_EMBED_LINE` (the substring ending at "exactly", without trailing
+  period). The check carries an inline self-test covering both the present-fixture
+  (all 8 commands pass) and absent-fixture (missing embed fires) cases, following
+  the Check 24 pattern.
+
 - **Researcher surface-gate (`researcher-apply-surface-gate`).** The stage-R
   `researcher` agent now carries an explicit surface-gate instruction in
   `## What to do` step 1 ("Apply the surface-gate rule per the `repo-surface`
