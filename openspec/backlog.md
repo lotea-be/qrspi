@@ -111,8 +111,8 @@ below across the P2/P3 boundary.
 >   [[real-runtime-slice-checkpoints]] /
 >   [[architect-real-runtime-done-decomposition]] /
 >   [[designer-flag-shared-artifact-coupling]] (all still P2, just sequenced after
->   the 1.0 cut). [[automate-marketplace-source-bump]] rides *with* the release
->   mechanics, not before.
+>   the 1.0 cut). `automate-marketplace-source-bump` rode *with* the release
+>   mechanics (shipped 2026-11-25).
 
 ### reconcile-scenario-guards-with-cli — `idea` · **P1**
 
@@ -886,40 +886,6 @@ real artifact and explaining it in situ ("here's what Research produced — noti
 it's ticket-blind, and why"). Teaches the mechanics (which command, what artifact,
 where the gates are) and the judgment (why alignment de-risks) without polluting
 the user's repo. Reuses the existing `reference-example` asset.
-
-### automate-marketplace-source-bump — `idea` · **P2**
-
-**Why:** Cutting a release (`/qrspi-release`) publishes the GitHub Release but
-stops there — the release does not reach installed users until the qrspi entry's
-`source` ref is bumped to `vX.Y.Z` in the **separate**
-`lotea-be/ai-agent-marketplace` repo, done by hand (the release skill can only
-print the reminder). That manual, forgettable step gates every release's actual
-delivery to consumers. Automate it from
-[`release.yml`](../../.github/workflows/release.yml) after the Publish step.
-The blocker is auth: the workflow's `github.token` is scoped to *this* repo and
-cannot write to the marketplace. Preferred shape: a `repository_dispatch` firing
-a `qrspi-release` event carrying the version, handled by a workflow **in** the
-marketplace repo that opens a PR bumping its own pin — keeps qrspi ignorant of
-the marketplace manifest format and puts the write + token where they belong.
-Alternative: a fine-grained PAT / GitHub App installation token letting
-`release.yml` edit + PR the marketplace directly. Hard constraints: open a
-**PR, not a push** (the pin is every consumer's install source — no unreviewed
-auto-ship), and run as an **isolated job** (`continue-on-error`) so a bump
-failure can't red an already-published, irreversible-ish release. Needs the
-marketplace manifest's exact shape confirmed first (which file; `source: …@vX`
-vs a `ref:`/`version:` key). Pairs with `qrspi-release-auto-stub-manifest`
-(the other release-time automation idea, shipped 2026-11-24) and relates to
-the pin-coupling guard [[reassess-openspec-dependency]] shipped. Surfaced
-2026-07-25.
-
-**Shape:** After the Publish step in `release.yml`, fire a `repository_dispatch`
-`qrspi-release` event carrying the version, handled by a workflow **in** the
-marketplace repo that opens a **PR** bumping its own pin (keeps qrspi ignorant of
-the marketplace manifest format and puts the write + token where they belong).
-Alternative: a fine-grained PAT / GitHub App token letting `release.yml` PR the
-marketplace directly. Hard constraints: PR not push (no unreviewed auto-ship), and
-run as an isolated `continue-on-error` job so a bump failure can't red a published
-release.
 
 ### privacy-gdpr-surface — `idea` · **P2**
 

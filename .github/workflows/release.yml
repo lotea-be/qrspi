@@ -69,3 +69,29 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh release create "$GITHUB_REF_NAME" --title "$GITHUB_REF_NAME" --notes-file release-notes.md
+
+  # Asks the marketplace repo to open a PR bumping the qrspi pin to this tag
+  # (its `Bump plugin pin` workflow). A separate job with continue-on-error, so
+  # a failure here can never red an already-published release. Needs the
+  # MARKETPLACE_DISPATCH_TOKEN secret: a token with Contents read/write on
+  # lotea-be/ai-agent-marketplace. Without it the job only prints a notice.
+  notify-marketplace:
+    name: notify marketplace
+    needs: release
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - name: Send plugin-release dispatch
+        env:
+          GH_TOKEN: ${{ secrets.MARKETPLACE_DISPATCH_TOKEN }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          if [ -z "$GH_TOKEN" ]; then
+            echo "::notice::MARKETPLACE_DISPATCH_TOKEN not set; bump the marketplace pin with /qrspi-marketplace-bump ${TAG#v}"
+            exit 0
+          fi
+          gh api repos/lotea-be/ai-agent-marketplace/dispatches \
+            -f event_type=plugin-release \
+            -f "client_payload[plugin]=qrspi" \
+            -f "client_payload[version]=${TAG#v}"
+          echo "Dispatched plugin-release for qrspi ${TAG}; the marketplace opens the bump PR."
