@@ -61,6 +61,8 @@ and several merged PRs batch into one release.
 3. Write `migrations/<version>.yaml` for the new version (a "no consumer action"
    stub is valid — `automated` and `manual` lists may be empty). The lint gate
    checks presence on every PR, so this step must be done before pushing.
+   `/qrspi-release` offers to generate that stub for you when you confirm the
+   release needs no consumer action.
 4. Move the `## [Unreleased]` items into a new `## [X.Y.Z] - <date>` section,
    leaving `## [Unreleased]` with its "No unreleased changes" placeholder.
 5. Run `node scripts/lint.mjs` (exit 0).
@@ -98,7 +100,8 @@ When bumping `plugin.json` `version`:
 - [ ] Decide the correct component (see semver table above).
 - [ ] Update `plugin.json` `version`.
 - [ ] Write `migrations/<version>.yaml` for the new version (stub with empty
-  `automated`/`manual` lists is valid). The lint gate enforces presence.
+  `automated`/`manual` lists is valid; `/qrspi-release` can generate it). The
+  lint gate enforces presence.
 - [ ] Update `CHANGELOG.md`: move items from `## [Unreleased]` into the new
   version section, add the release date.
 - [ ] **Pin-coupling rule:** if the OpenSpec CLI pin is also changing (e.g.
