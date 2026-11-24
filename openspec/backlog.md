@@ -42,25 +42,7 @@ Candidate changes for this repo, tracked before they enter the QRSPI flow
 
 ## In progress
 
-### lint-auto-mode-gate-coverage — `in-progress (draft PR #61 open)` · **P2**
-
-**Why:** `add-auto-mode` introduces a convention that every stage command must
-reference the run-mode procedure in the `stage-choreography` skill; a future command that
-silently drops that reference would quietly fail to suppress (or keep) a gate in
-auto mode. A structural `scripts/lint.mjs` check could assert the reference and
-per-gate auto-branch wiring stays consistent — the runtime suppression itself is
-not statically checkable. Surfaced by `add-auto-mode` stage D (offered, not built).
-Low-cost correctness guard (hence P2, not P3). Now **unblocked** — `add-auto-mode`
-merged 2026-07-06 (archived), so the convention it enforces is live.
-
-**Shape:** A structural `scripts/lint.mjs` Check that asserts every stage command
-references the run-mode procedure in the `stage-choreography` skill and that the per-gate
-auto-branch wiring stays consistent — the static, mechanically-checkable half (the
-runtime suppression itself is not statically checkable). Mirrors the existing
-embed-presence Checks (9/10) in shape. Scope (command stems and assertion depth)
-determined by PQ1–PQ3 answers.
-
----
+_None._
 
 ## Proposed
 

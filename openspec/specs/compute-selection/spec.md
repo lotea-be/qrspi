@@ -214,3 +214,46 @@ repo; the slices `**Compute:**` grammar lives in
 - **WHEN** `openspec-templates/tasks.template.md` is read after the change ships
 - **THEN** the `**Compute:**` grammar comment or placeholder reflects `effort=` as required and `model=` as optional/default sonnet; no `profile=` token is present.
 
+### Requirement: Hard slices default to effort=high on sonnet; opus is opt-in or escalation
+The `vertical-slice` skill and the architect agent MUST direct hard slices
+(first-of-kind patterns, concurrency, non-obvious authorization, subtle
+invariants) to `effort=high model=sonnet`, and MUST permit `model=opus` on a slice
+only when the human asked for it or a sonnet attempt at that same slice already
+failed, with the rationale saying so. The guidance MUST state the reason:
+implementation runs many turns over a large context, so an opus implementer
+costs several times a sonnet one.
+
+#### Scenario: architect annotates a concurrency-heavy slice
+- **WHEN** the architect writes `slices.md` for a slice whose difficulty is a race between two writers
+- **THEN** the slice is annotated `effort=high model=sonnet` (optionally with `skeleton=opus`), not `model=opus`.
+
+#### Scenario: escalation after a failed sonnet run
+- **WHEN** a slice's sonnet implementer returned blocked and the human chooses to escalate
+- **THEN** the slice's `**Compute:**` line is edited to `model=opus` with a rationale naming the failed sonnet attempt, and `/qrspi:implement <id>` is re-run.
+
+### Requirement: Optional skeleton= token runs a skeleton pass before the implementer
+The `**Compute:**` grammar MUST accept an optional `skeleton=<haiku|sonnet|opus>`
+token, absent by default. When present, `/qrspi:implement` MUST first spawn
+`qrspi:implementer-high` on the skeleton model in SKELETON MODE, which writes the
+slice's types and signatures with stub bodies plus failing tests named after the
+slice's invariants, and commits nothing. In Manual mode the orchestrator MUST then
+ask a skeleton checkpoint AskUserQuestion; in Full or Semi auto it MUST print the
+invariant list and continue. It MUST then spawn the `effort=`/`model=` implementer
+with the instruction that those tests are the contract and must not be edited or
+deleted (a genuinely wrong test is a blocked return). The skeleton and the
+implementation MUST land in the single slice commit. The `vertical-slice` skill
+MUST document when to use it: `effort=high` slices whose risk is in invariants a
+test can state and that introduce new types or seams; never for UI-heavy,
+boilerplate or external-integration-risk slices, and never change-wide.
+
+#### Scenario: skeleton slice runs two subagents
+- **WHEN** `/qrspi:implement <id>` reaches a slice annotated `**Compute:** effort=high model=sonnet skeleton=opus`
+- **THEN** it spawns `implementer-high` with `model: opus` in SKELETON MODE, then `implementer-high` with `model: sonnet` in slice mode with the skeleton's tests named as the contract.
+
+#### Scenario: no skeleton token means no skeleton pass
+- **WHEN** a slice is annotated `**Compute:** effort=high model=sonnet`
+- **THEN** `/qrspi:implement` spawns only the slice-mode implementer, as before.
+
+#### Scenario: skeleton tests are red by design and not committed alone
+- **WHEN** the skeleton pass returns READY with failing tests
+- **THEN** the orchestrator does not commit; the slice commit after the implementer turns them green carries both.

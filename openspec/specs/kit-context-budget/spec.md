@@ -4,7 +4,9 @@
 Provides a static, deterministic per-stage context-footprint estimator
 (`scripts/context-footprint.mjs`) that reports byte/line/rough-token estimates
 for each QRSPI stage agent and its declared skill set, giving contributors
-visibility into per-stage context cost. Report-only — not a CI gate.
+visibility into per-stage context cost. Report-only — not a CI gate. Also
+specifies the `context-hygiene` guidance that keeps a long-lived orchestrator
+session a thin main thread.
 
 ## Requirements
 ### Requirement: context-footprint script exists and is runnable with Node built-ins only
@@ -57,3 +59,23 @@ not a CI gate.
   a skill file grew significantly) and `node scripts/context-footprint.mjs` runs
 - **THEN** the process still exits with code 0, because the script is report-only
   and enforces no ceiling.
+
+### Requirement: context-hygiene keeps the orchestrator a thin main thread
+The `context-hygiene` skill MUST carry an "Off-stage work" section stating that a
+long-lived orchestrator session is acceptable while it holds decisions and
+summaries rather than raw output, and MUST direct off-stage work to subagents or
+files: investigations to a read-only subagent returning ≤10 lines with
+`path:line` citations; deploys and CI watching to a subagent or background
+command returning pass/fail plus the relevant error; test help written once to a
+file; code fixes through `/qrspi:followup` or a scope amendment. The skill MUST
+make the stage-boundary "start a new session" prompt conditional: an orchestrator
+that stayed thin MAY decline it, and SHOULD accept it once it has absorbed raw
+output or been summarized.
+
+#### Scenario: staging bug investigation from the orchestrator
+- **WHEN** the human asks the orchestrator "why does the registration stay on awaiting payment?"
+- **THEN** the orchestrator delegates the log and code search to a subagent and relays its short answer, rather than reading logs and files inline.
+
+#### Scenario: thin orchestrator declines the stage-boundary reset
+- **WHEN** the stage-boundary prompt offers a new session and the orchestrator has held only stage summaries
+- **THEN** continuing in the same session is acceptable under the guidance.

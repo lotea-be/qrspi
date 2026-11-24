@@ -14,7 +14,17 @@ kit version.
 
 ## [Unreleased]
 
-_No unreleased changes._
+### Changed
+
+- **Base specs synced with the 0.14.0 prompt changes.** `qrspi-run-mode`
+  (auto mode pauses at external-service `(human)` checks), `compute-selection`
+  (sonnet-default for hard slices, `skeleton=` pass), `implementer-variants`
+  (turn budget, Skeleton mode, no "covered by tests" for external services),
+  `ci-quality-gates` (Check 13 `skeleton=`, `release.yml` lint-before-notes),
+  `kit-context-budget` (thin-orchestrator guidance), and a new
+  `design-grounding` spec (Reference flow, design and question caps).
+- **Archived `lint-auto-mode-gate-coverage`** (merged in #61): its Check 26
+  requirement is folded into `ci-quality-gates`; backlog row removed.
 
 ## [0.14.0] - 2026-11-24
 

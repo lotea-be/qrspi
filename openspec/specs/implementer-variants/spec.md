@@ -113,3 +113,37 @@ value `['implementer-core']`, so that Check 2b (`checkSkillSets`) and
 - **THEN** `checkSkillSets` reports `OK` for all three variants and does not
   contribute a non-zero exit.
 
+### Requirement: implementer-core carries a per-slice turn budget
+The `implementer-core` skill MUST state a per-slice budget of roughly 30–60 tool
+calls and MUST instruct the implementer that, past about 60 with the slice not
+close to green, it stops, does not commit, and returns blocked with what is done,
+what is left and what is blocking.
+
+#### Scenario: slice blows its budget
+- **WHEN** an implementer has made about 60 tool calls on a slice whose tests are still failing for an unexplained reason
+- **THEN** it returns blocked with done / left / blocker instead of continuing, and the slice is not committed.
+
+### Requirement: External-service human tasks are never reported as covered by tests
+The `implementer-core` skill MUST forbid reporting a `(human)` task that
+exercises an external service (payment provider, email delivery, identity
+provider, cloud deploy) as covered by unit or e2e tests, because those tests run
+against stubs.
+
+#### Scenario: payment human check left for the human
+- **WHEN** a slice has `(human)` task "pay with a test card against the real provider" and its e2e suite passes on the stub gateway
+- **THEN** the implementer leaves the task unticked and lists it as human-run verification pending.
+
+### Requirement: implementer-core defines a Skeleton mode
+The `implementer-core` skill MUST define a SKELETON MODE, invoked by
+`/qrspi:implement` for a `skeleton=` slice, in which the implementer writes only
+the slice's types, signatures and wiring with not-implemented bodies plus failing
+tests named after the slice's invariants (unhappy paths included); verifies the
+build compiles, existing tests stay green and the new tests fail because of the
+stubs; stays within about 20–30 tool calls; ticks no task boxes; commits nothing;
+and returns a READY block listing files, the failing tests with the invariant
+each encodes, and points to review. It MUST return blocked when the invariants
+cannot be stated without a design decision.
+
+#### Scenario: skeleton mode output
+- **WHEN** the implementer runs in SKELETON MODE for Slice 6
+- **THEN** it returns `Slice 6 skeleton: READY` with the failing tests and their invariants, and `tasks.md` and git history are unchanged.
