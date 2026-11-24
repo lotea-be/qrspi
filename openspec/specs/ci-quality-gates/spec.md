@@ -1616,12 +1616,19 @@ The `release.yml` workflow MUST run `node scripts/lint.mjs` before the step that
 extracts the `## [X.Y.Z]` CHANGELOG section into `release-notes.md`, because that
 file is written into the repo root and the lint sweeps root-level files: release
 notes that quote an unpinned OpenSpec invocation from a CHANGELOG entry would
-otherwise fail Check 1 and block the publish. The tag/version agreement check,
-the CHANGELOG-section check and the publish step MUST be otherwise unchanged.
+otherwise fail Check 1 and block the publish. It MUST also run
+`openspec validate --all --strict` at the pinned OpenSpec version before the
+publish step, mirroring ci.yml's validate job, so a tag cannot publish on red
+specs. The tag/version agreement check, the CHANGELOG-section check and the
+publish step MUST be otherwise unchanged.
 
 #### Scenario: notes quoting an unpinned invocation still publish
 - **WHEN** a `vX.Y.Z` tag is pushed whose CHANGELOG section quotes an unpinned OpenSpec invocation as historical text
 - **THEN** the lint step passes (it ran before `release-notes.md` existed) and the GitHub Release is published.
+
+#### Scenario: red specs block the publish
+- **WHEN** a `vX.Y.Z` tag is pushed on a commit where `openspec validate --all --strict` fails
+- **THEN** the workflow fails at the validate step and no GitHub Release is created.
 
 #### Scenario: a red lint still blocks the publish
 - **WHEN** a `vX.Y.Z` tag is pushed on a commit where `node scripts/lint.mjs` fails

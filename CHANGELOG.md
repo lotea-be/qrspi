@@ -14,7 +14,16 @@ kit version.
 
 ## [Unreleased]
 
-_No unreleased changes._
+### Changed
+
+- **`release.yml` re-runs `openspec validate --all --strict`** after the lint, so
+  a tag cannot publish on red specs (`repo-branch-protection`; the `main`
+  ruleset now requires the `lint` and `openspec validate` checks, and a new
+  ruleset restricts `v*` tags to org admins -- repo settings, not files).
+- **Backlog refreshed:** `repo-branch-protection` removed (shipped);
+  `adopt-validate-archived` marked unblocked; `research-websearch-external`,
+  `compute-escalation-on-failure` and `real-runtime-slice-checkpoints` note what
+  v0.14.0 already shipped and narrow to what remains.
 
 ## [0.15.0] - 2026-11-24
 
