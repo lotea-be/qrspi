@@ -109,21 +109,31 @@ roll step so that both artifacts are treated as release prerequisites.
 
 ### Requirement: qrspi-release skill preconditions include manifest entry presence
 The `.claude/skills/qrspi-release/SKILL.md` preconditions list MUST include a
-hard-stop check that `migrations/<target-version>.yaml` exists before proceeding
-with the release flow. If the file is absent, the skill MUST surface an explicit
-error and halt, matching the hard-stop discipline applied to other release
-prerequisites (clean tree, `[Unreleased]` having real content, etc.).
+check that `migrations/<target-version>.yaml` exists before the release flow
+bumps anything. If the file is absent, the skill MUST ask the human via
+AskUserQuestion whether the release needs consumer action: on "no", it MUST
+generate a "no consumer action" stub (`version`, a `summary` drawn from the
+`## [Unreleased]` bullet titles, `automated: []`, `manual: []`), re-run the lint,
+and stage the file with the release commit; on "yes", it MUST halt with an
+explicit error so the human writes the manifest through a normal PR. The skill
+MUST NOT generate the stub without that answer.
 
-#### Scenario: release skill halts when manifest entry is missing
-- **WHEN** a contributor invokes `/qrspi-release` with a target version for which
-  no `migrations/<version>.yaml` exists
+#### Scenario: human declines a stub, release halts
+- **WHEN** a contributor invokes `/qrspi-release` for a version with no
+  `migrations/<version>.yaml` and answers that consumer action is needed
 - **THEN** the skill reports the missing manifest entry as a hard-stop and does
   not proceed to bump `plugin.json` or roll the CHANGELOG.
 
+#### Scenario: human approves a stub, release continues
+- **WHEN** the manifest is missing and the contributor answers that no consumer
+  action is needed
+- **THEN** the skill writes the stub, lint Check 6 accepts it, and the release
+  commit stages `plugin.json`, `CHANGELOG.md` and `migrations/<version>.yaml`.
+
 #### Scenario: release skill proceeds when manifest entry is present
 - **WHEN** `migrations/<target-version>.yaml` exists and is schema-valid
-- **THEN** the manifest-presence precondition passes and the release flow
-  continues to the next gate.
+- **THEN** the manifest-presence precondition passes without a question and the
+  release flow continues to the next gate.
 
 ### Requirement: migrations/0.10.0.yaml carries a manual note for followup.md overriders
 The system MUST append one `manual` note to the existing

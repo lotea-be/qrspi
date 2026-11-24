@@ -911,8 +911,8 @@ Alternative: a fine-grained PAT / GitHub App installation token letting
 auto-ship), and run as an **isolated job** (`continue-on-error`) so a bump
 failure can't red an already-published, irreversible-ish release. Needs the
 marketplace manifest's exact shape confirmed first (which file; `source: …@vX`
-vs a `ref:`/`version:` key). Pairs with [[qrspi-release-auto-stub-manifest]]
-(the other release-time automation idea) and relates to
+vs a `ref:`/`version:` key). Pairs with `qrspi-release-auto-stub-manifest`
+(the other release-time automation idea, shipped 2026-11-24) and relates to
 the pin-coupling guard [[reassess-openspec-dependency]] shipped. Surfaced
 2026-07-25.
 
@@ -1498,21 +1498,6 @@ with extra inline coaching at each stage ("what's happening here / what to check
 before continuing") and explicit pauses at the human gates (design approval,
 commit, next-stage handoff). Wraps the live command path — more invasive than the
 static tour — so the training wheels come off as the first real change ships.
-
-### qrspi-release-auto-stub-manifest — `idea` · **P3**
-
-**Why:** `/qrspi-release` precondition 4 halts when the release version's
-`migrations/<version>.yaml` is missing, but the human must write the stub by
-hand. Have the release skill offer to auto-generate a "no consumer action" stub
-(empty `automated`/`manual`, placeholder `summary`) when absent, so a routine
-release doesn't require a manual file. Surfaced by `versioned-update-command`
-PR review (non-blocking).
-
-**Shape:** Have the `/qrspi-release` skill, at its precondition-4 check, offer to
-auto-generate a "no consumer action" stub `migrations/<version>.yaml` (empty
-`automated`/`manual`, placeholder `summary`) when the file is absent — so a routine
-release with no consumer migration doesn't require hand-writing the stub. A
-localized addition to the release skill's precondition step.
 
 ### update-walk-resume-idempotency — `idea` · **P3**
 

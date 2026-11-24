@@ -39,17 +39,44 @@ Stop and surface the problem if any fail; do not proceed:
    (see CONTRIBUTING "Semver discipline"): a new feature (`### Added`, or a
    behaviour-changing `### Changed`) bumps the **minor**; fixes / prose / docs bump
    the **patch**. The human owns this call — see step 1 below.
-4. **Migration manifest entry exists.** `migrations/<X.Y.Z>.yaml` must exist in
-   the kit repo (use the Read tool to check the path). A stub with empty
-   `automated` and `manual` lists is valid — but the file must be present. If it
-   is absent, halt and instruct the human to write `migrations/<X.Y.Z>.yaml`
-   before re-running. (The lint gate also catches this on every PR, but this
-   hard-stop ensures the release skill never commits without the entry.)
+4. **Migration manifest entry exists — or the human approves a stub.**
+   `migrations/<X.Y.Z>.yaml` must exist in the kit repo (use the Read tool to
+   check the path). A stub with empty `automated` and `manual` lists is valid.
+   If it is absent, this precondition is checked **after** step 1 (the version
+   is known by then): ask via **AskUserQuestion** — *"migrations/<X.Y.Z>.yaml is
+   missing. Does this release need any consumer action?"* with choices:
+   - **No — generate a "no consumer action" stub** → write it per "Generating
+     the stub manifest" below; it is staged with the release commit (step 5).
+   - **Yes — stop, I'll write the manifest** → halt, and tell the human to add
+     `migrations/<X.Y.Z>.yaml` with the needed `automated` / `manual` steps
+     (through a normal PR) before re-running.
+   Never generate the stub without that answer: whether consumers must act is
+   the human's call. (Lint Check 6 also catches a missing entry on every PR.)
 5. **Tag is free.** `vX.Y.Z` does not already exist locally
    (`git tag --list vX.Y.Z`) or on origin
    (`git ls-remote --tags origin vX.Y.Z`).
 6. **Gates are green.** `node scripts/lint.mjs` exits 0 (release.yml re-runs it —
    catching it here avoids a failed publish).
+
+## Generating the stub manifest
+
+Only on the human's "no consumer action" answer at precondition 4. Write
+`migrations/<VER>.yaml` with exactly:
+
+```yaml
+version: <VER>
+summary: >
+  <One or two sentences naming what the release changes, taken from the
+  bullet titles under ## [Unreleased]>. No consumer action required -- the
+  plugin update replaces the changed files in place.
+automated: []
+manual: []
+```
+
+Then re-run `node scripts/lint.mjs`; Check 6 must accept the file. If a
+migration-related spec asserts that this version's manifest does not exist
+(an old "no orphaned manifest" scenario), stop and surface it instead of
+editing specs inside the release.
 
 ## Steps
 
@@ -84,7 +111,8 @@ Run `node scripts/lint.mjs` again (it must
 exit 0 after the edits). If it fails, stop and surface it — do not commit.
 
 ### 5. Show the human what will publish, then commit
-Print (a) the release commit's diff (`plugin.json` + `CHANGELOG.md`), and (b) the
+Print (a) the release commit's diff (`plugin.json` + `CHANGELOG.md`, plus the
+generated `migrations/<VER>.yaml` when step "Generating the stub manifest" ran), and (b) the
 exact notes release.yml will extract (everything under `## [VER]`). Then commit on
 `main` with the conventional release message:
 
@@ -93,7 +121,8 @@ git add .claude-plugin/plugin.json CHANGELOG.md
 git commit -m "release: vVER"
 ```
 
-(Stage only those two explicit paths — never `git add -A`.)
+When the stub was generated, add `migrations/<VER>.yaml` to that `git add`.
+(Stage only those explicit paths — never `git add -A`.)
 
 ### 6. Push `main`, create the tag, and push it behind a confirmation gate
 The tag push is the only outward-facing publish step. The skill performs it, but

@@ -22,7 +22,9 @@ Summary of what happens (the skill is the source of truth):
 1. **Verify preconditions** — on `main`, clean tree, level with `origin/main`;
    `## [Unreleased]` is non-empty; the target version is valid and forward; the
    `vX.Y.Z` tag does not already exist; `node scripts/lint.mjs` exits 0. Stop on
-   any failure.
+   any failure. If `migrations/X.Y.Z.yaml` is missing, ask whether the release
+   needs consumer action: on "no", generate a "no consumer action" stub and
+   stage it with the release commit; on "yes", stop so you can write it.
 2. **Determine the version** — from the argument, or propose minor/patch from the
    `[Unreleased]` contents and confirm via **AskUserQuestion** (semver is your
    call).
