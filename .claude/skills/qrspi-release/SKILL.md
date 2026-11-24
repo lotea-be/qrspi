@@ -161,14 +161,29 @@ The tag push is the only outward-facing publish step. The skill performs it, but
 
 ### 7. Hand off the external marketplace step
 The release does not reach installed users until the qrspi entry's `source` ref
-is bumped to `vVER` in the **separate** `lotea-be/ai-agent-marketplace` repo. The
-release skill does not edit that repo itself, but a companion command automates the
+is bumped to `vVER` in the **separate** `lotea-be/ai-agent-marketplace` repo.
+
+**Automatic path (default).** After publishing, `release.yml`'s `notify marketplace`
+job sends a `plugin-release` dispatch, and the marketplace's `Bump plugin pin`
+workflow opens the bump PR on `chore/bump-qrspi-vVER`. When the tag was pushed,
+wait for the release run to finish, then check for that PR:
+
+```
+gh pr list -R lotea-be/ai-agent-marketplace --head chore/bump-qrspi-vVER
+```
+
+If it exists, give the human its URL and the reminder that merging it is what
+delivers the release. If it does not (the `notify marketplace` job printed the
+"MARKETPLACE_DISPATCH_TOKEN not set" notice, or failed), fall back to the manual
+path.
+
+**Manual path (fallback).** A companion command performs the
 bump: `/qrspi-marketplace-bump` (skill `qrspi-marketplace-bump`) locates the
 marketplace repo as a sibling folder, verifies `vVER` is published, edits only the
 qrspi entry's ref, and opens a bump **PR** (never a direct push to the marketplace
 `main`).
 
-- **If the tag was pushed in step 6** (the human chose to publish), offer to run the
+- **If the tag was pushed in step 6** and no automatic PR appeared, offer to run the
   bump now via **AskUserQuestion** — "Bump the marketplace pin to `vVER` now?" with
   choices "Run `/qrspi-marketplace-bump vVER` now" / "Not now — I'll do it later". On
   the first choice, re-enter `/qrspi-marketplace-bump vVER` as a slash command on the

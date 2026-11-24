@@ -53,9 +53,10 @@ Summary of what happens (the skill is the source of truth):
    watch it with `gh run watch`. On a no, the tag stays local and unpushed and the
    command prints the push command for you to run later. It never pushes the tag
    without your confirmation.
-7. **Remind** to bump the qrspi `source` ref to `vX.Y.Z` in
-   `lotea-be/ai-agent-marketplace` — the only step that reaches installed users,
-   and the only one outside this repo.
+7. **Marketplace pin** — the only step that reaches installed users. After a
+   published tag, `release.yml` asks the marketplace to open a PR bumping the
+   qrspi `source` ref to `vX.Y.Z`; the skill checks that PR exists and hands you
+   its URL, or falls back to `/qrspi-marketplace-bump` when it doesn't.
 
 Do not shell out to peek at the repo during parsing — to list existing tags or
 inspect state, run the git/node commands as ordinary Bash steps per the skill (in

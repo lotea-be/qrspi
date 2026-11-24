@@ -24,6 +24,12 @@ kit version.
   `adopt-validate-archived` marked unblocked; `research-websearch-external`,
   `compute-escalation-on-failure` and `real-runtime-slice-checkpoints` note what
   v0.14.0 already shipped and narrow to what remains.
+- **Releases ask the marketplace to open the pin-bump PR
+  (`automate-marketplace-source-bump`).** A new `notify marketplace` job in
+  `release.yml` (separate, `continue-on-error`) sends a `plugin-release`
+  dispatch to `lotea-be/ai-agent-marketplace`, whose `Bump plugin pin` workflow
+  opens the PR. Needs the `MARKETPLACE_DISPATCH_TOKEN` secret; without it the job
+  prints a notice and `/qrspi-marketplace-bump` stays the manual path.
 
 ## [0.15.0] - 2026-11-24
 

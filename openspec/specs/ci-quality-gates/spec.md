@@ -1633,3 +1633,26 @@ publish step MUST be otherwise unchanged.
 #### Scenario: a red lint still blocks the publish
 - **WHEN** a `vX.Y.Z` tag is pushed on a commit where `node scripts/lint.mjs` fails
 - **THEN** the workflow fails at the lint step and no GitHub Release is created.
+
+### Requirement: release.yml asks the marketplace to open a pin-bump PR
+The `release.yml` workflow MUST carry a `notify marketplace` job that runs after
+the release job, with `continue-on-error: true`, and sends a `plugin-release`
+`repository_dispatch` to `lotea-be/ai-agent-marketplace` with
+`client_payload` `{plugin: "qrspi", version: "X.Y.Z"}` using the
+`MARKETPLACE_DISPATCH_TOKEN` secret. When the secret is absent the job MUST print
+a notice pointing at `/qrspi-marketplace-bump` and exit 0. The marketplace side
+(its `Bump plugin pin` workflow) opens the PR; `release.yml` MUST NOT edit or push
+to the marketplace repo itself.
+
+#### Scenario: token configured
+- **WHEN** a `vX.Y.Z` tag publishes and `MARKETPLACE_DISPATCH_TOKEN` is set
+- **THEN** the `notify marketplace` job sends the dispatch and the marketplace opens `chore/bump-qrspi-vX.Y.Z` as a PR.
+
+#### Scenario: token missing
+- **WHEN** a `vX.Y.Z` tag publishes and the secret is not set
+- **THEN** the job prints a notice naming `/qrspi-marketplace-bump X.Y.Z` and succeeds; the published release is unaffected.
+
+#### Scenario: dispatch failure does not red the release
+- **WHEN** the dispatch call fails (expired token, API error)
+- **THEN** the release job and the GitHub Release stay successful, because the notify job is separate and `continue-on-error`.
+
