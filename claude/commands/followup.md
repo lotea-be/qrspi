@@ -48,7 +48,7 @@ Preconditions (verify with the **Glob** tool — no shell preamble):
 
 > Resolve `openspec/changes/<id>/…` against the **current working repo root** (the consumer's CWD), not the plugin install directory — the change folder lives in the repo you are running the command in.
 
-Load skill `context-budget-gate` and follow its instructions exactly.
+If the `context-budget-gate` instructions are still in your context from an earlier command this session (not lost to a context summary), follow them from there (step 2 still increments the counter) instead of loading the skill again. Otherwise: Load skill `context-budget-gate` and follow its instructions exactly.
 
 **Triage gate (never suppressed -- fires in Full auto, Semi-auto, and Manual).**
 

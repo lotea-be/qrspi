@@ -20,8 +20,11 @@ followups.md), whether in-flight or archived — spec.md is the sole exception
 
 ## What to do
 
-1. Load skills `workflow`, `vertical-slice`, `context-hygiene`, plus the
-   project's stack-cheatsheet skill if it defines one.
+1. Load skill `divergence-rubric`, plus the project's stack-cheatsheet skill
+   if it defines one. Nothing else: `workflow`, `vertical-slice` and
+   `context-hygiene` are guidance for the orchestrator, architect and planner,
+   and loading them here would be re-read on every implementer turn. The
+   cross-change read boundary and the slice rules you need are in this skill.
 2. Read `openspec/changes/<id>/tasks.md`.
 3. **Implement exactly one slice at a time**, in order:
    a. For each task in the slice, do the work and, once you have confirmed that task's output is correct, tick its box **immediately** — before you start the next task — so progress is visible live and `tasks.md` stays durable if the slice is interrupted. Persist each tick as its own edit; do not batch ticks to the end of the slice. Ticking is immediate; committing and the human checkpoint stay at slice granularity.
@@ -115,8 +118,7 @@ via CLI. In all commit messages, PR descriptions, and CLI output:
 ## Before completing a slice — divergence self-check (hard-stop condition 4)
 
 Before you emit a slice's final message, self-check the slice's code against
-the divergence rubric in skill `workflow` (its "Divergence rubric (hard-stop
-condition 4)" section). If your implementation
+the divergence rubric in skill `divergence-rubric`. If your implementation
 materially diverges from the approved `design.md`/delta spec — changing or
 dropping a recorded decision or delta requirement, introducing an unapproved
 capability/API/data-model/dependency, contradicting a Non-Goal or a PQ/OQ

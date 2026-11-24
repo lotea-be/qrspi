@@ -14,7 +14,30 @@ kit version.
 
 ## [Unreleased]
 
-_No unreleased changes._
+### Changed
+
+- **Base specs synced with the 0.14.0 prompt changes.** `qrspi-run-mode`
+  (auto mode pauses at external-service `(human)` checks), `compute-selection`
+  (sonnet-default for hard slices, `skeleton=` pass), `implementer-variants`
+  (turn budget, Skeleton mode, no "covered by tests" for external services),
+  `ci-quality-gates` (Check 13 `skeleton=`, `release.yml` lint-before-notes),
+  `kit-context-budget` (thin-orchestrator guidance), and a new
+  `design-grounding` spec (Reference flow, design and question caps).
+- **Fewer tokens per implementer turn and per orchestrator command
+  (`trim-skill-loads`).**
+  - `implementer-core` loads only the new `divergence-rubric` skill and the
+    stack cheatsheet, no longer `workflow`, `vertical-slice` and
+    `context-hygiene` (~8k tokens less, re-read on every implementer turn).
+    The rubric moved out of `workflow` into `divergence-rubric` (single source);
+    architect and planner load it; `skill-sets.mjs` updated.
+  - Stage commands guard their `qrspi-version-check`, `context-budget-gate` and
+    `stage-choreography` loads to once per session (reloaded after a context
+    summary). `/qrspi:questions` no longer loads `workflow` into the
+    orchestrator; its deferred-work rules are inlined.
+  - `scripts/context-footprint.mjs` counts transitive skill loads and adds a
+    per-command (orchestrator) table.
+- **Archived `lint-auto-mode-gate-coverage`** (merged in #61): its Check 26
+  requirement is folded into `ci-quality-gates`; backlog row removed.
 
 ## [0.14.0] - 2026-11-24
 

@@ -6,15 +6,15 @@ You are running QRSPI stage **R (Research)** for the current project.
 
 Arguments: $ARGUMENTS
 
-1. **Session version check — run silently.** Load skill `qrspi-version-check` and follow its
+1. **Session version check — run silently.** **Skip this step if a QRSPI version check already ran earlier in this session** (its in-context flag is set) -- loading the skill again costs tokens on every later turn. Otherwise: Load skill `qrspi-version-check` and follow its
    instructions exactly. Follow its
    Silence discipline: do not announce or narrate this step, and print nothing
    unless the check itself must prompt or warn. This is the first step -- before the run-mode
    establishment and before any other work.
 
-2. **Context budget gate.** Load skill `context-budget-gate` and follow its instructions exactly.
+2. **Context budget gate.** If the `context-budget-gate` instructions are still in your context from an earlier command this session (not lost to a context summary), follow them from there (step 2 still increments the counter) instead of loading the skill again. Otherwise: Load skill `context-budget-gate` and follow its instructions exactly.
 
-3. **Stage choreography.** Load skill `stage-choreography` and follow its
+3. **Stage choreography.** If the `stage-choreography` instructions are still in your context from an earlier command this session (not lost to a context summary), follow them from there instead of loading the skill again. Otherwise: Load skill `stage-choreography` and follow its
    instructions exactly -- it carries the canonical main-loop procedures this
    command runs (run-mode, precondition check, commit step, next-stage
    handoff). Read or establish the run-mode by following its **Run-mode**

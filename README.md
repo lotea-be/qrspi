@@ -90,9 +90,10 @@ notes; loaded by every stage command and by `archive`).
 `workflow` and `stage-choreography` are a deliberate pair, split by **who runs what**:
 
 - **`workflow`** carries the shared mental model — what QRSPI is, the eight stages, the
-  Read Matrix and its cross-change boundary, the backlog rules, and the divergence
-  rubric for hard-stop condition 4. Both the orchestrator and every stage subagent load
-  it.
+  Read Matrix and its cross-change boundary, and the backlog rules. The orchestrator
+  and the alignment-stage subagents load it; implementers don't. The divergence rubric
+  for hard-stop condition 4 lives in its own small `divergence-rubric` skill, loaded by
+  the architect, planner and implementers.
 - **`stage-choreography`** carries the four canonical procedures the **main-loop
   orchestrator** runs around a stage. A subagent never runs them — it is spawned for one
   bounded artifact write and cannot even reach `AskUserQuestion` — so it never loads
@@ -507,8 +508,9 @@ of `scripts/lint.mjs`.
   `scripts/context-footprint.mjs` -- a single source of truth so the two consumers
   never drift.
 - **`scripts/context-footprint.mjs`** -- report-only script (always exits 0) that
-  prints a per-stage table: agent stem, skill count, total lines, total bytes, and
-  rough token estimate (bytes / 4). Useful for spotting context-budget creep before
+  prints a per-agent table and a per-command (orchestrator) table: skill count, total
+  lines, total bytes, and rough token estimate (bytes / 4), following skills that
+  load other skills. Useful for spotting context-budget creep before
   it becomes a CI failure. Run from the repo root: `node scripts/context-footprint.mjs`.
 
 ---

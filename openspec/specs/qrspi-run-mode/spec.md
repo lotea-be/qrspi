@@ -141,27 +141,37 @@ MUST trigger a hard-stop.
 - **THEN** the commit message is the stage's standard message string with no
   `[auto]`, `[skip-ci]`, or any other auto-mode decoration.
 
-### Requirement: Implement auto-advances all slice checkpoints preserving per-slice model
-In Full or Semi-auto mode the Implement stage orchestrator MUST run all slices
-straight through without asking the per-slice human checkpoint AskUserQuestion or
-the per-slice commit AskUserQuestion. It MUST still read each slice's `**Model:**
-sonnet|opus` annotation and re-invoke the implementer subagent on the annotated
-model for each slice. It MUST auto-commit each slice using the stage's exact
-per-slice commit-message string and push immediately after. A hard-stop (subagent
+### Requirement: Implement auto-advances slice checkpoints except external-service human checks, preserving per-slice compute
+In Full or Semi-auto mode the Implement stage orchestrator MUST run slices
+straight through without the per-slice checkpoint AskUserQuestion or the
+per-slice commit AskUserQuestion, EXCEPT when the slice just finished has an
+un-ticked `(human)` task that exercises an external service (payment provider,
+email delivery, identity provider, cloud deploy / infra): then it MUST issue the
+Manual-mode checkpoint AskUserQuestion naming those tasks, and MUST NOT treat
+them as covered by automated tests. It MUST read each slice's `**Compute:**`
+annotation and invoke the implementer variant and model it names for every
+slice. It MUST auto-commit each slice using the stage's exact per-slice
+commit-message string and push immediately after. A hard-stop (subagent
 error/block) MUST abort the slice run; it MUST NOT silently downgrade to Manual.
 
-#### Scenario: Full auto Implement runs all slices without checkpoints
+#### Scenario: Full auto Implement runs internal slices without checkpoints
 - **GIVEN** Full auto mode is active and `/qrspi:implement <id>` is running
-- **WHEN** the implementer subagent completes Slice 1 successfully
+- **WHEN** the implementer completes Slice 1, which has no un-ticked external-service `(human)` task
 - **THEN** the orchestrator auto-commits Slice 1, does NOT ask "Continue with
-  Slice 2?", and immediately invokes the Slice 2 implementer on the annotated
-  model for that slice.
+  Slice 2?", and immediately invokes the Slice 2 implementer per its `**Compute:**` line.
 
-#### Scenario: per-slice model re-invocation preserved in auto mode
-- **GIVEN** Full auto mode is active and Slice 2 is annotated `**Model:** opus`
-  while Slice 1 was `sonnet`
+#### Scenario: external-service human check pauses the auto chain
+- **GIVEN** Full auto mode is active and Slice 2 carries an un-ticked
+  `(human)` task "pay with a Stripe test card on staging"
+- **WHEN** the Slice 2 implementer returns successfully
+- **THEN** the orchestrator issues the checkpoint AskUserQuestion naming that
+  task before starting Slice 3, and does not report it as covered by tests.
+
+#### Scenario: per-slice compute re-invocation preserved in auto mode
+- **GIVEN** Full auto mode is active and Slice 2 is annotated
+  `**Compute:** effort=high model=opus` while Slice 1 was `effort=medium model=sonnet`
 - **WHEN** the Slice 1 implementer returns and the orchestrator auto-advances
-- **THEN** the Slice 2 implementer is invoked with `model: opus`, not `sonnet`.
+- **THEN** the Slice 2 implementer is `implementer-high` invoked with `model: opus`.
 
 ### Requirement: PR-create is auto-executed in Full and Semi-auto mode
 In Full or Semi-auto mode the orchestrator MUST auto-execute the PR-create
