@@ -36,6 +36,12 @@ jobs:
           fi
           echo "tag v$VER matches plugin.json $PLUGIN_VERSION"
 
+      # Lint runs before the notes are extracted: release-notes.md is written
+      # into the repo root, and the lint would otherwise sweep it (e.g. a
+      # CHANGELOG entry quoting an unpinned OpenSpec invocation fails Check 1).
+      - name: Re-check lint
+        run: node scripts/lint.mjs
+
       - name: Extract CHANGELOG notes for this version
         env:
           VER: ${{ steps.ver.outputs.version }}
@@ -54,9 +60,6 @@ jobs:
             fs.writeFileSync("release-notes.md", notes + "\n");
             console.log(notes);
           '
-
-      - name: Re-check lint
-        run: node scripts/lint.mjs
 
       - name: Publish GitHub Release
         env:
