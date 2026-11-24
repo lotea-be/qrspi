@@ -136,11 +136,11 @@ archived change still has unticked `tasks.md` boxes — exactly the archive-hygi
 gate QRSPI lacks, since its `(human)` checkpoint tasks are the ones most often
 left unticked at archive time.
 
-**Shape:** Once the 1.9.0 pin lands, add `--archived` to the CI validate job,
-first running it across the 28 existing archived changes to size and clear any
-pre-existing violations before it becomes a blocking gate. Blocked on
-[[bump-openspec-pin]] — the flag does not exist at the current 1.4.1 pin.
-Surfaced 2026-08-14.
+**Shape:** Add `--archived` to the CI validate job (and the matching
+`release.yml` step), first running it across the existing archived changes to
+size and clear any pre-existing violations before it becomes a blocking gate.
+**Unblocked (2026-11-24):** the 1.9.0 pin from [[bump-openspec-pin]] shipped in
+v0.14.0. Surfaced 2026-08-14.
 
 ### extend-ticket-hiding-to-backlog — `idea` · **P1**
 
@@ -465,6 +465,12 @@ Part of the adaptive-compute cluster with [[orchestrator-effort-targeting]] and
 [[richer-effort-vocab-and-thinking]]. Surfaced as an afterthought during
 `per-slice-compute-tier` stage-D review (2026-07-27).
 
+**Partially shipped (v0.14.0, 2026-11-24):** *manual* escalation is documented —
+`vertical-slice` defaults hard slices to `effort=high model=sonnet` and says to
+edit a blocked slice's `**Compute:**` line to `model=opus` and re-run; the
+implementer's ~60-tool-call budget makes it return blocked instead of grinding.
+What remains is the automatic, orchestrator-driven ladder below.
+
 **Shape:** Orchestrator-driven retry: on a slice build/test failure at the
 boundary, re-spawn the same slice on a higher tier (bump effort and/or model up a
 defined ladder) before falling to the human hard-stop — escalate-then-ask, never
@@ -716,6 +722,14 @@ Check-15 plugin-registration bug that lint was blind to until the dogfood). Sibl
 to [[architect-real-runtime-done-decomposition]] (decompose it — this one verifies
 it). Surfaced by the abkf `dsr-self-service` consumer retro (2026-07-27).
 
+**Partially shipped (v0.14.0, 2026-11-24):** once an external-service `(human)`
+checkpoint exists, Full/Semi auto now pauses at it instead of auto-advancing, and
+the implementer may not report it as "covered by tests" (stubs). What remains is
+the *emission* side below: making the architect/planner add such a checkpoint
+whenever acceptance is automation-unreachable. A second abkf case
+(`pay-registration-online`: Stripe webhook, secrets and staging flag surfaced
+post-PR) reinforces it.
+
 **Shape:** Generalize the `vertical-slice` skill (and the architect/planner that
 emit checkpoints) with a rule: **any slice whose acceptance cannot be reached by
 the automated suite MUST carry a `(human)` checkpoint verifying it in the real
@@ -850,24 +864,6 @@ guard" line in [[enforce-research-ticket-hiding]] by naming the mechanism.
 Anchors the Claude Code capability cluster with [[github-mcp-for-pr-ops]],
 [[scheduled-backlog-hygiene]], [[research-websearch-external]], and
 [[richer-askuserquestion-formats]]. Surfaced 2026-07-25.
-
-### repo-branch-protection — `idea` · **P2**
-
-**Why:** The CI gates added by `kit-quality-hardening` are only advisory until
-the `main` branch requires them. Deferred from `kit-quality-hardening` as a
-separate governance concern (its Q7). **Fresh evidence (2026-06-19):** PR #5
-merged while its CI run was still `UNSTABLE` — confirming `main` has no required
-checks today. Pair this with the `release.yml` so a tag can't publish on a red
-build either.
-
-**Partially shipped (2026-08-13):** the `CODEOWNERS` half landed independently in
-PR #52 (`.github/CODEOWNERS`, `@braekstuv` as default owner), so review routing is
-done. What remains is the part that needs repo *settings*, not a repo *file*.
-
-**Shape:** Configure GitHub branch protection on `main` to require the CI checks
-(the `kit-quality-hardening` gates) before merge, and gate `release.yml` so a tag
-cannot publish on a red build. Governance config only now that `CODEOWNERS`
-exists — no kit-source logic change.
 
 ### tutorial-mode-narrated-tour — `idea` · **P2**
 
@@ -1354,6 +1350,11 @@ API/library, letting the researcher use **WebSearch/WebFetch** to pull the
 official docs would ground the design in the real external contract rather than
 the agent's memory of it. Opt-in and bounded — most kit changes touch no external
 surface.
+
+**Partially shipped (v0.14.0, 2026-11-24):** the *designer* now carries
+WebFetch/WebSearch and must cite the vendor's documented integration pattern in a
+`### Reference flow` (see the `design-grounding` spec). What remains is giving the
+same to stage R, only if D-stage grounding proves insufficient.
 
 **Shape:** Let stage R optionally use WebSearch/WebFetch to pull an integrated
 third-party API/library's official docs, grounding the design in the real external

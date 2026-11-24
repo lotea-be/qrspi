@@ -42,6 +42,10 @@ jobs:
       - name: Re-check lint
         run: node scripts/lint.mjs
 
+      # Same gate as ci.yml's validate job, so a tag cannot publish on red specs.
+      - name: Re-check openspec validate
+        run: npx --yes @fission-ai/openspec@1.9.0 validate --all --strict
+
       - name: Extract CHANGELOG notes for this version
         env:
           VER: ${{ steps.ver.outputs.version }}
