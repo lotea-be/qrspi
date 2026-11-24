@@ -141,7 +141,7 @@ an agent frontmatter uses a value from `{low, medium, high}` (rejecting
 
 #### Scenario: missing effort field fails Check 2
 - **WHEN** an agent file is missing the `effort:` frontmatter key after the change ships and `node scripts/lint.mjs` is run
-- **THEN** Check 2 reports a violation because all seven stage agents are required to carry `effort:`.
+- **THEN** Check 2 reports a violation because every agent file is required to carry `effort:`.
 
 ### Requirement: Lint job checks skeleton heading alignment
 The CI `lint` job MUST verify that the canonical section headings from each
@@ -608,9 +608,9 @@ skeleton is covered.
 The CI `lint` job MUST include a `checkSkillSets` check (extension of Check 2 or
 a sibling registered after Check 2) that maintains a hardcoded `SKILL_SET_EXPECTED`
 map (agent stem → array of unconditional kit skill names, mirroring the existing
-`READ_CONTRACT_EXPECTED` shape) and, for each of the seven stage agent files
-(`claude/agents/researcher.md`, `questioner.md`, `designer.md`, `architect.md`,
-`planner.md`, `implementer.md`, `reviewer.md`), harvests the skill names from the
+`READ_CONTRACT_EXPECTED` shape, kept in `scripts/skill-sets.mjs`) and, for each
+stage agent file it lists (researcher, questioner, designer, architect, planner,
+the three implementer variants, reviewer), harvests the skill names from the
 agent's `Load skills` line and asserts that the harvested set (after filtering out
 the conditional `<repo>-stack` cheatsheet, which is Glob-discovered and therefore
 excluded from the registry) equals the declared set for that agent stem. The check
@@ -618,7 +618,7 @@ MUST report added skills (present in the agent but absent from the registry) and
 missing skills (present in the registry but absent from the agent) separately, and
 MUST exit non-zero on any mismatch.
 
-#### Scenario: all seven agents match their registry entries
+#### Scenario: all registered agents match their registry entries
 - **WHEN** every stage agent's `Load skills` line names exactly the skills in
   `SKILL_SET_EXPECTED` for its stem (after the conditional stack-cheatsheet is
   excluded) and `node scripts/lint.mjs` is run

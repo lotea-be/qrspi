@@ -31,6 +31,13 @@ The system MUST embed a load line for skill `context-budget-gate` in each of the
 and before run-mode establishment. The three excluded commands (`status.md`,
 `update.md`, `retro.md`) MUST NOT carry this embed.
 
+#### Scenario: gate instructions already in context are not reloaded
+- **WHEN** a gate-scoped command runs and the `context-budget-gate` instructions
+  are still in the orchestrator's context from an earlier command (no context
+  summary in between)
+- **THEN** the command follows them from context (still incrementing the
+  counter) instead of loading the skill again; the embed line stays verbatim.
+
 #### Scenario: a gate-scoped command carries the embed in the correct position
 - **WHEN** any of the 10 stage-and-followup command files is read after the
   change ships

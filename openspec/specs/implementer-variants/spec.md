@@ -161,6 +161,11 @@ load `divergence-rubric` and `scripts/skill-sets.mjs` MUST list it for both.
 - **WHEN** an implementer variant starts a slice
 - **THEN** it loads `implementer-core`, `divergence-rubric` and the stack cheatsheet, and no `workflow`, `vertical-slice` or `context-hygiene`.
 
+#### Scenario: cross-change boundary still reaches the implementer
+- **WHEN** an implementer starts without loading `workflow`
+- **THEN** the cross-change read boundary still applies to it through
+  `implementer-core`'s own "Cross-change read boundary" section.
+
 #### Scenario: rubric has one home
 - **WHEN** the rubric's criteria (a)-(d) are searched for in `claude/`
 - **THEN** they appear only in `claude/skills/divergence-rubric/SKILL.md`.
