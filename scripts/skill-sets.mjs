@@ -10,8 +10,8 @@
 //   researcher         -- trimmed: removed openspec-workflow (D1), added context-hygiene (D3)
 //   questioner         -- trimmed: removed openspec-workflow (D1), removed repo-surface (D1); added backlog-writer (D11)
 //   designer           -- trimmed: removed openspec-workflow (D1); added backlog-writer (D11)
-//   architect          -- unchanged: keeps openspec-workflow (spec-delta + validate); added backlog-writer (D11)
-//   planner            -- trimmed: removed openspec-workflow (D1)
+//   architect          -- unchanged: keeps openspec-workflow (spec-delta + validate); added backlog-writer (D11); loads divergence-rubric
+//   planner            -- trimmed: removed openspec-workflow (D1); loads divergence-rubric (moved out of workflow)
 //   implementer-low    -- effort-variant: delegates all behaviour to implementer-core
 //   implementer-medium -- effort-variant: delegates all behaviour to implementer-core
 //   implementer-high   -- effort-variant: delegates all behaviour to implementer-core
@@ -20,8 +20,8 @@ export const SKILL_SET_EXPECTED = {
   researcher:          ['context-hygiene', 'repo-surface', 'workflow'],
   questioner:          ['backlog-writer', 'repo-surface', 'workflow'],
   designer:            ['backlog-writer', 'context-hygiene', 'repo-surface', 'workflow'],
-  architect:           ['backlog-writer', 'openspec-workflow', 'repo-surface', 'vertical-slice', 'workflow'],
-  planner:             ['repo-surface', 'vertical-slice', 'workflow'],
+  architect:           ['backlog-writer', 'divergence-rubric', 'openspec-workflow', 'repo-surface', 'vertical-slice', 'workflow'],
+  planner:             ['divergence-rubric', 'repo-surface', 'vertical-slice', 'workflow'],
   'implementer-low':   ['implementer-core'],
   'implementer-medium': ['implementer-core'],
   'implementer-high':  ['implementer-core'],

@@ -15,9 +15,9 @@ skill (do not hand-edit that skill — it is regenerated from the OpenSpec CLI).
 Argument (optional): $ARGUMENTS — the change id (kebab-case). If omitted, the
 skill will list active changes and prompt you to pick one.
 
-Load skill `context-budget-gate` and follow its instructions exactly.
+If the `context-budget-gate` instructions are still in your context from an earlier command this session (not lost to a context summary), follow them from there (step 2 still increments the counter) instead of loading the skill again. Otherwise: Load skill `context-budget-gate` and follow its instructions exactly.
 
-Load skill `stage-choreography` and follow its instructions exactly -- this
+If the `stage-choreography` instructions are still in your context from an earlier command this session (not lost to a context summary), follow them from there instead of loading the skill again. Otherwise: Load skill `stage-choreography` and follow its instructions exactly -- this
 command runs the canonical commit step, the hard-stop procedure, and the
 PR-create auto-advance rule.
 

@@ -34,7 +34,8 @@ followups.md), whether in-flight or archived — spec.md is the sole exception
 
 ## What to do
 
-1. Load skills `workflow`, `vertical-slice`, and `repo-surface`. Also load
+1. Load skills `workflow`, `vertical-slice`, `repo-surface`, and
+   `divergence-rubric`. Also load
    the project's stack-cheatsheet skill if one exists for this repo (use the
    Glob tool with pattern `.claude/skills/*/SKILL.md` to find it). The
    `repo-surface` skill defines which task lines to emit based on the surfaces
@@ -141,7 +142,7 @@ or migration generation tasks that the design decisions don't enumerate).
 ## Before returning — divergence self-check (hard-stop condition 4)
 
 Before you emit the final message, self-check your `tasks.md` against the
-divergence rubric in skill `workflow` (its "Divergence rubric (hard-stop
+divergence rubric in skill `divergence-rubric` ("Divergence rubric (hard-stop
 condition 4)" section). If the task list materially diverges from
 the approved `design.md`/delta spec — inventing work that changes or drops a
 recorded decision or delta requirement, introducing an unapproved

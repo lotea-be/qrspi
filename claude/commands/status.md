@@ -7,7 +7,7 @@ the QRSPI workflow.
 
 Steps:
 
-1. **Session version check — run silently.** Load skill `qrspi-version-check` and follow its
+1. **Session version check — run silently.** **Skip this step if a QRSPI version check already ran earlier in this session** (its in-context flag is set) -- loading the skill again costs tokens on every later turn. Otherwise: Load skill `qrspi-version-check` and follow its
    instructions exactly. Follow its
    Silence discipline: do not announce or narrate this step, and print nothing
    unless the check itself must prompt or warn. This is the first step -- before the onboarding

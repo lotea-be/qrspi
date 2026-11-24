@@ -47,7 +47,7 @@ final message. Do NOT write `slices.md` during S, and do NOT touch
 ## What to do — Structure (S)
 
 1. Load skills `workflow`, `openspec-workflow`, `vertical-slice`,
-   `repo-surface`, and `backlog-writer`, plus the project's stack-cheatsheet
+   `repo-surface`, `backlog-writer`, and `divergence-rubric`, plus the project's stack-cheatsheet
    skill if it defines one (use the Glob tool with pattern
    `.claude/skills/*/SKILL.md` to find it). The `repo-surface` skill defines
    which sections to emit based on the surfaces present in the repo; the stack
@@ -319,8 +319,7 @@ propagates into `tasks.md` (P stage) and is consumed by
 ## Before returning — divergence self-check (hard-stop condition 4)
 
 Before you emit the final message, self-check your `proposal.md` / `specs/`
-(S) or `slices.md` (V) against the divergence rubric in skill `workflow`
-(its "Divergence rubric (hard-stop condition 4)" section).
+(S) or `slices.md` (V) against the divergence rubric in skill `divergence-rubric`.
 If your output materially diverges from the approved `design.md`/delta spec —
 changing or dropping a recorded decision or delta requirement, introducing an
 unapproved capability/API/data-model/dependency, contradicting a Non-Goal or a
