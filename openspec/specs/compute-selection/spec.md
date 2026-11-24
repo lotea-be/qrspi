@@ -60,13 +60,15 @@ The distinction is dictated by each file's shape and MUST NOT be unified.
 - **WHEN** `claude/skills/vertical-slice/SKILL.md` is read
 - **THEN** the "Per-slice model selection" heading (or its replacement) documents the `**Compute:**` grammar and explicitly names both the `-` bullet form for `slices.md` and the bare bold form for `tasks.md`.
 
-### Requirement: All seven agent frontmatter files carry an effort: field
-The system MUST add an `effort:` frontmatter key to each of the seven QRSPI
-stage agent files (`claude/agents/researcher.md`, `questioner.md`,
-`designer.md`, `architect.md`, `planner.md`, `implementer.md`, `reviewer.md`).
-The value MUST be `high` for opus-default agents (designer, implementer) and
-`medium` for sonnet-default agents (questioner, researcher, architect, planner,
-reviewer). No `budget:` or `thinking:` frontmatter field is added.
+### Requirement: Every agent frontmatter file carries an effort: field
+The system MUST carry an `effort:` frontmatter key in every file under
+`claude/agents/` (researcher, questioner, designer, architect, planner, the three
+implementer variants, reviewer, spec-syncer). The value MUST be `high` for the
+opus-default agents (designer, spec-syncer), MUST match the filename suffix for
+the implementer variants (`implementer-low` → `low`, `-medium` → `medium`,
+`-high` → `high`), and MUST be `medium` for the remaining sonnet-default agents
+(questioner, researcher, architect, planner, reviewer). No `budget:` or
+`thinking:` frontmatter field is added.
 
 #### Scenario: designer agent carries effort: high
 - **WHEN** `claude/agents/designer.md` frontmatter is read
@@ -77,7 +79,7 @@ reviewer). No `budget:` or `thinking:` frontmatter field is added.
 - **THEN** it contains `effort: medium` (the architect is a sonnet-default stage).
 
 #### Scenario: no thinking or budget frontmatter field is added
-- **WHEN** any of the seven stage agent files is read after the change ships
+- **WHEN** any agent file under `claude/agents/` is read
 - **THEN** none of the agent frontmatter sections contains a `thinking:` or `budget:` key.
 
 ### Requirement: Implement command threads per-slice model= from tasks.md and drops the self-halt

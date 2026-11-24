@@ -34,8 +34,8 @@ only; PR (reviewer) reads the full `changes/<id>/` folder by design.
 
 ### Requirement: Every stage agent carries a uniform read-contract banner
 Every QRSPI stage agent file MUST carry a terse, machine-readable read-contract
-banner near the top of the file — all seven of them (researcher, questioner,
-designer, architect, planner, implementer, reviewer). The banner MUST use the
+banner near the top of the file — every one of them (researcher, questioner,
+designer, architect, planner, the three implementer variants, reviewer). The banner MUST use the
 fixed "Read contract" shape, and its `Reads:` field MUST match the agent's row
 in the approved read-matrix exactly. The fixed shape is:
 
@@ -168,7 +168,9 @@ artifacts — `questions.md`, `research.md`, `design.md`, `proposal.md`,
 The sole exception is any `spec.md` file: base specs under `openspec/specs/**`
 and delta `specs/**/spec.md` in other or archived changes are permitted reads.
 This rule MUST be stated once in the workflow skill's Read-Matrix section and
-referenced (not repeated in full) from each agent's read-contract banner.
+referenced (not repeated in full) from each agent's read-contract banner. The one
+exception MUST be `implementer-core`, which restates it because implementers do
+not load the workflow skill.
 
 #### Scenario: cross-change process artifacts are forbidden
 - **GIVEN** an agent is executing a QRSPI stage for change `foo`
