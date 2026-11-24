@@ -328,10 +328,11 @@ of their own change folders currently between stage Q and stage S.
   added the `.openspec.yaml` marker to any of their own in-flight change
   folders currently between stage Q and stage S, before the walk advances.
 
-#### Scenario: no orphaned 0.15.0.yaml manifest is shipped
-- **WHEN** the kit source tree is inspected after this change ships
-- **THEN** `migrations/0.15.0.yaml` does not exist, and the pin-bump steps
-  live entirely inside `migrations/0.14.0.yaml`.
+#### Scenario: pin-bump steps are not split across manifests
+- **WHEN** the kit source tree is inspected
+- **THEN** the OpenSpec 1.4.1 → 1.9.0 pin-bump steps live entirely inside
+  `migrations/0.14.0.yaml`; no later manifest (e.g. `migrations/0.15.0.yaml`)
+  repeats or continues them.
 
 #### Scenario: lint Check 6 passes for the extended manifest
 - **WHEN** `node scripts/lint.mjs` is run after `migrations/0.14.0.yaml` is

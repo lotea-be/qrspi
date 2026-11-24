@@ -1,0 +1,12 @@
+version: 0.15.0
+summary: >
+  Prompt, script and spec changes only; no consumer action required. Implementers
+  load only the new divergence-rubric skill plus the stack cheatsheet (fewer
+  tokens per turn); stage commands load the version-check, budget-gate and
+  stage-choreography skills once per session; /qrspi:questions no longer loads
+  the workflow skill into the orchestrator; context-footprint.mjs follows
+  transitive skill loads and reports per-command orchestrator cost. Base specs
+  synced with 0.14.0 and lint-auto-mode-gate-coverage archived in the kit repo.
+  The plugin update replaces the changed files in place.
+automated: []
+manual: []

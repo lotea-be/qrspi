@@ -14,6 +14,10 @@ kit version.
 
 ## [Unreleased]
 
+_No unreleased changes._
+
+## [0.15.0] - 2026-11-24
+
 ### Changed
 
 - **Base specs synced with the 0.14.0 prompt changes.** `qrspi-run-mode`
