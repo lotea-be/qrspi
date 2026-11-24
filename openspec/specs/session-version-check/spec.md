@@ -152,6 +152,12 @@ without reading A, reading B, or issuing any prompt. The flag MUST be held in
 the orchestrator's conversational context only — no disk file, no temp marker,
 no frontmatter — using the same mechanism as the run-mode flag.
 
+#### Scenario: embedding command skips loading the skill when the flag is held
+- **WHEN** a stage command runs and the version-checked flag is already held in context
+- **THEN** the command skips its version-check step without loading the
+  `qrspi-version-check` skill at all (the command-side guard in front of the
+  embed line), so the skill's text is not added to the orchestrator's context again.
+
 #### Scenario: second stage in an auto-chain does not re-check
 - **WHEN** Full auto mode chains from stage Q (which ran the check) to stage R
 - **THEN** the version-check preamble in the R command body finds the flag
