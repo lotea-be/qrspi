@@ -69,6 +69,26 @@ Invoke the resolved variant subagent via the Agent tool with
 subagent runs on the right effort *and* the right model for this slice.
 Thinking is not shipped (no per-subagent thinking control).
 
+**Skeleton pass (only when the slice's `**Compute:**` line has `skeleton=`).**
+Before the implementer spawn above, run one extra subagent:
+
+1. Spawn `subagent_type: qrspi:implementer-high` with `model: <skeleton alias>`
+   and tell it it is in **SKELETON MODE** for Slice N (see "Skeleton mode" in
+   skill `implementer-core`). It returns the skeleton files, the failing test
+   names and the invariant each one encodes. Do not commit: the skeleton
+   lands in the slice commit, since its tests are red by design.
+2. **Skeleton checkpoint.** In Manual mode, show the invariant list and ask
+   via AskUserQuestion: "Skeleton for Slice N is ready (<k> failing tests).
+   Continue with the implementer?" with choices
+   ["Yes, implement against these tests", "Stop — I want to adjust the skeleton"].
+   In Full or Semi auto, print the invariant list in one block and continue.
+   If the skeleton subagent returns blocked, use the "Hard-stop procedure".
+3. Spawn the implementer as above, adding to its prompt: "A skeleton is
+   present for this slice. The tests <names> are the contract: make them
+   pass without editing or deleting them. If one is genuinely wrong, stop and
+   return blocked naming the test and why." The block-signal contract and
+   per-slice loop below then apply unchanged.
+
 **Missing-`effort=` hard-stop.** If a slice is missing the `**Compute:**`
 line or its `effort=` token, **stop** — surface the condition and tell the
 user the slices/tasks file needs to be fixed (the architect at stage V

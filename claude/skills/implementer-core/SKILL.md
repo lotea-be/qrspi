@@ -53,6 +53,16 @@ them and follow them. The rules below are the stack-agnostic minimum:
   logic, an integration/e2e test for a wired endpoint or page.
 - Tick each box immediately after its task — see step 4a. The commit message references the change id.
 
+## Turn budget
+
+A slice should take roughly 30–60 tool calls. If you pass about 60 and the
+slice is not close to green, **stop grinding**: do not commit, and return
+blocked with what is done, what is left, and what is blocking you (a failing
+test you can't explain, a task bigger than planned, a design gap). A slice
+that blows its budget usually means the slice is too big or the plan is
+wrong; the human splitting it or escalating it is cheaper than another
+60 turns of retries on a growing context.
+
 ## When you get stuck
 
 - Domain question about the data layer / schema / migrations → delegate to
@@ -94,7 +104,11 @@ via CLI. In all commit messages, PR descriptions, and CLI output:
   off and needs a human decision.
 - Do not attempt tasks tagged `(human)` — they are manual/interactive checks
   you cannot perform from a subagent. Leave their boxes unticked and list them
-  at the final checkpoint as "human-run verification pending."
+  at the final checkpoint as "human-run verification pending." Never report a
+  `(human)` task as "covered by unit/e2e tests" when it exercises an external
+  service (payment provider, email delivery, identity provider, cloud
+  deploy): those tests run against stubs, and the stub is exactly what the
+  human check exists to get past.
 - Do not commit secrets. Do not read files outside the worktree.
 - Do not push to remote without explicit human approval.
 
@@ -114,6 +128,43 @@ orchestrator treats that as hard-stop condition (4). Immaterial elaboration
 (naming, internal structure, wording, test mechanics) is normal implementation
 latitude, not a divergence. (This self-check is a slice-mode gate; the post-PR
 fix mode below has its own contract.)
+
+## Skeleton mode — invoked by `/qrspi:implement` for a `skeleton=` slice
+
+When the task says you are in **SKELETON MODE** for Slice N, you do not
+implement the slice. You write the rails the implementer will work inside:
+
+- **Skeleton:** the slice's new types, interfaces, method signatures, DTOs
+  and wiring (DI registration, routes), with bodies that throw the stack's
+  not-implemented exception (or the closest equivalent). Follow the
+  project's conventions exactly — this is the structure the slice will keep.
+- **Failing tests that encode the invariants:** one test per invariant the
+  slice must hold, named after the invariant (e.g.
+  `DuplicateWebhookEvent_ChangesNothing`,
+  `ReturnConfirmRacingWebhook_AppliesPaymentOnce`). Cover the unhappy paths
+  and edge cases from the slice's tasks, not only the happy path. Each test
+  must compile and fail **because of the stubs**, not because of a setup
+  error.
+- **Checks:** the build compiles, and the new tests run and fail for the
+  right reason. Existing tests stay green.
+- Keep it short: about 20–30 tool calls. Do not tick task boxes and do not
+  commit — the implementer ticks them and the slice commits as one unit.
+
+Return:
+
+```
+Slice <N> skeleton: READY
+Files created/modified:
+- [<path>](<path>) — <one-line purpose>
+Failing tests (the contract):
+- <TestName> — <invariant, one line>
+Build: compiles; existing tests green; <k> new tests red on stubs
+Points to review:
+- <one-line bullet, or "none">
+```
+
+If the slice's tasks contradict each other or the invariants can't be
+stated without a design decision, return blocked instead of guessing.
 
 ## Fix mode (post-PR) — invoked by `/qrspi:followup`
 

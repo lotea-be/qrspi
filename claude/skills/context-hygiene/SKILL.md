@@ -43,6 +43,36 @@ Implications:
   fact-gathering. They cannot accidentally drift into edits.
 - Prefer many small subagents over one mega-subagent.
 
+## Off-stage work: the orchestrator stays a thin main thread
+
+A long-lived orchestrator session is fine **as long as it holds decisions
+and summaries, not raw output**. What bloats it is the work between stages:
+writing test scenarios, digging through logs, running and watching deploys,
+configuring an external service, chasing a staging bug, re-reading code to
+answer "why did X happen?". Done inline, each of those adds thousands of
+tokens that every later turn re-reads.
+
+Delegate it as a subthread instead:
+
+- **Investigations** ("check the logs", "why does it stay on awaiting
+  payment?", "is an email sent when…?") → a read-only subagent
+  (general-purpose or Explore) told to return the answer in ≤10 lines with
+  `path:line` citations. The orchestrator relays the answer, not the search.
+- **Deploys and CI watching** → a subagent (or a background command) that
+  returns pass/fail plus the one relevant error line.
+- **Test help** (e2e scenarios, local setup steps) → write it to a file in
+  the change folder or the scratchpad once and point the human at it; don't
+  regenerate it in chat each time it's asked.
+- **Code fixes** found along the way → `/qrspi:followup` or a scope
+  amendment, which already run in a subagent — never inline edits from the
+  orchestrator.
+
+The orchestrator itself only: talks with the human, runs the
+AskUserQuestion gates, spawns stage and off-stage subagents, commits, and
+keeps a one-paragraph running state ("slice 5 done, staging flag on,
+waiting on human Stripe test"). If you notice yourself reading a third file
+or a long log to answer a question, stop and delegate it.
+
 ## Operational checklist
 
 Before starting a session:
@@ -84,8 +114,11 @@ Mitigations:
 
 - At each stage boundary (`/qrspi:archive` and the `context-budget-gate` soft
   gate) the kit offers a "Start a new session for the next stage?" prompt.
-  Accept it. The OpenSpec artifacts on disk are the persistence layer -- a new
-  session loses nothing.
+  An orchestrator that has stayed a thin main thread (see "Off-stage work"
+  above) may decline and keep going. Accept it when the orchestrator has
+  absorbed raw output (logs, file reads, long test sessions) or has been
+  summarized once already. The OpenSpec artifacts on disk are the
+  persistence layer -- a new session loses nothing.
 - If the soft gate fires mid-stage (at 8 tool calls: advisory; at 12: gate),
   treat it as a genuine signal, not noise. "Continue anyway" is available but
   should be the exception, not the default.
