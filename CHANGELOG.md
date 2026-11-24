@@ -14,6 +14,10 @@ kit version.
 
 ## [Unreleased]
 
+_No unreleased changes._
+
+## [0.14.0] - 2026-11-24
+
 ### Added
 
 - **Planner emits kit-touching CHANGELOG task, Check 25 backstop, and PR triage rule
