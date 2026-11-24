@@ -290,7 +290,10 @@ Overview block before listing slices.
 "Choosing model=sonnet vs model=opus vs model=haiku" heuristic in skill
 `vertical-slice`: hard slices get `effort=high model=sonnet`; write
 `model=opus` only when the human asked for it or a sonnet attempt at that
-slice already failed. If skill `vertical-slice`
+slice already failed. To put opus on a hard slice, add `skeleton=opus`
+instead (opus writes the stubs and the failing invariant tests; sonnet
+implements), following "When to use a skeleton pass" in skill
+`vertical-slice`. If skill `vertical-slice`
 is unavailable or defines no such heuristic, default to `sonnet` for every
 slice and note that in the Overview block. The annotation
 propagates into `tasks.md` (P stage) and is consumed by

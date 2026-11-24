@@ -129,6 +129,43 @@ orchestrator treats that as hard-stop condition (4). Immaterial elaboration
 latitude, not a divergence. (This self-check is a slice-mode gate; the post-PR
 fix mode below has its own contract.)
 
+## Skeleton mode — invoked by `/qrspi:implement` for a `skeleton=` slice
+
+When the task says you are in **SKELETON MODE** for Slice N, you do not
+implement the slice. You write the rails the implementer will work inside:
+
+- **Skeleton:** the slice's new types, interfaces, method signatures, DTOs
+  and wiring (DI registration, routes), with bodies that throw the stack's
+  not-implemented exception (or the closest equivalent). Follow the
+  project's conventions exactly — this is the structure the slice will keep.
+- **Failing tests that encode the invariants:** one test per invariant the
+  slice must hold, named after the invariant (e.g.
+  `DuplicateWebhookEvent_ChangesNothing`,
+  `ReturnConfirmRacingWebhook_AppliesPaymentOnce`). Cover the unhappy paths
+  and edge cases from the slice's tasks, not only the happy path. Each test
+  must compile and fail **because of the stubs**, not because of a setup
+  error.
+- **Checks:** the build compiles, and the new tests run and fail for the
+  right reason. Existing tests stay green.
+- Keep it short: about 20–30 tool calls. Do not tick task boxes and do not
+  commit — the implementer ticks them and the slice commits as one unit.
+
+Return:
+
+```
+Slice <N> skeleton: READY
+Files created/modified:
+- [<path>](<path>) — <one-line purpose>
+Failing tests (the contract):
+- <TestName> — <invariant, one line>
+Build: compiles; existing tests green; <k> new tests red on stubs
+Points to review:
+- <one-line bullet, or "none">
+```
+
+If the slice's tasks contradict each other or the invariants can't be
+stated without a design decision, return blocked instead of guessing.
+
 ## Fix mode (post-PR) — invoked by `/qrspi:followup`
 
 When the task says you are in **POST-PR FIX MODE**, the slice machinery

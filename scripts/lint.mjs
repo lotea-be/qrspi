@@ -2536,6 +2536,16 @@ async function checkComputeAnnotations(errors) {
       '[compute] SELF-TEST FAILED: model=unknown was not rejected -- COMPUTE_MODELS validation is broken'
     );
   }
+  // (5) skeleton= is optional and validated against the same model aliases
+  const _matchSkeleton = (s) => s.match(/\bskeleton=(\S*)/);
+  const _stSkel = _matchSkeleton('**Compute:** effort=high skeleton=opus — invariants');
+  const _stSkelBad = _matchSkeleton('**Compute:** effort=high skeleton=gpt — bad');
+  if (!(_stSkel && COMPUTE_MODELS.includes(_stSkel[1])) ||
+      !(_stSkelBad && !COMPUTE_MODELS.includes(_stSkelBad[1]))) {
+    errors.push(
+      '[compute] SELF-TEST FAILED: skeleton= parsing or validation is broken'
+    );
+  }
   // ---- end self-test ----------------------------------------------------------
 
   const changesDir = path.join(root, 'openspec', 'changes');
@@ -2591,6 +2601,16 @@ async function checkComputeAnnotations(errors) {
       if (modelM && modelM[1] !== '' && !COMPUTE_MODELS.includes(modelM[1])) {
         errors.push(
           `[compute] ${rel}:${i + 1}: 'model=${modelM[1]}' is not a valid model` +
+          ` (allowed: ${COMPUTE_MODELS.join(', ')})`
+        );
+        violations++;
+      }
+
+      // skeleton= optional (no skeleton pass when absent), valid-if-present.
+      const skeletonM = rest.match(/\bskeleton=(\S*)/);
+      if (skeletonM && !COMPUTE_MODELS.includes(skeletonM[1])) {
+        errors.push(
+          `[compute] ${rel}:${i + 1}: 'skeleton=${skeletonM[1]}' is not a valid model` +
           ` (allowed: ${COMPUTE_MODELS.join(', ')})`
         );
         violations++;

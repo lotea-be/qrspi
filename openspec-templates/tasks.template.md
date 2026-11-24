@@ -22,7 +22,9 @@ goes in the heading text; do **not** prefix it with `Slice N —` (the canonical
 
 <!-- **Compute:** grammar: effort=<low|medium|high> required (selects the
      implementer variant); model=<haiku|sonnet|opus> optional, defaults to
-     sonnet when omitted. No profile= token. Carried verbatim from slices.md. -->
+     sonnet when omitted; skeleton=<haiku|sonnet|opus> optional, adds a
+     skeleton + failing-tests pass on that model before the implementer.
+     No profile= token. Carried verbatim from slices.md. -->
 **Compute:** effort=<low|medium|high> model=<alias> — <rationale carried verbatim from slices.md>
 
 <!-- Surface-gated task lines: include or omit each category below based on

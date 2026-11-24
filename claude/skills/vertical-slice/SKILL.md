@@ -105,13 +105,40 @@ The `**Compute:**` annotation uses two **orthogonal** `key=value` tokens:
 - `model=` **optional**, **defaults to `sonnet`** when omitted. Allowed
   values: `haiku`, `sonnet`, `opus`. Passed per-spawn as the Agent tool's
   `model:` parameter, which overrides the variant's frontmatter default.
+- `skeleton=` **optional**, absent by default. Allowed values: `haiku`,
+  `sonnet`, `opus` (in practice `opus`). When present, `/qrspi:implement` runs
+  a **skeleton pass** on that model before the implementer: it writes the
+  slice's types and signatures with stub bodies, plus failing tests that
+  encode the slice's invariants. The `model=` implementer then makes those
+  tests green without changing them. See "When to use a skeleton pass" below.
 
-The two tokens are independent — any `model × effort` combination is reachable
-directly. There is no `profile=` token (dropped: model must not be coupled to
-effort).
+The tokens are independent — any `model × effort` combination is reachable
+directly, with or without a skeleton. There is no `profile=` token (dropped:
+model must not be coupled to effort).
 
 Example: `**Compute:** effort=medium model=sonnet — boilerplate entity`
 Example: `**Compute:** effort=high — deep reasoning, model defaults to sonnet`
+Example: `**Compute:** effort=high model=sonnet skeleton=opus — webhook idempotency and return/webhook race; invariants fixed as tests first`
+
+### When to use a skeleton pass
+
+A skeleton pass puts the expensive model where it's cheap and decisive: a
+short pass that fixes the boundaries and turns the hard invariants into
+tests, while the long implement–test–fix loop runs on the cheaper model.
+Write `skeleton=opus` when **all** of these hold:
+
+- the slice is `effort=high`;
+- its difficulty is in **invariants a test can state**: idempotency,
+  concurrency / races, state-machine transitions, money or quota arithmetic,
+  authorization rules (e.g. "a duplicate webhook event changes nothing",
+  "the return confirm racing the webhook applies the payment once");
+- it introduces new types or a new seam (gateway, handler, state service),
+  not only edits inside existing methods.
+
+Don't use it for UI-heavy slices, boilerplate that mirrors existing code, or
+slices whose risk is integration with a real external service (stubbed tests
+don't cover that; the `(human)` check does). A skeleton is per slice, never
+for the whole change — a change-wide skeleton is a horizontal layer.
 
 ### Structural forms
 

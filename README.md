@@ -28,7 +28,7 @@ workflow drives a .NET/Blazor app, a TypeScript service, or anything else.
 | 4 | Structure | `/qrspi:structure <id>` | `proposal.md` + `specs/` | Canonical proposal + OpenSpec spec deltas. |
 | 5 | Slices | `/qrspi:slices <id>` | `slices.md` | Vertical slices, not horizontal layers. Each slice carries a `**Compute:** model=sonnet\|opus effort=low\|medium\|high -- <rationale>` annotation. |
 | 6 | Plan | `/qrspi:plan <id>` | `tasks.md` | Canonical numbered task list. The `**Compute:**` annotation is carried verbatim from `slices.md`. |
-| 7 | Implement | `/qrspi:implement <id>` | code + tests | One slice at a time; stops at each checkpoint. The `model=` token from the slice's `**Compute:**` annotation is passed per-invocation. |
+| 7 | Implement | `/qrspi:implement <id>` | code + tests | One slice at a time; stops at each checkpoint. The `model=` token from the slice's `**Compute:**` annotation is passed per-invocation; an optional `skeleton=opus` first runs a short pass that writes stubs plus failing invariant tests for the implementer to make green. |
 | 8 | PR | `/qrspi:pr <id>` | PR description | Read-only review + final checklist. |
 
 > **Acronym lineage note.** QRSPI / "Crispy" is a lineage label from the RPI ancestry; Design, Slices, and PR sit outside the five acronym letters (Q-R-S-P-I). The kit intentionally orders Slices (V) before Plan (P) -- slices-then-tasks is the natural data flow and an intentional divergence from the RPI blog's Plan-before-Work-Tree ordering.
@@ -405,7 +405,8 @@ contracts:
   line in committed `slices.md` and `tasks.md` artifacts. Requires an `effort=`
   token (`low|medium|high`) -- it selects the implementer variant -- and flags a
   missing or unknown one; `model=` is optional (defaulting to `sonnet`) and, when
-  present, is validated against `{haiku, sonnet, opus}`. Tolerates both the
+  present, is validated against `{haiku, sonnet, opus}`; the optional
+  `skeleton=` token is validated against the same set. Tolerates both the
   dash-bullet form (`slices.md`) and the bare bold form (`tasks.md`).
 - **Check 14 (`checkSurfaceApplicability`)** -- scans every `*.md` under
   `openspec/changes/**` (excluding `/archive/` paths) and flags any heading line

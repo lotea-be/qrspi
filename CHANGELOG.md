@@ -113,6 +113,13 @@ kit version.
   - `context-hygiene`: new "Off-stage work" section keeps a long-lived
     orchestrator a thin main thread by delegating investigations, deploys
     and test help to subagents; stage-boundary reset becomes conditional.
+  - New optional `skeleton=<model>` token on `**Compute:**`: for a hard slice
+    whose risk is in testable invariants, `/qrspi:implement` first runs a
+    short skeleton pass (implementer-high in the new "Skeleton mode": stubs
+    plus failing tests named after the invariants), then the `model=`
+    implementer makes them green without editing them. Skeleton checkpoint
+    in Manual mode. Guidance in `vertical-slice`; Check 13 validates the
+    token; tasks template and README updated.
 
 - **OpenSpec CLI pin bumped from 1.4.1 to 1.9.0 (`bump-openspec-pin`).**
   Every hand-maintained pin site (`claude/commands/init.md`, README,
