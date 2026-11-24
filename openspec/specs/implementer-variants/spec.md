@@ -147,3 +147,20 @@ cannot be stated without a design decision.
 #### Scenario: skeleton mode output
 - **WHEN** the implementer runs in SKELETON MODE for Slice 6
 - **THEN** it returns `Slice 6 skeleton: READY` with the failing tests and their invariants, and `tasks.md` and git history are unchanged.
+
+### Requirement: implementer-core loads only divergence-rubric and the stack cheatsheet
+The `implementer-core` skill's step 1 MUST load only skill `divergence-rubric`
+plus the project's stack-cheatsheet skill (and `postpr-fix` in fix mode); it MUST
+NOT load `workflow`, `vertical-slice` or `context-hygiene`, whose text would be
+re-read on every implementer turn without being used. The divergence rubric MUST
+live in its own `divergence-rubric` skill as the single source of truth; the
+`workflow` skill MUST keep only a pointer to it; the architect and planner MUST
+load `divergence-rubric` and `scripts/skill-sets.mjs` MUST list it for both.
+
+#### Scenario: implementer start-up loads
+- **WHEN** an implementer variant starts a slice
+- **THEN** it loads `implementer-core`, `divergence-rubric` and the stack cheatsheet, and no `workflow`, `vertical-slice` or `context-hygiene`.
+
+#### Scenario: rubric has one home
+- **WHEN** the rubric's criteria (a)-(d) are searched for in `claude/`
+- **THEN** they appear only in `claude/skills/divergence-rubric/SKILL.md`.

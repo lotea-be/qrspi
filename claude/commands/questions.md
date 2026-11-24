@@ -6,15 +6,15 @@ You are running QRSPI stage **Q (Questions)** for the current project.
 
 Change id and short description: $ARGUMENTS
 
-1. **Session version check — run silently.** Load skill `qrspi-version-check` and follow its
+1. **Session version check — run silently.** **Skip this step if a QRSPI version check already ran earlier in this session** (its in-context flag is set) -- loading the skill again costs tokens on every later turn. Otherwise: Load skill `qrspi-version-check` and follow its
    instructions exactly. Follow its
    Silence discipline: do not announce or narrate this step, and print nothing
    unless the check itself must prompt or warn. This is the first step -- before the run-mode
    establishment and before any other work.
 
-2. **Context budget gate.** Load skill `context-budget-gate` and follow its instructions exactly.
+2. **Context budget gate.** If the `context-budget-gate` instructions are still in your context from an earlier command this session (not lost to a context summary), follow them from there (step 2 still increments the counter) instead of loading the skill again. Otherwise: Load skill `context-budget-gate` and follow its instructions exactly.
 
-3. **Stage choreography.** Load skill `stage-choreography` and follow its
+3. **Stage choreography.** If the `stage-choreography` instructions are still in your context from an earlier command this session (not lost to a context summary), follow them from there instead of loading the skill again. Otherwise: Load skill `stage-choreography` and follow its
    instructions exactly -- it carries the canonical main-loop procedures this
    command runs (run-mode, precondition check, commit step, next-stage
    handoff). Read or establish the run-mode by following its **Run-mode**
@@ -69,7 +69,11 @@ Otherwise:
    This marker lets `openspec validate <id>` pass between stage Q and stage
    S, before `specs/` exists. Stage S deletes it once `specs/` is written
    (see `/qrspi:structure`).
-4. Load skills `workflow` and `openspec-workflow`.
+4. Do not load skill `workflow` here: the only part this command needs (the
+   deferred-work rules) is inlined in step 8, and loading the whole skill
+   would sit in the orchestrator's context for the rest of the session. Load
+   skill `openspec-workflow` only if you need change-folder conventions
+   beyond step 3.
 5. Spawn the `questioner` subagent via the **Agent tool** (`subagent_type:
    qrspi:questioner`, `model: sonnet` — matching the questioner agent's
    frontmatter `model:`) for the bounded artifact write. Pass the change id
@@ -107,10 +111,13 @@ Otherwise:
    dedup, slug derivation, P-band proposal, Shape collection, row
    construction using the frozen grammar, and staging.
 
-   Follow the "Capturing deferred work" rules in skill `workflow`
-   (offer-never-auto-append, dedup against existing rows, minimal row); do
-   not promote in-change follow-ups. Skip silently if the questioner
-   returned no candidates.
+   Rules (the "Capturing deferred work" rules of skill `workflow`, inlined):
+   offer each candidate, never auto-append; skip any already covered by a
+   backlog row (match on intent); an accepted item is one minimal `idea`
+   row with a one-line *Why* and no pre-filled shape; added rows land in the
+   same commit as `questions.md`. Do not promote in-change follow-ups (those
+   belong in `followups.md`). Skip silently if the questioner returned no
+   candidates.
 
 Repository signals you may use (to list in-flight and archived changes, use the
 **Glob** tool with patterns `openspec/changes/*` and

@@ -135,8 +135,7 @@ not commit, do not auto-advance, and do not downgrade the mode.
 
 **Divergence rubric (hard-stop condition 4).** Condition (4) is the one
 hard-stop only the subagent can recognise, so its criteria live with the
-subagents: see "Divergence rubric (hard-stop condition 4)" in skill
-`workflow`. The execution-stage subagent (S, V, P, or I) self-checks against
+subagents: see skill `divergence-rubric`. The execution-stage subagent (S, V, P, or I) self-checks against
 that rubric before returning and signals error/blocked on a material
 divergence; the orchestrator acts on that signal exactly as it does on any
 other condition (3)/(4) hard-stop.
