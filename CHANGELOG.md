@@ -91,6 +91,29 @@ kit version.
 
 ### Changed
 
+- **Leaner, more product-aware QRSPI runs (`leaner-qrspi-runs`).** Prompted
+  by a payment-integration change whose implementers ran mostly on opus and
+  whose design missed the standard checkout return-page flow.
+  - Designer writes a `### Reference flow` subsection in `## Context` (the
+    vendor's recommended integration pattern, read from its docs, plus the
+    screen-by-screen user journey with unhappy paths and deviations) for
+    common product flows and external integrations; gains `WebFetch` /
+    `WebSearch`. Hard limits: 250 lines, 8 numbered decisions; convention
+    choices go under `### Conventions followed`. Template updated to match.
+  - Questioner: 10–25 questions (hard cap 30, was 10–60) and a mandatory
+    `## User journey & external services` section when applicable.
+  - `vertical-slice` / architect: hard slices get `effort=high model=sonnet`;
+    `model=opus` only on explicit human request or after a sonnet attempt
+    at the slice failed.
+  - `implementer-core`: ~60-tool-call turn budget per slice, then return
+    blocked; `(human)` tasks exercising an external service are never
+    reported as "covered by tests".
+  - `stage-choreography`: Full/Semi auto pauses at a slice whose `(human)`
+    task exercises an external service instead of auto-advancing.
+  - `context-hygiene`: new "Off-stage work" section keeps a long-lived
+    orchestrator a thin main thread by delegating investigations, deploys
+    and test help to subagents; stage-boundary reset becomes conditional.
+
 - **OpenSpec CLI pin bumped from 1.4.1 to 1.9.0 (`bump-openspec-pin`).**
   Every hand-maintained pin site (`claude/commands/init.md`, README,
   `CONTRIBUTING.md`, `.github/workflows/ci.yml`, the `openspec-workflow` and

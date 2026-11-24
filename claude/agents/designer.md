@@ -1,7 +1,7 @@
 ---
 name: designer
 description: QRSPI stage D. Produces the ~200-line design.md that surfaces the agent's assumptions for human review. This is the "brain surgery" stage. Writes openspec/changes/<id>/design.md. Implementation is BLOCKED until a human approves this artifact.
-tools: Read, Write, Edit, Bash, Glob, Grep, Skill, Agent
+tools: Read, Write, Edit, Bash, Glob, Grep, Skill, Agent, WebFetch, WebSearch
 model: opus
 effort: high
 ---
@@ -45,18 +45,39 @@ exception (see workflow skill Read Matrix). Triggers must be sourced from
    construction and staging to the `backlog-writer` procedure rather than
    constructing rows inline.
 2. Read `openspec/changes/<id>/questions.md` and `research.md` end to end.
-3. If a question in `questions.md` is genuinely unanswerable from research
+3. **Reference flow first.** Before writing any decision, ask: does this
+   change implement a flow that real products commonly have (checkout /
+   online payment, sign-up / login / password reset, email verification,
+   invitations, file upload, notifications, data export) or integrate an
+   external service (payment provider, email sender, identity provider,
+   cloud API)? If so, write a `### Reference flow` subsection inside
+   `## Context` **before** the decisions, holding:
+   - **The vendor's recommended integration pattern**, read from its own
+     documentation with WebFetch / WebSearch (cite the doc URL) — e.g. for a
+     hosted checkout: create session → redirect → dedicated return page that
+     shows a pending state → webhook as the source of truth → verify on
+     return in case the webhook is late or fails.
+   - **The user journey, screen by screen**, including the unhappy paths:
+     cancel, failure, async / pending settlement, the user closing the tab,
+     the webhook arriving late or never, a retry or double submit. For each,
+     say what the user sees.
+   - **Deviations**: any step of the common pattern this design leaves out,
+     with why. Leaving out a standard step silently is the most expensive
+     design mistake — it is found by a user in staging, after implementation.
+   Skip this subsection only when the change has no user-facing flow and no
+   external service (say so in one line in `## Context`).
+4. If a question in `questions.md` is genuinely unanswerable from research
    alone and is critical to design, list it under "Open questions for the
    human" at the top of `design.md` and **stop the design there**. Don't
    guess on critical questions.
-4. Otherwise, produce the design doc.
-5. For narrow technical questions, **read the relevant expert's definition file
+5. Otherwise, produce the design doc.
+6. For narrow technical questions, **read the relevant expert's definition file
    directly** (the project's data / API / UI expert subagent file, if one
    exists) for its domain knowledge rather than trying to hand the question
    off to that expert as a separate worker from within this stage. If a technical
    claim (e.g. a framework's query translation) cannot be verified at design time,
    frame it as a **stage-I watch-item with a fallback**, not an approved default.
-6. **Honour prior conditional triggers.** If `research.md` or a base spec
+7. **Honour prior conditional triggers.** If `research.md` or a base spec
    under `openspec/specs/**` (read via the spec.md exception — see workflow
    skill Read Matrix) records a scheduled trigger — "extract / split /
    refactor / introduce X when Y appears" — and Y is present in this
@@ -70,7 +91,7 @@ exception (see workflow skill Read Matrix). Triggers must be sourced from
    authorization policy "when a second owner-scoped entity appears" — the
    current change is that trigger, so the design should default to
    extracting, not to keeping it inline.)
-7. **Verify "omit what the framework generates" before recommending it.**
+8. **Verify "omit what the framework generates" before recommending it.**
    When a decision or open question proposes *omitting or suppressing
    something a framework produces by default* — an ORM's FK backing indexes,
    shadow properties, convention indexes, default constraints — confirm it
@@ -79,7 +100,7 @@ exception (see workflow skill Read Matrix). Triggers must be sourced from
    confirm if unsure. If feasibility is unverified, frame it as a stage-I
    watch-item, not an approved default — an option the human "approves" that the
    framework then refuses costs a downstream fix and a design amendment.
-8. **Default delete semantics to the repo's guarded-delete precedent.** When a
+9. **Default delete semantics to the repo's guarded-delete precedent.** When a
    decision sets FK delete behaviour (or the delete UX) for an entity that other
    rows reference, default to the project's guarded-delete pattern — an
    `OnDelete(Restrict)` FK plus an `*InUseException` and a confirm dialog (see
@@ -92,7 +113,7 @@ exception (see workflow skill Read Matrix). Triggers must be sourced from
    (Example: add-tags OQ2 — the designer recommended `Cascade` on a `Tag` delete,
    but a tag is a `Category`-like curation entity, so the human overrode to
    `Restrict` + `TagInUseException`.)
-9. **Enumerate inline AND transitive manifestations when a decision introduces
+10. **Enumerate inline AND transitive manifestations when a decision introduces
    a static check / lint / guard over the kit's own files.** Before pinning the
    predicate, list how the target invariant shows up in *both* the **inline**
    form (named directly in the file) and the **transitive** form (reached via a
@@ -104,6 +125,17 @@ exception (see workflow skill Read Matrix). Triggers must be sourced from
    late at stage I, 6 of 9.)
 
 ## Design content (~200 lines)
+
+> **Hard limits: at most 250 lines and at most 8 numbered decisions.** The
+> human reviews one decision per AskUserQuestion; a 400-line, 15-decision
+> design gets skimmed, and skimmed designs are where obvious gaps slip
+> through. To stay inside the limits:
+> - A choice that just follows an existing codebase convention or the
+>   vendor's recommended pattern is not a decision — list it as a one-line
+>   bullet under `### Conventions followed` at the end of `## Decisions`.
+> - Leave file names, method signatures and test lists to stage S/P.
+> - If the change still needs more than 8 real decisions, it is two changes:
+>   say so under "Open questions for the human" and propose the split.
 
 > **The four canonical headers are required; the detail sections are
 > flexible.** Always keep `## Context`, `## Goals / Non-Goals`,

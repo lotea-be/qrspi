@@ -302,7 +302,14 @@ applies only to the stage named.
 **I per-slice auto-advance (Implement stage, Full/Semi auto).** The Implement
 stage command body carries the per-slice checkpoint and per-slice commit step.
 In Full or Semi auto mode both of those per-slice gates are auto-advanced
-(no AskUserQuestion is issued between slices). The per-slice `model=` token of the
+(no AskUserQuestion is issued between slices), **except** when the slice
+just finished has an un-ticked `(human)` task that exercises an external
+service (payment provider, email delivery, identity provider, cloud
+deploy / infra). Then pause and issue the Manual-mode checkpoint
+AskUserQuestion even in Full or Semi auto, naming the `(human)` task(s) to
+run. Do not auto-advance past it as "covered by automated tests": those
+tests use stubs, and later slices built on an unverified integration
+compound the cost of finding it broken in staging. The per-slice `model=` token of the
 compute annotation (`**Compute:** model=sonnet|opus effort=…`) is read for every
 slice and honored -- auto mode does NOT bypass per-slice model selection.
 

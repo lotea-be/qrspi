@@ -25,6 +25,15 @@ while staying canonical-shaped so it round-trips through OpenSpec tooling.
 <!-- Background and current state, condensed from research.md, plus the
      desired end state: what the world looks like after this change ships. -->
 
+### Reference flow
+<!-- Required when the change implements a commonly-built product flow
+     (payment, login, verification, upload, notifications…) or integrates an
+     external service; otherwise replace with one line saying why it's skipped.
+     1. Vendor's recommended integration pattern (cite the doc URL).
+     2. User journey screen by screen, incl. cancel / failure / pending /
+        tab closed / webhook late or missing / retry.
+     3. Deviations from the common pattern, with why. -->
+
 ## Goals / Non-Goals
 
 **Goals:**
@@ -44,6 +53,12 @@ while staying canonical-shaped so it round-trips through OpenSpec tooling.
 
 ### D1 — <decision name> (Q.., PQ..)
 <!-- Chosen: … Rejected: … Why: … -->
+
+<!-- At most 8 numbered decisions; whole file at most 250 lines. -->
+
+### Conventions followed
+<!-- One-line bullets for choices that just follow an existing codebase
+     convention or the vendor's recommended pattern — not decisions. -->
 
 <!-- Surface-gated QRSPI detail sections (omit when the surface is absent):
      emit each section only when its controlling surface is present per the

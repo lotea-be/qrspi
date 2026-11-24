@@ -61,7 +61,19 @@ exception (see workflow skill Read Matrix).
    no functional capability is lost. Do NOT open any archived `questions.md`
    from another change — that is a forbidden cross-change read (see D6 and
    the cross-change boundary below).
-6. Generate 10–60 questions. Apply the **surface-gate rule** from the
+6. Generate 10–25 questions (**hard cap 30**). Fewer, sharper questions
+   beat an exhaustive inventory: research answers every question, and the
+   designer reads every answer. Do not ask one question per file or per
+   handler; ask what would change the design if the answer surprised you.
+   **User journey & external services (mandatory when applicable).** When
+   the change has a user-facing flow or integrates an external service
+   (payment provider, email, identity, cloud API), add a
+   `## User journey & external services` section with at least: what the
+   vendor documents as its recommended integration pattern, what the user
+   sees on each unhappy path (cancel, failure, pending, tab closed, callback
+   late or missing), and how the flow is tested against the real service
+   (not only a stub). These questions keep stage D from designing only the
+   internals. Apply the **surface-gate rule** from the
    `repo-surface` skill: emit a section only when its controlling surface
    is present in this repo AND it carries content for this change;
    otherwise omit it entirely (no heading, no "Not applicable" stanza).

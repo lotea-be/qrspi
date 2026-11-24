@@ -53,6 +53,16 @@ them and follow them. The rules below are the stack-agnostic minimum:
   logic, an integration/e2e test for a wired endpoint or page.
 - Tick each box immediately after its task — see step 4a. The commit message references the change id.
 
+## Turn budget
+
+A slice should take roughly 30–60 tool calls. If you pass about 60 and the
+slice is not close to green, **stop grinding**: do not commit, and return
+blocked with what is done, what is left, and what is blocking you (a failing
+test you can't explain, a task bigger than planned, a design gap). A slice
+that blows its budget usually means the slice is too big or the plan is
+wrong; the human splitting it or escalating it is cheaper than another
+60 turns of retries on a growing context.
+
 ## When you get stuck
 
 - Domain question about the data layer / schema / migrations → delegate to
@@ -94,7 +104,11 @@ via CLI. In all commit messages, PR descriptions, and CLI output:
   off and needs a human decision.
 - Do not attempt tasks tagged `(human)` — they are manual/interactive checks
   you cannot perform from a subagent. Leave their boxes unticked and list them
-  at the final checkpoint as "human-run verification pending."
+  at the final checkpoint as "human-run verification pending." Never report a
+  `(human)` task as "covered by unit/e2e tests" when it exercises an external
+  service (payment provider, email delivery, identity provider, cloud
+  deploy): those tests run against stubs, and the stub is exactly what the
+  human check exists to get past.
 - Do not commit secrets. Do not read files outside the worktree.
 - Do not push to remote without explicit human approval.
 

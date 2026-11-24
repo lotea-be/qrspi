@@ -137,7 +137,19 @@ Choose `model=sonnet` when the slice is structured and templated:
 - Wiring dependency-injection registrations.
 - Renames, moves, and mechanical refactors.
 
-Choose `model=opus` when deep reasoning materially changes the output:
+**Hard slices get `effort=high`, not `model=opus`.** The list below
+describes slices that need deep reasoning; annotate them
+`effort=high model=sonnet`. Implementation runs many turns re-reading a
+large context, so an opus implementer costs several times a sonnet one,
+and in practice one opus slice can cost more than every other stage of the
+change combined. Write `model=opus` only when:
+
+- the human explicitly asked for opus on that slice, or
+- a sonnet attempt at that same slice already failed (escalation), and the
+  rationale says so (e.g. "opus: sonnet run blocked twice on the
+  concurrency invariant").
+
+Slices that need deep reasoning (→ `effort=high`):
 
 - First-of-kind patterns (the first real-time hub, the first complex
   state-effect chain, the first feature with cross-entity FK + cascade
@@ -159,10 +171,9 @@ reasoning:
   existing line (e.g. appending one entry to an enum or allowlist).
 - No branching logic, no cross-file coordination, no new concepts.
 
-When in doubt, prefer `model=sonnet`. The implementer can escalate to opus
-mid-slice by re-invoking `/qrspi:implement <id>` with an override; the
-reverse direction (recovering from a flubbed opus run) costs the same
-plus the wasted call.
+When in doubt, prefer `model=sonnet`. Escalating a blocked sonnet slice to
+opus (edit its `**Compute:**` line and re-run `/qrspi:implement <id>`) is
+cheap compared with running opus by default on every hard slice.
 
 ## Anti-patterns to avoid
 

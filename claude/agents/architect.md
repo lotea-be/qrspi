@@ -286,9 +286,11 @@ Produce 3–5 slices, each independently demoable. If the change genuinely
 needs fewer than 3 or more than 5, state the reason explicitly in the
 Overview block before listing slices.
 
-**Model annotation is mandatory per slice.** Pick `sonnet` or `opus`
-using the "Per-slice model selection" heuristic in skill
-`vertical-slice`. When in doubt, prefer `sonnet`. If skill `vertical-slice`
+**Model annotation is mandatory per slice.** Pick it using the
+"Choosing model=sonnet vs model=opus vs model=haiku" heuristic in skill
+`vertical-slice`: hard slices get `effort=high model=sonnet`; write
+`model=opus` only when the human asked for it or a sonnet attempt at that
+slice already failed. If skill `vertical-slice`
 is unavailable or defines no such heuristic, default to `sonnet` for every
 slice and note that in the Overview block. The annotation
 propagates into `tasks.md` (P stage) and is consumed by
